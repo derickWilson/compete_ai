@@ -1,0 +1,55 @@
+<?php
+// Verifica se os dados foram enviados via POST
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $caminhoParaSalvar = null;
+     //Verifica se o arquivo foi enviado corretamente
+    if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
+        $diploma = $_FILES['diploma'];
+        $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
+        $novoNome = 'diploma_' . time() . '.' . $extensao;
+        $caminhoParaSalvar = 'diplomas/' . $novoNome;
+        if ($diploma['size'] > 0) {
+            if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
+                echo ' \nArquivo movido com sucesso';
+            } else {
+                echo ' Erro ao mover arquivo. Verifique as permissões do diretório.';
+            }
+        } else {
+            echo 'Arquivo vazio ou erro no upload';
+        }
+    }
+    
+    require_once "classes/atletaService.php";
+    include "func/clearWord.php";
+    echo "arquivos incluidos";
+    // Criptografe a senha
+    //$senhaCriptografada = password_hash($_POST["senha"], PASSWORD_BCRYPT);
+    print("\n agora cadastrando\n");
+    $con = new Conexao();
+    $atletas = new Atleta();
+    $atletas->__set("nome", cleanWords($_POST["nome"]));
+    $atletas->__set("senha", cleanWords($_POST["senha"]));
+    $atletas->__set("email", cleanWords($_POST["email"]));
+    $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
+    $atletas->__set("fone", cleanWords($_POST["fone"]));
+    $atletas->__set("academia", cleanWords($_POST["academia"]));
+    $atletas->__set("faixa", cleanWords($_POST["faixa"]));
+    $atletas->__set("peso", $_POST["peso"]);
+    $atletas->__set("diploma",$caminhoParaSalvar);
+
+    echo "\n objeto criado\n";
+
+//
+    $attServ = new atletaService($con, $atletas);
+    try {
+        echo "Tentando adicionar o atleta...\n";
+        sleep(seconds: 3); // Pausa por 5 segundos
+        $attServ->addAtleta();
+    } catch (Exception $e) {
+        echo "Erro ao adicionar atleta: " . $e->getMessage();
+    }
+
+}
+?>
