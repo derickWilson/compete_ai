@@ -1,8 +1,8 @@
 <?php
 session_start();
-include "/opt/lampp/htdocs/aaziz/classes/eventosServices.php";
-include "/opt/lampp/htdocs/aaziz/func/calcularIdade.php";
-include "/opt/lampp/htdocs/aaziz/func/clearWord.php";
+include __DIR__ . "/../classes/eventosServices.php";
+include __DIR__ . "/../func/calcularIdade.php";
+include __DIR__ . "/../func/clearWord.php";
 
 
 // Verifique se o ID do evento foi passado via GET
