@@ -3,9 +3,7 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         require_once "../classes/eventosServices.php";
         include "../func/clearWord.php";
-            echo "<pre>";
-            print_r($_POST);
-            echo "</pre>";
+ 
             $nome = $_POST['nome_evento'];
             $descricao = $_POST['desc_Evento'];
             $data_limite = $_POST['data_limite'];
@@ -13,12 +11,6 @@
             $tipoSem = isset($_POST['tipo_sem']) ? 1 : 0;
             $preco = $_POST['preco'];
             $caminhoParaSalvar = null;
-            echo "aqui\n";
-            echo "<br>";
-
-            echo "<pre>";
-            print_r($_FILES);
-            echo "</pre>";
 
             // tratar a imagem fornecida
             if(isset($_FILES['img_evento']) && $_FILES['img_evento']['error'] === UPLOAD_ERR_OK){
@@ -26,9 +18,6 @@
                 $ext = pathinfo($img_evento['name'], PATHINFO_EXTENSION);
                 $img_evento['name'] = 'img_'.time().'.'.$ext;
                 $caminhoParaSalvar = "../uploads/" . $img_evento['name'];
-                echo "<br>";
-                echo "movendo imagen";
-                echo "<br>";
 
                 if($img_evento['size'] > 0){
                     if(move_uploaded_file($img_evento['tmp_name'] , $caminhoParaSalvar)){
@@ -39,9 +28,6 @@
                 }
             }
 
-            echo "<br>";
-            echo "criando variaveis";
-            echo "<br>";
             //objeto evento
             $evento = new Evento();
             $conn = new Conexao();
@@ -58,13 +44,9 @@
             echo "<br>";
             $adEvento = new eventosService($conn,$evento);
 
-            echo "<br>";
-            echo "ev serv criado";
-            echo "<br>";
+
             $adEvento->addEvento();
-            echo "<br>";
-            echo "evento cadastrado";
-            echo "<br>";
-            //header("location: ../main/eventos.php");
+
+            header("Location: ../eventos.php");
     }
     ?>

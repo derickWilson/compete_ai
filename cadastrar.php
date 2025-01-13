@@ -12,9 +12,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $caminhoParaSalvar = 'diplomas/' . $novoNome;
         if ($diploma['size'] > 0) {
             if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
-                echo ' \nArquivo movido com sucesso';
             } else {
                 echo ' Erro ao mover arquivo. Verifique as permissões do diretório.';
+                header("Location: cadastro.php");
             }
         } else {
             echo 'Arquivo vazio ou erro no upload';
@@ -23,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     require_once "classes/atletaService.php";
     include "func/clearWord.php";
-    echo "arquivos incluidos";
     // Criptografe a senha
     //$senhaCriptografada = password_hash($_POST["senha"], PASSWORD_BCRYPT);
     print("\n agora cadastrando\n");

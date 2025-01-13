@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     $attServ = new atletaService($conn, $atleta);
     $attServ->logar();
 }else{
-    echo "deu bosta";
+    header("Location: index.php");
 }
 
 ?>

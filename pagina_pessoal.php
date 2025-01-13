@@ -28,7 +28,6 @@ $peso = $_SESSION["peso"] ?? 'Não disponível';
 </head>
 <body>
     <?php
-    session_start();
     include "menu/add_menu.php";
     ?>
     <div>

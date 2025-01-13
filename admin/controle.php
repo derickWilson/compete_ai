@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION["admin"]) || !$_SESSION["admin"]) {
-    header("Location: ../main/index.php");
+    header("Location: ../index.php");
     exit();
 }
 

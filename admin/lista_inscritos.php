@@ -7,7 +7,6 @@ include "/opt/lampp/htdocs/aaziz/func/clearWord.php";
 
 // Verifique se o ID do evento foi passado via GET
 if (!isset($_GET['id'])) {
-    echo "Algo de errado não está certo";
     exit();  // Adicione exit para parar a execução se não houver 'id'
 }
 
