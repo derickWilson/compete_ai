@@ -18,6 +18,10 @@ class atletaService {
     //adicionar atleta
     public function addAtleta() {
         // Verificar a faixa
+        if($this->emailExists($this->atleta->__get("email"))){
+            echo "Usuario ja cadastrado";
+            header("Location: ../index.php");
+        }
         $faixasGraduadas = ["Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
         $valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
 
