@@ -28,6 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     print("\n agora cadastrando\n");
     $con = new Conexao();
     $atletas = new Atleta();
+    
     $atletas->__set("nome", cleanWords($_POST["nome"]));
     $atletas->__set("senha", cleanWords($_POST["senha"]));
     $atletas->__set("email", cleanWords($_POST["email"]));
@@ -39,6 +40,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $atletas->__set("diploma",$caminhoParaSalvar);
 
     $attServ = new atletaService($con, $atletas);
+    if($attServ->emailExists($_POST["email"])){
+        header("Location: cadastro.php?erro=1");
+        exit();
+    }
     try {
         $attServ->addAtleta();
     } catch (Exception $e) {

@@ -13,7 +13,15 @@
     ?>
     <form method="post" action="cadastrar.php" enctype="multipart/form-data">
         nome <input name="nome" type="text" placeholder="nome completo" required><br>
-        email <input name="email" type="email" placeholder="exemplo@email.com" required><br>
+
+        <?php
+            if(isset($erro) && $erro == 1){
+                echo '<span class = "erro">usuario ja cadastrado </span>';
+                echo 'email <input name="email" type="email" placeholder="exemplo@email.com" required><br>';
+            }else{
+                echo 'email <input name="email" type="email" placeholder="exemplo@email.com" required><br>';
+            }
+        ?>
         senha <input type="password" name="senha" id="senha" required><br>
         Data de Nascimento <input type="date" name="data_nascimento" id="data_nasc" required><br>
         Fone <input type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
