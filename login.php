@@ -1,9 +1,7 @@
 <?php
 session_start();
-if(!$_SESSION["logado"]){
-    
-    
-    ?>
+if(!$_SESSION["logado"]){  
+?>
 
 <!DOCTYPE html>
 <html lang="pt">
@@ -33,7 +31,6 @@ if(!$_SESSION["logado"]){
 </html>
 <?php
 }else{
-    echo 'ja esta logado';
     header('Location:index.php');
 }
 ?>

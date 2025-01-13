@@ -48,7 +48,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem);
-        echo '<p>Inscrição realizada com sucesso!</p>';
         header("Location: eventos.php");
     } catch (Exception $e) {
         echo '<p>Erro ao realizar a inscrição: ' . $e->getMessage() . '</p>';

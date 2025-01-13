@@ -39,13 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $atletas->__set("peso", $_POST["peso"]);
     $atletas->__set("diploma",$caminhoParaSalvar);
 
-    echo "\n objeto criado\n";
-
-//
     $attServ = new atletaService($con, $atletas);
     try {
-        echo "Tentando adicionar o atleta...\n";
-        sleep(seconds: 3); // Pausa por 5 segundos
         $attServ->addAtleta();
     } catch (Exception $e) {
         echo "Erro ao adicionar atleta: " . $e->getMessage();
