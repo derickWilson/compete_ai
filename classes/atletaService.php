@@ -146,6 +146,11 @@ class atletaService {
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['count'] > 0;
     }
-    
+
+    public function listarCampeonatos($id_camp){
+        $query = 'SELECT e.nome, i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem
+                    FROM inscricao i WHERE i.id_atleta = :idAtleta
+                    JOIN evento';
+    }
 }
 ?>
