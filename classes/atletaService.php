@@ -147,10 +147,17 @@ class atletaService {
         return $result['count'] > 0;
     }
 
-    public function listarCampeonatos($id_camp){
+    public function listarCampeonatos($id_atleta){
         $query = 'SELECT e.nome, i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem
                     FROM inscricao i WHERE i.id_atleta = :idAtleta
-                    JOIN evento';
+                    JOIN evento e ON e.id = i.id_evento';
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(":idAtleta", $id_atleta);
+        $stmt->execute();
+
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $result;
     }
 }
 ?>
