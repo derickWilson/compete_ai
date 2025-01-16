@@ -1,8 +1,8 @@
 <header>
     <nav>
-        <a href="index.php">home</a>
-        <a href="eventos.php">eventos</a>
-        <a href="cadastro.php">cadastrar</a>
+        <a href="index.php">Home</a>
+        <a href="eventos.php">Eventos</a>
+        <a href="cadastro.php">Cadastrar</a>
         <a href="login.php">Logar</a>
         <a href="about.php">Sobre Nós</a>
     </nav>
