@@ -27,7 +27,7 @@ if (!isset($_SESSION["logado"])){
     <title>Campeonatos cadastrados</title>
 </head>
 <body>
-<h3>Inscritos no Evento <?php echo htmlspecialchars($inscritos[0]->evento); ?></h3>
+<h3>Campeonato Inscritos</h3>
 <table border="1">
     <tr>
         <th>Campeonato</th>
@@ -38,8 +38,7 @@ if (!isset($_SESSION["logado"])){
     </tr>
     <?php foreach ($inscritos as $inscrito) { ?>
     <tr>
-        <td><?php echo htmlspecialchars($inscrito->camp); ?></td>
-        <td><?php echo calcularIdade($inscrito->data_nascimento); ?></td>
+        <td><?php echo htmlspecialchars($inscrito->campeonato); ?></td>
         <td><?php echo $inscrito->mod_com ? "X" : ""; ?></td>
         <td><?php echo $inscrito->mod_sem ? "X" : ""; ?></td>
         <td><?php echo $inscrito->mod_ab_com ? "X" : ""; ?></td>
