@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $diploma = $_FILES['diploma'];
         $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
         $novoNome = 'diploma_' . time() . '.' . $extensao;
-        $caminhoParaSalvar = 'diplomas/' . $novoNome;
+        $caminhoParaSalvar = '../diplomas/' . $novoNome;
         if ($diploma['size'] > 0) {
             if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
             } else {
@@ -25,7 +25,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     include "func/clearWord.php";
     // Criptografe a senha
     //$senhaCriptografada = password_hash($_POST["senha"], PASSWORD_BCRYPT);
-    print("\n agora cadastrando\n");
     $con = new Conexao();
     $atletas = new Atleta();
     
@@ -37,7 +36,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $atletas->__set("academia", cleanWords($_POST["academia"]));
     $atletas->__set("faixa", cleanWords($_POST["faixa"]));
     $atletas->__set("peso", $_POST["peso"]);
-    $atletas->__set("diploma",$caminhoParaSalvar);
+    $atletas->__set("diploma",$novoNome);
 
     $attServ = new atletaService($con, $atletas);
     if($attServ->emailExists($_POST["email"])){

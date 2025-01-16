@@ -17,6 +17,9 @@ if (isset($_GET["user"])) {
     echo "Selecione um usuário";
     exit();
 }
+echo "<pre>";
+print_r($usuario);
+echo "</pre>";
 ?>
 
 <!DOCTYPE html>
@@ -52,7 +55,7 @@ if (isset($_GET["user"])) {
                 
                 // Gerar o HTML para o link do diploma
                 echo '<div>';
-                echo '<label>Diploma: <a href="' . htmlspecialchars($caminho, ENT_QUOTES, 'UTF-8') . '" download>Baixe o diploma</a></label>';
+                echo '<label>Diploma: <a href="../diplomas/' . $caminho. '" download>Baixe o diploma</a></label>';
                 echo '</div>';
             } else {
                 echo '<div>Diploma não encontrado.</div>';
