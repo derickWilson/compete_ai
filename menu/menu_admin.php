@@ -1,5 +1,6 @@
 <header>
     <nav>
+        <a href="index.php">home</a>
         <a href="eventos.php">Eventos</a>
         <a href="../pagina_pessoal.php">Página pessoal</a>
         <a href="admin/painel_administrativo.php">Painel Administrativo</a>

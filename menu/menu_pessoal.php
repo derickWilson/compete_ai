@@ -1,5 +1,6 @@
 <header>
     <nav>
+        <a href="index.php">home</a>
         <a href="eventos.php">eventos</a>
         <a href="pagina_pessoal.php">Página pessoal</a>
         <a href="eventos_cadastrados.php">Eventos Cadastrdos</a>
