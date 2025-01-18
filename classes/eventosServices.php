@@ -84,7 +84,7 @@ public function addEvento() {
     }
 
     public function isInscrito($idAtleta, $idEvento){
-        $query = "SELECT count FROM inscricao i WHERE i.id_atleta = :idAtlera AND i.id_evento = :idEvento";
+        $query = "SELECT COUNT(*) FROM inscricao i WHERE i.id_atleta = :idAtlera AND i.id_evento = :idEvento";
         $stmt = $this->conn->prepare($query);
         
         $stmt->bindValue(':idAtlera', $idAtleta);
