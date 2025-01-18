@@ -100,9 +100,8 @@ class atletaService {
         } else {
             if(!$atleta->validado){
                 echo 'sua conta ainda não foi validada';
+                header('Location: login.php?erro=1');
             }
-            //to do criar erro 1
-            header('Location: login.php?erro=1');
         }
     }
 
