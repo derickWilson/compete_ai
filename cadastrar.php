@@ -9,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $diploma = $_FILES['diploma'];
         $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
         $novoNome = 'diploma_' . time() . '.' . $extensao;
-        $caminhoParaSalvar = '../diplomas/' . $novoNome;
+        $caminhoParaSalvar = 'diplomas/' . $novoNome;
         if ($diploma['size'] > 0) {
             if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
             } else {
