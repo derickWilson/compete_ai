@@ -16,7 +16,7 @@
 
         <?php
             if(isset($erro) && $erro == 1){
-                echo '<span class = "erro">usuario ja cadastrado </span>';
+                echo '<span class = "erro">usuario ja possui conta </span>';
                 echo 'email <input name="email" type="email" placeholder="exemplo@email.com" required><br>';
             }else{
                 echo 'email <input name="email" type="email" placeholder="exemplo@email.com" required><br>';

@@ -1,7 +1,7 @@
 <header>
     <nav>
         <a href="../index.php">Home</a>
-        <a href="eventos.php">Eventos</a>
+        <a href="../eventos.php">Eventos</a>
         <a href="../pagina_pessoal.php">Página Pessoal</a>
         <a href="painel_administrativo.php">Painel Administrativo</a>
         <a href="../eventos_cadastrados.php">Eventos Cadastrdos</a>
