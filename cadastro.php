@@ -24,7 +24,7 @@
         ?>
         senha <input type="password" name="senha" id="senha" required><br>
         Data de Nascimento <input type="date" name="data_nascimento" id="data_nasc" required><br>
-        Fone <input type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
+        Fone <input maxlength="12" type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
         Academia/Equipe <input type="text" name="academia" id="academia" required><br>
         Faixa <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>
