@@ -147,7 +147,8 @@ class atletaService {
     }
 
     public function listarCampeonatos($id_atleta){
-        $query = 'SELECT e.nome as campeonato, i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem 
+        $query = 'SELECT e.id as idC, e.nome as campeonato, i.mod_com as mcom, i.mod_sem as msem, 
+        i.mod_ab_com as macom, i.mod_ab_sem as masem
         FROM inscricao i
         JOIN evento e ON e.id = i.id_evento
         WHERE i.id_atleta = :idAtleta';
@@ -156,7 +157,7 @@ class atletaService {
         $stmt->bindValue(":idAtleta", $id_atleta);
         $stmt->execute();
 
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         return $result;
     }
 }
