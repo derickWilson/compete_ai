@@ -84,7 +84,7 @@ public function addEvento() {
     }
 
     public function isInscrito($idAtleta, $idEvento){
-        $query = "SELECT COUNT(*) FROM inscricao i WHERE i.id_atleta = :idAtlera AND i.id_evento = :idEvento";
+        $query = "SELECT COUNT(*) as numero FROM inscricao i WHERE i.id_atleta = :idAtlera AND i.id_evento = :idEvento";
         $stmt = $this->conn->prepare($query);
         
         $stmt->bindValue(':idAtlera', $idAtleta);
@@ -93,7 +93,7 @@ public function addEvento() {
         $stmt->execute();
         $num = $stmt->fetch(PDO::FETCH_OBJ);
 
-        return $num->count == 0;
+        return $num->numero == 0;
     }
 } 
 ?>

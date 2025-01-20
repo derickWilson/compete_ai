@@ -5,7 +5,6 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 try {
-    require_once "classes/atletaService.php";
     require_once "classes/eventosServices.php";
     include "func/clearWord.php";
 } catch (\Throwable $th) {
@@ -52,8 +51,8 @@ if (isset($_GET['id'])) {
             <?php } ?>
             <br><a href="index.php">Voltar</a>
         <?php
-        } else {
-            if (isset($eventoDetails)) {// Listar apenas um campeonato
+        } else {// detalhes de apenas um campeonato
+            if (isset($eventoDetails)) {
         ?>
                 <h1><?php echo htmlspecialchars($eventoDetails->nome); ?></h1>
                 <img src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento">
@@ -63,28 +62,32 @@ if (isset($_GET['id'])) {
 
                 <?php
                 if (isset($_SESSION['logado']) && $_SESSION['logado']) {
-                    ?>
-                    <form action="inscreverAtleta.php" method="POST">
-                        <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
-                        <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->preco); ?>">
-                        <?php
-                        // Caso o tipo de campeonato seja com quimono
-                        if ($eventoDetails->tipo_com == 1) {
-                            echo '<input type="checkbox" name="com"> Com Quimono ';
-                            echo '<input type="checkbox" name="abs_com"> Absoluto Com Quimono ';
-                        }
-
-                        // Caso o tipo de campeonato seja sem quimono
-                        if ($eventoDetails->tipo_sem == 1) {
-                            echo '<input type="checkbox" name="sem"> Sem Quimono ';
-                            echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
-                        }
+                    if($evserv->isInscrito($_SESSION["id"], $eventoId)){
                         ?>
-                        <input type="submit" value="Inscrever-se">
-                    </form>
+                        <form action="inscreverAtleta.php" method="POST">
+                            <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
+                            <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->preco); ?>">
+                            <?php
+                            // Caso o tipo de campeonato seja com quimono
+                            if ($eventoDetails->tipo_com == 1) {
+                                echo '<input type="checkbox" name="com"> Com Quimono ';
+                                echo '<input type="checkbox" name="abs_com"> Absoluto Com Quimono ';
+                            }
+
+                            // Caso o tipo de campeonato seja sem quimono
+                            if ($eventoDetails->tipo_sem == 1) {
+                                echo '<input type="checkbox" name="sem"> Sem Quimono ';
+                                echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
+                            }
+                            ?>
+                            <input type="submit" value="Inscrever-se">
+                        </form>
                 <?php
-                } else {
-                    ?>
+                }else{
+                    echo "ja está inscrito";
+                }
+                }else{
+                ?>
                     <p>Você deve estar logado para se inscrever.</p>
                 <?php
                 }
