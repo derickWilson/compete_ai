@@ -12,7 +12,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         peso FLOAT(5,2),
         validado TINYINT,
         adm TINYINT default 0,
-        diploma VARCHAR(50),
+        diploma VARCHAR(30),
         PRIMARY KEY (id)
     );
 
