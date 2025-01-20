@@ -11,10 +11,6 @@ if (!isset($_SESSION["logado"])){
         $atleta = new Atleta();
         $ev = new atletaService($conn, $atleta);
         $inscritos = $ev->listarCampeonatos($_SESSION["id"]);
-
-        echo '<pre>';
-        print_r($inscritos);
-        echo '</pre>';
     } catch (Exception $e) {
         die("Erro ao obter inscritos: " . $e->getMessage());
     }
@@ -44,12 +40,11 @@ if (!isset($_SESSION["logado"])){
     <?php foreach ($inscritos as $key => $inscrito) { ?>
     <tr>
         <?php
-        echo '<td><h5><a href="eventos.php?id="'.(int)$inscrito->idC.'>'.$inscrito->campeonato.'</a></h5></td>';
-        ?>
-        <td><h5><?php echo $inscrito->mcom; ?></h5></td>
-        <td><h5><?php echo $inscrito->msem; ?></h5></td>
-        <td><h5><?php echo $inscrito->macom; ?></h5></td>
-        <td><h5><?php echo $inscrito->masem; ?></h5</td>
+        echo '<td><h5><a href="eventos.php?id=' . (int)$inscrito->idC . '">' . $inscrito->campeonato . '</a></h5></td>';        ?>
+        <td><h5><?php echo $inscrito->mcom ? "X": ""; ?></h5></td>
+        <td><h5><?php echo $inscrito->msem ? "X": ""; ?></h5></td>
+        <td><h5><?php echo $inscrito->macom ? "X": ""; ?></h5></td>
+        <td><h5><?php echo $inscrito->masem ? "X": ""; ?></h5</td>
     </tr>
     <?php } ?>
 </table>
