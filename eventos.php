@@ -57,7 +57,8 @@ if (isset($_GET['id'])) {
                 <h1><?php echo htmlspecialchars($eventoDetails->nome); ?></h1>
                 <img src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento">
                 <p>Descrição: <?php echo htmlspecialchars($eventoDetails->descricao); ?></p>
-                <p>Data Limite: <?php echo htmlspecialchars($eventoDetails->data_limite); ?></p>
+                <p>Data do Campeonato: <?php echo htmlspecialchars($eventoDetails->data_limite); ?></p>
+                <p>Local do Campeonato: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
                 <p>Preço: <?php echo $eventoDetails->preco; ?></p>
 
                 <?php

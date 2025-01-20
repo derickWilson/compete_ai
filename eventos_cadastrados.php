@@ -32,6 +32,8 @@ if (!isset($_SESSION["logado"])){
 <table border="1">
     <tr>
         <th>Campeonato</th>
+        <th>Local</th>
+        <th>Data</th>
         <th>Com Quimono</th>
         <th>Sem Quimono</th>
         <th>Absoluto sem Quimono</th>
@@ -41,6 +43,8 @@ if (!isset($_SESSION["logado"])){
     <tr>
         <?php
         echo '<td><h5><a href="eventos.php?id=' . (int)$inscrito->idC . '">' . $inscrito->campeonato . '</a></h5></td>';        ?>
+        <td><h5><?php echo $inscrito->lugar; ?></h5></td>
+        <td><h5><?php echo $inscrito->dia; ?></h5></td>
         <td><h5><?php echo $inscrito->mcom ? "X": ""; ?></h5></td>
         <td><h5><?php echo $inscrito->msem ? "X": ""; ?></h5></td>
         <td><h5><?php echo $inscrito->macom ? "X": ""; ?></h5></td>

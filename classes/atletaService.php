@@ -147,7 +147,8 @@ class atletaService {
     }
 
     public function listarCampeonatos($id_atleta){
-        $query = 'SELECT e.id as idC, e.nome as campeonato, i.mod_com as mcom, i.mod_sem as msem, 
+        $query = 'SELECT e.id as idC, e.nome as campeonato, e.local_camp as lugar, e.data_camp as dia,
+        i.mod_com as mcom, i.mod_sem as msem, 
         i.mod_ab_com as macom, i.mod_ab_sem as masem
         FROM inscricao i
         JOIN evento e ON e.id = i.id_evento

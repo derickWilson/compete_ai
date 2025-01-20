@@ -2,6 +2,9 @@
 class Evento {
     private $id;
     private $nome;
+
+    private $local;
+    private $data_camp;
     private $img;
     private $descricao;
     private $data_limite;

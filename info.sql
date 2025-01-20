@@ -22,9 +22,11 @@ CREATE TABLE IF NOT EXISTS evento(
     nome VARCHAR(100) NOT NULL,
     descricao TEXT,
     data_limite DATE,
+    data_evento DATE,
+    local_evento VARCHAR(100),
     tipo_com TINYINT,
     tipo_sem TINYINT,
-    imagen VARCHAR(50),
+    imagen VARCHAR(30),
     preco FLOAT(5,2),
     PRIMARY KEY (id)
 );
@@ -57,15 +59,15 @@ VALUES
 ('Lucas Fernandes', 'senha606', 'lucas.fernandes@example.com', '1994-06-12', '11987654329', 'Academia C', 'Preta e Branca', 78.00, 1, 0),
 ('Laura Martins', 'senha707', 'laura.martins@example.com', '1999-08-25', '11987654330', 'Academia A', 'Coral', 57.00, 0, 0);
 
-INSERT INTO evento (nome, descricao, data_limite, tipo_com, tipo_sem, preco)
+INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco)
 VALUES 
-('Torneio de Verão', 'Competição anual de verão', '2024-06-30', 1, 0, 50.00),
-('Campeonato de Inverno', 'Campeonato de inverno com várias categorias', '2024-12-15', 0, 1, 60.00),
-('Desafio de Outono', 'Desafio de outono com atletas de todos os níveis', '2024-10-05', 1, 1, 40.00),
-('Festival de Primavera', 'Festival de primavera com eventos diversos', '2024-04-20', 1, 0, 45.00),
-('Copa do Brasil', 'Competição nacional com os melhores atletas', '2024-09-01', 1, 1, 70.00),
-('Open Internacional', 'Evento internacional aberto a todos', '2024-11-11', 1, 1, 80.00),
-('Maratona de Verão', 'Maratona de verão com várias distâncias', '2024-07-20', 0, 1, 55.00),
-('Torneio de Aniversário', 'Torneio especial para comemorar o aniversário da academia', '2024-08-25', 1, 0, 30.00),
-('Desafio de Inverno', 'Desafio para atletas em condições extremas', '2024-12-01', 0, 1, 65.00),
-('Campeonato Estadual', 'Campeonato para atletas do estado', '2024-05-15', 1, 1, 50.00);
+('Campeonato Paulista de Jiu-Jitsu', 'Competição estadual de Jiu-Jitsu com atletas de diversos níveis.', '2025-12-31', '2025-12-31', 'Ginásio Arena Paulista, SP', 1, 0, 'campeonato_paulista.jpg', 100.00),
+('Campeonato Brasileiro de Jiu-Jitsu', 'O maior campeonato nacional de Jiu-Jitsu, com presença de campeões mundiais.', '2025-01-25', '2025-01-26', 'Ginásio do Ibirapuera, SP', 0, 1, 'campeonato_brasileiro.jpg', 150.00),
+('Copa São Paulo de Jiu-Jitsu', 'Competição voltada para atletas iniciantes e intermediários, com várias categorias.', '2025-01-30', '2025-02-05', 'Arena São Paulo, SP', 1, 0, 'copa_sp_jiu_jitsu.jpg', 200.00),
+('Copa do Mundo de Jiu-Jitsu', 'Competição internacional com os melhores atletas de Jiu-Jitsu do mundo.', '2025-01-15', '2025-02-10', 'Centro de Convenções, Rio de Janeiro', 0, 1, 'copa_mundo_jiu_jitsu.jpg', 0.00),
+('Campeonato Internacional de Jiu-Jitsu', 'Competição com atletas de todo o mundo, reunindo os melhores do Jiu-Jitsu.', '2025-02-01', '2025-02-15', 'Arena Internacional, Rio de Janeiro', 1, 0, 'campeonato_internacional.jpg', 500.00),
+('Copa Rio de Jiu-Jitsu', 'Competição aberta para todos os atletas de Jiu-Jitsu no estado do Rio de Janeiro.', '2025-03-05', '2025-03-10', 'Ginásio Carioca, RJ', 1, 0, 'copa_rio_jiu_jitsu.jpg', 80.00),
+('Desafio de Jiu-Jitsu', 'Desafios entre atletas conhecidos em combate direto.', '2025-02-20', '2025-03-01', 'Ginásio da Luta, SP', 0, 1, 'desafio_jiu_jitsu.jpg', 30.00),
+('Campeonato de Jiu-Jitsu do Norte', 'Campeonato regional de Jiu-Jitsu reunindo os melhores atletas do Norte do Brasil.', '2025-02-10', '2025-02-14', 'Ginásio Norte, Manaus', 0, 1, 'campeonato_norte.jpg', 50.00),
+('Copa Norte-Nordeste de Jiu-Jitsu', 'Competição reunindo atletas de todas as regiões Norte e Nordeste do Brasil.', '2025-02-01', '2025-02-05', 'Arena Nordeste, Fortaleza', 1, 0, 'copa_norte_nordeste.jpg', 25.00),
+('Super Liga Brasileira de Jiu-Jitsu', 'Liga profissional de Jiu-Jitsu com competições em várias cidades do Brasil.', '2025-03-10', '2025-03-15', 'Centro de Treinamento, São Paulo', 1, 0, 'super_liga_jiu_jitsu.jpg', 150.00);

@@ -16,6 +16,11 @@ is_adm();
         <form action="cadastrar_evento.php" method="POST" id="evento" enctype="multipart/form-data">
             Nome do evento <input type="text" id="nome_evento" name="nome_evento"><br>
             <br>
+
+            Data do Campeopnato <input type="date" id="data_camp" name="data_camp"><br>
+            
+            Local <input type="text" id="local_camp"><br>
+
             <input type="file" name="img_evento" accept="image/*">
             <p>descrição do evento</p>
             <textarea name="desc_Evento" placeholder="descreva o campeopnato">

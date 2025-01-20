@@ -7,6 +7,8 @@
         include "../func/clearWord.php";
  
             $nome = $_POST['nome_evento'];
+            $local = $_POST['local_camp'];
+            $data_camp = $_POST['data_camp'];
             $descricao = $_POST['desc_Evento'];
             $data_limite = $_POST['data_limite'];
             $tipoCom = isset($_POST['tipo_com']) ? 1 : 0;
@@ -34,6 +36,8 @@
             $evento = new Evento();
             $conn = new Conexao();
             $evento->__set('nome', $nome);
+            $evento->__set('data_camp', $data_camp);
+            $evento->__set('local_camp', $local);
             $evento->__set('img', $caminhoParaSalvar);
             $evento->__set('descricao', $descricao);
             $evento->__set('data_limite', $data_limite);
@@ -41,9 +45,7 @@
             $evento->__set('tipoSem', $tipoSem);
             $evento->__set('img', $img_evento['name']);
             $evento->__set('preco', $preco);
-            echo "<br>";
-            echo "variaveis criadas";
-            echo "<br>";
+
             $adEvento = new eventosService($conn,$evento);
 
 
