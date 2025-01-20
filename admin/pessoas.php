@@ -8,6 +8,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //checar se é administrador
 
+require "../func/is_adm.php";
+is_adm();
 try {
     $con = new Conexao();
     $at = new Atleta();

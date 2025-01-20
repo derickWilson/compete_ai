@@ -1,3 +1,8 @@
+<?php
+session_start();
+require "../func/is_adm.php";
+is_adm();
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -6,6 +11,7 @@
     <title>Criar evento</title>
 </head>
 <body>
+<?php include "../menu/add_menu.php"; ?>
     <div>
         <form action="cadastrar_evento.php" method="POST" id="evento" enctype="multipart/form-data">
             Nome do evento <input type="text" id="nome_evento" name="nome_evento"><br>

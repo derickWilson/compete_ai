@@ -1,5 +1,9 @@
 <?php
 session_start();
+
+require "../func/is_adm.php";
+is_adm();
+
 include __DIR__ . "/../classes/eventosServices.php";
 include __DIR__ . "/../func/calcularIdade.php";
 include __DIR__ . "/../func/clearWord.php";

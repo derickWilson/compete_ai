@@ -1,4 +1,8 @@
 <?php
+
+require "../func/is_adm.php";
+is_adm();
+
 include_once "../classes/atletaClass.php";
 include_once "../classes/atletaService.php";
 

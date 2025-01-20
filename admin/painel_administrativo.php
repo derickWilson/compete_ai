@@ -4,6 +4,9 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
+require "../func/is_adm.php";
+is_adm();
+
 include_once "../classes/atletaClass.php";
 include_once "../classes/atletaService.php";
 

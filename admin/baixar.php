@@ -1,6 +1,7 @@
 <?php
 session_start();
-
+require "../func/is_adm.php";
+is_adm();
 // Verifica se o usuário é admin; se não for, redireciona
 if (!isset($_SESSION["admin"]) || !$_SESSION["admin"]) {
     header("Location: index.php");

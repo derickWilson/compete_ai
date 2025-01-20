@@ -1,9 +1,7 @@
 <?php
 session_start();
-if (!isset($_SESSION["admin"]) || !$_SESSION["admin"]) {
-    header("Location: ../index.php");
-    exit();
-}
+require "../func/is_adm.php";
+is_adm();
 
 include_once "../classes/atletaService.php";
 

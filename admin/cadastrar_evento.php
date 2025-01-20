@@ -1,4 +1,6 @@
     <?php
+    require "../func/is_adm.php";
+    is_adm();
     // Verifica se o formulário foi submetido
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         require_once "../classes/eventosServices.php";
