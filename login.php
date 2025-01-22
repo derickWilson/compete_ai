@@ -19,6 +19,11 @@ if(!$_SESSION["logado"]){
     <h1>Logar</h1>
     <div class="container_login">
         <form action="logar.php" method="post">
+            <?php 
+            if(isset($_GET["erro"]) && $_GET["erro"] == 1){
+                echo "Usuário Inválido";
+            }
+            ?>
             <label for="usuario" >Email</label>
             <input type="text" name="usuario" id="usuario" required>
             <label for="senha">Senha</label>

@@ -16,8 +16,15 @@
     ?>
     <h1>Bem Vindo ao Compete Ai</h1>
     </header>
-    <hr>
-
+<hr>
+<div>
+    <?php
+        if(isset($_GET["erro"]) && $_GET["erro"] == 2){// no caso do erro 2 mostra que a conta não foi validada
+    ?>
+            <h3>Sua Conta Ainda Não Foi Validada</h3>
+    <?php
+        }
+    ?>
 </div>
 <hr>
     <footer>todos os direitos reservados</footer>

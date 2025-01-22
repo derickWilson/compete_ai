@@ -78,30 +78,31 @@ class atletaService {
     
         $atleta = $stmt->fetch(PDO::FETCH_OBJ);
     
-        if ($atleta && $atleta->validado) {
-            // Inicia a sessão
-            session_start();
-            
-            // Define as variáveis da sessão
-            $_SESSION["logado"] = true;
-            $_SESSION["id"] = $atleta->id;
-            $_SESSION["nome"] = $atleta->nome;
-            $_SESSION["email"] = $atleta->email;
-            $_SESSION["idade"] = calcularIdade($atleta->idade);
-            $_SESSION["data_nascimento"] = $atleta->data_nascimento;
-            $_SESSION["fone"] = $atleta->fone;
-            $_SESSION["academia"] = $atleta->academia;
-            $_SESSION["faixa"] = $atleta->faixa;
-            $_SESSION["peso"] = $atleta->peso;
-            $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
-            $_SESSION["validado"] = true;
-            header("Location: pagina_pessoal.php");
-            exit();
-        } else {
-            if(!$atleta->validado){
+        if ($atleta) {
+            if($atleta->validado){
+                session_start();        
+                // Define as variáveis da sessão
+                $_SESSION["logado"] = true;
+                $_SESSION["id"] = $atleta->id;
+                $_SESSION["nome"] = $atleta->nome;
+                $_SESSION["email"] = $atleta->email;
+                $_SESSION["idade"] = calcularIdade($atleta->idade);
+                $_SESSION["data_nascimento"] = $atleta->data_nascimento;
+                $_SESSION["fone"] = $atleta->fone;
+                $_SESSION["academia"] = $atleta->academia;
+                $_SESSION["faixa"] = $atleta->faixa;
+                $_SESSION["peso"] = $atleta->peso;
+                $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
+                $_SESSION["validado"] = true;
+                header("Location: pagina_pessoal.php");
+                exit();
+
+            }else{
+                header('Location: index.php?erro=2');    
                 echo 'sua conta ainda não foi validada';
-                header('Location: login.php?erro=1');
             }
+        }else{
+            header('Location: login.php?erro=1');
         }
     }
 
@@ -182,7 +183,7 @@ class atletaService {
          try{
             $stmt->execute();
          }catch(Exception $e){
-            throw new Exception("Erro ao adicionar atleta: " . $e->getMessage());
+            print("Erro ao adicionar atleta: " . $e->getMessage());
          }
     } 
 }
