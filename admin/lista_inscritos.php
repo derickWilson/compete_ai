@@ -53,7 +53,7 @@ try {
         <?php foreach ($inscritos as $inscrito) { ?>
         <tr>
             <td><?php echo htmlspecialchars($inscrito->inscrito); ?></td>
-            <td><?php echo calcularIdade($inscrito->data_nascimento); ?></td>
+            <td><?php echo calcularIdade(calcularIdade($inscrito->data_nascimento)); ?></td>
             <td><?php echo htmlspecialchars($inscrito->faixa); ?></td>
             <td><?php echo htmlspecialchars($inscrito->peso); ?></td>
             <td><?php echo htmlspecialchars($inscrito->academia); ?></td>

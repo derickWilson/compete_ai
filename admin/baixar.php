@@ -3,14 +3,12 @@ session_start();
 require "../func/is_adm.php";
 is_adm();
 // Verifica se o usuário é admin; se não for, redireciona
-if (!isset($_SESSION["admin"]) || !$_SESSION["admin"]) {
-    header("Location: index.php");
-    exit();
-}
 
 if (isset($_GET["id"]) && is_numeric($_GET["id"])) {
     include "../classes/eventosServices.php";
     include_once "../func/clearWord.php";
+    include __DIR__ . "/../func/calcularIdade.php";
+
     
     $id = (int) cleanWords($_GET["id"]); 
     // Cria instâncias das classes
@@ -46,7 +44,7 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"])) {
         fputcsv($output, [
             $value->evento,
             $value->inscrito,
-            $value->idade,
+            calcularIdade($value->idade),
             $value->faixa,
             $value->peso,
             $value->academia,

@@ -6,12 +6,12 @@ if (!isset($_SESSION["logado"])) {
     header("Location: index.php");
     exit();
 }
-
+include "func/calcularIdade.php";
 // Acessa as variáveis de sessão
 $id = $_SESSION["id"] ?? 'Não disponível';
 $nome = $_SESSION["nome"] ?? 'Não disponível';
 $email = $_SESSION["email"] ?? 'Não disponível';
-$idade = $_SESSION["idade"] ?? 'Não disponível';
+$idade = $_SESSION["idade"] = calcularIdade($data_nascimento);
 $data_nascimento = $_SESSION["data_nascimento"] ?? 'Não disponível';
 $fone = $_SESSION["fone"] ?? 'Não disponível';
 $academia = $_SESSION["academia"] ?? 'Não disponível';
