@@ -161,5 +161,29 @@ class atletaService {
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         return $result;
     }
+
+    public function updateAtleta($idAtleta){
+        $query = "UPDATE atleta SET email = :email,
+         fone = :fone,
+         academia = :academia,
+         faixa = :faixa,
+         peso = :peso,
+         diploma = :diploma
+         WHERE id = :id";
+
+         $stmt = $this->conn->prepare($query);
+         $stmt->bindValue(":email", $this->atleta->__get("email"));
+         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
+         $stmt->bindValue(":academia", $this->atleta->__get("academia"));
+         $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
+         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
+         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
+
+         try{
+            $stmt->execute();
+         }catch(Exception $e){
+            throw new Exception("Erro ao adicionar atleta: " . $e->getMessage());
+         }
+    } 
 }
 ?>

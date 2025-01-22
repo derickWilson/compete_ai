@@ -11,8 +11,8 @@ include "func/calcularIdade.php";
 $id = $_SESSION["id"] ?? 'Não disponível';
 $nome = $_SESSION["nome"] ?? 'Não disponível';
 $email = $_SESSION["email"] ?? 'Não disponível';
-$idade = $_SESSION["idade"] = calcularIdade($data_nascimento);
 $data_nascimento = $_SESSION["data_nascimento"] ?? 'Não disponível';
+$idade = $_SESSION["idade"] = calcularIdade($data_nascimento);
 $fone = $_SESSION["fone"] ?? 'Não disponível';
 $academia = $_SESSION["academia"] ?? 'Não disponível';
 $faixa = $_SESSION["faixa"] ?? 'Não disponível';
@@ -43,7 +43,7 @@ $peso = $_SESSION["peso"] ?? 'Não disponível';
         <p><strong>Faixa:</strong> <?php echo htmlspecialchars($faixa); ?></p>
         <p><strong>Peso:</strong> <?php echo htmlspecialchars($peso); ?></p>
 
-        <a href="index.php">Voltar</a>
+        <a href="index.php">Voltar</a>|<a href="edit.php">Editar</a>
     </div>
 </body>
 </html>
