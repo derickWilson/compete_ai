@@ -1,6 +1,6 @@
-/*
+
 body{
-    background-color: rgb(78, 138, 250);
+    background-image('');
 }
 
 div{
@@ -53,4 +53,4 @@ div form{
 
 form input{
     width: 300px;
-}*/
+}
