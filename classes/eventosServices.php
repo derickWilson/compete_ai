@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . "/../func/database.php";
 require_once __DIR__ . "/../classes/eventoClass.php";
+require_once __DIR__ . "/../func/calcularIdade.php";
+
 class eventosService{
     private $conn;
     private $evento;
@@ -96,6 +98,21 @@ public function addEvento() {
         $num = $stmt->fetch(PDO::FETCH_OBJ);
 
         return $num->numero == 0;
+    }
+
+    public function montarChapa($id){
+        $todos = $this->getInscritos($id);
+        
+        $infantil = [];
+        $infantojuvenil = [];
+        $mmasters = [];
+
+        foreach($todos as $inscrito){
+            if(calcularIdade($inscrito->data_nascimento) < 16){
+                array_push($infantil, $inscrito);
+            }
+        }
+
     }
 } 
 ?>
