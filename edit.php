@@ -94,7 +94,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <option value="Preta e Branca" <?php if ($atleta->faixa == "Preta e Branca") echo "selected"; ?>>Preta e Branca</option>
         </select><br>
 
-        <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png"><br>
+        <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
         
         Peso: <input type="number" name="peso" min="10" step="0.05" value="<?php echo htmlspecialchars($atleta->peso); ?>" required><br>
 
@@ -102,5 +102,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form> 
 
     <a href="pagina_pessoal.php">Voltar</a>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let faixa = document.getElementById('faixas');
+        let diplomaInput = document.getElementById('diploma');
+
+        faixa.addEventListener("change", function() {
+            let graduacoes = ["Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
+            let selecionado = faixa.value;
+
+            if (graduacoes.includes(selecionado)) {
+                diplomaInput.style.display = "block";
+            } else {
+                diplomaInput.style.display = "none";
+            }
+        });
+    });
+    </script>
 </body>
 </html>
