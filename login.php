@@ -29,7 +29,7 @@ if(!$_SESSION["logado"]){
             <label for="senha">Senha</label>
             <input type="password" name="senha" id="senha" required>
             <input type="submit" value="Logar">
-        </form>
+        </form><br>
         <a href="index.php">voltar</a>
     </div>
 </body>

@@ -4,15 +4,16 @@ require "../func/is_adm.php";
 is_adm();
 
 require_once "../classes/eventosServices.php";
+include "../func/clearWord.php";
 
 $conn = new Conexao();
 $evento = new Evento();
 $eventoServ = new eventosService($conn, $evento);
 
-if (isset($_GET["user"])) {
-    $chapa = $eventoServ->montarChapa($_GET["id"]);
+if (isset($_GET["id"])) {
+    $camp = cleanWords($_GET["id"]);
 } else {
-    echo "Selecione um usuário";
+    echo "Selecione um campeonato";
     exit();
 }
 ?>
@@ -25,11 +26,13 @@ if (isset($_GET["user"])) {
     <title>Controle de Usuário</title>
 </head>
 <body>
-    <header>
-        <?php include "../menu/add_menu.php"; ?>
-    </header>
-    <div>
 
+    <?php include "../menu/add_menu.php"; ?>
+    <div>
+    <form action="chapa.php">
+        <input type="number" name="camp" id="camp" value="<?php echo $camp;?>">
+
+    </form>
     </div>
 </body>
 </html>

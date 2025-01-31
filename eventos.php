@@ -43,13 +43,15 @@ if (isset($_GET['id'])) {
         // Listar todos os eventos
         if ($tudo) {
             foreach ($list as $valor) { ?>
-                <a href='eventos.php?id=<?php echo $valor->id ?>'><h2><?php echo htmlspecialchars($valor->nome); ?></h2></a>
+            <div class="campeonato">
+            <a href='eventos.php?id=<?php echo $valor->id ?>'><h2><?php echo htmlspecialchars($valor->nome); ?></h2></a>
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     | <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
                     | <a href='admin/chapa.php?id=<?php echo $valor->id ?>'>Montar chapa</a>
                 <?php } ?>
                 <br>
-            <?php } ?>
+            </div>
+                            <?php } ?>
             <br><a href="index.php">Voltar</a>
         <?php
         } else {// detalhes de apenas um campeonato
