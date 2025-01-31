@@ -1,12 +1,15 @@
 <?php
+
+use function PHPSTORM_META\type;
+
 session_start();
 
 require "../func/is_adm.php";
 is_adm();
 
-include __DIR__ . "/../classes/eventosServices.php";
-include __DIR__ . "/../func/calcularIdade.php";
-include __DIR__ . "/../func/clearWord.php";
+require_once __DIR__ . "/../classes/eventosServices.php";
+require_once __DIR__ . "/../func/calcularIdade.php";
+require_once __DIR__ . "/../func/clearWord.php";
 
 
 // Verifique se o ID do evento foi passado via GET
@@ -22,6 +25,7 @@ try {
     $ev = new eventosService($conn, $evento);
 
     $inscritos = $ev->getInscritos($idEvento);
+
 } catch (Exception $e) {
     die("Erro ao obter inscritos: " . $e->getMessage());
 }
@@ -54,7 +58,7 @@ try {
         <?php foreach ($inscritos as $inscrito) { ?>
         <tr>
             <td><?php echo htmlspecialchars($inscrito->inscrito); ?></td>
-            <td><?php echo calcularIdade(calcularIdade($inscrito->data_nascimento)); ?></td>
+            <td><?php echo calcularIdade($inscrito->data_nascimento); ?></td>
             <td><?php echo htmlspecialchars($inscrito->faixa); ?></td>
             <td><?php echo htmlspecialchars($inscrito->peso); ?></td>
             <td><?php echo htmlspecialchars($inscrito->academia); ?></td>
@@ -70,7 +74,7 @@ try {
         <input type="submit" value="Baixar Planilha">
     </form>
 <?php } else { ?>
-    <p>Nenhum inscrito encontrado para este evento.</p>
+    <p>Nenhum inscrito encontrado para este campeonato.</p>
 <?php } ?>
 </body>
 </html>
