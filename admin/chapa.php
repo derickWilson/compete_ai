@@ -31,9 +31,15 @@ if (isset($_GET["id"])) {
     <?php include "../menu/add_menu.php"; ?>
     <div>
     <form action="chapa.php">
-        <input type="number" name="camp" id="camp" value="<?php echo $camp;?>">
-
+        <input type="number" name="camp" id="camp" value="<?php echo $camp;?>"><br>
+        <label for="idInfantil">Idade maxima infantil</label><input type="number" name="idInfantil">Anos<br>
+        <label for="idInfantoJuvenil">Idade maxima infanto junvenil</label><input type="number" name="idInfantoJuvenil">Anos<br>
+        <label for="idAdulto">Idade maxima adulto</label><input type="number" name="idAdulto">Anos<br>
+        <label for="idMasters">Idade Masters</label><input type="number" name="idMasters">Anos<br>
     </form>
+    </div>
+    <div>
+
     </div>
 </body>
 </html>

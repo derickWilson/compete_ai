@@ -126,6 +126,8 @@ public function addEvento() {
             }
         }
 
+        //separar por peso
+
     }
 } 
 ?>
