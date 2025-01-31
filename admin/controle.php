@@ -4,13 +4,14 @@ require "../func/is_adm.php";
 is_adm();
 
 include_once "../classes/atletaService.php";
+require_once __DIR__ . "/../func/clearWord.php";
 
 $conn = new Conexao();
 $atleta = new Atleta();
 $attServ = new atletaService($conn, $atleta);
 
 if (isset($_GET["user"])) {
-    $usuario = $attServ->getById($_GET["user"]);
+    $usuario = $attServ->getById(cleanWords($_GET["user"]));
 } else {
     echo "Selecione um usuário";
     exit();
@@ -22,6 +23,7 @@ if (isset($_GET["user"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
     <title>Controle de Usuário</title>
 </head>
 <body>

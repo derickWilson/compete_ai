@@ -25,7 +25,7 @@ try {
     $ev = new eventosService($conn, $evento);
 
     $inscritos = $ev->getInscritos($idEvento);
-
+    
 } catch (Exception $e) {
     die("Erro ao obter inscritos: " . $e->getMessage());
 }

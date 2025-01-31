@@ -100,16 +100,23 @@ public function addEvento() {
         return $num->numero == 0;
     }
 
-    public function montarChapa($id){
+    public function montarChapa($id, $$infantil,$infantojuvenil, $adulto, $masters
+    ,$pesado){
         $todos = $this->getInscritos($id);
         
-        $infantil = [];
-        $infantojuvenil = [];
-        $mmasters = [];
+        $lista_infantil = [];
+        $lista_infantojuvenil = [];
+        $lista_masters = [];
 
         foreach($todos as $inscrito){
-            if(calcularIdade($inscrito->data_nascimento) < 16){
-                array_push($infantil, $inscrito);
+            if(calcularIdade($inscrito->data_nascimento) < $infantil){
+                array_push($lista_infantil, $inscrito);
+            }
+            if(calcularIdade($inscrito->data_nascimento) < 30){
+                array_push($lista_infantojuvenil, $inscrito);
+            }   
+            if(calcularIdade($inscrito->data_nascimento) >= $masters){
+                array_push($lista_masters, $inscrito);
             }
         }
 
