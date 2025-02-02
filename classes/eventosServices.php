@@ -132,6 +132,7 @@ public function addEvento() {
             }
         }
         //separar por peso
+        $faixaPeso = ["leve","medio","pesado"];
         foreach($listaIdade as $faixa => $inscrito){
             //pegar todos de uma faixa de peso e depois escrever
         }
