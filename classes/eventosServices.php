@@ -100,10 +100,13 @@ public function addEvento() {
         return $num->numero == 0;
     }
 
-    public function montarChapa($id,$infantil,$infantojuvenil, $adulto, $masters
+    public function montarChapa($id,$cor,$infantil,$infantojuvenil, $adulto, $masters
     ,$pesado){
         $todos = $this->getInscritos($id);
         
+        $idades =["infantil", "juvenil","adulto","master"]; 
+        $listaIdade = [];
+
         $lista_infantil = [];
         $lista_infantojuvenil = [];
         $lista_adulto = [];
@@ -112,16 +115,16 @@ public function addEvento() {
         foreach($todos as $inscrito){
             //loop para separar por idade
             $idade = calcularIdade($inscrito->data_nascimento); 
-            if($idade < $infantil){
+            if($inscrito->faixa == $cor && $idade < $infantil){
                 array_push($lista_infantil, $inscrito);
             }
-            if($idade >= $infantil && $idade < $lista_infantojuvenil){
+            if($inscrito->faixa == $cor && $idade >= $infantil && $idade < $lista_infantojuvenil){
                 array_push($lista_infantojuvenil, $inscrito);
             }
-            if($idade >= $lista_infantojuvenil && $idade < $masters){
+            if($inscrito->faixa == $cor && $idade >= $lista_infantojuvenil && $idade < $masters){
                 array_push($lista_adulto, $inscrito);
             }   
-            if($idade >= $masters){
+            if($inscrito->faixa == $cor && $idade >= $masters){
                 array_push($lista_masters, $inscrito);
             }
         }

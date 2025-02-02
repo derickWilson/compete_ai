@@ -39,7 +39,14 @@ if (isset($_GET["id"])) {
     </form>
     </div>
     <div>
-
+        <?php
+        if($_SERVER["REQUEST_METHOD"] == "POST"){
+            $faixas = ["Branca", "Azul","Roxa","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
+            foreach($faixas as $cor){
+                $eventoServ->montarChapa($camp);
+            }
+        }
+        ?>
     </div>
 </body>
 </html>
