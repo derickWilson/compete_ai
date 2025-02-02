@@ -100,34 +100,40 @@ public function addEvento() {
         return $num->numero == 0;
     }
 
-    public function montarChapa($id,$cor,$infantil,$infantojuvenil, $adulto, $masters
-    ,$pesado){
+    public function montarChapa($id,$cor,$infantil,$infantojuvenil, $masters
+    ,$pPesado,$medio){
         $todos = $this->getInscritos($id);
         
-        $idades =["infantil", "juvenil","adulto","master"]; 
-        $listaIdade = [];
-
-        $lista_infantil = [];
-        $lista_infantojuvenil = [];
-        $lista_adulto = [];
-        $lista_masters = [];
+        $listaIdade = [
+            "infantil"=>array(),
+            "juvenil"=>array(),
+            "adulto"=>array(),
+            "master"=>array()
+        ];
 
         foreach($todos as $inscrito){
             //loop para separar por idade
-            $idade = calcularIdade($inscrito->data_nascimento); 
-            if($inscrito->faixa == $cor && $idade < $infantil){
-                array_push($lista_infantil, $inscrito);
-            }
-            if($inscrito->faixa == $cor && $idade >= $infantil && $idade < $lista_infantojuvenil){
-                array_push($lista_infantojuvenil, $inscrito);
-            }
-            if($inscrito->faixa == $cor && $idade >= $lista_infantojuvenil && $idade < $masters){
-                array_push($lista_adulto, $inscrito);
-            }   
-            if($inscrito->faixa == $cor && $idade >= $masters){
-                array_push($lista_masters, $inscrito);
+            if($inscrito->faixa == $cor){
+                $idade = calcularIdade($inscrito->data_nascimento);
+                switch($idade){
+                    case $idade < $infantil:
+                        array_push($listaIdade["infantil"], $inscrito);
+                        break;
+            
+                    case $idade >= $infantil && $idade < $infantojuvenil:
+                        array_push($listaIdade["juvenil"], $inscrito);
+                        break;
+                    case $idade >= $infantojuvenil && $idade < $masters:
+                        array_push($listaIdade["adulto"], $inscrito);
+                        break;
+                    case $idade >= $masters:
+                        array_push($listaIdade["master"], $inscrito);
+                        break;
+                }
             }
         }
+
+        $faixasPesos = ["leve","medio","pesado"];
 
         //separar por peso
 
