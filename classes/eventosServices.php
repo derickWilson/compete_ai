@@ -100,8 +100,7 @@ public function addEvento() {
         return $num->numero == 0;
     }
 
-    public function montarChapa($id,$cor,$infantil,$infantojuvenil, $masters
-    ,$pPesado,$medio){
+    public function montarChapa($id,$cor,$infantil,$infantojuvenil, $masters,$pPesado,$medio){
         $todos = $this->getInscritos($id);
         
         $listaIdade = [
@@ -132,10 +131,10 @@ public function addEvento() {
                 }
             }
         }
-
-        $faixasPesos = ["leve","medio","pesado"];
-
         //separar por peso
+        foreach($listaIdade as $faixa => $inscrito){
+            //pegar todos de uma faixa de peso e depois escrever
+        }
 
     }
 } 
