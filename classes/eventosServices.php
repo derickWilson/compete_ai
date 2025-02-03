@@ -138,7 +138,7 @@ public function addEvento() {
 		"medio" => array(),
 		"pesado" => array()
 	];
-        foreach($listaIdade as $inscrito){
+	foreach($listaIdade as $inscrito){
 		if($inscrito->peso < $medio){
 			array_push($listaPeso["leve"],$inscrito);
 		}
@@ -148,7 +148,7 @@ public function addEvento() {
 		if($inscrito->peso >= $pPesado){
 			array_push($listaPeso["pesado"],$inscrito);
 		}
-        }
+	}
 
     }
 } 
