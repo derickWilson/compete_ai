@@ -131,10 +131,23 @@ public function addEvento() {
                 }
             }
         }
-        //separar por peso
-        $faixaPeso = ["leve","medio","pesado"];
-        foreach($listaIdade as $faixa => $inscrito){
-            //pegar todos de uma faixa de peso e depois escrever
+	//separar por peso	
+	$faixaPeso = ["leve","medio","pesado"];
+	$listaPeso = [
+		"leve" => array(),
+		"medio" => array(),
+		"pesado" => array()
+	];
+        foreach($listaIdade as $inscrito){
+		if($inscrito->peso < $medio){
+			array_push($listaPeso["leve"],$inscrito);
+		}
+		if($inscrito->peso >= $medio && $incrito->peso < $pPesado){
+			array_push($listaPeso["medio"],$inscrito);
+		}
+		if($inscrito->peso >= $pPesado){
+			array_push($listaPeso["pesado"],$inscrito);
+		}
         }
 
     }
