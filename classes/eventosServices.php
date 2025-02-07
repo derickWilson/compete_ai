@@ -142,15 +142,20 @@ public function addEvento() {
 		$faixaEtaria = $listaIdade[$key];
 		//faixa pega somente uma faixa etaria
 		//agora percorrer cada um e dividir por peso
-		if($inscrito->peso < $medio){
-			array_push($listaPeso["leve"],$inscrito);
+		echo "<h2>classificação : ".$key."<br></h2>";
+		foreach($value as $inscrito){
+
+			if($inscrito->peso < $medio){
+				array_push($listaPeso["leve"],$inscrito);
+			}
+			if($inscrito->peso >= $medio && $incrito->peso < $pPesado){
+				array_push($listaPeso["medio"],$inscrito);
+			}
+			if($inscrito->peso >= $pPesado){
+				array_push($listaPeso["pesado"],$inscrito);
+			}
 		}
-		if($inscrito->peso >= $medio && $incrito->peso < $pPesado){
-			array_push($listaPeso["medio"],$inscrito);
-		}
-		if($inscrito->peso >= $pPesado){
-			array_push($listaPeso["pesado"],$inscrito);
-		}
+		//criar as chapas com os lista peso aqui
 	}
 
     }
