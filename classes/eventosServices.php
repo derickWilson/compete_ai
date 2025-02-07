@@ -155,6 +155,9 @@ public function addEvento() {
 			}
 		}
 		//criar as chapas com os lista peso aqui
+		foreach($listaPeso as $key => $value){
+			echo "<h3>peso ".$key."</h3><br>";
+		}
 	}
 
     }
