@@ -138,7 +138,10 @@ public function addEvento() {
 		"medio" => array(),
 		"pesado" => array()
 	];
-	foreach($listaIdade as $inscrito){
+	foreach($listaIdade as $key => $value){
+		$faixaEtaria = $listaIdade[$key];
+		//faixa pega somente uma faixa etaria
+		//agora percorrer cada um e dividir por peso
 		if($inscrito->peso < $medio){
 			array_push($listaPeso["leve"],$inscrito);
 		}
