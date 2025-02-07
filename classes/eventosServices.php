@@ -132,7 +132,6 @@ public function addEvento() {
             }
         }
 	//separar por peso	
-	$faixaPeso = ["leve","medio","pesado"];
 	$listaPeso = [
 		"leve" => array(),
 		"medio" => array(),
@@ -144,7 +143,7 @@ public function addEvento() {
 		//agora percorrer cada um e dividir por peso
 		echo "<h2>classificação : ".$key."<br></h2>";
 		foreach($value as $inscrito){
-
+			// separar por peso
 			if($inscrito->peso < $medio){
 				array_push($listaPeso["leve"],$inscrito);
 			}
