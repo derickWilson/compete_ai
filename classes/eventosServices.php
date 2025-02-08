@@ -160,12 +160,13 @@ public function addEvento() {
 			shuffle($inscrito);
 
 			for($i = 0; i < length($inscrito); i++){
-				echo $inscrito->nome;
+				echo "<ul>";
+				echo "<li>".$inscrito->nome."</li>";
 				if(($i+1) % 2 == 0){
 					echo "<br>";
-				}else{
-					echo "|     |";
-				}	
+				}
+
+				echo "</ul>";
 			}
 		}
 	}
