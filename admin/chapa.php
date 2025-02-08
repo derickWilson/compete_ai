@@ -14,6 +14,7 @@ if (isset($_GET["id"])) {
     $camp = cleanWords($_GET["id"]);
 } else {
     echo "Selecione um campeonato";
+    header("Loacatio: ../eventos.php");
     exit();
 }
 ?>
