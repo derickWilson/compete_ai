@@ -44,7 +44,7 @@ if (isset($_GET["id"])) {
         if($_SERVER["REQUEST_METHOD"] == "POST"){
             $faixas = ["Branca", "Azul","Roxa","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
             foreach($faixas as $cor){
-                
+		$eventServ->montarChapa($id, $col, $infantil, $infantoJuvenil, $mastes, $pPesado, $medio);
             }
         }
         ?>
