@@ -14,7 +14,7 @@
     <?php
         include "menu/add_menu.php";
     ?>
-    <h1>Bem Vindo ao Compete Ai</h1>
+    <h1>Bem Vindo ao fpjji</h1>
     </header>
 <hr>
 <div>
