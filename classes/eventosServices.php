@@ -100,77 +100,78 @@ public function addEvento() {
         return $num->numero == 0;
     }
 
-    public function montarChapa($id,$cor,$infantil,$infantojuvenil, $masters,$pPesado,$medio){
+    public function montarChapa($id,$infantil,$infantojuvenil, $masters,$pPesado,$medio){
         $todos = $this->getInscritos($id);
-        
+        $faixas = ["Branca", "Azul","Roxa","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
         $listaIdade = [
             "infantil"=>array(),
             "juvenil"=>array(),
             "adulto"=>array(),
             "master"=>array()
         ];
-
-        foreach($todos as $inscrito){
-            //loop para separar por idade
-            if($inscrito->faixa == $cor){
-                $idade = calcularIdade($inscrito->data_nascimento);
-                switch($idade){
-                    case $idade < $infantil:
-                        array_push($listaIdade["infantil"], $inscrito);
-                        break;
-            
-                    case $idade >= $infantil && $idade < $infantojuvenil:
-                        array_push($listaIdade["juvenil"], $inscrito);
-                        break;
-                    case $idade >= $infantojuvenil && $idade < $masters:
-                        array_push($listaIdade["adulto"], $inscrito);
-                        break;
-                    case $idade >= $masters:
-                        array_push($listaIdade["master"], $inscrito);
-                        break;
+        foreach($faixas as $cor){
+            foreach($todos as $inscrito){
+                //loop para separar por idade
+                if($inscrito->faixa == $cor){
+                    $idade = calcularIdade($inscrito->data_nascimento);
+                    switch($idade){
+                        case $idade < $infantil:
+                            array_push($listaIdade["infantil"], $inscrito);
+                            break;
+                
+                        case $idade >= $infantil && $idade < $infantojuvenil:
+                            array_push($listaIdade["juvenil"], $inscrito);
+                            break;
+                        case $idade >= $infantojuvenil && $idade < $masters:
+                            array_push($listaIdade["adulto"], $inscrito);
+                            break;
+                        case $idade >= $masters:
+                            array_push($listaIdade["master"], $inscrito);
+                            break;
+                    }
                 }
             }
+        //separar por peso	
+            $listaPeso = [
+                "leve" => array(),
+                "medio" => array(),
+                "pesado" => array()
+            ];
+            foreach($listaIdade as $key => $value){
+                $faixaEtaria = $listaIdade[$key];
+                //faixa pega somente uma faixa etaria
+                //agora percorrer cada um e dividir por peso
+                echo "<h2>classificação : ".$key."<br></h2>";
+                foreach($value as $inscrito){
+                    // separar por peso
+                    if($inscrito->peso < $medio){
+                        array_push($listaPeso["leve"],$inscrito);
+                    }
+                    if($inscrito->peso >= $medio && $inscrito->peso < $pPesado){
+                        array_push($listaPeso["medio"],$inscrito);
+                    }
+                    if($inscrito->peso >= $pPesado){
+                        array_push($listaPeso["pesado"],$inscrito);
+                    }
+                }
+                //criar as chapas com os lista peso aqui
+                echo "<h2>faixa " . $cor . "</h2>";
+                foreach($listaPeso as $key => $inscrito){
+                    echo "<h3>peso ".$key."</h3><br>";
+                    shuffle($inscrito);
+                
+                    for($i = 0; $i < count($inscrito); $i++){
+                        echo "<ul>";
+                        echo "<li>".$inscrito->nome."</li>";
+                        if(($i+1) % 2 == 0){
+                            echo "<br>";
+                        }
+                    
+                        echo "</ul>";
+                    }
+                }
+            }   
         }
-	//separar por peso	
-	$listaPeso = [
-		"leve" => array(),
-		"medio" => array(),
-		"pesado" => array()
-	];
-	foreach($listaIdade as $key => $value){
-		$faixaEtaria = $listaIdade[$key];
-		//faixa pega somente uma faixa etaria
-		//agora percorrer cada um e dividir por peso
-		echo "<h2>classificação : ".$key."<br></h2>";
-		foreach($value as $inscrito){
-			// separar por peso
-			if($inscrito->peso < $medio){
-				array_push($listaPeso["leve"],$inscrito);
-			}
-			if($inscrito->peso >= $medio && $incrito->peso < $pPesado){
-				array_push($listaPeso["medio"],$inscrito);
-			}
-			if($inscrito->peso >= $pPesado){
-				array_push($listaPeso["pesado"],$inscrito);
-			}
-		}
-		//criar as chapas com os lista peso aqui
-		foreach($listaPeso as $key => $inscrito){
-			echo "<h3>peso ".$key."</h3><br>";
-			shuffle($inscrito);
-
-			for($i = 0; i < length($inscrito); i++){
-				echo "<ul>";
-				echo "<li>".$inscrito->nome."</li>";
-				if(($i+1) % 2 == 0){
-					echo "<br>";
-				}
-
-				echo "</ul>";
-			}
-		}
-	}
-
     }
 } 
 ?>
