@@ -46,5 +46,7 @@ if (isset($_GET["id"])) {
         }
         ?>
     </div>
+    <br><a href="/compete_ai/eventos.php">Voltar</a>
+
 </body>
 </html>

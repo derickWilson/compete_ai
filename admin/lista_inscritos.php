@@ -73,6 +73,7 @@ try {
         <input type="hidden" name="id" value="<?php echo htmlspecialchars($_GET['id'], ENT_QUOTES, 'UTF-8'); ?>">
         <input type="submit" value="Baixar Planilha">
     </form>
+    <br><a href="/compete_ai/eventos.php">Voltar</a>
 <?php } else { ?>
     <p>Nenhum inscrito encontrado para este campeonato.</p>
 <?php } ?>
