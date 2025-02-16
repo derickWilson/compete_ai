@@ -103,13 +103,14 @@ public function addEvento() {
     public function montarChapa($id,$infantil,$infantojuvenil, $masters,$pPesado,$medio){
         $todos = $this->getInscritos($id);
         $faixas = ["Branca", "Azul","Roxa","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
-        $listaIdade = [
-            "infantil"=>array(),
-            "juvenil"=>array(),
-            "adulto"=>array(),
-            "master"=>array()
-        ];
+
         foreach($faixas as $cor){
+            $listaIdade = [
+                "infantil"=>array(),
+                "juvenil"=>array(),
+                "adulto"=>array(),
+                "master"=>array()
+            ];
             foreach($todos as $inscrito){
                 //loop para separar por idade
                 if($inscrito->faixa == $cor){
