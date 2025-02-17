@@ -1,5 +1,6 @@
 <?php
 // Incluindo arquivos necessários
+session_start();
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -36,7 +37,7 @@ if (isset($_GET['id'])) {
 <body>
 
 <?php
-    session_start();
+
     include_once "menu/add_menu.php";
     ?>
     <div class="principal">
