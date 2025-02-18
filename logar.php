@@ -17,9 +17,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
         $attServ = new atletaService($conn, $atleta);
         $attServ->logar(); // this is where you call the logar method
         if(!$_SESSION["validado"]){
-            header('Location: login.php?erro=1');
+            header('Location: /login.php?erro=1');
         }else{
-            header("Location: pagina_pessoal.php");   
+            header("Location: /pagina_pessoal.php");   
         }
     } catch (Exception $e) {
         echo "Erro ao tentar logar: " . $e->getMessage();
