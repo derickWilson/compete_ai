@@ -73,38 +73,43 @@ class atletaService {
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":senha", $this->atleta->__get("senha"));
-        
-        $stmt->execute();
     
-        $atleta = $stmt->fetch(PDO::FETCH_OBJ);
+        try {
+            $stmt->execute(); // Tenta executar a consulta
     
-        if ($atleta) {
-            if($atleta->validado){
-                session_start();        
-                // Define as variáveis da sessão
-                $_SESSION["logado"] = true;
-                $_SESSION["id"] = $atleta->id;
-                $_SESSION["nome"] = $atleta->nome;
-                $_SESSION["email"] = $atleta->email;
-                $_SESSION["idade"] = calcularIdade($atleta->idade);
-                $_SESSION["data_nascimento"] = $atleta->data_nascimento;
-                $_SESSION["fone"] = $atleta->fone;
-                $_SESSION["academia"] = $atleta->academia;
-                $_SESSION["faixa"] = $atleta->faixa;
-                $_SESSION["peso"] = $atleta->peso;
-                $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
-                $_SESSION["validado"] = true;
-                header("Location: pagina_pessoal.php");
-                exit();
-
-            }else{
-                header('Location: index.php?erro=2');    
-                echo 'sua conta ainda não foi validada';
+            $atleta = $stmt->fetch(PDO::FETCH_OBJ);
+    
+            if ($atleta) {
+                if($atleta->validado){
+                    session_start();
+                    // Define as variáveis da sessão
+                    $_SESSION["logado"] = true;
+                    $_SESSION["id"] = $atleta->id;
+                    $_SESSION["nome"] = $atleta->nome;
+                    $_SESSION["email"] = $atleta->email;
+                    $_SESSION["idade"] = calcularIdade($atleta->idade);
+                    $_SESSION["data_nascimento"] = $atleta->data_nascimento;
+                    $_SESSION["fone"] = $atleta->fone;
+                    $_SESSION["academia"] = $atleta->academia;
+                    $_SESSION["faixa"] = $atleta->faixa;
+                    $_SESSION["peso"] = $atleta->peso;
+                    $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
+                    $_SESSION["validado"] = true;
+                    header("Location: pagina_pessoal.php");
+                    exit();
+                } else {
+                    header('Location: index.php?erro=2');
+                    echo 'Sua conta ainda não foi validada';
+                }
+            } else {
+                header('Location: login.php?erro=1');
             }
-        }else{
-            header('Location: login.php?erro=1');
+        } catch (PDOException $e) {
+            // Captura qualquer erro gerado pela execução da consulta
+            echo "Erro ao tentar logar: " . $e->getMessage();
         }
     }
+    
 
     //retornar um atleta especifico
     public function getById($id){

@@ -1,0 +1,16 @@
+*{
+    border: 2px solid red;
+}
+
+header nav{
+    padding: auto;
+    padding: 5px;
+    padding-left: 5px;
+    width: 75%;
+    align-items: center;
+}
+
+body{
+    padding: 10px;
+    background-image: "/opt/lampp/htdocs/compete_ai/stilos/fundo.jpg";
+}
