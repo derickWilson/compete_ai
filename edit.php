@@ -49,7 +49,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $atletas->__set("fone", cleanWords($_POST["fone"]));
     $atletas->__set("academia", cleanWords($_POST["academia"]));
     $atletas->__set("faixa", cleanWords($_POST["faixa"]));
-    $atletas->__set("peso", $_POST["peso"]);
+    $atletas->__set("peso", cleanWords($_POST["peso"]));
     $atletas->__set("diploma", $caminhoParaSalvar);
 
     try {
@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <?php include "menu/add_menu.php"; ?>
     
-    <form method="post" action="editar_atleta.php" enctype="multipart/form-data">
+    <form method="post" action="edit.php" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $_SESSION["id"]; ?>">
         Email: <input name="email" type="email" placeholder="exemplo@email.com" value="<?php echo htmlspecialchars($atleta->email); ?>" required><br>
         Telefone: <input maxlength="12" type="tel" name="fone" id="telefone" value="<?php echo htmlspecialchars($atleta->fone); ?>" placeholder="0000000000" required><br>
