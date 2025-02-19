@@ -99,7 +99,7 @@ class atletaService {
                     exit();
                 } else {
                     header('Location: index.php?erro=2');
-                    echo 'Sua conta ainda não foi validada';
+                    echo '<h4>Sua conta ainda não foi validada</h4>';
                 }
             } else {
                 header('Location: login.php?erro=1');
