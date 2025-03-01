@@ -10,4 +10,3 @@ function calcularIdade($dataNascimento) {
     return $idade;
 }
 ?>
-
