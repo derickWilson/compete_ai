@@ -26,8 +26,8 @@ class atletaService {
                   VALUES (:nome, :senha, :email, :data_nascimento, :fone, :academia, :faixa, :peso, :diploma, :valido)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
-        $stmt->bindValue(":nome", $this->atleta->__get("nome"));
-        $stmt->bindValue(":senha", $this->atleta->__get("senha")); // Criptografar senha
+        $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        $stmt->bindValue(":nome", $this->atleta->__get("nome"));
+        $stmt->bindValue(":senha", $this->$senhaCriptografada); // Criptografar senha
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
@@ -63,18 +63,20 @@ class atletaService {
     }
 
     //logar atleta
-    public function logar() {
-        $query = "SELECT id, nome, email, data_nascimento, fone, academia, faixa, peso, adm, validado
-                  FROM atleta
-                  WHERE email = :email AND senha = :senha";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":email", $this->atleta->__get("email"));
-        $stmt->bindValue(":senha", $this->atleta->__get("senha"));
-        try {
-            $stmt->execute(); // Tenta executar a consulta
-            $atleta = $stmt->fetch(PDO::FETCH_OBJ);
-            if ($atleta) {
-                if($atleta->validado){
+//logar atleta
+public function logar() {
+    $query = "SELECT id, nome, email, data_nascimento, fone, academia, faixa, peso, adm, validado, senha
+              FROM atleta
+              WHERE email = :email";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindValue(":email", $this->atleta->__get("email"));
+    try {
+        $stmt->execute(); // Tenta executar a consulta
+        $atleta = $stmt->fetch(PDO::FETCH_OBJ);
+        if ($atleta) {
+            // Verificar se a senha fornecida bate com a senha armazenada
+            if (password_verify($this->atleta->__get("senha"), $atleta->senha)) {
+                if ($atleta->validado) {
                     // Define as variáveis da sessão
                     $_SESSION["logado"] = true;
                     $_SESSION["id"] = $atleta->id;
@@ -98,11 +100,16 @@ class atletaService {
                 header('Location: login.php?erro=1');
                 exit();
             }
-        } catch (PDOException $e) {
-            // Captura qualquer erro gerado pela execução da consulta
-            echo "Erro ao tentar logar: " . $e->getMessage();
+        } else {
+            header('Location: login.php?erro=1');
+            exit();
         }
+    } catch (PDOException $e) {
+        // Captura qualquer erro gerado pela execução da consulta
+        echo "Erro ao tentar logar: " . $e->getMessage();
     }
+}
+
     
 
     //retornar um atleta especifico
