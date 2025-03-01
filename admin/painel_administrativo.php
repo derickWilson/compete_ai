@@ -3,25 +3,19 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
 require "../func/is_adm.php";
 is_adm();
-
 include_once "../classes/atletaClass.php";
 include_once "../classes/atletaService.php";
-
 try {
     $con = new Conexao();
     $at = new Atleta();
     $attServ = new atletaService($con, $at);
-    
     $lista = $attServ->listInvalido();
-    
 } catch (Exception $e) {
     echo "Erro: " . $e->getMessage();
     exit();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -35,9 +29,6 @@ try {
 <body>
     <?php include "../menu/add_menu.php"; ?>
     <div class="principal">
-        <?php
-
-        ?>
         <table>
             <tr>
                 <th>Nome</th>
