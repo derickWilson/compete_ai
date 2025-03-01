@@ -1,4 +1,5 @@
 <?php
+session_start();
 try {
     require_once __DIR__ . "/../func/database.php";  // Caminho absoluto para database.php
     require_once __DIR__ . "/../classes/atletaClass.php";  // Caminho absoluto para atletaClass.php
@@ -81,7 +82,6 @@ class atletaService {
     
             if ($atleta) {
                 if($atleta->validado){
-                    session_start();
                     // Define as variáveis da sessão
                     $_SESSION["logado"] = true;
                     $_SESSION["id"] = $atleta->id;
