@@ -99,9 +99,11 @@ class atletaService {
                     exit();
                 } else {
                     header('Location: index.php?erro=2');
+                    exit();
                 }
             } else {
                 header('Location: login.php?erro=1');
+                exit();
             }
         } catch (PDOException $e) {
             // Captura qualquer erro gerado pela execução da consulta
