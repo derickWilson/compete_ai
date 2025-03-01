@@ -1,8 +1,9 @@
 <?php
-//session_start();
-ini_set('display_errors', 1);
+session_start();
+/*ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
+*/
 require "../func/is_adm.php";
 is_adm();
 include_once "../classes/atletaClass.php";
@@ -17,7 +18,6 @@ try {
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -38,14 +38,14 @@ try {
             </tr>
             <?php 
                 foreach ($lista as $key => $value) {
-                    ?>
+            ?>
                     <tr>
                         <td><?php echo htmlspecialchars($value->nome); ?></td>
                         <td><?php echo htmlspecialchars($value->faixa); ?></td>
                         <td><?php echo htmlspecialchars($value->academia); ?></td>
                         <td><a href="controle.php?user=<?php echo htmlspecialchars($value->id); ?>">ver</a></td>
                     </tr>
-                <?php } ?>
+            <?php } ?>
         </table>
     </div>
 </body>
