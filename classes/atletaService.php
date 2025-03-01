@@ -87,7 +87,7 @@ class atletaService {
                     $_SESSION["id"] = $atleta->id;
                     $_SESSION["nome"] = $atleta->nome;
                     $_SESSION["email"] = $atleta->email;
-                    $_SESSION["idade"] = calcularIdade($atleta->idade);
+                    $_SESSION["idade"] = calcularIdade($atleta->data_nascimento);
                     $_SESSION["data_nascimento"] = $atleta->data_nascimento;
                     $_SESSION["fone"] = $atleta->fone;
                     $_SESSION["academia"] = $atleta->academia;
