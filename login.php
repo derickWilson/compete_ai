@@ -20,7 +20,7 @@ if(!$_SESSION["logado"]){
         <form action="logar.php" method="post">
             <?php 
             if(isset($_GET["erro"]) && $_GET["erro"] == 1){
-                echo "Usuário Inválido";
+                echo "Usuário Inválido<br>";
             }
             ?>
             <label for="usuario" >Email</label>
