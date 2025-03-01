@@ -8,8 +8,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     }
     $atleta = new Atleta();
     $conn = new Conexao();
+    $senha = password_hash(cleanWords($_POST["senha"]), PASSWORD_BCRYPT);
     $atleta->__set("email", cleanWords($_POST["usuario"]));
-    $atleta->__set("senha", cleanWords($_POST["senha"]));
+    $atleta->__set("senha", $senha);
     try {
         $attServ = new atletaService($conn, $atleta);
         $attServ->logar(); 

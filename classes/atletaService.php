@@ -19,15 +19,14 @@ class atletaService {
     //adicionar atleta
     public function addAtleta() {
         // Verificar a faixa
-
         $faixasGraduadas = ["Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
         $valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
         $query = "INSERT INTO atleta (nome, senha, email, data_nascimento, fone, academia, faixa, peso, diploma, validado)
                   VALUES (:nome, :senha, :email, :data_nascimento, :fone, :academia, :faixa, :peso, :diploma, :valido)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
-        $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        $stmt->bindValue(":nome", $this->atleta->__get("nome"));
-        $stmt->bindValue(":senha", $this->$senhaCriptografada); // Criptografar senha
+        $stmt->bindValue(":nome", $this->atleta->__get("nome"));
+        $stmt->bindValue(":senha", $this->atleta->__get("senha"));
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
@@ -63,20 +62,18 @@ class atletaService {
     }
 
     //logar atleta
-//logar atleta
-public function logar() {
-    $query = "SELECT id, nome, email, data_nascimento, fone, academia, faixa, peso, adm, validado, senha
-              FROM atleta
-              WHERE email = :email";
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindValue(":email", $this->atleta->__get("email"));
-    try {
-        $stmt->execute(); // Tenta executar a consulta
-        $atleta = $stmt->fetch(PDO::FETCH_OBJ);
-        if ($atleta) {
-            // Verificar se a senha fornecida bate com a senha armazenada
-            if (password_verify($this->atleta->__get("senha"), $atleta->senha)) {
-                if ($atleta->validado) {
+    public function logar() {
+        $query = "SELECT id, nome, email, data_nascimento, fone, academia, faixa, peso, adm, validado
+                  FROM atleta
+                  WHERE email = :email AND senha = :senha";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(":email", $this->atleta->__get("email"));
+        $stmt->bindValue(":senha", $this->atleta->__get("senha"));
+        try {
+            $stmt->execute(); // Tenta executar a consulta
+            $atleta = $stmt->fetch(PDO::FETCH_OBJ);
+            if ($atleta) {
+                if($atleta->validado){
                     // Define as variáveis da sessão
                     $_SESSION["logado"] = true;
                     $_SESSION["id"] = $atleta->id;
@@ -100,16 +97,11 @@ public function logar() {
                 header('Location: login.php?erro=1');
                 exit();
             }
-        } else {
-            header('Location: login.php?erro=1');
-            exit();
+        } catch (PDOException $e) {
+            // Captura qualquer erro gerado pela execução da consulta
+            echo "Erro ao tentar logar: " . $e->getMessage();
         }
-    } catch (PDOException $e) {
-        // Captura qualquer erro gerado pela execução da consulta
-        echo "Erro ao tentar logar: " . $e->getMessage();
     }
-}
-
     
 
     //retornar um atleta especifico

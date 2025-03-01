@@ -1,7 +1,11 @@
 <?php
 // Verifica se os dados foram enviados via POST
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $caminhoParaSalvar = null;
+    echo "<pre>";
+    print_r($_POST);
+    echo "<pre>";
      //Verifica se o arquivo foi enviado corretamente
     if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
         $diploma = $_FILES['diploma'];
@@ -25,6 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $senhaCriptografada = password_hash(cleanWords($_POST["senha"]), PASSWORD_BCRYPT);
     $con = new Conexao();
     $atletas = new Atleta();
+    echo $senhaCriptografada;
     $atletas->__set("nome", cleanWords($_POST["nome"]));
     $atletas->__set("senha", $senhaCriptografada);
     $atletas->__set("email", cleanWords($_POST["email"]));
