@@ -2,10 +2,10 @@ CREATE DATABASE IF NOT EXISTS usuario;
     USE usuario;
     CREATE TABLE IF NOT EXISTS atleta(
         id INT NOT NULL AUTO_INCREMENT,
-        nome VARCHAR(50),
-        senha VARCHAR(255),
+        nome NOT NULL VARCHAR(50),
+        senha NOT NULL VARCHAR(255),
         email VARCHAR (100),
-        data_nascimento DATE,
+        data_nascimento NOT NULL DATE,
         fone VARCHAR(12),
         academia VARCHAR(255),
         faixa VARCHAR(30),
