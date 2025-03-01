@@ -13,7 +13,6 @@ if(!$_SESSION["logado"]){
 </head>
 <body>
     <?php
-
     include "menu/add_menu.php";
     ?>
     <h1>Logar</h1>

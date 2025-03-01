@@ -22,11 +22,9 @@ class atletaService {
 
         $faixasGraduadas = ["Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
         $valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
-
         $query = "INSERT INTO atleta (nome, senha, email, data_nascimento, fone, academia, faixa, peso, diploma, validado)
                   VALUES (:nome, :senha, :email, :data_nascimento, :fone, :academia, :faixa, :peso, :diploma, :valido)";
         $stmt = $this->conn->prepare($query);
-
         // Bind dos valores
         $stmt->bindValue(":nome", $this->atleta->__get("nome"));
         $stmt->bindValue(":senha", $this->atleta->__get("senha")); // Criptografar senha
@@ -38,7 +36,6 @@ class atletaService {
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
         $stmt->bindValue(":valido", $valido);
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
-
         // Executar a query
         if ($stmt->execute()) {
             $this->logar();
@@ -70,16 +67,12 @@ class atletaService {
         $query = "SELECT id, nome, email, data_nascimento, fone, academia, faixa, peso, adm, validado
                   FROM atleta
                   WHERE email = :email AND senha = :senha";
-    
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":senha", $this->atleta->__get("senha"));
-    
         try {
             $stmt->execute(); // Tenta executar a consulta
-    
             $atleta = $stmt->fetch(PDO::FETCH_OBJ);
-    
             if ($atleta) {
                 if($atleta->validado){
                     // Define as variáveis da sessão
@@ -119,27 +112,21 @@ class atletaService {
                 FROM atleta
                 WHERE id = :id";
         $stmt = $this->conn->prepare($query);
-
         $stmt->bindValue(":id", $id);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_OBJ);
-
         return $result;
     }
-
     //edição feita pelo administrador
     public function editAdmin($id, $validado, $faixa){
         $query = "UPDATE atleta SET validado = :validado, faixa = :faixa WHERE id = :id";
-
         $stmt = $this->conn->prepare($query);
-
         $stmt->bindValue(":validado", $validado);
         $stmt->bindValue(":faixa", $faixa);
         $stmt->bindValue(":id", $id);
         $stmt->execute();
         //header("Location: controle?user=".$id."?msg=sucesso");
     }
-    
     //ver se um email existe
     public function emailExists($email) {
         // Query para verificar se o e-mail existe
@@ -147,12 +134,10 @@ class atletaService {
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $email);
         $stmt->execute();
-    
         // Obtém o número de registros encontrados
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['count'] > 0;
     }
-
     public function listarCampeonatos($id_atleta){
         $query = 'SELECT e.id as idC, e.nome as campeonato, e.local_evento as lugar, e.data_evento as dia,
         i.mod_com as mcom, i.mod_sem as msem, 
