@@ -52,7 +52,6 @@
         faixa.addEventListener("change", function() {
             let graduacoes = ["Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
             let selecionado = faixa.value;
-
             if (graduacoes.includes(selecionado)) {
                 diplomaInput.style.display = "block";
             } else {
