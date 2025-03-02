@@ -11,6 +11,7 @@
     session_start();
     include "menu/add_menu.php";
     ?>
+    <div class="principal">
     <form method="post" action="cadastrar.php" enctype="multipart/form-data">
         nome <input name="nome" type="text" placeholder="nome completo" required><br>
         <?php
@@ -28,6 +29,10 @@
         Faixa <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>
             <option value="Branca">Branca</option>
+            <option value="Crinza">Crinza</option>
+            <option value="Amarela">Amarela</option>
+            <option value="Laranja">Laranja</option>
+            <option value="Verde">Verde</option>
             <option value="Azul">Azul</option>
             <option value="Roxa">Roxa</option>
             <option value="Marrom">Marrom</option>
@@ -43,6 +48,7 @@
     </form> 
     <a href="index.php">voltar</a>
 
+    </div>
     <script>
     document.addEventListener("DOMContentLoaded", function() {
         let faixa = document.getElementById('faixas');

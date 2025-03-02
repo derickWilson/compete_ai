@@ -7,19 +7,6 @@ body{
     background-repeat: no-repeat;
     background-size: cover
 }
-
-a{
-    text-decoration: none;
-    background-color: aliceblue;
-    color: red;
-}
-
-a:hover{
-    text-decoration: none;
-    background-color: rgb(35, 39, 43);
-    color:red;
-}
-
 div, footer, h1, h2, h3{
     background-color: aliceblue;
 }
@@ -78,7 +65,24 @@ header nav a:hover{
 }
 
 .principal{
+    margin-top: 16px;
     padding-left: 15px;
+    padding-bottom: 10px;
+}
+
+.principal form *{
+    margin-top: 16px;
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+
+.principal form input[type=text]{
+    width: 80%;
+    border-radius: 15px;
+}
+.principal form input[type=text]:focus{
+    width: 80%;
+    border: solid gray 2px;
 }
 
 .banner{
