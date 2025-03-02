@@ -2,7 +2,7 @@
     border: 2px solid red;
 }
 
-header nav{
+header {
     padding: auto;
     padding: 5px;
     padding-left: 5px;
@@ -11,6 +11,12 @@ header nav{
     align-items: center;
     background-color: rgb(0, 113, 219);
     color:aqua
+}
+
+header nav a{
+    padding-left: 3%;
+    padding-right: 3%;
+    margin-top: 5px;
 }
 
 body{
