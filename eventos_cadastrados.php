@@ -30,6 +30,7 @@ if (!isset($_SESSION["logado"])){
         include "menu/add_menu.php";
     ?>
 <h3>Campeonato Inscritos</h3>
+<div class="principal">
 <table border="1">
     <tr>
         <th>Campeonato</th>
@@ -53,5 +54,6 @@ if (!isset($_SESSION["logado"])){
     </tr>
     <?php } ?>
 </table>
+</div>
 </body>
 </html>
