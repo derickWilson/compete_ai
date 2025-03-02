@@ -31,9 +31,8 @@ $peso = $_SESSION["peso"] ?? 'Não disponível';
     <?php
     include "menu/add_menu.php";
     ?>
-    <div>
+    <div class="principal">
         <h1>Informações Pessoais</h1>
-        
         <p><strong>ID:</strong> <?php echo htmlspecialchars($id); ?></p>
         <p><strong>Nome:</strong> <?php echo htmlspecialchars($nome); ?></p>
         <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>

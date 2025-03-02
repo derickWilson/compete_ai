@@ -16,7 +16,7 @@ if(!$_SESSION["logado"]){
     include "menu/add_menu.php";
     ?>
     <h1>Logar</h1>
-    <div class="container_login">
+    <div class="principal">
         <form action="logar.php" method="post">
             <?php 
             if(isset($_GET["erro"]) && $_GET["erro"] == 1){
@@ -24,7 +24,7 @@ if(!$_SESSION["logado"]){
             }
             ?>
             <label for="usuario" >Email</label>
-            <input type="text" name="usuario" id="usuario" required>
+            <input type="text" name="usuario" id="usuario" required><br>
             <label for="senha">Senha</label>
             <input type="password" name="senha" id="senha" required>
             <input type="submit" value="Logar">
