@@ -33,17 +33,17 @@ if (isset($_GET['id'])) {
 </head>
 <body>
 
-<?php
-
+    <?php
     include_once "menu/add_menu.php";
     ?>
-    <div class="principal">
-        <?php
+    <?php
         // Listar todos os eventos
         if ($tudo) {
             foreach ($list as $valor) { ?>
             <div class="campeonato">
-            <a href='eventos.php?id=<?php echo $valor->id ?>'><h2><?php echo htmlspecialchars($valor->nome); ?></h2></a>
+            <img src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem" class='mini-banner'>
+            <a href='eventos.php?id=<?php echo $valor->id ?>'><h2>
+                <?php echo htmlspecialchars($valor->nome); ?></h2></a>
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     | <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
                     | <a href='admin/chapa.php?id=<?php echo $valor->id ?>'>Montar chapa</a>
@@ -105,6 +105,5 @@ if (isset($_GET['id'])) {
         <?php
         } // Fim da condição de um único evento
         ?>
-    </div>
 </body>
 </html>

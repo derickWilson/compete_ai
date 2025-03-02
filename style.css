@@ -41,3 +41,16 @@ header nav a:hover{
     align-items: center;
     text-decoration: none;
 }
+
+.campeonato{
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-bottom: 5px;
+    border-top: 10px;
+}
+/*
+.mini-banner{
+    width: 80px;
+    height: 80px;
+    float: left;
+}*/
