@@ -7,10 +7,18 @@ header nav{
     padding: 5px;
     padding-left: 5px;
     width: 75%;
+    align-self: center;
     align-items: center;
+    background-color: rgb(0, 113, 219);
+    color:aqua
 }
 
 body{
-    padding: 10px;
-    background-image: "/opt/lampp/htdocs/compete_ai/stilos/fundo.jpg";
+    background-image: url("estilos/capa.jpg") ;
+    background-repeat: no-repeat;
+    background-size: cover
+}
+
+div, footer, h1, h2, h3{
+    background-color: aliceblue;
 }
