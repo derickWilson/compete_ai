@@ -42,15 +42,15 @@ if (isset($_GET['id'])) {
             foreach ($list as $valor) { ?>
             <div class="campeonato">
             <img src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem" class='mini-banner'>
-            <a href='eventos.php?id=<?php echo $valor->id ?>'><h2>
+            <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'><h2>
                 <?php echo htmlspecialchars($valor->nome); ?></h2></a>
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     | <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
                     | <a href='admin/chapa.php?id=<?php echo $valor->id ?>'>Montar chapa</a>
                 <?php } ?>
-                <br>
+                <br class='clear'>
             </div>
-                            <?php } ?>
+    <?php } ?>
             <br><a href="index.php">Voltar</a>
         <?php
         } else {// detalhes de apenas um campeonato
