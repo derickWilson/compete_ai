@@ -8,6 +8,18 @@ body{
     background-size: cover
 }
 
+a{
+    text-decoration: none;
+    background-color: aliceblue;
+    color: red;
+}
+
+a:hover{
+    text-decoration: none;
+    background-color: rgb(35, 39, 43);
+    color:red;
+}
+
 div, footer, h1, h2, h3{
     background-color: aliceblue;
 }
@@ -65,8 +77,15 @@ header nav a:hover{
     background-color: rgb(240, 240, 240); 
 }
 
-.clear{
-    clear: both;
+.principal{
+    padding-left: 15px;
+}
+
+.banner{
+    margin-left: 10px;
+    height: 100px;
+    width: 1000px;
+    align-self: auto;
 }
 
 .mini-banner{

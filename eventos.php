@@ -56,8 +56,9 @@ if (isset($_GET['id'])) {
         } else {// detalhes de apenas um campeonato
             if (isset($eventoDetails)) {
         ?>
-                <h1><?php echo htmlspecialchars($eventoDetails->nome); ?></h1>
-                <img src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento">
+        <div class='principal'>
+            <h1><?php echo htmlspecialchars($eventoDetails->nome); ?></h1>
+                <img class='banner' src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento">
                 <p>Descrição: <?php echo htmlspecialchars($eventoDetails->descricao); ?></p>
                 <p>Data do Campeonato: <?php echo htmlspecialchars($eventoDetails->data_evento); ?></p>
                 <p>Local do Campeonato: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
@@ -105,5 +106,6 @@ if (isset($_GET['id'])) {
         <?php
         } // Fim da condição de um único evento
         ?>
+        </div>
 </body>
 </html>
