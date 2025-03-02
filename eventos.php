@@ -1,22 +1,19 @@
 <?php
 // Incluindo arquivos necessários
-session_start();
+session_start();/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
+error_reporting(E_ALL);*/
 try {
     require_once "classes/eventosServices.php";
     include "func/clearWord.php";
 } catch (\Throwable $th) {
     print('['. $th->getMessage() .']');
 }
-
     $conn = new Conexao();
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
     $tudo = true;    
-
 if (isset($_GET['id'])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET['id']);
