@@ -16,6 +16,7 @@ header{
 }
 
 header img{
+    margin-top: 10px;
     width: 50%;
     height: 150px;
 }
@@ -26,6 +27,7 @@ header nav a{
     padding-left: 3%;
     padding-right: 3%;
     margin-top: 5px;
+    margin-bottom: 5px;
     align-items: center;
     text-decoration: none;
 }
