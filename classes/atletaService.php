@@ -20,7 +20,7 @@ class atletaService {
     public function addAtleta() {
         // Verificar a faixa
 
-        $faixasGraduadas = ["Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
+        $faixasGraduadas = ["Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
         $valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
         $query = "INSERT INTO atleta (nome, senha, email, data_nascimento, fone, academia, faixa, peso, diploma, validado)
                   VALUES (:nome, :senha, :email, :data_nascimento, :fone, :academia, :faixa, :peso, :diploma, :valido)";
