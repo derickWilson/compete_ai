@@ -1,4 +1,5 @@
 <header>
+<img src="estilos/banner.jpeg" alt="">
     <nav>
         <a href="index.php">Home</a>
         <a href="eventos.php">Eventos</a>
