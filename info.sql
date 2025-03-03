@@ -4,16 +4,22 @@ CREATE DATABASE IF NOT EXISTS usuario;
         id INT NOT NULL AUTO_INCREMENT,
         nome VARCHAR(50) NOT NULL,
         senha VARCHAR(255) NOT NULL,
-        email VARCHAR (100),
+        email VARCHAR (100) NOT NULL,
         data_nascimento DATE NOT NULL,
         fone VARCHAR(12) NOT NULL,
-        academia VARCHAR(255) NOT NULL,
-        faixa VARCHAR(30),
-        peso FLOAT(5,2),
-        validado TINYINT,
+        academia INT NOT NULL,
+        faixa VARCHAR(30) NOT NULL,
+        peso FLOAT(5,2) NOT NULL,
+        validado TINYINT NOT NULL,
         adm TINYINT default 0,
-        diploma VARCHAR(30),
+        diploma VARCHAR(30) NOT NULL,
         PRIMARY KEY (id)
+    );
+
+    CREATE TABLE IF NOT EXISTS academia(
+        id INT NOT NULL AUTO_INCREMENT,
+        nome VARCHAR(100) NOT NULL,
+        cep VARCHAR(20) NOT NULL,
     );
 
 #--tabela dos eventos
