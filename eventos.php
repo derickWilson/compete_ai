@@ -41,7 +41,7 @@ if (isset($_GET['id'])) {
         if ($tudo) {
             foreach ($list as $valor) { ?>
             <div class="campeonato">
-            <img src="uploads/<?php echo $$valor->imagen; ?>" alt="Imagem" class='mini-banner'>
+            <img src="uploads/<?php echo $valor->imagen; ?>" alt="Imagem" class='mini-banner'>
             <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'><h2>
                 <?php echo htmlspecialchars($valor->nome); ?></h2></a>
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
@@ -107,6 +107,5 @@ if (isset($_GET['id'])) {
         } // Fim da condição de um único evento
         ?>
         </div>
-        <footer>todos os direitos reservados</footer>
 </body>
 </html>
