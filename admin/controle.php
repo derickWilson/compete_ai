@@ -65,8 +65,9 @@ if (isset($_GET["user"])) {
             </div>
             <div>
                 <label>Nova Faixa:</label>
-                <select name="faixa">
+                <select id="faixas" name="faixa" required>
                     <option value="Branca" <?php echo $usuario->faixa == 'Branca' ? 'selected' : ''; ?>>Branca</option>
+                    <option value="Crinza" <?php echo $usuario->faixa == 'Crinza' ? 'selected' : ''; ?>>Crinza</option>
                     <option value="Amarela" <?php echo $usuario->faixa == 'Amarela' ? 'selected' : ''; ?>>Amarela</option>
                     <option value="Laranja" <?php echo $usuario->faixa == 'Laranja' ? 'selected' : ''; ?>>Laranja</option>
                     <option value="Verde" <?php echo $usuario->faixa == 'Verde' ? 'selected' : ''; ?>>Verde</option>
@@ -75,9 +76,8 @@ if (isset($_GET["user"])) {
                     <option value="Marrom" <?php echo $usuario->faixa == 'Marrom' ? 'selected' : ''; ?>>Marrom</option>
                     <option value="Preta" <?php echo $usuario->faixa == 'Preta' ? 'selected' : ''; ?>>Preta</option>
                     <option value="Coral" <?php echo $usuario->faixa == 'Coral' ? 'selected' : ''; ?>>Coral</option>
+                    <option value="Vermelha e Branca" <?php echo $usuario->faixa == 'Vermelha e Branca' ? 'selected' : ''; ?>>Vermelha e Branca</option>
                     <option value="Vermelha" <?php echo $usuario->faixa == 'Vermelha' ? 'selected' : ''; ?>>Vermelha</option>
-                    <option value="Preta e Vermelha" <?php echo $usuario->faixa == 'Preta e Vermelha' ? 'selected' : ''; ?>>Preta e Vermelha</option>
-                    <option value="Preta e Branca" <?php echo $usuario->faixa == 'Preta e Branca' ? 'selected' : ''; ?>>Preta e Branca</option>
                 </select>
             </div>
             <div>

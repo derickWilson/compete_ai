@@ -81,9 +81,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         Telefone: <input maxlength="12" type="tel" name="fone" id="telefone" value="<?php echo htmlspecialchars($atleta->fone); ?>" placeholder="0000000000" required><br>
         Academia/Equipe: <input type="text" name="academia" id="academia" value="<?php echo htmlspecialchars($atleta->academia); ?>" required><br>
         Faixa: 
+        <label>Faixa:</label>
         <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>
             <option value="Branca" <?php if ($atleta->faixa == "Branca") echo "selected"; ?>>Branca</option>
+            <option value="Amarela" <?php if ($atleta->faixa == "Amarela") echo "selected"; ?>>Amarela</option>
+            <option value="Laranja" <?php if ($atleta->faixa == "Laranja") echo "selected"; ?>>Laranja</option>
+            <option value="Verde" <?php if ($atleta->faixa == "Verde") echo "selected"; ?>>Verde</option>
             <option value="Azul" <?php if ($atleta->faixa == "Azul") echo "selected"; ?>>Azul</option>
             <option value="Roxa" <?php if ($atleta->faixa == "Roxa") echo "selected"; ?>>Roxa</option>
             <option value="Marrom" <?php if ($atleta->faixa == "Marrom") echo "selected"; ?>>Marrom</option>
@@ -92,7 +96,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <option value="Vermelha" <?php if ($atleta->faixa == "Vermelha") echo "selected"; ?>>Vermelha</option>
             <option value="Preta e Vermelha" <?php if ($atleta->faixa == "Preta e Vermelha") echo "selected"; ?>>Preta e Vermelha</option>
             <option value="Preta e Branca" <?php if ($atleta->faixa == "Preta e Branca") echo "selected"; ?>>Preta e Branca</option>
-        </select><br>
+        </select>
+<br>
 
         <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
         
@@ -120,5 +125,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     });
     </script>
+    <footer>todos os direitos reservados</footer>
 </body>
 </html>
