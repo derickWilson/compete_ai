@@ -7,18 +7,18 @@ body{
     background-repeat: no-repeat;
     background-size: cover
 }
-div, footer, h1, h2, h3{
+div, h2, h3{
     background-color: aliceblue;
 }
 
-header{
+header, h1{
     background-color: rgb(47, 90, 231);
 }
 
 header img{
     margin-top: 10px;
     width: 50%;
-    height: 120px;
+    height: 10px;
 }
 
 header nav a{

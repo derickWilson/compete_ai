@@ -13,7 +13,6 @@
     <?php
         include "menu/add_menu.php";
     ?>
-    <h1>Federaraçãp Paulista De Jiu-Jistu Internacional</h1>
 <hr>
 <div>
     <?php
