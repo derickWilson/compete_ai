@@ -11,7 +11,12 @@ div, h2, h3{
     background-color: aliceblue;
 }
 
-header, h1{
+header{
+    background-color: rgb(47, 90, 231);
+}
+
+.blue{
+    color: white;
     background-color: rgb(47, 90, 231);
 }
 
@@ -132,9 +137,8 @@ header nav a:hover{
 }
 
 footer {
-    margin-top: 15px;
-    height: 70px;
-    position: static;
+    height: 75px;
+    position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
