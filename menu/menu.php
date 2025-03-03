@@ -1,5 +1,7 @@
 <header>
-<img src="estilos/banner.jpeg" class="logo">
+    <center>
+    <img src="estilos/banner.jpeg" class="logo">
+    </center>   
     <nav>
         <a href="index.php">Home</a>
         <a href="eventos.php">Eventos</a>

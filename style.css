@@ -11,13 +11,13 @@ div, footer, h1, h2, h3{
     background-color: aliceblue;
 }
 
-header {
-    margin-left: 10%;
-    align-self: center;
-    text-align: center;
-    padding: auto;
-    width: 75%;
+header{
     background-color: rgb(35, 39, 43);
+}
+
+header img{
+    width: 50%;
+    height: 150px;
 }
 
 header nav a{
@@ -129,6 +129,7 @@ header nav a:hover{
 }
 
 footer {
+    height: 10px;
     position: fixed;
     left: 0;
     bottom: 0;

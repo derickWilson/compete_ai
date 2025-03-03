@@ -1,6 +1,7 @@
 <header>
-<img src="estilos/banner.jpeg" class="logo">
-    <nav>
+    <center>
+    <img src="estilos/banner.jpeg" class="logo">
+    </center>       <nav>
         <a href="/index.php">Home</a>
         <a href="/eventos.php">Eventos</a>
         <a href="/pagina_pessoal.php">Página Pessoal</a>
