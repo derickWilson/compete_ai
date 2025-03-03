@@ -16,8 +16,6 @@ header {
     align-self: center;
     text-align: center;
     padding: auto;
-    padding: 5px;
-    padding-left: 5px;
     width: 75%;
     background-color: rgb(35, 39, 43);
 }
@@ -129,3 +127,13 @@ header nav a:hover{
     height: 100%;
     float: left;
 }
+
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: white;
+    background-color: rgb(35, 39, 43); 
+    text-align: center;
+  }
