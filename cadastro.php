@@ -45,7 +45,7 @@
         Peso <input type="number" name="peso" min="10" step="0.05" required><br>
         <input type="submit" value="Cadastrar"><br>
     </form> 
-    <a href="index.php">voltar</a>
+    <a class="link" href="index.php">voltar</a>
 
     </div>
     <script>

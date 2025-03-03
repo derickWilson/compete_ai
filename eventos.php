@@ -102,8 +102,8 @@ if (isset($_GET['id'])) {
             <?php
             }
             ?>
-            <br><a href="eventos.php">Voltar</a>
-        <?php
+    <br><a class="link" href="index.php">voltar</a>
+    <?php
         } // Fim da condição de um único evento
         ?>
         </div>

@@ -15,6 +15,12 @@ header{
     background-color: rgb(47, 90, 231);
 }
 
+.link{
+    background-color: white;
+    border-radius: 2px;
+    color: black;
+}
+
 header img{
     margin-top: 10px;
     width: 50%;
@@ -46,16 +52,16 @@ header nav a:hover{
     padding-right: 10px;
     margin-bottom: 5px;
     margin-top: 20px;
-    background-color: rgb(47, 90, 231);
+    background-color: whitesmoke
 }
 
 .campeonato h2{
     margin-left: 16%;
-    background-color: rgb(47, 90, 231);
+    background-color: whitesmoke
 }
 
 .campeonato a{
-    color: rgb(255, 255, 255);
+    color: rgb(47, 90, 231);
     text-decoration: none;
 }
 
@@ -133,7 +139,7 @@ header nav a:hover{
 
 footer {
     height: 75px;
-    position: fixed;
+    position: static;
     left: 0;
     bottom: 0;
     width: 100%;

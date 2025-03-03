@@ -13,7 +13,6 @@
     <?php
         include "menu/add_menu.php";
     ?>
-<hr>
 <div>
     <?php
         if(isset($_GET["erro"]) && $_GET["erro"] == 2){
@@ -22,7 +21,6 @@
         }
     ?>
 </div>
-<hr>
     <footer>todos os direitos reservados</footer>
 </body>
 </html>
