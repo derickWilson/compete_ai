@@ -85,6 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>
             <option value="Branca" <?php if ($atleta->faixa == "Branca") echo "selected"; ?>>Branca</option>
+            <option value="Cinza" <?php if ($atleta->faixa == "Cinza") echo "selected"; ?>>Branca</option>
             <option value="Amarela" <?php if ($atleta->faixa == "Amarela") echo "selected"; ?>>Amarela</option>
             <option value="Laranja" <?php if ($atleta->faixa == "Laranja") echo "selected"; ?>>Laranja</option>
             <option value="Verde" <?php if ($atleta->faixa == "Verde") echo "selected"; ?>>Verde</option>
@@ -93,9 +94,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <option value="Marrom" <?php if ($atleta->faixa == "Marrom") echo "selected"; ?>>Marrom</option>
             <option value="Preta" <?php if ($atleta->faixa == "Preta") echo "selected"; ?>>Preta</option>
             <option value="Coral" <?php if ($atleta->faixa == "Coral") echo "selected"; ?>>Coral</option>
+            <option value="Vermelha e Branca" <?php if ($atleta->faixa == "Vermelha e Branca") echo "selected"; ?>>Vermelha e Branca</option>
             <option value="Vermelha" <?php if ($atleta->faixa == "Vermelha") echo "selected"; ?>>Vermelha</option>
-            <option value="Preta e Vermelha" <?php if ($atleta->faixa == "Preta e Vermelha") echo "selected"; ?>>Preta e Vermelha</option>
-            <option value="Preta e Branca" <?php if ($atleta->faixa == "Preta e Branca") echo "selected"; ?>>Preta e Branca</option>
         </select>
 <br>
 
