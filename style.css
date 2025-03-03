@@ -1,9 +1,7 @@
-*{
-    border: 2px solid red;
-}
 body{
     background-color: rgb(47, 90, 231);
 }
+
 div, h2, h3{
     background-color: aliceblue;
 }
