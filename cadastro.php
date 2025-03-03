@@ -65,5 +65,6 @@
         });
     });
     </script>
+    <footer>todos os direitos reservados</footer>
 </body>
 </html>

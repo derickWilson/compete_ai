@@ -107,5 +107,6 @@ if (isset($_GET['id'])) {
         } // Fim da condição de um único evento
         ?>
         </div>
+        <footer>todos os direitos reservados</footer>
 </body>
 </html>
