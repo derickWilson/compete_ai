@@ -3,9 +3,7 @@
 }
 
 body{
-    background-image: url("estilos/capa.jpg") ;
-    background-repeat: no-repeat;
-    background-size: cover
+    background-color: rgb(47, 90, 231);
 }
 div, h2, h3{
     background-color: aliceblue;
