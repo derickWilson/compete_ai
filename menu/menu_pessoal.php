@@ -1,8 +1,9 @@
 <header>
-<h1 class='blue'>Federaraçãp Paulista De Jiu-Jistu Internacional</h1>
     <center>
+    <h2 class='blue'>Federaraçãp Paulista De Jiu-Jistu Internacional</h2>
     <img src="estilos/banner.jpeg" class="logo">
-    </center>       <nav>
+    </center>   
+    <nav>
         <a href="index.php">Home</a>
         <a href="eventos.php">Eventos</a>
         <a href="pagina_pessoal.php">Página pessoal</a>
