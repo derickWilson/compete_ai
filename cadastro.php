@@ -38,9 +38,8 @@
             <option value="Marrom">Marrom</option>
             <option value="Preta">Preta</option>
             <option value="Coral">Coral</option>
+            <option value="Vermelha e Branca">Vermelha e Branca</option>
             <option value="Vermelha">Vermelha</option>
-            <option value="Preta e Vermelha">Preta e Vermelha</option>
-            <option value="Preta e Branca">Preta e Branca</option>
         </select><br>
         <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png"  style="display: none;"><br>
         Peso <input type="number" name="peso" min="10" step="0.05" required><br>
@@ -55,7 +54,7 @@
         let diplomaInput = document.getElementById('diploma');
 
         faixa.addEventListener("change", function() {
-            let graduacoes = ["Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
+            let graduacoes = ["Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
             let selecionado = faixa.value;
             if (graduacoes.includes(selecionado)) {
                 diplomaInput.style.display = "block";
