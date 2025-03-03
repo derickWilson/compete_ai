@@ -132,8 +132,10 @@ header nav a:hover{
 }
 
 footer {
-    height: 75px;
-    position: fixed;
+    margin-bottom: 0;
+    margin-top: 15px;
+    height: 70px;
+    position: static;
     left: 0;
     bottom: 0;
     width: 100%;
