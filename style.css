@@ -119,29 +119,29 @@ header nav a:hover{
 }
 
 .principal form input[type=text]{
-    width: 80%;
+    width: 50%;
     border-radius: 15px;
 }
 .principal form input[type=text]:focus{
-    width: 80%;
+    width: 50%;
     border: solid red 2px;
 }
 
 .principal form input[type=email]{
-    width: 80%;
+    width: 50%;
     border-radius: 15px;
 }
 .principal form input[type=email]:focus{
-    width: 80%;
+    width: 50%;
     border: solid red 2px;
 }
 
 .principal form input[type=password]{
-    width: 80%;
+    width: 50%;
     border-radius: 15px;
 }
 .principal form input[type=password]:focus{
-    width: 80%;
+    width: 50%;
     border: solid red 2px;
 }
 
