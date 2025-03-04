@@ -41,7 +41,6 @@
     <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'>
         <h4><?php echo htmlspecialchars($valor->nome); ?></h4>
     </a>
-    <img src="uploads/<?php echo $valor->imagen; ?>" alt="Imagem" class='mini-banner'>
     <br class='clear'>
     </div>
     <?php }?>
