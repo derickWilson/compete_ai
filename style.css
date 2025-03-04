@@ -79,7 +79,19 @@ header nav a:hover{
     width: 10%;
     float: left;
     margin: 5px;
+    font-size: 15px;
 }
+
+.campeonato-amostra a{
+    color: rgb(47, 90, 231);
+    text-decoration: none;
+}
+
+.campeonato-amostra a:hover{
+    color: rgb(245, 0, 0);
+    background-color: rgb(0, 0, 0); 
+}
+
 .clear{
     clear: both;
 }
