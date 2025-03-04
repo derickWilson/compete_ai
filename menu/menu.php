@@ -6,7 +6,8 @@
     <nav>
         <a href="index.php">Home</a>
         <a href="eventos.php">Eventos</a>
-        <a href="cadastro.php">Cadastrar</a>
+        <a href="cadastro_academia.php">Filiar Academia</a>
+        <a href="cadastro_atleta.php">Filiar de Atleta</a>
         <a href="login.php">Logar</a>
     </nav>
 </header>
