@@ -1,5 +1,17 @@
 <?php
     session_start();
+    try {
+        require_once "classes/eventosServices.php";
+        include "func/clearWord.php";
+    } catch (\Throwable $th) {
+        print('['. $th->getMessage() .']');
+    }
+    $conn = new Conexao();
+    $ev = new Evento();
+    $evserv = new eventosService($conn, $ev);
+    $tudo = true;
+    //pegar todos    
+    $list = $evserv->listAll();
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -21,6 +33,17 @@
         }
     ?>
 </div>
-    <footer>todos os direitos reservados</footer>
+<center><h3>Proximos Eventos</h3></center>
+<?php
+// Listar todos os eventos
+    foreach ($list as $valor) { ?>
+    <div class="campeonato-amostra">
+    <img src="uploads/<?php echo $valor->imagen; ?>" alt="Imagem" class='mini-banner'>
+    <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'><h2>
+        <?php echo htmlspecialchars($valor->nome); ?></h2></a>
+        <br class='clear'>
+    </div>
+    <?php }?>
+<footer>todos os direitos reservados</footer>
 </body>
 </html>
