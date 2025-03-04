@@ -16,7 +16,7 @@
     Foto 3x4<br>
     <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png"><br>
 
-    Nome do Responsavel  <input name="nome" type="text" placeholder="nome completo" required><br>
+    Nome<input name="nome" type="text" placeholder="nome completo" required><br>
         <?php
             if(isset($erro) && $erro == 1){
                 echo '<span class = "erro">usuario ja possui conta </span>';

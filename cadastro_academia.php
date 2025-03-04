@@ -13,6 +13,7 @@
     ?>
     <div class="principal">
     <form method="post" action="cadastrar.php" enctype="multipart/form-data">
+        <h3>Dados da academia</h3>
     Nome da Academia/Equipe  <input type="text" name="academia" id="academia" required><br>
         CEP da academia<input maxlength="20" type="text" name="cep" id="cep" required><br>
         Cidade<input maxlength="50" type="text" name="cidade" id="cidade" required><br>
@@ -46,6 +47,7 @@
           <option value="SE">Sergipe (SE)</option>
           <option value="TO">Tocantins (TO)</option>
         </select><br>
+        <h3>Dados do Responsavel</h3>
     Foto 3x4<br>
     <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png"><br>
 
