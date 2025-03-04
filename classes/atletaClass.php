@@ -2,6 +2,7 @@
 class Atleta {
     private $id;
     private $nome;
+    private $foto;
     private $senha;
     private $email;
     private $data_nascimento;
