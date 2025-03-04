@@ -184,5 +184,16 @@ public function logar() {
             print("Erro ao adicionar atleta: " . $e->getMessage());
          }
     } 
+
+    public function Filiar($nome, $cep, $cidade, $estado) {
+        // Insere a academia e retorna o ID da academia inserida
+        $query = "INSERT INTO academia_filiada (nome, cep, cidade, estado) VALUES (:nome, :cep, :cidade, :estado)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(":nome", $nome);
+        $stmt->bindValue(":cep", $cep);
+        $stmt->bindValue(":cidade", $cidade);
+        $stmt->bindValue(":estado", $estado);
+        $stmt->execute();
+        return $this->conn->lastInsertedId();
 }
 ?>
