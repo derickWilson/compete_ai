@@ -1,14 +1,14 @@
 <?php
 // Verifica se os dados foram enviados via POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    require_once "classes/atletaService.php";
+    include "func/clearWord.php";
+    $con = new Conexao();
+    $atletas = new Atleta();
+    $attServ = new atletaService($con, $atletas);
     if($_POST["tipo"] == "A"){
         //cadastrar academia
         //cadastrar academia primeiro
-        require_once "classes/atletaService.php";
-        include "func/clearWord.php";
-        $con = new Conexao();
-        $atletas = new Atleta();
-        $attServ = new atletaService($con, $atletas);
         //filiar academia
         try {
             $attServ->Filiar(cleanWords($_POST["academia"]),
@@ -95,12 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo 'Arquivo vazio ou erro no upload';
             }
         }
-        
-        require_once "classes/atletaService.php";
-        include "func/clearWord.php";
         // Criptografe a senha
-        $con = new Conexao();
-        $atletas = new Atleta();
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("senha", cleanWords($_POST["senha"]));
         $atletas->__set("email", cleanWords($_POST["email"]));
