@@ -10,7 +10,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $atletas = new Atleta();
         $attServ = new atletaService($con, $atletas);
         //filiar academia
-        $attServ->Filiar(cleanWords($_POST["academia"]),cleanWords($_POST["cep"]));
+        $attServ->Filiar(cleanWords($_POST["academia"]),
+                        cleanWords($_POST["cep"]),
+                        cleanWords($_POST["cidade"]),
+                        cleanWords($_POST["estado"]));
         //Verifica se o diploma foi enviado corretamente
         if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
             $diploma = $_FILES['diploma'];
