@@ -94,15 +94,16 @@ CREATE DATABASE IF NOT EXISTS usuario;
         adm TINYINT default 0,
         diploma VARCHAR(30),
         
-        FOREIGN KEY (academia) REFERENCES filiacao(id),
+        FOREIGN KEY (academia) REFERENCES academia_filiada(id),
         PRIMARY KEY (id)
     );
 
-    CREATE TABLE IF NOT EXISTS filiacao(
+    CREATE TABLE IF NOT EXISTS academia_filiada(
         id INT NOT NULL AUTO_INCREMENT,
         nome VARCHAR(100) NOT NULL,
         cep VARCHAR(20) NOT NULL,
         cidade VARCHAR (50) NOT NULL,
+        responsavel INT NOT NULL,
         PRIMARY KEY (id)
         );
 
