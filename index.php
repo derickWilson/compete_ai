@@ -39,13 +39,13 @@
     foreach ($list as $valor) { ?>
     <div class="campeonato-amostra">
     <img src="uploads/<?php echo $valor->imagen; ?>" alt="Imagem" class='mini-banner'>
-    <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'><h2>
-        <?php echo htmlspecialchars($valor->nome); ?></h2></a>
+    <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'><h4>
+        <?php echo htmlspecialchars($valor->nome); ?></h4></a>
         <br class='clear'>
     </div>
     <?php }?>
 
-<center><h3>Regras</h3></center>
+<center class="clear"><h3>Regras</h3></center>
 <center><h3>Patrocinio</h3></center>
 <footer>todos os direitos reservados</footer>
 </body>

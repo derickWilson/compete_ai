@@ -7,12 +7,12 @@ CREATE DATABASE IF NOT EXISTS usuario;
         email VARCHAR (100) NOT NULL,
         data_nascimento DATE NOT NULL,
         fone VARCHAR(12) NOT NULL,
-        academia INT NOT NULL,
+        academia VARCHAR(100) NOT NULL,
         faixa VARCHAR(30) NOT NULL,
         peso FLOAT(5,2) NOT NULL,
         validado TINYINT NOT NULL,
         adm TINYINT default 0,
-        diploma VARCHAR(30) NOT NULL,
+        diploma VARCHAR(30),
         PRIMARY KEY (id)
     );
 
