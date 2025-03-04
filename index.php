@@ -44,6 +44,9 @@
         <br class='clear'>
     </div>
     <?php }?>
+
+<center><h3>Regras</h3></center>
+<center><h3>Patrocinio</h3></center>
 <footer>todos os direitos reservados</footer>
 </body>
 </html>
