@@ -77,3 +77,59 @@ VALUES
 ('Campeonato de Jiu-Jitsu do Norte', 'Campeonato regional de Jiu-Jitsu reunindo os melhores atletas do Norte do Brasil.', '2025-02-10', '2025-02-14', 'Ginásio Norte, Manaus', 0, 1, 'campeonato_norte.jpg', 50.00),
 ('Copa Norte-Nordeste de Jiu-Jitsu', 'Competição reunindo atletas de todas as regiões Norte e Nordeste do Brasil.', '2025-02-01', '2025-02-05', 'Arena Nordeste, Fortaleza', 1, 0, 'copa_norte_nordeste.jpg', 25.00),
 ('Super Liga Brasileira de Jiu-Jitsu', 'Liga profissional de Jiu-Jitsu com competições em várias cidades do Brasil.', '2025-03-10', '2025-03-15', 'Centro de Treinamento, São Paulo', 1, 0, 'super_liga_jiu_jitsu.jpg', 150.00);
+
+CREATE DATABASE IF NOT EXISTS usuario;
+    USE usuario;
+    CREATE TABLE IF NOT EXISTS atleta(
+        id INT NOT NULL AUTO_INCREMENT,
+        nome VARCHAR(50) NOT NULL,
+        senha VARCHAR(255) NOT NULL,
+        email VARCHAR (100) NOT NULL,
+        data_nascimento DATE NOT NULL,
+        fone VARCHAR(12) NOT NULL,
+        academia INT NOT NULL,
+        faixa VARCHAR(30) NOT NULL,
+        peso FLOAT(5,2) NOT NULL,
+        validado TINYINT NOT NULL,
+        adm TINYINT default 0,
+        diploma VARCHAR(30),
+        
+        FOREIGN KEY (academia) REFERENCES filiacao(id),
+        PRIMARY KEY (id)
+    );
+
+    CREATE TABLE IF NOT EXISTS filiacao(
+        id INT NOT NULL AUTO_INCREMENT,
+        nome VARCHAR(100) NOT NULL,
+        cep VARCHAR(20) NOT NULL,
+        cidade VARCHAR (50) NOT NULL,
+        PRIMARY KEY (id)
+        );
+
+#--tabela dos eventos
+CREATE TABLE IF NOT EXISTS evento(
+    id INT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT,
+    data_limite DATE,
+    data_evento DATE,
+    local_evento VARCHAR(100),
+    tipo_com TINYINT,
+    tipo_sem TINYINT,
+    imagen VARCHAR(30),
+    preco FLOAT(5,2),
+    PRIMARY KEY (id)
+);
+
+#--tabela pra relacionas qual atleta se cadatra em cada evento
+    CREATE TABLE IF NOT EXISTS inscricao(
+        id_atleta INT,
+        id_evento INT,
+        mod_com TINYINT,
+        mod_sem TINYINT,
+        mod_ab_com TINYINT,
+        mod_ab_sem TINYINT,
+        PRIMARY KEY (id_atleta, id_evento),
+        FOREIGN KEY (id_atleta) REFERENCES atleta(id),
+        FOREIGN KEY (id_evento) REFERENCES evento(id)
+    );
