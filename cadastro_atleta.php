@@ -29,11 +29,12 @@
         Data de Nascimento  <input type="date" name="data_nascimento" id="data_nasc" required><br>
         Fone  <input maxlength="12" type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
         Academia/Equipe  
-        <select id="faixas" name="faixa" required>
             <?php
             //pegas todas as academias filiadas
             ?>
-        Faixa <select id="faixas" name="faixa" required>
+        <br>
+        Faixa 
+        <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>
             <option value="Branca">Branca</option>
             <option value="Crinza">Crinza</option>
