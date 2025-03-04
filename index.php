@@ -38,10 +38,11 @@
 // Listar todos os eventos
     foreach ($list as $valor) { ?>
     <div class="campeonato-amostra">
+    <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'>
+        <h4><?php echo htmlspecialchars($valor->nome); ?></h4>
+    </a>
     <img src="uploads/<?php echo $valor->imagen; ?>" alt="Imagem" class='mini-banner'>
-    <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'><h4>
-        <?php echo htmlspecialchars($valor->nome); ?></h4></a>
-        <br class='clear'>
+    <br class='clear'>
     </div>
     <?php }?>
 
