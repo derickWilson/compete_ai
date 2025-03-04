@@ -83,6 +83,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
     CREATE TABLE IF NOT EXISTS atleta(
         id INT NOT NULL AUTO_INCREMENT,
         nome VARCHAR(50) NOT NULL,
+        foto VARCHAR(30),
         senha VARCHAR(255) NOT NULL,
         email VARCHAR (100) NOT NULL,
         data_nascimento DATE NOT NULL,
