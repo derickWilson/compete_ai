@@ -20,22 +20,22 @@ class atletaService {
     public function addAtleta() {
         // Verificar a faixa
 
-        $faixasGraduadas = ["Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
-        $valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
-        $query = "INSERT INTO atleta (nome, senha, email, data_nascimento, fone, academia, faixa, peso, diploma, validado)
-                  VALUES (:nome, :senha, :email, :data_nascimento, :fone, :academia, :faixa, :peso, :diploma, :valido)";
+        //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
+        //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
+        $query = "INSERT INTO atleta (nome, senha, foto, email, data_nascimento, fone, faixa, peso, diploma, validado)
+                  VALUES (:nome, :senha, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
         $stmt->bindValue(":nome", $this->atleta->__get("nome"));
+        $stmt->bindValue(":foto", $this->atleta->__get("foto"));
         $stmt->bindValue(":senha", $senhaCriptografada);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
-        $stmt->bindValue(":academia", $this->atleta->__get("academia"));
         $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
-        $stmt->bindValue(":valido", $valido);
+        $stmt->bindValue(":valido", 0);
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
         // Executar a query
         if ($stmt->execute()) {
@@ -89,7 +89,7 @@ public function logar() {
                     $_SESSION["idade"] = calcularIdade($atleta->data_nascimento);
                     $_SESSION["data_nascimento"] = $atleta->data_nascimento;
                     $_SESSION["fone"] = $atleta->fone;
-                    $_SESSION["academia"] = $atleta->academia;
+//                    $_SESSION["academia"] = $atleta->academia;
                     $_SESSION["faixa"] = $atleta->faixa;
                     $_SESSION["peso"] = $atleta->peso;
                     $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
