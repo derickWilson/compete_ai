@@ -98,7 +98,7 @@ class atletaService {
     }
 //logar atleta
 public function logar() {
-        $query = "SELECT id, nome, senha, foto, email, data_nascimento, fone, faixa, peso, adm, validado
+        $query = "SELECT id, nome, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado
                   FROM atleta
                   WHERE email = :email";
         $stmt = $this->conn->prepare($query);
@@ -120,11 +120,11 @@ public function logar() {
                     $_SESSION["id"] = $atleta->id;
                     $_SESSION["nome"] = $atleta->nome;
                     $_SESSION["email"] = $atleta->email;
-                    $_SESSION["for"] = $atleta->foto;
+                    $_SESSION["foto"] = $atleta->foto;
                     $_SESSION["idade"] = calcularIdade($atleta->data_nascimento);
                     $_SESSION["data_nascimento"] = $atleta->data_nascimento;
                     $_SESSION["fone"] = $atleta->fone;
-//                  $_SESSION["academia"] = $atleta->academia;
+                    $_SESSION["academia"] = $this->getAcad($atleta->academia);
                     $_SESSION["faixa"] = $atleta->faixa;
                     $_SESSION["peso"] = $atleta->peso;
                     $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
@@ -263,6 +263,16 @@ public function logar() {
         $stmt->bindValue("responsavel", $professor);
         $stmt->bindValue("academia", $acad);
         $stmt->execute();
+    }
+
+    //conseguir o nome da academia
+    public function getAcad($id){
+        $query = "SELECT nome FROM academia_filiada WHERE id = :id";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue("id", $id);
+        $stmt->execute();
+        $acad = $stmt->fetch(PDO::FETCH_ASSOC); 
+        return $acad["nome"]; 
     }
 }
 ?>
