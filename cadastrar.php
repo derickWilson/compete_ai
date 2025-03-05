@@ -45,8 +45,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //tratar foto enviada
         if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
             $foto = $_FILES['foto'];
-            $extensao = pathinfo($foto['name'], PATHINFO_EXTENSION);
-            $novoNomeFoto = 'foto_' . time() . '.' . $extensao;
+            $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
+            $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
             $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
             if ($foto['size'] > 0) {
                 if (move_uploaded_file($foto['tmp_name'], $caminhoParaSalvarFoto)) {
@@ -69,9 +69,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("fone", cleanWords($_POST["fone"]));
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
-        $atletas->__set("peso", $_POST["peso"]);
+        $atletas->__set("peso", cleanWords($_POST["peso"]));
         $atletas->__set("diploma",$novoNome);
-        if($attServ->emailExists($_POST["email"])){
+        if($attServ->emailExists($atletas->__get("email"))){
             header("Location: cadastro.php?erro=1");
             exit();
         }

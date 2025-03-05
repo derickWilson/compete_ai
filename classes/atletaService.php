@@ -23,7 +23,7 @@ class atletaService {
         //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
         //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
         $query = "INSERT INTO atleta (nome, senha, foto, email, data_nascimento, fone, faixa, peso, diploma, validado)
-                  VALUES (:nome, :senha, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido)";
+                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
@@ -54,7 +54,7 @@ class atletaService {
         //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
         //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
         $query = "INSERT INTO atleta (nome, senha, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado)
-                  VALUES (:nome, :senha, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido)";
+                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
@@ -99,7 +99,7 @@ class atletaService {
     }
 //logar atleta
 public function logar() {
-        $query = "SELECT id, nome, senha, email, data_nascimento, fone, academia, faixa, peso, adm, validado
+        $query = "SELECT id, nome, senha, foto, email, data_nascimento, fone, faixa, peso, adm, validado
                   FROM atleta
                   WHERE email = :email";
         $stmt = $this->conn->prepare($query);
