@@ -120,10 +120,11 @@ public function logar() {
                     $_SESSION["id"] = $atleta->id;
                     $_SESSION["nome"] = $atleta->nome;
                     $_SESSION["email"] = $atleta->email;
+                    $_SESSION["for"] = $atleta->foto;
                     $_SESSION["idade"] = calcularIdade($atleta->data_nascimento);
                     $_SESSION["data_nascimento"] = $atleta->data_nascimento;
                     $_SESSION["fone"] = $atleta->fone;
-//                    $_SESSION["academia"] = $atleta->academia;
+//                  $_SESSION["academia"] = $atleta->academia;
                     $_SESSION["faixa"] = $atleta->faixa;
                     $_SESSION["peso"] = $atleta->peso;
                     $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;

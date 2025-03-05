@@ -9,6 +9,7 @@ if (!isset($_SESSION["logado"])) {
 include "func/calcularIdade.php";
 // Acessa as variáveis de sessão
 $id = $_SESSION["id"] ?? 'Não disponível';
+$foto = $_SESSION["foto"] ?? 'Não disponível';
 $nome = $_SESSION["nome"] ?? 'Não disponível';
 $email = $_SESSION["email"] ?? 'Não disponível';
 $data_nascimento = $_SESSION["data_nascimento"] ?? 'Não disponível';
@@ -33,6 +34,7 @@ $peso = $_SESSION["peso"] ?? 'Não disponível';
     ?>
     <div class="principal">
         <h1>Informações Pessoais</h1>
+        <center><img class="perfil" src="fotos/<?php echo $foto?>"></center>
         <p><strong>ID:</strong> <?php echo htmlspecialchars($id); ?></p>
         <p><strong>Nome:</strong> <?php echo htmlspecialchars($nome); ?></p>
         <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
