@@ -2,16 +2,16 @@
 session_start();
 require "../func/is_adm.php";
 is_adm();
-
 include_once "../classes/atletaService.php";
 require_once __DIR__ . "/../func/clearWord.php";
-
 $conn = new Conexao();
 $atleta = new Atleta();
 $attServ = new atletaService($conn, $atleta);
-
 if (isset($_GET["user"])) {
     $usuario = $attServ->getById(cleanWords($_GET["user"]));
+    echo "<pre>";
+    print_r($usuario);
+    echo "</pre>";
 } else {
     echo "Selecione um usuário";
     exit();
