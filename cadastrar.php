@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("senha", cleanWords($_POST["senha"]));
-        $atletas->__set("academia", cleanWords($_POST["academia"]));
+        //$atletas->__set("academia", cleanWords($_POST["academia"]));
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
