@@ -6,6 +6,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $con = new Conexao();
     $atletas = new Atleta();
     $attServ = new atletaService($con, $atletas);
+    echo "<pre>";
+    print_r($_POST);
+    echo "<pre>";
     if($_POST["tipo"] == "A"){
         //cadastrar academia
         //cadastrar academia primeiro
