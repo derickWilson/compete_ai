@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
             $attServ->addAcademiaResponsavel();
             $idResponsavel = $attServ->getResponsavel(cleanWords($_POST["email"]),cleanWords($_POST["nome"]));
-            $attServ->atribuiAcademia($idAcademia["id"], $idResponsavel["id"]);
+            $attServ->atribuirAcademia($idAcademia["id"], $idResponsavel["id"]);
         } catch (Exception $e) {
             echo "Erro ao adicionar atleta: " . $e->getMessage();
         }

@@ -79,15 +79,19 @@ class atletaService {
     }
     //listar todos os atletas
     public function listAll() {
-        $query = "SELECT id, nome, faixa, academia, validado FROM atleta";
+        $query = "SELECT a.id, a.nome, a.faixa, f.nome as academia, a.validado 
+        JOIN academia_filiada as f ON 
+        FROM atleta AS a";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
     public function listInvalido() {
-        $query = "SELECT id, nome, email, data_nascimento,
-        fone, academia, faixa, peso FROM atleta
+        $query = "SELECT a.id, a.nome, a.email, a.data_nascimento,
+        a.fone, f.nome as academia, a.faixa, a.peso
+        JOIN academia_filiada AS f
+        FROM atleta AS a
         WHERE validado = 0";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
@@ -145,9 +149,10 @@ public function logar() {
 
     //retornar um atleta especifico
     public function getById($id){
-        $query = "SELECT id, nome, email, data_nascimento,
-                fone, academia, faixa, peso, validado, diploma
-                FROM atleta
+        $query = "SELECT a.id, a.nome, a.email, data_nascimento,
+                a.fone, f.nome as academia, a.faixa, a.peso, a.validado, a.diploma
+                FROM atleta AS a
+                JOIN academia_filiada as f ON a.academia = f.id
                 WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":id", $id);
