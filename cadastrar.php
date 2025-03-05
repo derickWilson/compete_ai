@@ -18,6 +18,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } catch (\Throwable $th) {
             echo "Erro ao filiar academia: " . $e->getMessage();
         }
+        //pegar o id da academia registrada
+        $idAcademia = $attServ->getIdAcad(cleanWords($_POST["academia"]));
         //Verifica se o diploma foi enviado corretamente
         if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
             $diploma = $_FILES['diploma'];
@@ -72,6 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         try {
             $attServ->addAcademiaResponsavel();
+            $idResponsavel = $attServ->getResponsavel(cleanWords($_POST["email"]),cleanWords($_POST["nome"]));
+            $attServ->atribuiAcademia($idAcademia["id"], $idResponsavel["id"]);
         } catch (Exception $e) {
             echo "Erro ao adicionar atleta: " . $e->getMessage();
         }
