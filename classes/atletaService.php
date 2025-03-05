@@ -150,11 +150,11 @@ public function logar() {
     public function getById($id){
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento,
                 a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma
-                FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE id = :id";
+                FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":id", $id);
         $stmt->execute();
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_OBJ);
         return $result;
     }
     //edição feita pelo administrador
