@@ -16,12 +16,6 @@ CREATE DATABASE IF NOT EXISTS usuario;
         PRIMARY KEY (id)
     );
 
-    CREATE TABLE IF NOT EXISTS academia(
-        id INT NOT NULL AUTO_INCREMENT,
-        nome VARCHAR(100) NOT NULL,
-        cep VARCHAR(20) NOT NULL,
-    );
-
 #--tabela dos eventos
 CREATE TABLE IF NOT EXISTS evento(
     id INT NOT NULL AUTO_INCREMENT,

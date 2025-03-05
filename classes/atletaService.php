@@ -225,5 +225,6 @@ public function logar() {
         $stmt->bindValue(":cidade", $cidade);
         $stmt->bindValue(":estado", $estado);
         $stmt->execute();
+    }
 }
 ?>
