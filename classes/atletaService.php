@@ -215,7 +215,7 @@ public function logar() {
             print("Erro ao adicionar atleta: " . $e->getMessage());
          }
     } 
-
+    //funçoes de afiliação de academia
     public function Filiar($nome, $cep, $cidade, $estado) {
         // Insere a academia e retorna o ID da academia inserida
         $query = "INSERT INTO academia_filiada (nome, cep, cidade, estado) VALUES (:nome, :cep, :cidade, :estado)";
@@ -225,6 +225,25 @@ public function logar() {
         $stmt->bindValue(":cidade", $cidade);
         $stmt->bindValue(":estado", $estado);
         $stmt->execute();
+    }
+
+    //funçao para consegui id da academia
+    public function getIdAcad($nomeAcad){
+        $query = "SELECT id FROM academia_filiada WHERE nome = :nome";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue("nome", $nomeAcad);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+    //conseguir o id do responsavel
+    public function getResponsavel($email, $nome){
+        $query = "SELECT id FROM atleta WHERE email = :email AND nome = :nome";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue("nome", $nome);
+        $stmt->bindValue("email", $email);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 ?>
