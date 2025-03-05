@@ -14,7 +14,6 @@ try {
     $conn = new Conexao();
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
-    
 } catch (Exception $e) {
     die("Erro na conexão ou instância: " . $e->getMessage());
 }

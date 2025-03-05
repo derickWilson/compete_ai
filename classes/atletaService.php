@@ -19,11 +19,10 @@ class atletaService {
     //adicionar academia e responsavel
     public function addAcademiaResponsavel() {
         // Verificar a faixa
-
         //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
         //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
         $query = "INSERT INTO atleta (nome, senha, foto, email, data_nascimento, fone, faixa, peso, diploma, validado)
-                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido)";
+                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
@@ -35,13 +34,13 @@ class atletaService {
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
         $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
-        $stmt->bindValue(":valido", 0);
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
         //vincular uma academia
         //vincular academia ao responsavel
         // Executar a query
         if ($stmt->execute()) {
-            $this->logar();
+            //$this->logar();
+            echo "não logar";
         } else {
             // Se algo deu errado, lançar uma exceção ou retornar um valor indicativo de erro
             throw new Exception("Erro ao adicionar atleta: " . implode(", ", $stmt->errorInfo()));
