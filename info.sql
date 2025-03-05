@@ -105,7 +105,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         cep VARCHAR(20) NOT NULL,
         estado VARCHAR (2) NOT NULL,
         cidade VARCHAR (50) NOT NULL,
-        responsavel INT NOT NULL,
+        responsavel INT,
         PRIMARY KEY (id)
         );
 

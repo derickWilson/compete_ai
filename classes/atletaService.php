@@ -37,6 +37,8 @@ class atletaService {
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
         $stmt->bindValue(":valido", 0);
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
+        //vincular uma academia
+        //vincular academia ao responsavel
         // Executar a query
         if ($stmt->execute()) {
             $this->logar();
