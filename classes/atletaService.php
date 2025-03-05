@@ -79,8 +79,8 @@ class atletaService {
     //listar todos os atletas
     public function listAll() {
         $query = "SELECT a.id, a.nome, a.faixa, f.nome as academia, a.validado 
-        JOIN academia_filiada as f ON 
-        FROM atleta AS a";
+        FROM atleta AS a 
+        JOIN academia_filiada as f ON f.id = a.academia";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
@@ -89,9 +89,9 @@ class atletaService {
     public function listInvalido() {
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento,
         a.fone, f.nome as academia, a.faixa, a.peso
-        JOIN academia_filiada AS f
-        FROM atleta AS a
-        WHERE validado = 0";
+        FROM atleta a
+        JOIN academia_filiada f ON f.id = a.academia
+        WHERE a.validado = 0";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);

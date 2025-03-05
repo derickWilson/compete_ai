@@ -13,6 +13,10 @@ try {
     $at = new Atleta();
     $attServ = new atletaService($con, $at);
     $lista = $attServ->listInvalido();
+
+    echo "<pre>";
+    print_r($lista);
+    echo "</pre>";
 } catch (Exception $e) {
     echo "Erro: " . $e->getMessage();
     exit();
