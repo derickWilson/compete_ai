@@ -74,6 +74,16 @@ VALUES
 
 CREATE DATABASE IF NOT EXISTS usuario;
     USE usuario;
+    
+    CREATE TABLE IF NOT EXISTS academia_filiada(
+        id INT NOT NULL AUTO_INCREMENT,
+        nome VARCHAR(100) NOT NULL,
+        cep VARCHAR(20) NOT NULL,
+        estado VARCHAR (2) NOT NULL,
+        cidade VARCHAR (50) NOT NULL,
+        responsavel INT,
+        PRIMARY KEY (id)
+        );
     CREATE TABLE IF NOT EXISTS atleta(
         id INT NOT NULL AUTO_INCREMENT,
         nome VARCHAR(50) NOT NULL,
@@ -88,20 +98,9 @@ CREATE DATABASE IF NOT EXISTS usuario;
         validado TINYINT NOT NULL,
         adm TINYINT default 0,
         diploma VARCHAR(30) NOT NULL,
-        
         FOREIGN KEY (academia) REFERENCES academia_filiada(id),
         PRIMARY KEY (id)
     );
-
-    CREATE TABLE IF NOT EXISTS academia_filiada(
-        id INT NOT NULL AUTO_INCREMENT,
-        nome VARCHAR(100) NOT NULL,
-        cep VARCHAR(20) NOT NULL,
-        estado VARCHAR (2) NOT NULL,
-        cidade VARCHAR (50) NOT NULL,
-        responsavel INT,
-        PRIMARY KEY (id)
-        );
 
 #--tabela dos eventos
 CREATE TABLE IF NOT EXISTS evento(
