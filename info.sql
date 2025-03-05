@@ -77,17 +77,17 @@ CREATE DATABASE IF NOT EXISTS usuario;
     CREATE TABLE IF NOT EXISTS atleta(
         id INT NOT NULL AUTO_INCREMENT,
         nome VARCHAR(50) NOT NULL,
-        foto VARCHAR(30),
+        foto VARCHAR(30) NOT NULL,
         senha VARCHAR(100) NOT NULL,
         email VARCHAR (100) NOT NULL,
         data_nascimento DATE NOT NULL,
         fone VARCHAR(12) NOT NULL,
-        academia INT NOT NULL,
+        academia INT,
         faixa VARCHAR(30) NOT NULL,
         peso FLOAT(5,2) NOT NULL,
         validado TINYINT NOT NULL,
         adm TINYINT default 0,
-        diploma VARCHAR(30),
+        diploma VARCHAR(30) NOT NULL,
         
         FOREIGN KEY (academia) REFERENCES academia_filiada(id),
         PRIMARY KEY (id)

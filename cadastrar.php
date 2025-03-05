@@ -81,6 +81,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
     }//fim do cadastro de academia
+    //cadastro do atleta
     if($_POST["tipo"] == "AT"){
         //cadastrar atleta
         if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {

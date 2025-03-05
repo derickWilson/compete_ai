@@ -245,5 +245,21 @@ public function logar() {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    //vincular uma academia a um responsavel e viceversa
+    public function atribuirAcademia($acad, $professor){
+        //vincula academia
+        $query = "UPDATE academia_filiada SET responsavel = :responsavel WHERE id = :academia";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue("responsavel", $professor);
+        $stmt->bindValue("academia", $acad);
+        $stmt->execute();
+        //vincular responsavel
+        $query = "UPDATE atleta SET academia = :academia WHERE id = :responsavel";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue("responsavel", $professor);
+        $stmt->bindValue("academia", $acad);
+        $stmt->execute();
+    }
 }
 ?>
