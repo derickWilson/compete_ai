@@ -103,7 +103,6 @@ public function logar() {
                   WHERE email = :email";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
-        //$stmt->bindValue(":senha", $this->atleta->__get("senha"));
         try {
             $stmt->execute(); // Tenta executar a consulta
             $atleta = $stmt->fetch(PDO::FETCH_OBJ);
