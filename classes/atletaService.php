@@ -16,8 +16,8 @@ class atletaService {
         $this->atleta = $atleta;
     }
 
-    //adicionar atleta
-    public function addAtleta() {
+    //adicionar academia e responsavel
+    public function addAcademiaResponsavel() {
         // Verificar a faixa
 
         //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
@@ -45,7 +45,36 @@ class atletaService {
             throw new Exception("Erro ao adicionar atleta: " . implode(", ", $stmt->errorInfo()));
         }
     }
+    //adicionar atleta
+    public function addAtleta() {
+        // Verificar a faixa
 
+        //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
+        //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
+        $query = "INSERT INTO atleta (nome, senha, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado)
+                  VALUES (:nome, :senha, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido)";
+        $stmt = $this->conn->prepare($query);
+        // Bind dos valores
+        $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
+        $stmt->bindValue(":nome", $this->atleta->__get("nome"));
+        $stmt->bindValue(":foto", $this->atleta->__get("foto"));
+        $stmt->bindValue(":academia", $this->atleta->__get("academia"));
+        $stmt->bindValue(":senha", $senhaCriptografada);
+        $stmt->bindValue(":email", $this->atleta->__get("email"));
+        $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
+        $stmt->bindValue(":fone", $this->atleta->__get("fone"));
+        $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
+        $stmt->bindValue(":peso", $this->atleta->__get("peso"));
+        $stmt->bindValue(":valido", 0);
+        $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
+        // Executar a query
+        if ($stmt->execute()) {
+            $this->logar();
+        } else {
+            // Se algo deu errado, lançar uma exceção ou retornar um valor indicativo de erro
+            throw new Exception("Erro ao adicionar atleta: " . implode(", ", $stmt->errorInfo()));
+        }
+    }
     //listar todos os atletas
     public function listAll() {
         $query = "SELECT id, nome, faixa, academia, validado FROM atleta";
