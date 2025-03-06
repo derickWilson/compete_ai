@@ -51,8 +51,6 @@ try {
                         <td><?php echo $value->validado == 1 ? 'sim' : 'não'; ?></td>
                         <td><a href="controle.php?user=<?php echo htmlspecialchars($value->id, ENT_QUOTES, 'UTF-8'); ?>">Ver Mais</a></td>
                         </tr>
-
-                    
                 <?php endforeach; //fim do foreach?>
         </table>
         </div>
