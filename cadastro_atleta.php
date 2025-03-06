@@ -1,5 +1,5 @@
 <?php
-if (isset($_SESSION["logado"]) && $_SESSION["logado"] = 1){
+if (isset($_SESSION["logado"]) || $_SESSION["logado"] = 1){
     header("Location: index.php");
     exit();
 }else{
@@ -10,16 +10,6 @@ if (isset($_SESSION["logado"]) && $_SESSION["logado"] = 1){
         $atleta = new Atleta();
         $ev = new atletaService($conn, $atleta);
         $academias = $ev->getAcademias();
-
-        echo "<pre>";
-        print_r($academias);
-        echo "</pre>";
-
-        //pegas todas as academias filiadas
-        foreach($academias as $academia){
-            echo "<br>id ==" .$academia->id;
-            echo "<br>nome ==" .$academia->nome;
-        }
     } catch (Exception $e) {
         die("Erro ao obter inscritos: " . $e->getMessage());
     }
