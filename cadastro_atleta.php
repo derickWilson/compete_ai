@@ -1,3 +1,30 @@
+<?php
+if (isset($_SESSION["logado"]) && $_SESSION["logado"] = 1){
+    header("Location: index.php");
+    exit();
+}else{
+    require_once "classes/atletaService.php";
+    try {
+        // Obtenha os inscritos
+        $conn = new Conexao();
+        $atleta = new Atleta();
+        $ev = new atletaService($conn, $atleta);
+        $academias = $ev->getAcademias();
+
+        echo "<pre>";
+        print_r($academias);
+        echo "</pre>";
+
+        //pegas todas as academias filiadas
+        foreach($academias as $academia){
+            echo "<br>id ==" .$academia->id;
+            echo "<br>nome ==" .$academia->nome;
+        }
+    } catch (Exception $e) {
+        die("Erro ao obter inscritos: " . $e->getMessage());
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -31,7 +58,9 @@
         Academia/Equipe  <select name="academia" id="academia">
             <option value="">--selecione sua academia--</option>
             <?php
-                //pegas todas as academias filiadas
+                foreach($academias as $academia){
+                    echo "<option value=" .$academia->id . ">".$academia->nome."</option>";
+                }
             ?>
         </select><br>
         Faixa 
