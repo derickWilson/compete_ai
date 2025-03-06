@@ -52,8 +52,8 @@ class atletaService {
 
         //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
         //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
-        $query = "INSERT INTO atleta (nome, senha, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado)
-                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido)";
+        $query = "INSERT INTO atleta (nome, senha, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
+                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido, 0)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
@@ -276,9 +276,13 @@ public function logar() {
     }
 
     public function getAcademias(){
-        $query = "";
+        $query = "SELECT f.id, f.nome FROM academia_filiada f 
+        JOIN atleta a ON f.responsavel = a.id 
+        WHERE a.validado = 1";
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute();
+        $lista = $stmt->fetchAll(PDO::FETCH_OBJ);
+        return $lista;
     }
-
-
 }
 ?>
