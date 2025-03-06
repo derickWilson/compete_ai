@@ -2,10 +2,7 @@
 
 include_once "../classes/atletaService.php";
 
-session_start();
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+//session_start();
 //checar se é administrador
 
 require "../func/is_adm.php";
@@ -62,7 +59,7 @@ try {
         </div>
     </div>
 <?php
-include "/menu/footer.php";
+include "../menu/footer.php";
 ?>
 </body>
 </html>

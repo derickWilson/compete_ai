@@ -32,7 +32,7 @@ if(!$_SESSION["logado"]){
         <a href="index.php">voltar</a>
     </div>
     <?php
-    include "menu/footer.php"
+    include "menu/footer.php";
     ?></body>
 </html>
 <?php

@@ -1,7 +1,7 @@
 <header>
     <center>
     <h2 class='blue'>Federaraçãp Paulista De Jiu-Jistu Internacional</h2>
-    <img src="estilos/banner.jpeg" class="logo">
+    <img src="/estilos/banner.jpeg" class="logo">
     </center>   
     <nav>
         <a href="/index.php">Home</a>
