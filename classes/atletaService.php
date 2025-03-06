@@ -21,8 +21,8 @@ class atletaService {
         // Verificar a faixa
         //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
         //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
-        $query = "INSERT INTO atleta (nome, senha, foto, email, data_nascimento, fone, faixa, peso, diploma, validado)
-                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0)";
+        $query = "INSERT INTO atleta (nome, senha, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
+                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
@@ -98,7 +98,7 @@ class atletaService {
     }
 //logar atleta
 public function logar() {
-        $query = "SELECT id, nome, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado
+        $query = "SELECT id, nome, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado, responsavel
                   FROM atleta
                   WHERE email = :email";
         $stmt = $this->conn->prepare($query);
@@ -127,6 +127,7 @@ public function logar() {
                     $_SESSION["faixa"] = $atleta->faixa;
                     $_SESSION["peso"] = $atleta->peso;
                     $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
+                    $_SESSION["responsavel"] = $atleta->responsavel == 0 ? 0 : 1;
                     $_SESSION["validado"] = true;
                     header("Location: pagina_pessoal.php");
                     exit();
@@ -275,7 +276,7 @@ public function logar() {
     }
 
     public function getAcademias(){
-        $query = ;
+        $query = "";
     }
 
 

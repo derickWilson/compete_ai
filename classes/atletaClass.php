@@ -12,6 +12,7 @@ class Atleta {
     private $peso;
     private $diploma;
     private $validado;
+    private $responsavel;
     private $adm;
 
     // Getters and setters for all properties

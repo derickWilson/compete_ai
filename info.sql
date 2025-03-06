@@ -84,6 +84,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         responsavel INT,
         PRIMARY KEY (id)
         );
+
     CREATE TABLE IF NOT EXISTS atleta(
         id INT NOT NULL AUTO_INCREMENT,
         nome VARCHAR(50) NOT NULL,
@@ -97,6 +98,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         peso FLOAT(5,2) NOT NULL,
         validado TINYINT NOT NULL,
         adm TINYINT default 0,
+        responsavel TINYINT NOT NULL,
         diploma VARCHAR(30) NOT NULL,
         FOREIGN KEY (academia) REFERENCES academia_filiada(id),
         PRIMARY KEY (id)
