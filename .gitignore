@@ -3,4 +3,4 @@ uploads/
 .vscode/
 *swp
 func/database.php
-fotos/
+fotos/*
