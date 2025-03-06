@@ -85,8 +85,8 @@
         <input type="submit" value="Cadastrar"><br>
     </form> 
     <a class="link" href="index.php">voltar</a>
-
     </div>
-    <footer>todos os direitos reservados</footer>
-</body>
+<?php
+include "menu/footer.php";
+?></body>
 </html>

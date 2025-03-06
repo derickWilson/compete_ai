@@ -36,8 +36,8 @@ is_adm();
             <br><hr><br><input type="submit" value="Cadastrar evento">
         </form>
     </div>
-
-    <script>
-    </script>
+<?php
+include "/menu/footer.php";
+?>
 </body>
 </html>

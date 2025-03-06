@@ -47,5 +47,8 @@ $peso = $_SESSION["peso"] ?? 'Não disponível';
 
         <a href="index.php">Voltar</a>|<a href="edit.php">Editar</a>
     </div>
+<?php
+include "menu/footer.php";
+?>
 </body>
 </html>

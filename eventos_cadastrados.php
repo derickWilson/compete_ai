@@ -55,6 +55,7 @@ if (!isset($_SESSION["logado"])){
     <?php } ?>
 </table>
 </div>
-<footer>todos os direitos reservados</footer>
-</body>
+<?php
+include "menu/footer.php";
+?></body>
 </html>

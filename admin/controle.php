@@ -86,5 +86,9 @@ if (isset($_GET["user"])) {
             </div>
         </form>
     </div>
+
+<?php
+include "/menu/footer.php";
+?>
 </body>
 </html>

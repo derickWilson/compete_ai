@@ -31,8 +31,9 @@ if(!$_SESSION["logado"]){
         </form><br>
         <a href="index.php">voltar</a>
     </div>
-    <footer>todos os direitos reservados</footer>
-</body>
+    <?php
+    include "menu/footer.php"
+    ?></body>
 </html>
 <?php
 }else{

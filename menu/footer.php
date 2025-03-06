@@ -1,0 +1,1 @@
+<footer>todos os direitos reservados</footer>

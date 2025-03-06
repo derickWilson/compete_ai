@@ -18,5 +18,4 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $attServ->editAdmin($id, $validado, $faixa);
     header("Location: pessoas.php");
 }
-
 ?>

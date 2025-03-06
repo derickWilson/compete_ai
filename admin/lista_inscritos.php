@@ -77,5 +77,8 @@ try {
 <?php } else { ?>
     <p>Nenhum inscrito encontrado para este campeonato.</p>
 <?php } ?>
+<?php
+include "/menu/footer.php";
+?>
 </body>
 </html>
