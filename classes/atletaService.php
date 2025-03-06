@@ -273,5 +273,11 @@ public function logar() {
         $acad = $stmt->fetch(PDO::FETCH_ASSOC); 
         return $acad["nome"]; 
     }
+
+    public function getAcademias(){
+        $query = ;
+    }
+
+
 }
 ?>
