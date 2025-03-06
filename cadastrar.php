@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //cadastrar academia primeiro
         //filiar academia
         try {
+            //filiar academia
             $attServ->Filiar(cleanWords($_POST["academia"]),
             cleanWords($_POST["cep"]),
             cleanWords($_POST["cidade"]),
@@ -87,6 +88,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     //cadastro do atleta
     if($_POST["tipo"] == "AT"){
         //cadastrar atleta
+        //tratar foto enviada
+        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+            $foto = $_FILES['foto'];
+            $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
+            $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
+            $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
+            if ($foto['size'] > 0) {
+                if (move_uploaded_file($foto['tmp_name'], $caminhoParaSalvarFoto)) {
+                } else {
+                    echo ' Erro ao mover arquivo. Verifique as permiss玫es do diret贸rio.';
+                    header("Location: cadastro_academia.php");
+                    exit();
+                }
+            } else {
+                echo 'Arquivo vazio ou erro no upload';
+                header("Location: cadastro_academia.php");
+                exit();
+            }
+        }
+        //tratar diploma
         if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
             $diploma = $_FILES['diploma'];
             $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
@@ -108,6 +129,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $atletas->__set("senha", cleanWords($_POST["senha"]));
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
+        $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("fone", cleanWords($_POST["fone"]));
         $atletas->__set("academia", cleanWords($_POST["academia"]));
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
