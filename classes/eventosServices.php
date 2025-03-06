@@ -57,11 +57,12 @@ public function addEvento() {
 
     public function getInscritos($id){
         $query = "SELECT e.nome AS evento, a.nome AS inscrito, a.data_nascimento,
-                a.faixa, a.peso, a.academia,
+                a.faixa, a.peso, f.nome  as academia, f.id as idAcademia,
                 i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem
                 FROM evento e
                 JOIN inscricao i ON i.id_evento = e.id
                 JOIN atleta a ON a.id = i.id_atleta
+                JOIN academia_filiada f ON a.academia = f.id
                 WHERE e.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);

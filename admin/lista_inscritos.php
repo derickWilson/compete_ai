@@ -1,17 +1,11 @@
 <?php
-
 use function PHPSTORM_META\type;
-
 session_start();
-
 require "../func/is_adm.php";
 is_adm();
-
 require_once __DIR__ . "/../classes/eventosServices.php";
 require_once __DIR__ . "/../func/calcularIdade.php";
 require_once __DIR__ . "/../func/clearWord.php";
-
-
 // Verifique se o ID do evento foi passado via GET
 if (!isset($_GET['id'])) {
     exit();  // Adicione exit para parar a execução se não houver 'id'
@@ -23,9 +17,7 @@ try {
     $conn = new Conexao();
     $evento = new Evento();
     $ev = new eventosService($conn, $evento);
-
     $inscritos = $ev->getInscritos($idEvento);
-    
 } catch (Exception $e) {
     die("Erro ao obter inscritos: " . $e->getMessage());
 }
