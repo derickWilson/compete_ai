@@ -39,12 +39,8 @@ if (isset($_GET["id"])) {
 
     // Cria o arquivo CSV no fluxo de saída
     $output = fopen('php://output', 'w');
-    echo "<pre>";
-    print_r($dados);
-    echo "</pre>";
     // Escreve o cabeçalho no arquivo CSV
     fputcsv($output, $header);
-
     // Escreve os dados no arquivo CSV
     foreach ($dados as $value) {
         fputcsv($output, [
