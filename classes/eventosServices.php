@@ -36,7 +36,7 @@ public function addEvento() {
 
 
     public function listAll(){
-        //$query = "SELECT id, nome FROM evento AS e WHERE e.data_limite <= CURRENT_DATE()";
+        //$query = "SELECT id, nome FROM evento WHERE data_evento >= CURRENT_DATE";
         $query = "SELECT id, nome, imagen FROM evento";
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
