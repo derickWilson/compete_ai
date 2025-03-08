@@ -24,7 +24,7 @@ if(!$_SESSION["logado"]){
             }
             ?>
             <label for="usuario" >Email</label>
-            <input type="text" name="usuario" id="usuario" required><br>
+            <input type="email" name="usuario" id="usuario" required><br>
             <label for="senha">Senha</label>
             <input type="password" name="senha" id="senha" required>
             <input type="submit" value="Logar">
