@@ -78,7 +78,8 @@ if (isset($_SESSION["logado"]) || $_SESSION["logado"] = 1){
     <a class="link" href="index.php">voltar</a>
 
     </div>
-<?php
-include "menu/footer.php";
-?></body>
+    <?php
+    include "menu/footer.php";
+    ?>
+</body>
 </html>
