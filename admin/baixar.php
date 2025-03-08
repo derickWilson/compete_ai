@@ -1,16 +1,20 @@
 <?php
 session_start();
-require "../func/is_adm.php";
+try {
+    require_once "../func/is_adm.php";
+} catch (\Throwable $th) {
+    echo $th->getMessage();
+}
 is_adm();
 // Verifica se o usuário é admin; se não for, redireciona
-
-if (isset($_GET["id"]) && is_numeric($_GET["id"])) {
-    include "../classes/eventosServices.php";
-    include_once "../func/clearWord.php";
-    include __DIR__ . "/../func/calcularIdade.php";
-
-    
-    $id = (int) cleanWords($_GET["id"]); 
+if (isset($_GET["id"])) {
+    try {
+        require_once __DIR__ . "/../classes/eventosServices.php";
+        require_once __DIR__ . "/../func/clearWord.php";
+        require_once __DIR__ . "/../func/calcularIdade.php";
+    } catch (\Throwable $th) {
+        echo $th->getMessage();
+    }    $id = (int) cleanWords($_GET["id"]); 
     // Cria instâncias das classes
     $conn = new Conexao();
     $ev = new Evento();
@@ -46,7 +50,7 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"])) {
         fputcsv($output, [
             $value->evento,
             $value->inscrito,
-            calcularIdade($value->idade),
+            calcularIdade($value->data_nascimento),
             $value->faixa,
             $value->peso,
             $value->academia,
@@ -61,6 +65,7 @@ if (isset($_GET["id"]) && is_numeric($_GET["id"])) {
     fclose($output);
     exit();
 } else {
-    echo "ID do evento inválido.";
+    echo "Erro";
+    header("Location /admin/eventos.php");
 }
 ?>
