@@ -39,8 +39,7 @@ class atletaService {
         //vincular academia ao responsavel
         // Executar a query
         if ($stmt->execute()) {
-            //$this->logar();
-            echo "não logar";
+            $this->logar();
         } else {
             // Se algo deu errado, lançar uma exceção ou retornar um valor indicativo de erro
             throw new Exception("Erro ao adicionar atleta: " . implode(", ", $stmt->errorInfo()));
