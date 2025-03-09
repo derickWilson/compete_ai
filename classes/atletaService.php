@@ -18,12 +18,13 @@ class atletaService {
 
     //adicionar academia e responsavel
     public function addAcademiaResponsavel($acad) {
-        $query = "INSERT INTO atleta (nome, senha, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
-                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
+        $query = "INSERT INTO atleta (nome, senha, genero, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
+                  VALUES (:nome, :senha, :genero, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
         $stmt->bindValue(":nome", $this->atleta->__get("nome"));
+        $stmt->bindValue(":genero", $this->atleta->__get("genero"));
         $stmt->bindValue(":foto", $this->atleta->__get("foto"));
         $stmt->bindValue(":senha", $senhaCriptografada);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
@@ -48,12 +49,13 @@ class atletaService {
     //adicionar atleta
     public function addAtleta() {
         // Verificar a faixa
-        $query = "INSERT INTO atleta (nome, senha, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
-                VALUES (:nome, :senha, :foto, :email, :academia, :data_nascimento, :fone, :faixa, :peso, :diploma, :validado, :responsavel)";
+        $query = "INSERT INTO atleta (nome, senha, genero, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
+                VALUES (:nome, :senha, :genero, :foto, :email, :academia, :data_nascimento, :fone, :faixa, :peso, :diploma, :validado, :responsavel)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
         $stmt->bindValue(":nome", $this->atleta->__get("nome"));
+        $stmt->bindValue(":genero", $this->atleta->__get("genero"));
         $stmt->bindValue(":foto", $this->atleta->__get("foto"));
         $stmt->bindValue(":academia", $this->atleta->__get("academia"));
         $stmt->bindValue(":senha", $senhaCriptografada);

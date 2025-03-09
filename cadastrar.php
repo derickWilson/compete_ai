@@ -60,6 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
         $atletas->__set("nome", cleanWords($_POST["nome"]));
+        $atletas->__set("genero", cleanWords($_POST["genero"]));
         $atletas->__set("senha", cleanWords($_POST["senha"]));
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("email", cleanWords($_POST["email"]));
@@ -110,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if ($diploma['size'] > 0) {
                 if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
                 } else {
-                    echo ' Erro ao mover arquivo. Verifique as permiss玫es do diret贸rio.';
+                    echo ' Erro ao mover arquivo. Verifique as permissoes do diretorio.';
                     header("Location: cadastro.php");
                     exit();
                 }
@@ -119,6 +120,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
         $atletas->__set("nome", cleanWords($_POST["nome"]));
+        $atletas->__set("genero", cleanWords($_POST["genero"]));
         $atletas->__set("senha", cleanWords($_POST["senha"]));
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);

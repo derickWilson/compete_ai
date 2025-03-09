@@ -52,6 +52,11 @@
     <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png"><br>
 
     Nome do Responsavel  <input name="nome" type="text" placeholder="nome completo" required><br>
+    Genero
+    <select name="genero">
+    <option value="Masculino">Masculino</option>
+    <option value="Feminino">Feminino</option>
+    </select><br>
         <?php
             if(isset($erro) && $erro == 1){
                 echo '<span class = "erro">usuario ja possui conta </span><br>';
