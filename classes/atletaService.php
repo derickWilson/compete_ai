@@ -67,11 +67,12 @@ class atletaService {
         $stmt->bindValue(":validado", 0);
         $stmt->bindValue(":responsavel", 0);
         // Executar a query
-        if ($stmt->execute()) {
-            $this->logar();
-        } else {
-            // Se algo deu errado, lançar uma exceção ou retornar um valor indicativo de erro
-            throw new Exception("Erro ao adicionar atleta: " . implode(", ", $stmt->errorInfo()));
+        try {
+            $stmt->execute();
+            //alert 1 :aguarde sua conta ser validada
+            header("Location: index.php?alert=1");
+        } catch (Exception $e) {
+            echo "[ ".$e->getMessage()."]";
         }
     }
     //listar todos os atletas
