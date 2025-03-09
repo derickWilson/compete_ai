@@ -46,6 +46,7 @@ if (isset($_GET['id'])) {
                 <?php echo htmlspecialchars($valor->nome); ?></h2></a>
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     | <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
+                    | <a href='admin/editar_evento.php?id=<?php echo $valor->id ?>'>Editar Evento</a>
                     | <a href='admin/chapa.php?id=<?php echo $valor->id ?>'>Montar chapa</a>
                 <?php } ?>
                 <br class='clear'>
@@ -75,13 +76,17 @@ if (isset($_GET['id'])) {
                             // Caso o tipo de campeonato seja com quimono
                             if ($eventoDetails->tipo_com == 1) {
                                 echo '<input type="checkbox" name="com"> Com Quimono ';
-                                echo '<input type="checkbox" name="abs_com"> Absoluto Com Quimono ';
+                                if($SESSION["idade"]> 15){
+                                    echo '<input type="checkbox" name="abs_com"> Absoluto Com Quimono ';
+                                }
                             }
 
                             // Caso o tipo de campeonato seja sem quimono
                             if ($eventoDetails->tipo_sem == 1) {
                                 echo '<input type="checkbox" name="sem"> Sem Quimono ';
-                                echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
+                                if($SESSION["idade"]> 15){
+                                    echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
+                                }
                             }
                             ?>
                             <input type="submit" value="Inscrever-se">

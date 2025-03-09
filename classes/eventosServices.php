@@ -47,7 +47,7 @@ public function addEvento() {
         //$query = "SELECT id, nome, descricao, data_limite, tipo_com, tipo_sem, preco
         // FROM evento as e 
         // WHERE e.data_limite <= CURRENT_DATE() AND id = :id";
-        $query = "SELECT id, nome, descricao, data_evento, local_evento, tipo_com, tipo_sem, preco, imagen 
+        $query = "SELECT id, nome, descricao, data_evento, data_limite, local_evento, tipo_com, tipo_sem, preco, imagen 
                     FROM evento as e WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id);

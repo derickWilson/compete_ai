@@ -124,6 +124,11 @@ header nav a:hover{
     padding-top: 5px;
 }
 
+.principal form textarea{
+    height: 300px;
+    width: 80%;
+}
+
 .principal form input[type=text]{
     width: 50%;
     border-radius: 15px;

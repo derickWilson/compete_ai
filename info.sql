@@ -131,3 +131,6 @@ CREATE TABLE IF NOT EXISTS evento(
         FOREIGN KEY (id_atleta) REFERENCES atleta(id),
         FOREIGN KEY (id_evento) REFERENCES evento(id)
     );
+
+    ALTER TABLE evento
+    ADD preco_menor 
