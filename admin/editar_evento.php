@@ -28,7 +28,7 @@ if (isset($_GET['id'])) {
 <body>
 <?php include "../menu/add_menu.php"; ?>
     <div class="principal">
-        <form action="editar_evento.php" method="POST" id="evento" enctype="multipart/form-data">
+        <form action="recadastrar_evento.php" method="POST" id="evento" enctype="multipart/form-data">
             Nome do evento <input type="text" id="nome_evento" name="nome_evento" 
             value="<?php echo $eventoDetails->nome; ?>"><br>
             <br>
@@ -57,7 +57,7 @@ if (isset($_GET['id'])) {
 
             <br>
             Preco geral<input type="number" name="preco" id="preco" placeholder="Preço por Inscrição acima dos 15 anos"
-            value="<?php echo $eventoDetails->preco; ?>">
+            value="<?php echo $eventoDetails->preco; ?>"><br>
 
             Preco para menores de 15<input type="number" name="preco_menor" id="preco_menor" placeholder="Preço por Inscrição abaixo dos 15 anos"
             value="<?php echo $eventoDetails->preco; ?>">
