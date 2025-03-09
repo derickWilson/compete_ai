@@ -28,7 +28,7 @@
 <div>
     <?php
         if(isset($_GET["message"]) && $_GET["message"] == 1){
-            // no caso do erro 2 mostra que a conta não foi validada
+            // no caso da mensagem 1 mostra que a conta não foi validada
             echo "<h3 class='alert' >Cadastro relalizado</h3>";
             echo "<h3> Aguarde sua conta ser validada Validada</h3>";
         }

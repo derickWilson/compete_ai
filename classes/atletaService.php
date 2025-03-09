@@ -40,7 +40,7 @@ class atletaService {
             $idResponsavel = $this->getResponsavel($this->atleta->__get("email"),$this->atleta->__get("nome"));
             $this->atribuirAcademia($acad, $idResponsavel["id"]);
             //alert 1 :aguarde sua conta ser validada
-            header("Location: index.php?alert=1");
+            header("Location: index.php?message=1");
         } catch (Exception $e) {
             echo "[ ".$e->getMessage()."]";
         }
@@ -48,9 +48,6 @@ class atletaService {
     //adicionar atleta
     public function addAtleta() {
         // Verificar a faixa
-
-        //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
-        //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
         $query = "INSERT INTO atleta (nome, senha, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
                 VALUES (:nome, :senha, :foto, :email, :academia, :data_nascimento, :fone, :faixa, :peso, :diploma, :validado, :responsavel)";
         $stmt = $this->conn->prepare($query);
@@ -72,7 +69,7 @@ class atletaService {
         try {
             $stmt->execute();
             //alert 1 :aguarde sua conta ser validada
-            header("Location: index.php?alert=1");
+            header("Location: index.php?message=1");
         } catch (Exception $e) {
             echo "[ ".$e->getMessage()."]";
         }
@@ -83,7 +80,11 @@ class atletaService {
         FROM atleta AS a 
         JOIN academia_filiada as f ON f.id = a.academia";
         $stmt = $this->conn->prepare($query);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
@@ -94,7 +95,11 @@ class atletaService {
         JOIN academia_filiada f ON f.id = a.academia
         WHERE a.validado = 0";
         $stmt = $this->conn->prepare($query);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 //logar atleta
@@ -111,6 +116,7 @@ public function logar() {
                 if(!password_verify($this->atleta->__get("senha"), $atleta->senha)){
                     //echo "senha cripto : " . $senhaCriptografada. "<br>";
                     //echo "senha outra : " . $atleta->senha . "<br>";
+                    //erro 3 senha inválida
                     header('Location: login.php?erro=3');
                     exit();
                 }
@@ -134,7 +140,7 @@ public function logar() {
                     exit();
                 } else {
                     //erro dois conta não validada
-                    header('Location: index.php?erro=2');
+                    header('Location: index.php?message=1');
                     exit();
                 }
             } else {
@@ -146,9 +152,6 @@ public function logar() {
             echo "Erro ao tentar logar: " . $e->getMessage();
         }
     }
-
-    
-
     //retornar um atleta especifico
     public function getById($id){
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto,
@@ -156,7 +159,11 @@ public function logar() {
                 FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":id", $id);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
         $result = $stmt->fetch(PDO::FETCH_OBJ);
         return $result;
     }
@@ -167,7 +174,11 @@ public function logar() {
         $stmt->bindValue(":validado", $validado);
         $stmt->bindValue(":faixa", $faixa);
         $stmt->bindValue(":id", $id);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
         //header("Location: controle?user=".$id."?msg=sucesso");
     }
     //ver se um email existe
@@ -191,12 +202,14 @@ public function logar() {
         
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":idAtleta", $id_atleta);
-        $stmt->execute();
-
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         return $result;
     }
-
     public function updateAtleta($idAtleta){
         $query = "UPDATE atleta SET email = :email,
          fone = :fone,
@@ -205,7 +218,6 @@ public function logar() {
          peso = :peso,
          diploma = :diploma
          WHERE id = :id";
-
          $stmt = $this->conn->prepare($query);
          $stmt->bindValue(":email", $this->atleta->__get("email"));
          $stmt->bindValue(":fone", $this->atleta->__get("fone"));
@@ -213,13 +225,13 @@ public function logar() {
          $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
          $stmt->bindValue(":peso", $this->atleta->__get("peso"));
          $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
-
          try{
             $stmt->execute();
          }catch(Exception $e){
             print("Erro ao adicionar atleta: " . $e->getMessage());
          }
-    } 
+    }
+    //***************************FUNÇÕES DE ACADEMIA*******************/
     //funçoes de afiliação de academia
     public function Filiar($nome, $cep, $cidade, $estado) {
         // Insere a academia e retorna o ID da academia inserida
@@ -231,16 +243,18 @@ public function logar() {
         $stmt->bindValue(":estado", $estado);
         $stmt->execute();
     }
-
     //funçao para consegui id da academia
     public function getIdAcad($nomeAcad){
         $query = "SELECT id FROM academia_filiada WHERE nome = :nome";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue("nome", $nomeAcad);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
     //conseguir o id do responsavel
     public function getResponsavel($email, $nome){
         $query = "SELECT id FROM atleta WHERE email = :email AND nome = :nome";
@@ -250,7 +264,6 @@ public function logar() {
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-
     //vincular uma academia a um responsavel e viceversa
     public function atribuirAcademia($acad, $professor){
         //vincula academia
@@ -258,13 +271,21 @@ public function logar() {
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue("responsavel", $professor);
         $stmt->bindValue("academia", $acad);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
         //vincular responsavel
         $query = "UPDATE atleta SET academia = :academia WHERE id = :responsavel";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue("responsavel", $professor);
         $stmt->bindValue("academia", $acad);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro de atribuição [".$e->getMessage()."]";
+        }
     }
 
     //conseguir o nome da academia
@@ -272,8 +293,11 @@ public function logar() {
         $query = "SELECT nome FROM academia_filiada WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue("id", $id);
-        $stmt->execute();
-        $acad = $stmt->fetch(PDO::FETCH_ASSOC); 
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }        $acad = $stmt->fetch(PDO::FETCH_ASSOC); 
         return $acad["nome"]; 
     }
 
@@ -282,7 +306,11 @@ public function logar() {
         JOIN atleta a ON f.responsavel = a.id 
         WHERE a.validado = 1";
         $stmt = $this->conn->prepare($query);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
         $lista = $stmt->fetchAll(PDO::FETCH_OBJ);
         return $lista;
     }

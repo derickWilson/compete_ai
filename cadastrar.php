@@ -6,9 +6,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $con = new Conexao();
     $atletas = new Atleta();
     $attServ = new atletaService($con, $atletas);
-    echo "<pre>";
-    print_r($_POST);
-    echo "</pre>";
     if($_POST["tipo"] == "A"){
         //cadastrar academia
         //cadastrar academia primeiro
@@ -78,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
             $attServ->addAcademiaResponsavel($idAcademia["id"]);
         } catch (Exception $e) {
-            echo "Erro ao adicionar atleta: " . $e->getMessage();
+            echo "Erro ao filiar academia: " . $e->getMessage();
         }
 
     }//fim do cadastro de academia
@@ -121,7 +118,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 echo 'Arquivo vazio ou erro no upload';
             }
         }
-        // Criptografe a senha
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("senha", cleanWords($_POST["senha"]));
         $atletas->__set("email", cleanWords($_POST["email"]));
