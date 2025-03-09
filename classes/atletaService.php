@@ -39,6 +39,8 @@ class atletaService {
             $stmt->execute();
             $idResponsavel = $this->getResponsavel($this->atleta->__get("email"),$this->atleta->__get("nome"));
             $this->atribuirAcademia($acad, $idResponsavel["id"]);
+            //alert 1 :aguarde sua conta ser validada
+            header("Location: index.php?alert=1");
         } catch (Exception $e) {
             echo "[ ".$e->getMessage()."]";
         }

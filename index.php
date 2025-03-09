@@ -27,9 +27,10 @@
     ?>
 <div>
     <?php
-        if(isset($_GET["erro"]) && $_GET["erro"] == 2){
+        if(isset($_GET["message"]) && $_GET["message"] == 1){
             // no caso do erro 2 mostra que a conta não foi validada
-            echo "<h3 class='alert' >Sua Conta Ainda Não Foi Validada</h3>";
+            echo "<h3 class='alert' >Cadastro relalizado</h3>";
+            echo "<h3> Aguarde sua conta ser validada Validada</h3>";
         }
     ?>
 </div>
