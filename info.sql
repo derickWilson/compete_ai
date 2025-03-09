@@ -137,3 +137,6 @@ CREATE TABLE IF NOT EXISTS evento(
 
     ALTER TABLE atleta
     ADD genero VARCHAR(8)
+
+    ALTER TABLE inscricao
+    ADD modalidade VARCHAR(11)
