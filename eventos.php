@@ -123,7 +123,9 @@ if (isset($_GET['id'])) {
         
     
     <br><center>Tabela de Pesos</center>
+    <center>
     <object data="tabela_de_pesos.pdf" type="application/pdf" width="50%"></object>
+    </center>
     <br><a class="link" href="index.php">voltar</a>
     <?php
         } // Fim da condição de um único evento
