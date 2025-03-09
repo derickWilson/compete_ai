@@ -13,7 +13,7 @@ is_adm();
 </head>
 <body>
 <?php include "../menu/add_menu.php"; ?>
-    <div>
+    <div class="principal">
         <form action="cadastrar_evento.php" method="POST" id="evento" enctype="multipart/form-data">
             Nome do evento <input type="text" id="nome_evento" name="nome_evento"><br>
             <br>

@@ -65,7 +65,14 @@ if (isset($_GET['id'])) {
                 <p>Descrição: <?php echo htmlspecialchars($eventoDetails->descricao); ?></p>
                 <p>Data do Campeonato: <?php echo htmlspecialchars($eventoDetails->data_evento); ?></p>
                 <p>Local do Campeonato: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
-                <p>Preço: <?php echo $eventoDetails->preco; ?></p>
+                <p>Preço  
+                    <?php
+                    if($_SESSION["idade"]>=15){
+                        echo $eventoDetails->preco;
+                    }else{
+                        echo $eventoDetails->preco_menor;
+                    }
+                     ?></p> R$
 
                 <?php
                 if (isset($_SESSION['logado']) && $_SESSION['logado']) {
