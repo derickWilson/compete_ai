@@ -50,7 +50,7 @@ class atletaService {
         //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
         //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
         $query = "INSERT INTO atleta (nome, senha, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
-                  VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, :valido, 0)";
+                VALUES (:nome, :senha, :foto, :email, :academia, :data_nascimento, :fone, :faixa, :peso, :diploma, :validado, :responsavel)";
         $stmt = $this->conn->prepare($query);
         // Bind dos valores
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
@@ -63,8 +63,9 @@ class atletaService {
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
         $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
-        $stmt->bindValue(":valido", 0);
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
+        $stmt->bindValue(":validado", 0);
+        $stmt->bindValue(":responsavel", 0);
         // Executar a query
         if ($stmt->execute()) {
             $this->logar();
@@ -129,6 +130,7 @@ public function logar() {
                     header("Location: pagina_pessoal.php");
                     exit();
                 } else {
+                    //erro dois conta não validada
                     header('Location: index.php?erro=2');
                     exit();
                 }
