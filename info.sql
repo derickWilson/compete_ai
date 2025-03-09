@@ -133,4 +133,7 @@ CREATE TABLE IF NOT EXISTS evento(
     );
 
     ALTER TABLE evento
-    ADD preco_menor 
+    ADD preco_menor FLOAT(5,2)
+
+    ALTER TABLE atleta
+    ADD genero VARCHAR(8)
