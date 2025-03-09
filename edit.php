@@ -74,7 +74,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <?php include "menu/add_menu.php"; ?>
-    
+    <div>
     <form method="post" action="edit.php" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $_SESSION["id"]; ?>">
         Email: <input name="email" type="email" placeholder="exemplo@email.com" value="<?php echo htmlspecialchars($atleta->email); ?>" required><br>
@@ -107,24 +107,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </form> 
 
     <a href="pagina_pessoal.php">Voltar</a>
-
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        let faixa = document.getElementById('faixas');
-        let diplomaInput = document.getElementById('diploma');
-
-        faixa.addEventListener("change", function() {
-            let graduacoes = ["Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
-            let selecionado = faixa.value;
-
-            if (graduacoes.includes(selecionado)) {
-                diplomaInput.style.display = "block";
-            } else {
-                diplomaInput.style.display = "none";
-            }
-        });
-    });
-    </script>
-    <footer>todos os direitos reservados</footer>
+    </div>
+    <?php
+        include "menu/footer.php";
+    ?>
 </body>
 </html>
