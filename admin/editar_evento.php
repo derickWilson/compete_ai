@@ -60,7 +60,7 @@ if (isset($_GET['id'])) {
             value="<?php echo $eventoDetails->preco; ?>"><br>
 
             Preco para menores de 15<input type="number" name="preco_menor" id="preco_menor" placeholder="Preço por Inscrição abaixo dos 15 anos"
-            value="<?php echo $eventoDetails->preco; ?>"><br>
+            value="<?php echo $eventoDetails->preco_menor; ?>"><br>
             <input type="hidden" name="id" value="<?php echo $eventoId; ?>">
             <br><hr><br><input type="submit" value="editar evento">
         </form>

@@ -19,9 +19,6 @@ if (isset($_GET['id'])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET['id']);
     $eventoDetails = $evserv->getById($eventoId);
-    echo "<pre>";
-    print_r($eventoDetails);
-    echo "</pre>";
     $tudo = false;
 } else {//se não esta em um evento especifico,  lista todos
     $list = $evserv->listAll();
@@ -69,7 +66,7 @@ if (isset($_GET['id'])) {
                 <p>Local do Campeonato: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
                 <p>Preço  
                     <?php
-                    if($_SESSION["idade"]>=15){
+                    if($_SESSION["idade"] > 15){
                         echo $eventoDetails->preco;
                     }else{
                         echo $eventoDetails->preco_menor;

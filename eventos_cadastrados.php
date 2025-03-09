@@ -16,7 +16,6 @@ if (!isset($_SESSION["logado"])){
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
