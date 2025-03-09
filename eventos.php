@@ -4,8 +4,7 @@ session_start();/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
-echo"idade = ".$_SESSION["idade"] ."<br>";
-echo"idade > 15  ".$_SESSION["idade"]>15 ;
+
 try {
     require_once "classes/eventosServices.php";
     include "func/clearWord.php";
@@ -20,6 +19,9 @@ if (isset($_GET['id'])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET['id']);
     $eventoDetails = $evserv->getById($eventoId);
+    echo "<pre>";
+    print_r($eventoDetails);
+    echo "</pre>";
     $tudo = false;
 } else {//se não esta em um evento especifico,  lista todos
     $list = $evserv->listAll();
@@ -72,8 +74,7 @@ if (isset($_GET['id'])) {
                     }else{
                         echo $eventoDetails->preco_menor;
                     }
-                     ?></p> R$
-
+                     ?>R$</p>
                 <?php
                 if (isset($_SESSION['logado']) && $_SESSION['logado']) {
                     if($evserv->isInscrito($_SESSION["id"], $eventoId)){

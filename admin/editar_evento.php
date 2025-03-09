@@ -15,9 +15,6 @@ if (isset($_GET['id'])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET['id']);
     $eventoDetails = $evserv->getById($eventoId);
-    echo "<pre>";
-    print_r($eventoDetails);
-    echo "</pre>";
 } 
 ?>
 <!DOCTYPE html>
@@ -53,10 +50,10 @@ if (isset($_GET['id'])) {
             value="<?php echo $eventoDetails->data_limite; ?>"><br>
             Modalidade:
             <br><input type="checkbox" name="tipo_com" id="tipo_com" value="com"
-            <?php $eventoDetails->tipo_com == 1 ? "checked":""; ?>>Com Kimono
+            <?php echo $eventoDetails->tipo_com == 1 ? "checked":""; ?>>Com Kimono
 
             <br><input type="checkbox" name="tipo_sem" id="tipo_sem" value="sem"
-            <?php $eventoDetails->tipo_sem == 1 ? "checked":""; ?>>Sem Kimono
+            <?php echo $eventoDetails->tipo_sem == 1 ? "checked":""; ?>>Sem Kimono
 
             <br>
             Preco geral<input type="number" name="preco" id="preco" placeholder="Preço por Inscrição acima dos 15 anos"
