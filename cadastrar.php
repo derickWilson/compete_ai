@@ -19,7 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             cleanWords($_POST["cep"]),
             cleanWords($_POST["cidade"]),
             cleanWords($_POST["estado"]));
-        } catch (\Throwable $th) {
+        } catch (Exception $e) {
             echo "Erro ao filiar academia: " . $e->getMessage();
         }
         //pegar o id da academia registrada
@@ -64,7 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("senha", cleanWords($_POST["senha"]));
-        $atletas->__set("responsavel", 1);
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
@@ -77,9 +76,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
         try {
-            $attServ->addAcademiaResponsavel();
-            $idResponsavel = $attServ->getResponsavel(cleanWords($_POST["email"]),cleanWords($_POST["nome"]));
-            $attServ->atribuirAcademia($idAcademia["id"], $idResponsavel["id"]);
+            $attServ->addAcademiaResponsavel($idAcademia["id"]);
         } catch (Exception $e) {
             echo "Erro ao adicionar atleta: " . $e->getMessage();
         }

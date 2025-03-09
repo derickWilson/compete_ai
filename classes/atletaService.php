@@ -17,10 +17,7 @@ class atletaService {
     }
 
     //adicionar academia e responsavel
-    public function addAcademiaResponsavel() {
-        // Verificar a faixa
-        //$faixasGraduadas = ["Branca","Cinza","Amarela","Laranja","Verde","Azul","Roxa","Marrom","Preta", "Coral", "Vermelha e Branca","Vermelha"];
-        //$valido = in_array($this->atleta->__get("faixa"), $faixasGraduadas) ? 0 : 1;
+    public function addAcademiaResponsavel($acad) {
         $query = "INSERT INTO atleta (nome, senha, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
                   VALUES (:nome, :senha, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
         $stmt = $this->conn->prepare($query);
@@ -38,11 +35,12 @@ class atletaService {
         //vincular uma academia
         //vincular academia ao responsavel
         // Executar a query
-        if ($stmt->execute()) {
-            $this->logar();
-        } else {
-            // Se algo deu errado, lançar uma exceção ou retornar um valor indicativo de erro
-            throw new Exception("Erro ao adicionar atleta: " . implode(", ", $stmt->errorInfo()));
+        try {
+            $stmt->execute();
+            $idResponsavel = $this->getResponsavel($this->atleta->__get("email"),$this->atleta->__get("nome"));
+            $this->atribuirAcademia($acad, $idResponsavel["id"]);
+        } catch (Exception $e) {
+            echo "[ ".$e->getMessage()."]";
         }
     }
     //adicionar atleta
