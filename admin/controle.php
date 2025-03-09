@@ -32,7 +32,7 @@ if (isset($_GET["user"])) {
     </header>
     <div>
         <h1>Controle de Usuário</h1>
-        <img src="/fotos/<?php echo $usuario->foto;?>" alt="foto">
+        <img class ="perfil" src="/fotos/<?php echo $usuario->foto;?>" alt="foto">
         <form action="admin_edit.php" method="POST">
             <input type="hidden" name="id" value="<?php echo htmlspecialchars($usuario->id); ?>">
             
