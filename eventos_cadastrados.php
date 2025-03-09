@@ -11,6 +11,9 @@ if (!isset($_SESSION["logado"])){
         $atleta = new Atleta();
         $ev = new atletaService($conn, $atleta);
         $inscritos = $ev->listarCampeonatos($_SESSION["id"]);
+        echo "<pre>";
+        print_r($inscritos);
+        echo "</pre>";
     } catch (Exception $e) {
         die("Erro ao obter inscritos: " . $e->getMessage());
     }
