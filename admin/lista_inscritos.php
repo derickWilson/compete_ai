@@ -27,7 +27,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="/style.css">
     <title>Lista de Inscritos</title>
 </head>
 <body>
@@ -66,9 +66,10 @@ try {
         <input type="submit" value="Baixar Planilha">
     </form>
     <br><a href="/compete_ai/eventos.php">Voltar</a>
-<?php } else { ?>
-    <p>Nenhum inscrito encontrado para este campeonato.</p>
-<?php } ?>
+<?php } else {
+            echo "<p>Nenhum inscrito encontrado para este campeonato.</p>";
+        } 
+?>
 <?php
 include "/menu/footer.php";
 ?>

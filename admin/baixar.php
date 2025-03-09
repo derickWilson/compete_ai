@@ -14,7 +14,8 @@ if (isset($_GET["id"])) {
         require_once __DIR__ . "/../func/calcularIdade.php";
     } catch (\Throwable $th) {
         echo $th->getMessage();
-    }    $id = (int) cleanWords($_GET["id"]); 
+    }    
+    $id = (int) cleanWords($_GET["id"]); 
     // Cria instâncias das classes
     $conn = new Conexao();
     $ev = new Evento();

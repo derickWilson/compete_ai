@@ -19,7 +19,7 @@ if (isset($_GET["user"])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <title>Controle de Usuário</title>
 </head>
 <body>
@@ -28,7 +28,9 @@ if (isset($_GET["user"])) {
     </header>
     <div>
         <h1>Controle de Usuário</h1>
+        <center>
         <img class ="perfil" src="/fotos/<?php echo $usuario->foto;?>" alt="foto">
+        </center>
         <form action="admin_edit.php" method="POST">
             <input type="hidden" name="id" value="<?php echo htmlspecialchars($usuario->id); ?>">
             

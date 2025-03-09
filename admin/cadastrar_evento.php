@@ -51,6 +51,6 @@
 
             $adEvento->addEvento();
 
-            header("Location: ../eventos.php");
+            header("Location: /eventos.php");
     }
     ?>
