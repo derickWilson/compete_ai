@@ -26,7 +26,7 @@ if(!$_SESSION["logado"]){
             <label for="usuario" >Email</label>
             <input type="email" name="usuario" id="usuario" required><br>
             <label for="senha">Senha</label>
-            <input type="password" name="senha" id="senha" required>
+            <input type="password" name="senha" id="senha" required><br>
             <input type="submit" value="Logar">
         </form><br>
         <a href="index.php">voltar</a>

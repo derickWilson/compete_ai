@@ -14,7 +14,6 @@ if (isset($_GET["user"])) {
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>

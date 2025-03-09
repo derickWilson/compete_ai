@@ -102,6 +102,12 @@ header nav a:hover{
     background-color: rgb(0, 0, 0); 
 }
 
+.perfil{
+    height: 300px;
+    width: 300px;
+    border-radius: 100%;
+}
+
 .clear{
     clear: both;
 }
