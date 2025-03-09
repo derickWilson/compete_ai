@@ -14,11 +14,40 @@ class eventosService{
 
 //adicionar um evento novo
 public function addEvento() {
+    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor)
+    VALUES(:nome, :descricao, :data_limite, :data_camp, :local_comp, :tipoCom, :tipoSem, :img, :preco, :preco_menor)";
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindValue(':nome', $this->evento->__get('nome'));
+    $stmt->bindValue(':data_camp', $this->evento->__get('data_camp'));
+    $stmt->bindValue(':local_comp', $this->evento->__get('local'));
+    $stmt->bindValue(':descricao', $this->evento->__get('descricao'));
+    $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'));
+    $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'));
+    $stmt->bindValue(':tipoSem', $this->evento->__get('tipoSem'));
+    $stmt->bindValue(':preco', $this->evento->__get('preco'));
+    $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
+    $stmt->bindValue(':img', $this->evento->__get('img'));
     try {
-        $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco)
-                  VALUES(:nome, :descricao, :data_limite, :data_camp, :local_comp, :tipoCom, :tipoSem, :img, :preco)";
-        
+        $stmt->execute();
+    } catch (Exception $e) {
+        echo 'Erro ao adicionar evento: ' . $e->getMessage();
+    }
+}
+    //editar evento
+    public function editEvento() {
+        $query = "UPDATE evento SET
+        nome = :nome,
+        descricao = :descricao,
+        data_limite = :data_limite,
+        data_evento = :data_camp,
+        local_evento = :local_comp,
+        tipo_com = :tipoCom,
+        tipo_sem = :tipoSem,
+        preco = :preco,
+        preco_menor = :preco_menor
+        WHERE id = :id";
         $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':id', $this->evento->__get('id'));
         $stmt->bindValue(':nome', $this->evento->__get('nome'));
         $stmt->bindValue(':data_camp', $this->evento->__get('data_camp'));
         $stmt->bindValue(':local_comp', $this->evento->__get('local'));
@@ -27,14 +56,14 @@ public function addEvento() {
         $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'));
         $stmt->bindValue(':tipoSem', $this->evento->__get('tipoSem'));
         $stmt->bindValue(':preco', $this->evento->__get('preco'));
-        $stmt->bindValue(':img', $this->evento->__get('img'));
-        $stmt->execute();
-    } catch (Exception $e) {
-        echo 'Erro ao adicionar evento: ' . $e->getMessage();
+        $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo 'Erro ao adicionar evento: ' . $e->getMessage();
+        }
     }
-}
-
-
+    //listar todos os eventos
     public function listAll(){
         //$query = "SELECT id, nome FROM evento WHERE data_evento >= CURRENT_DATE";
         $query = "SELECT id, nome, imagen FROM evento";
@@ -47,14 +76,14 @@ public function addEvento() {
         //$query = "SELECT id, nome, descricao, data_limite, tipo_com, tipo_sem, preco
         // FROM evento as e 
         // WHERE e.data_limite <= CURRENT_DATE() AND id = :id";
-        $query = "SELECT id, nome, descricao, data_evento, data_limite, local_evento, tipo_com, tipo_sem, preco, imagen 
+        $query = "SELECT id, nome, descricao, data_evento, data_limite, local_evento, tipo_com, tipo_sem, preco, imagen, preco_menor
                     FROM evento as e WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
-
+    //pegar todos os inscritos de um evento
     public function getInscritos($id){
         $query = "SELECT e.nome AS evento, a.nome AS inscrito, a.data_nascimento,
                 a.faixa, a.peso, f.nome  as academia, f.id as idAcademia,
@@ -69,9 +98,7 @@ public function addEvento() {
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
-    
-    
-
+    //inscrever um atleta em um evento
     public function inscrever( $id_atleta, $id_evento, $com, $abs_com, $sem, $abs_sem){
         //funçao para inscrever um atleta em um evento
         $query = 'INSERT INTO inscricao (id_atleta, id_evento,mod_com,mod_sem,mod_ab_com,mod_ab_sem)
@@ -87,7 +114,7 @@ public function addEvento() {
 
         $stmt->execute();
     }
-
+    //ver se um atleta ja esta inscrito em um evento
     public function isInscrito($idAtleta, $idEvento){
         $query = "SELECT COUNT(*) as numero FROM inscricao i WHERE i.id_atleta = :idAtlera AND i.id_evento = :idEvento";
         $stmt = $this->conn->prepare($query);
@@ -100,7 +127,7 @@ public function addEvento() {
 
         return $num->numero == 0;
     }
-
+    //montar chapa, não funciona
     public function montarChapa($id,$infantil,$infantojuvenil, $masters,$pPesado,$medio){
         $todos = $this->getInscritos($id);
         $faixas = ["Branca", "Azul","Roxa","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];

@@ -6,15 +6,16 @@
         require_once "../classes/eventosServices.php";
         include "../func/clearWord.php";
  
-            $nome = $_POST['nome_evento'];
-            $local = $_POST['local_camp'];
-            $data_camp = $_POST['data_camp'];
-            $descricao = $_POST['desc_Evento'];
-            $data_limite = $_POST['data_limite'];
-            $tipoCom = isset($_POST['tipo_com']) ? 1 : 0;
-            $tipoSem = isset($_POST['tipo_sem']) ? 1 : 0;
-            $preco = $_POST['preco'];
-            $caminhoParaSalvar = null;
+        $nome = cleanWords($_POST['nome_evento']);
+        $local = cleanWords($_POST['local_camp']);
+        $data_camp = cleanWords($_POST['data_camp']);
+        $descricao = cleanWords($_POST['desc_Evento']);
+        $data_limite = cleanWords($_POST['data_limite']);
+        $tipoCom = isset($_POST['tipo_com']) ? 1 : 0;
+        $tipoSem = isset($_POST['tipo_sem']) ? 1 : 0;
+        $preco = cleanWords($_POST['preco']);
+        $preco_menor = cleanWords($_POST['preco_menor']);
+        $caminhoParaSalvar = null;
 
             // tratar a imagem fornecida
             if(isset($_FILES['img_evento']) && $_FILES['img_evento']['error'] === UPLOAD_ERR_OK){
@@ -53,4 +54,4 @@
 
             header("Location: /eventos.php");
     }
-    ?>
+?>

@@ -4,6 +4,8 @@ session_start();/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
+echo"idade = ".$_SESSION["idade"] ."<br>";
+echo"idade > 15  ".$_SESSION["idade"]>15 ;
 try {
     require_once "classes/eventosServices.php";
     include "func/clearWord.php";
@@ -76,7 +78,8 @@ if (isset($_GET['id'])) {
                             // Caso o tipo de campeonato seja com quimono
                             if ($eventoDetails->tipo_com == 1) {
                                 echo '<input type="checkbox" name="com"> Com Quimono ';
-                                if($SESSION["idade"]> 15){
+                                
+                                if($_SESSION["idade"]> 15){
                                     echo '<input type="checkbox" name="abs_com"> Absoluto Com Quimono ';
                                 }
                             }
@@ -84,7 +87,7 @@ if (isset($_GET['id'])) {
                             // Caso o tipo de campeonato seja sem quimono
                             if ($eventoDetails->tipo_sem == 1) {
                                 echo '<input type="checkbox" name="sem"> Sem Quimono ';
-                                if($SESSION["idade"]> 15){
+                                if($_SESSION["idade"]> 15){
                                     echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
                                 }
                             }

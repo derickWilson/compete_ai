@@ -2,7 +2,6 @@
 class Evento {
     private $id;
     private $nome;
-
     private $local;
     private $data_camp;
     private $img;
@@ -11,6 +10,7 @@ class Evento {
     private $tipoCom;
     private $tipoSem;
     private $preco;
+    private $preco_menor;
 
     // Método mágico __get para getters
     public function __get($atributo) {
