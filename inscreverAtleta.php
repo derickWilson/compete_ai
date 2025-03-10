@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Dados do atleta
     $atleta_id = $_SESSION['id'];
     try {
-        $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem);
+        $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem, $modalidade_escolhida);
         header("Location: eventos.php");
     } catch (Exception $e) {
         echo '<p>Erro ao realizar a inscrição: ' . $e->getMessage() . '</p>';

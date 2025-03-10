@@ -68,7 +68,11 @@ public function addEvento() {
         //$query = "SELECT id, nome FROM evento WHERE data_evento >= CURRENT_DATE";
         $query = "SELECT id, nome, imagen FROM evento";
         $stmt = $this->conn->prepare($query);
-        $stmt->execute();
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo 'Erro ao listar eventos : ' . $e->getMessage();
+        }
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
@@ -80,7 +84,11 @@ public function addEvento() {
                     FROM evento as e WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id);
-        $stmt->execute();
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo 'Erro ao listar evento: ' . $e->getMessage();
+        }
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
     //pegar todos os inscritos de um evento
@@ -95,14 +103,18 @@ public function addEvento() {
                 WHERE e.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo 'Erro ao listar inscrito evento: ' . $e->getMessage();
+        }        
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     //inscrever um atleta em um evento
-    public function inscrever( $id_atleta, $id_evento, $com, $abs_com, $sem, $abs_sem){
+    public function inscrever( $id_atleta, $id_evento, $com, $abs_com, $sem, $abs_sem, $modalidade_escolhida){
         //funçao para inscrever um atleta em um evento
-        $query = 'INSERT INTO inscricao (id_atleta, id_evento,mod_com,mod_sem,mod_ab_com,mod_ab_sem)
-                    VALUES (:atleta, :evento, :com, :sem, :abs_com, :abs_sem)';
+        $query = 'INSERT INTO inscricao (id_atleta, id_evento,mod_com,mod_sem,mod_ab_com,mod_ab_sem,modalidade)
+                    VALUES (:atleta, :evento, :com, :sem, :abs_com, :abs_sem, :modalidade)';
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindValue(':atleta', $id_atleta);
@@ -111,8 +123,13 @@ public function addEvento() {
         $stmt->bindValue(':sem', $abs_com);
         $stmt->bindValue(':abs_com', $sem);
         $stmt->bindValue(':abs_sem', $abs_sem);
+        $stmt->bindValue(':modalidade', $modalidade_escolhida);
 
-        $stmt->execute();
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo 'Erro ao realizar inscrição : ' . $e->getMessage();
+        }
     }
     //ver se um atleta ja esta inscrito em um evento
     public function isInscrito($idAtleta, $idEvento){
@@ -122,9 +139,12 @@ public function addEvento() {
         $stmt->bindValue(':idAtlera', $idAtleta);
         $stmt->bindValue(':idEvento', $idEvento);
 
-        $stmt->execute();
+        try {
+            $stmt->execute();
+        } catch (Exception $e) {
+            echo 'Erro ao listar atleta: ' . $e->getMessage();
+        }
         $num = $stmt->fetch(PDO::FETCH_OBJ);
-
         return $num->numero == 0;
     }
     //montar chapa, não funciona
