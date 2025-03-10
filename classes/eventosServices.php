@@ -95,7 +95,7 @@ public function addEvento() {
     public function getInscritos($id){
         $query = "SELECT e.nome AS evento, a.nome AS inscrito, a.data_nascimento,
                 a.faixa, a.peso, f.nome  as academia, f.id as idAcademia,
-                i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem
+                i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem, i.modalidade as modalidade
                 FROM evento e
                 JOIN inscricao i ON i.id_evento = e.id
                 JOIN atleta a ON a.id = i.id_atleta

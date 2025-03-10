@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS evento(
     ADD preco_menor FLOAT(5,2)
 
     ALTER TABLE atleta
-    ADD genero VARCHAR(8)
+    ADD genero VARCHAR(9)
 
     ALTER TABLE inscricao
     ADD modalidade VARCHAR(11)

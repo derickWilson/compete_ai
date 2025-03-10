@@ -27,7 +27,7 @@ if (isset($_GET["id"])) {
     // Cabeçalho do arquivo CSV
     $header = array(
         "Campeonato", "Atleta", "Idade", "Faixa",
-        "Peso", "Academia", "Com Quimono", "Sem Quimono", "Absoluto Com Quimono",
+        "Peso", "Academia", "modalidade","Com Quimono", "Sem Quimono", "Absoluto Com Quimono",
         "Absoluto Sem Quimono"
     );
 
@@ -51,6 +51,7 @@ if (isset($_GET["id"])) {
             $value->faixa,
             $value->peso,
             $value->academia,
+            $value->modalidade,
             $value->mod_com ? "X" : "",
             $value->mod_sem ? "X" : "",
             $value->mod_ab_com ? "X" : "",
