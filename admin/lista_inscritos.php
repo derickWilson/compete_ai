@@ -41,6 +41,7 @@ try {
             <th>Idade</th>
             <th>Faixa</th>
             <th>Peso</th>
+            <th>Modalidade</th>
             <th>Academia</th>
             <th>Modo Com</th>
             <th>Modo Sem</th>
@@ -53,6 +54,7 @@ try {
             <td><?php echo calcularIdade($inscrito->data_nascimento); ?></td>
             <td><?php echo htmlspecialchars($inscrito->faixa); ?></td>
             <td><?php echo htmlspecialchars($inscrito->peso); ?></td>
+            <td><?php echo htmlspecialchars($inscrito->modalidade); ?></td>
             <td><?php echo htmlspecialchars($inscrito->academia); ?></td>
             <td><?php echo $inscrito->mod_com ? "Sim" : "Não"; ?></td>
             <td><?php echo $inscrito->mod_sem ? "Sim" : "Não"; ?></td>
