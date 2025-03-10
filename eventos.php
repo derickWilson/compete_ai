@@ -102,6 +102,19 @@ if (isset($_GET['id'])) {
                                 }
                             }
                             ?>
+                            <br>modalidade<select name="modalidade">
+                              <option value="galo">Galo</option>
+                              <option value="pluma">Pluma</option>
+                              <option value="pena">Pena</option>
+                              <option value="leve">Leve</option>
+                              <option value="medio">Médio</option>
+                              <option value="meio-pesado">Meio-Pesado</option>
+                              <option value="pesado">Pesado</option>
+                              <option value="super-pesado">Super-Pesado</option>
+                              <option value="pesadissimo">Pesadíssimo</option>
+                              <option value="super-pesadissimo">Super-Pesadíssimo</option>
+                            </select>
+
                             <input type="submit" value="Inscrever-se">
                         </form>
                 <?php

@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mod_sem = isset($_POST['sem']) ? 1 : 0;
     $mod_ab_com = isset($_POST['abs_com']) ? 1 : 0;
     $mod_ab_sem = isset($_POST['abs_sem']) ? 1 : 0;
+    $modalidade_escolhida = cleanWords($_POST["modalidade"]);
     // Dados do atleta
     $atleta_id = $_SESSION['id'];
     try {
