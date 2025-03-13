@@ -33,10 +33,13 @@ $atleta = $attServ->getById($idAtleta);
     <div>
     <form method="post" action="edit.php" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $_SESSION["id"]; ?>">
-        Email: <input name="email" type="email" placeholder="exemplo@email.com" value="<?php echo htmlspecialchars($atleta->email); ?>" required><br>
-        Telefone: <input maxlength="12" type="tel" name="fone" id="telefone" value="<?php echo htmlspecialchars($atleta->fone); ?>" placeholder="0000000000" required><br>
-        Faixa: 
-        <label>Faixa:</label>
+        <label for="foto_nova">Foto</label>
+        <img src="fotos/<?php echo $_SESSION["foto"]; ?>" name="diploma_novo" width="100px" height="100px">
+        <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
+        
+        Email: <input name="email" type="email" placeholder="exemplo@email.com" value="<?php echo htmlspecialchars($atleta->email); ?>"><br>
+        Telefone: <input maxlength="12" type="tel" name="fone" id="telefone" value="<?php echo htmlspecialchars($atleta->fone); ?>" placeholder="0000000000"><br>
+        <label for="faixa">Faixa:</label>
         <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>
             <option value="Branca" <?php if ($atleta->faixa == "Branca") echo "selected"; ?>>Branca</option>
@@ -52,8 +55,9 @@ $atleta = $attServ->getById($idAtleta);
             <option value="Vermelha e Branca" <?php if ($atleta->faixa == "Vermelha e Branca") echo "selected"; ?>>Vermelha e Branca</option>
             <option value="Vermelha" <?php if ($atleta->faixa == "Vermelha") echo "selected"; ?>>Vermelha</option>
         </select>
-<br>
-
+        <br>
+        <label for="diploma_novo">Diploma</label>
+        <img src="diplomas/<?php echo $_SESSION["diploma"]; ?>" name="diploma_novo" width="100px" height="100px">
         <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
         
         Peso: <input type="number" name="peso" min="10" step="0.05" value="<?php echo htmlspecialchars($atleta->peso); ?>" required><br>
@@ -72,9 +76,10 @@ $atleta = $attServ->getById($idAtleta);
 
 // Verifica se o formulário foi enviado
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    echo "<pre>";
+    print_r($_SESSION);
+    echo "</pre>";
 
-    $antigoDiploma = $atleta->diploma; // Mantém o diploma existente, caso não altere
-    
     // Verifica se o arquivo foi enviado
     if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
         $diploma = $_FILES['diploma'];

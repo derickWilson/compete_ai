@@ -106,7 +106,7 @@ class atletaService {
     }
 //logar atleta
 public function logar() {
-        $query = "SELECT id, nome, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado, responsavel
+        $query = "SELECT id, nome, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado, responsavel, diploma
                   FROM atleta
                   WHERE email = :email";
         $stmt = $this->conn->prepare($query);
@@ -135,6 +135,7 @@ public function logar() {
                     $_SESSION["academia"] = $this->getAcad($atleta->academia);
                     $_SESSION["faixa"] = $atleta->faixa;
                     $_SESSION["peso"] = $atleta->peso;
+                    $_SESSION["diploma"] = $atleta->diploma;
                     $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
                     $_SESSION["responsavel"] = $atleta->responsavel == 0 ? 0 : 1;
                     $_SESSION["validado"] = true;
@@ -197,7 +198,7 @@ public function logar() {
     public function listarCampeonatos($id_atleta){
         $query = 'SELECT e.id as idC, e.nome as campeonato, e.local_evento as lugar, e.data_evento as dia,
         i.mod_com as mcom, i.mod_sem as msem, 
-        i.mod_ab_com as macom, i.mod_ab_sem as masem
+        i.mod_ab_com as macom, i.mod_ab_sem as masem, i.modalidade
         FROM inscricao i
         JOIN evento e ON e.id = i.id_evento
         WHERE i.id_atleta = :idAtleta';
