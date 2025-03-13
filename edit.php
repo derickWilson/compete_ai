@@ -38,9 +38,9 @@ $atleta = $attServ->getById($idAtleta);
         <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
         
         Email: <input name="email" type="email" placeholder="exemplo@email.com" value="<?php echo htmlspecialchars($atleta->email); ?>"><br>
-        Telefone: <input maxlength="12" type="tel" name="fone" id="telefone" value="<?php echo htmlspecialchars($atleta->fone); ?>" placeholder="0000000000"><br>
+        Telefone: <input maxlength="12" type="tel" name="fone" id="fone" value="<?php echo htmlspecialchars($atleta->fone); ?>" placeholder="0000000000"><br>
         <label for="faixa">Faixa:</label>
-        <select id="faixas" name="faixa" required>
+        <select id="faixa" name="faixa" required>
             <option value="">Graduação</option>
             <option value="Branca" <?php if ($atleta->faixa == "Branca") echo "selected"; ?>>Branca</option>
             <option value="Cinza" <?php if ($atleta->faixa == "Cinza") echo "selected"; ?>>Branca</option>
@@ -58,13 +58,12 @@ $atleta = $attServ->getById($idAtleta);
         <br>
         <label for="diploma_novo">Diploma</label><br>
         <img src="/diplomas/<?php echo $_SESSION["diploma"]; ?>" name="diploma_novo" width="100px" height="100px">
-        <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
+        <input type="file" name="diploma_novo" id="diploma_novo" accept=".jpg,.jpeg,.png" ><br>
         
         Peso: <input type="number" name="peso" min="10" step="0.05" value="<?php echo htmlspecialchars($atleta->peso); ?>" required><br>
 
         <input type="submit" value="Atualizar Dados"><br>
     </form> 
-
     <a href="pagina_pessoal.php">Voltar</a>
     </div>
     <?php

@@ -1,19 +1,17 @@
 <?php
-
-// Verifica se o formulário foi enviado
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
     echo "<pre>";
     print_r($_POST);
     echo "</pre>";
-    
+// Verifica se o formulário foi enviado
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Verifica se o usuário está logado
     if (!isset($_SESSION["logado"])) {
         header("Location: login.php");
         exit();
     }
 
-    require_once "classes/atletaService.php";
-    include "func/clearWord.php";
+    require_once "/classes/atletaService.php";
+    include "/func/clearWord.php";
 
     // Criação do objeto de conexão e atleta
     $con = new Conexao();
@@ -50,6 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }else{
         $diplomaNovo = $diploma_antigo;
     }
+    //tratar foto nova
     if (isset($_FILES['foto_nova']) && $_FILES['foto_nova']['error'] === UPLOAD_ERR_OK) {
         $foto = $_FILES['foto_nova'];
         $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
