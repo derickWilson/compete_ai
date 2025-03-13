@@ -49,7 +49,7 @@
         </select><br>
         <h3>Dados do Responsavel</h3>
     Foto 3x4<br>
-    <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png"><br>
+    <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png" required><br>
 
     Nome do Responsavel  <input name="nome" type="text" placeholder="nome completo" required><br>
     Genero
@@ -84,7 +84,7 @@
             <option value="Vermelha">Vermelha</option>
         </select><br>
         Diploma<br>
-        <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png"><br>
+        <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" required><br>
         Peso <input type="number" name="peso" min="10" step="0.05" required><br>
         <input type="hidden" name="tipo" value="A">
         <input type="submit" value="Cadastrar"><br>
