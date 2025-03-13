@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
         $novoNome = 'diploma_' . time() . '.' . $extensao;
         $caminhoParaSalvar = 'diplomas/' . $novoNome;
-        unlink('diplomas/'.$antigoDiploma);
+        unlink('diplomas/'.$diploma_antigo);
         if ($diploma['size'] > 0) {
             if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
                 // Sucesso no upload
@@ -41,15 +41,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             echo 'Arquivo vazio ou erro no upload';
         }
+    }else{
+        $diploma = $diploma_antigo;
     }
-    
+    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
+        $foto = $_FILES['foto'];
+        $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
+        $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
+        $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
+        if ($foto['size'] > 0) {
+            if (move_uploaded_file($foto['tmp_name'], $caminhoParaSalvarFoto)) {
+            } else {
+                echo ' Erro ao mover arquivo. Verifique as permiss玫es do diret贸rio.';
+                header("Location: cadastro_academia.php");
+                exit();
+            }
+        } else {
+            echo 'Arquivo vazio ou erro no upload';
+            header("Location: cadastro_academia.php");
+            exit();
+        }
+    }else{
+        $foto = $foto_antiga;
+    }
     // Sanitiza e define os valores
     $atletas->__set("email", cleanWords($_POST["email"]));
     $atletas->__set("fone", cleanWords($_POST["fone"]));
+    $atletas->__set("foto", $foto);
     $atletas->__set("academia", cleanWords($_POST["academia"]));
     $atletas->__set("faixa", cleanWords($_POST["faixa"]));
     $atletas->__set("peso", cleanWords($_POST["peso"]));
-    $atletas->__set("diploma", $caminhoParaSalvar);
+    $atletas->__set("diploma", $diploma);
 
     try {
         // Atualiza o atleta
