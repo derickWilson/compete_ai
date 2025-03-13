@@ -226,13 +226,13 @@ public function logar() {
          $stmt->bindValue(":id", $idAtleta);
          try{
             $stmt->execute();
-            /*
+            
             $_SESSION["email"] = $this->atleta->__get("email");
             $_SESSION["foto"] = $this->atleta->__get("foto");
             $_SESSION["fone"] = $this->atleta->__get("fone");
             $_SESSION["faixa"] = $this->atleta->__get("faixa");
             $_SESSION["peso"] = $this->atleta->__get("peso");
-            $_SESSION["diploma"] = $this->atleta->__get("diploma");*/
+            $_SESSION["diploma"] = $this->atleta->__get("diploma");
 
          }catch(Exception $e){
             print("Erro ao ediar: " . $e->getMessage());
