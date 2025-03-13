@@ -33,8 +33,8 @@ $atleta = $attServ->getById($idAtleta);
     <div>
     <form method="post" action="edit.php" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $_SESSION["id"]; ?>">
-        <label for="foto_nova">Foto</label>
-        <img src="fotos/<?php echo $_SESSION["foto"]; ?>" name="diploma_novo" width="100px" height="100px">
+        <label for="foto_nova">Foto</label><br>
+        <img src="/fotos/<?php echo $_SESSION["foto"]; ?>" name="diploma_novo" width="100px" height="100px">
         <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
         
         Email: <input name="email" type="email" placeholder="exemplo@email.com" value="<?php echo htmlspecialchars($atleta->email); ?>"><br>
@@ -56,8 +56,8 @@ $atleta = $attServ->getById($idAtleta);
             <option value="Vermelha" <?php if ($atleta->faixa == "Vermelha") echo "selected"; ?>>Vermelha</option>
         </select>
         <br>
-        <label for="diploma_novo">Diploma</label>
-        <img src="diplomas/<?php echo $_SESSION["diploma"]; ?>" name="diploma_novo" width="100px" height="100px">
+        <label for="diploma_novo">Diploma</label><br>
+        <img src="/diplomas/<?php echo $_SESSION["diploma"]; ?>" name="diploma_novo" width="100px" height="100px">
         <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
         
         Peso: <input type="number" name="peso" min="10" step="0.05" value="<?php echo htmlspecialchars($atleta->peso); ?>" required><br>
