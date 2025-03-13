@@ -21,11 +21,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $attServ = new atletaService($con, $at);
 
     $atleta = $attServ->getById($_POST["id"]);
+    echo "<pre>";
+    print_r($atleta);
+    echo "</pre>";
     $diploma_antigo = $atleta->diploma;
     $foto_antiga = $atleta->foto;
     // Verifica se o arquivo foi enviado
-    if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
-        $diploma = $_FILES['diploma'];
+    if (isset($_FILES['diploma_novo']) && $_FILES['diploma_novo']['error'] === UPLOAD_ERR_OK) {
+        $diploma = $_FILES['diploma_novo'];
         $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
         $novoNome = 'diploma_' . time() . '.' . $extensao;
         $caminhoParaSalvar = '/diplomas/' . $novoNome;
@@ -47,12 +50,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }else{
         $diplomaNovo = $diploma_antigo;
     }
-    if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-        $foto = $_FILES['foto'];
+    if (isset($_FILES['foto_nova']) && $_FILES['foto_nova']['error'] === UPLOAD_ERR_OK) {
+        $foto = $_FILES['foto_nova'];
         $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
         $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
         $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
-        //excluir foto antiga
+        //excluir foto antiga   
         if(!empty("/fotos/".$diploma_foto_antigaantigo) && file_exists("/diplomas/".$foto_antiga)){
             unlink('/fotos/'.$foto_antiga);
         }
@@ -75,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Sanitiza e define os valores
     $atletas->__set("email", cleanWords($_POST["email"]));
     $atletas->__set("fone", cleanWords($_POST["fone"]));
-    $atletas->__set("foto", $foto);
+    $atletas->__set("foto", $fotoNova);
     $atletas->__set("faixa", cleanWords($_POST["faixa"]));
     $atletas->__set("peso", cleanWords($_POST["peso"]));
     $atletas->__set("diploma", $diplomaNovo);
@@ -83,9 +86,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         // Atualiza o atleta
     $attServ->updateAtleta($idAtleta);
-        echo 'Dados atualizados com sucesso!';
-        header("Location: pagina_pessoal.php"); // Redireciona após sucesso
-        exit();
     } catch (Exception $e) {
         echo "Erro ao atualizar os dados: " . $e->getMessage();
     }

@@ -216,6 +216,7 @@ public function logar() {
     public function updateAtleta($idAtleta){
         $query = "UPDATE atleta SET email = :email,
          fone = :fone,
+         foto = :foto,
          academia = :academia,
          faixa = :faixa,
          peso = :peso,
@@ -224,10 +225,11 @@ public function logar() {
          $stmt = $this->conn->prepare($query);
          $stmt->bindValue(":email", $this->atleta->__get("email"));
          $stmt->bindValue(":fone", $this->atleta->__get("fone"));
-         $stmt->bindValue(":academia", $this->atleta->__get("academia"));
          $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
+         $stmt->bindValue(":foto", $this->atleta->__get("foto"));
          $stmt->bindValue(":peso", $this->atleta->__get("peso"));
          $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
+         $stmt->bindValue(":id", $idAtleta);
          try{
             $stmt->execute();
          }catch(Exception $e){

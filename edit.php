@@ -31,10 +31,10 @@ $atleta = $attServ->getById($idAtleta);
 <body>
     <?php include "menu/add_menu.php"; ?>
     <div>
-    <form method="post" action="edit.php" enctype="multipart/form-data">
+    <form method="post" action="editar.php" enctype="multipart/form-data">
         <input type="hidden" name="id" value="<?php echo $_SESSION["id"]; ?>">
         <label for="foto_nova">Foto</label><br>
-        <img src="/fotos/<?php echo $_SESSION["foto"]; ?>" name="diploma_novo" width="100px" height="100px">
+        <img src="/fotos/<?php echo $_SESSION["foto"]; ?>" name="foto_nova" width="100px" height="100px">
         <input type="file" name="diploma" id="diploma" accept=".jpg,.jpeg,.png" ><br>
         
         Email: <input name="email" type="email" placeholder="exemplo@email.com" value="<?php echo htmlspecialchars($atleta->email); ?>"><br>
