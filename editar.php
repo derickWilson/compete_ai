@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $diplomaNovo = $novoNome;
             } else {
                 echo 'Erro ao mover arquivo. Verifique as permissões do diretório.';
-                header("Location: editar_atleta.php");
+                header("Location: edit.php?erro=1");
                 exit();
             }
         } else {
