@@ -76,12 +76,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $fotoNova = $foto_antiga;
     }
     // Sanitiza e define os valores
-    $atletas->__set("email", cleanWords($_POST["email"]));
-    $atletas->__set("fone", cleanWords($_POST["fone"]));
-    $atletas->__set("foto", $fotoNova);
-    $atletas->__set("faixa", cleanWords($_POST["faixa"]));
-    $atletas->__set("peso", cleanWords($_POST["peso"]));
-    $atletas->__set("diploma", $diplomaNovo);
+    $at->__set("email", cleanWords($_POST["email"]));
+    $at->__set("fone", cleanWords($_POST["fone"]));
+    $at->__set("foto", $fotoNova);
+    $at->__set("faixa", cleanWords($_POST["faixa"]));
+    $at->__set("peso", cleanWords($_POST["peso"]));
+    $at->__set("diploma", $diplomaNovo);
 
     try {
         // Atualiza o atleta
