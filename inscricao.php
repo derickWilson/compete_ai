@@ -4,7 +4,6 @@ session_start();/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
-
 try {
     require_once "classes/eventosServices.php";
     include "func/clearWord.php";
@@ -14,14 +13,13 @@ try {
     $conn = new Conexao();
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
-    $tudo = true;    
-if (isset($_GET['id'])) {
+if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET['id']);
     $eventoDetails = $evserv->getById($eventoId);
-    $tudo = false;
-} else {//se não esta em um evento especifico,  lista todos
-    $list = $evserv->listAll();
+} else {
+    echo "selecione um campeonato";
+    header("Location: eventos_cadastrados");
 }
 ?>
 <!DOCTYPE html>
@@ -29,36 +27,10 @@ if (isset($_GET['id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
-    <title>Eventos</title>
+    <title>Editar Inscrição</title>
 </head>
 <body>
-
-    <?php
-    include_once "menu/add_menu.php";
-    ?>
-    <?php
-        // Listar todos os eventos
-        if ($tudo) {
-            foreach ($list as $valor) { ?>
-            <div class="campeonato">
-            <img src="uploads/<?php echo $valor->imagen; ?>" alt="Imagem" class='mini-banner'>
-            <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'><h2>
-                <?php echo htmlspecialchars($valor->nome); ?></h2></a>
-                <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
-                    | <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
-                    | <a href='admin/editar_evento.php?id=<?php echo $valor->id ?>'>Editar Evento</a>
-                    | <a href='admin/chapa.php?id=<?php echo $valor->id ?>'>Montar chapa</a>
-                <?php } ?>
-                <br class='clear'>
-            </div>
-    <?php } ?>
-            <br><a href="index.php">Voltar</a>
-        <?php
-        } else {// detalhes de apenas um campeonato
-            if (isset($eventoDetails)) {
-        ?>
-        <div class='principal'>
+<div class='principal'>
             <h1><?php echo htmlspecialchars($eventoDetails->nome); ?></h1>
                 <img class='banner' src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento">
                 <p>Descrição: <?php echo htmlspecialchars($eventoDetails->descricao); ?></p>
@@ -77,11 +49,7 @@ if (isset($_GET['id'])) {
                         }
                     }
                      ?></p>
-                <?php
-                if (isset($_SESSION['logado']) && $_SESSION['logado']) {
-                    if($evserv->isInscrito($_SESSION["id"], $eventoId)){
-                        ?>
-                        <form action="inscreverAtleta.php" method="POST">
+                     <form action="editar_inscricao.php" method="POST">
                             <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
                             <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->preco); ?>">
                             <?php
@@ -117,33 +85,13 @@ if (isset($_GET['id'])) {
 
                             <input type="submit" value="Inscrever-se">
                         </form>
-                <?php
-                }else{
-                    echo "ja está inscrito";
-                }
-                }else{
-                ?>
-                    <p>Você deve estar logado para se inscrever.</p>
-                <?php
-                }
-            } else {
-                ?>
-                <p>Evento não encontrado.</p>
-                <a href="eventos.php">Voltar</a>
-            <?php
-            }
-            ?>
-        
-    
+
     <br><center>Tabela de Pesos</center>
     <center>
     <object data="tabela_de_pesosw.pdf" type="application/pdf" width="50%"></object>
     </center>
     <br><a class="link" href="index.php">voltar</a>
-    <?php
-        } // Fim da condição de um único evento
-        ?>
-        </div>
+</div>
 <?php
 include "menu/footer.php";
 ?>
