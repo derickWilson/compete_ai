@@ -1,16 +1,6 @@
 <?php
 // Verifica se o formulário foi enviado
 session_start();
-echo "<pre>";
-print_r($_POST);
-echo "</pre>";
-echo "<pre>";
-print_r($_FILES);
-echo "</pre>";
-echo "<br>sessao<br>";
-echo "<pre>";
-print_r($_SESSION);
-echo "</pre>";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require_once "classes/atletaService.php";
     include "func/clearWord.php";
@@ -19,7 +9,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $at = new Atleta();
     $attServ = new atletaService($con, $at);
 
-    $atleta = $attServ->getById($_POST["id"]);
+    $atleta = $attServ->getById($_SESSION["id"]);
 
     $diploma_antigo = $atleta->diploma;
     $foto_antiga = $atleta->foto;
@@ -31,39 +21,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $novoNome = 'diploma_' . time() . '.' . $extensao;
         $caminhoParaSalvar = 'diplomas/' . $novoNome;
         //excluir antigo diploma
-      //  if(!empty("/diplomas/".$diploma_antigo) && file_exists("/diplomas/".$diploma_antigo)){
-      //      unlink('/diplomas/'.$diploma_antigo);
-      //  }
-      echo "<br>diploma apagado<br>";
-        if ($diploma['size'] > 0) {
-            if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
+        if(!empty("diplomas/".$diploma_antigo) && file_exists("diplomas/".$diploma_antigo)){
+            unlink("diplomas/".$diploma_antigo);
+        }
+        if ($diploma["size"] > 0) {
+            if (move_uploaded_file($diploma["tmp_name"], $caminhoParaSalvar)) {
                 $diplomaNovo = $novoNome;
             } else {
-                echo 'Erro ao mover arquivo. Verifique as permissões do diretório.';
+                echo "Erro ao mover arquivo. Verifique as permissões do diretório.";
                 header("Location: edit.php?erro=1");
                 exit();
             }
         } else {
-            echo 'Arquivo vazio ou erro no upload';
+            echo "Arquivo vazio ou erro no upload";
         }
     }else{
         $diplomaNovo = $diploma_antigo;
     }
     //tratar foto nova
     if (isset($_FILES['foto_nova']) && $_FILES['foto_nova']['error'] === UPLOAD_ERR_OK) {
-        echo "tem foto selecionado";
         $foto = $_FILES['foto_nova'];
         $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
         $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
         $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
         //excluir foto antiga   
-       // if(!empty('/fotos/'.$foto_antiga) && file_exists("/fotos/".$foto_antiga)){
-       //     unlink('/fotos/'.$foto_antiga);
-       // }
-       echo "<br>foto apagado<br>";
+        if(!empty('fotos/'.$foto_antiga) && file_exists("fotos/".$foto_antiga)){
+            unlink('fotos/'.$foto_antiga);
+        }
         if ($foto['size'] > 0) {
             if (move_uploaded_file($foto['tmp_name'], $caminhoParaSalvarFoto)) {
-                $fotoNova = $novoNomeFoto;
+              $fotoNova = $novoNomeFoto;
             } else {
                 echo ' Erro ao mover arquivo. Verifique as permiss玫es do diret贸rio.';
                 header("Location: cadastro_academia.php?");
@@ -78,12 +65,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $fotoNova = $foto_antiga;
     }
     // Sanitiza e define os valores
-    echo "<br>foto antiga ".$foto_antiga."<br>";
-    echo "<br>foto nova ".$fotoNova."<br>";
-    
-    echo "<br>diploma antigo ".$diploma_antigo."<br>";
-    echo "<br>diploma novo ".$diplomaNovo."<br>";
-
     $at->__set("id", cleanWords($_SESSION["id"]));
     $at->__set("email", cleanWords($_POST["email"]));
     $at->__set("fone", cleanWords($_POST["fone"]));
@@ -94,8 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     try {
         // Atualiza o atleta
-    //$attServ->updateAtleta($idAtleta);
-    //echo "<br>tentar";
+    $attServ->updateAtleta();
     } catch (Exception $e) {
         echo "Erro ao atualizar os dados: " . $e->getMessage();
     }

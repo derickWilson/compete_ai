@@ -16,7 +16,7 @@ $atletas = new Atleta();
 $attServ = new atletaService($con, $atletas);
 
 // Obtém os dados do atleta logado
-$atleta = $attServ->getById($idAtleta);
+$atleta = $attServ->getById($_SESSION["id"]);
 ?>
 
 <!DOCTYPE html>
@@ -58,7 +58,7 @@ $atleta = $attServ->getById($idAtleta);
         <img src="/diplomas/<?php echo $_SESSION["diploma"]; ?>" name="diploma_novo" width="100px" height="100px">
         <input type="file" name="diploma_novo" id="diploma_novo" accept=".jpg,.jpeg,.png" ><br>
         
-        Peso: <input type="number" name="peso" min="10" step="0.05" value="<?php echo $_SESSION["peso"]; ?>" required><br>
+        Peso: <input type="number" name="peso" min="10" step="0.05" value="<?php echo htmlspecialchars($atleta->peso); ?>" required><br>
 
         <input type="submit" value="Atualizar Dados"><br>
     </form> 
