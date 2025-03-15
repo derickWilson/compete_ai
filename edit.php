@@ -16,7 +16,6 @@ $atletas = new Atleta();
 $attServ = new atletaService($con, $atletas);
 
 // Obtém os dados do atleta logado
-$idAtleta = $_SESSION["id"];
 $atleta = $attServ->getById($idAtleta);
 ?>
 

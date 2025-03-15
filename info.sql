@@ -98,6 +98,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         peso FLOAT(5,2) NOT NULL,
         validado TINYINT NOT NULL,
         adm TINYINT default 0,
+        genero VARCHAR(9),
         responsavel TINYINT NOT NULL,
         diploma VARCHAR(30) NOT NULL,
         FOREIGN KEY (academia) REFERENCES academia_filiada(id),
@@ -116,6 +117,7 @@ CREATE TABLE IF NOT EXISTS evento(
     tipo_sem TINYINT,
     imagen VARCHAR(30),
     preco FLOAT(5,2),
+    preco_menor FLOAT(5,2),
     PRIMARY KEY (id)
 );
 
@@ -127,6 +129,7 @@ CREATE TABLE IF NOT EXISTS evento(
         mod_sem TINYINT,
         mod_ab_com TINYINT,
         mod_ab_sem TINYINT,
+        modalidade VARCHAR(11),
         PRIMARY KEY (id_atleta, id_evento),
         FOREIGN KEY (id_atleta) REFERENCES atleta(id),
         FOREIGN KEY (id_evento) REFERENCES evento(id)
