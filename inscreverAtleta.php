@@ -6,20 +6,20 @@ if (!isset($_SESSION['logado']) || !$_SESSION['logado']) {
     header("location: eventos.php");
     exit();
 }
-// Incluindo arquivos necessários
-include_once "classes/eventosServices.php";
-include_once "func/clearWord.php";
-// Teste de conexão e instâncias
-try {
-    $conn = new Conexao();
-    $ev = new Evento();
-    $evserv = new eventosService($conn, $ev);
-} catch (Exception $e) {
-    die("Erro na conexão ou instância: " . $e->getMessage());
-}
 // Verifica se a requisição é POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Captura e valida os dados do formulário
+    // Incluindo arquivos necessários
+    // Teste de conexão e instâncias
+    try {
+        require_once "classes/eventosServices.php";
+        include "func/clearWord.php";
+        $conn = new Conexao();
+        $ev = new Evento();
+        $evserv = new eventosService($conn, $ev);
+    } catch (Exception $e) {
+        die("Erro na conexão ou instância: " . $e->getMessage());
+    }
     $evento_id = isset($_POST['evento_id']) ? (int) cleanWords($_POST['evento_id']) : 0;
     // Verifica se o evento existe
     $eventoDetails = $evserv->getById($evento_id);
@@ -38,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $atleta_id = $_SESSION['id'];
     try {
         $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem, $modalidade_escolhida);
-        header("Location: eventos.php");
     } catch (Exception $e) {
         echo '<p>Erro ao realizar a inscrição: ' . $e->getMessage() . '</p>';
     }

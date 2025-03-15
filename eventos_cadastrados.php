@@ -11,9 +11,9 @@ if (!isset($_SESSION["logado"])){
         $atleta = new Atleta();
         $ev = new atletaService($conn, $atleta);
         $inscritos = $ev->listarCampeonatos($_SESSION["id"]);
-        echo "<pre>";
-        print_r($inscritos);
-        echo "</pre>";
+//        echo "<pre>";
+//        print_r($inscritos);
+//        echo "</pre>";
     } catch (Exception $e) {
         die("Erro ao obter inscritos: " . $e->getMessage());
     }
@@ -43,6 +43,7 @@ if (!isset($_SESSION["logado"])){
         <th>Sem Quimono</th>
         <th>Absoluto sem Quimono</th>
         <th>Absoluto com Quimono</th>
+        <th>ver</th>
     </tr>
     <?php foreach ($inscritos as $key => $inscrito) { ?>
     <tr>
@@ -54,6 +55,7 @@ if (!isset($_SESSION["logado"])){
         <td><h5><?php echo $inscrito->mcom ? "X": ""; ?></h5></td>
         <td><h5><?php echo $inscrito->msem ? "X": ""; ?></h5></td>
         <td><h5><?php echo $inscrito->macom ? "X": ""; ?></h5></td>
+        <td><h5><?php echo $inscrito->masem ? "X": ""; ?></h5</td>
         <td><h5><?php echo $inscrito->masem ? "X": ""; ?></h5</td>
     </tr>
     <?php } ?>

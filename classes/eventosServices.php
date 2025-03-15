@@ -127,6 +127,8 @@ public function addEvento() {
 
         try {
             $stmt->execute();
+            header("Location: eventos.php");
+            exit();
         } catch (Exception $e) {
             echo 'Erro ao realizar inscrição : ' . $e->getMessage();
         }
