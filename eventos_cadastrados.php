@@ -35,6 +35,7 @@ if (!isset($_SESSION["logado"])){
 <div class="principal">
 <table border="1">
     <tr>
+        <th>Nº de inscricao</th>
         <th>Campeonato</th>
         <th>Local</th>
         <th>Data</th>
@@ -47,8 +48,9 @@ if (!isset($_SESSION["logado"])){
     </tr>
     <?php foreach ($inscritos as $key => $inscrito) { ?>
     <tr>
-        <?php
-        echo '<td><h5><a href="eventos.php?id=' . (int)$inscrito->idC . '">' . $inscrito->campeonato . '</a></h5></td>';        ?>
+        <td><h5><?php echo $_SESSION["id"].$inscrito->idC; ?></h5></td>
+    <?php
+        echo '<td><h5><a href="eventos.php?id=' . (int)$inscrito->idC . '">' . $inscrito->campeonato . '</a></h5></td>';?>
         <td><h5><?php echo $inscrito->lugar; ?></h5></td>
         <td><h5><?php echo $inscrito->dia; ?></h5></td>
         <td><h5><?php echo $inscrito->modalidade; ?></h5></td>
