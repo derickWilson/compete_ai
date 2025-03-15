@@ -29,7 +29,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $diploma = $_FILES['diploma_novo'];
         $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
         $novoNome = 'diploma_' . time() . '.' . $extensao;
-        $caminhoParaSalvar = '/diplomas/' . $novoNome;
+        $caminhoParaSalvar = 'diplomas/' . $novoNome;
         //excluir antigo diploma
       //  if(!empty("/diplomas/".$diploma_antigo) && file_exists("/diplomas/".$diploma_antigo)){
       //      unlink('/diplomas/'.$diploma_antigo);
@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $foto = $_FILES['foto_nova'];
         $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
         $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
-        $caminhoParaSalvarFoto = '/fotos/' . $novoNomeFoto;
+        $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
         //excluir foto antiga   
        // if(!empty('/fotos/'.$foto_antiga) && file_exists("/fotos/".$foto_antiga)){
        //     unlink('/fotos/'.$foto_antiga);
@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $fotoNova = $novoNomeFoto;
             } else {
                 echo ' Erro ao mover arquivo. Verifique as permiss玫es do diret贸rio.';
-                header("Location: cadastro_academia.php");
+                header("Location: cadastro_academia.php?");
                 exit();
             }
         } else {
@@ -78,6 +78,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $fotoNova = $foto_antiga;
     }
     // Sanitiza e define os valores
+    echo "<br>foto antiga ".$foto_antiga."<br>";
+    echo "<br>foto nova ".$fotoNova."<br>";
+    
+    echo "<br>diploma antigo ".$diploma_antigo."<br>";
+    echo "<br>diploma novo ".$diplomaNovo."<br>";
+
+    $at->__set("id", cleanWords($_SESSION["id"]));
     $at->__set("email", cleanWords($_POST["email"]));
     $at->__set("fone", cleanWords($_POST["fone"]));
     $at->__set("foto", $fotoNova);
@@ -88,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         // Atualiza o atleta
     //$attServ->updateAtleta($idAtleta);
-    echo "<br>tentar";
+    //echo "<br>tentar";
     } catch (Exception $e) {
         echo "Erro ao atualizar os dados: " . $e->getMessage();
     }

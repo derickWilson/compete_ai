@@ -213,7 +213,7 @@ public function logar() {
         $result = $stmt->fetchAll(PDO::FETCH_OBJ);
         return $result;
     }
-    public function updateAtleta($idAtleta){
+    public function updateAtleta(){
         $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, faixa = :faixa, peso = :peso, diploma = :diploma
          WHERE id = :id";
          $stmt = $this->conn->prepare($query);
@@ -223,7 +223,7 @@ public function logar() {
          $stmt->bindValue(":foto", $this->atleta->__get("foto"));
          $stmt->bindValue(":peso", $this->atleta->__get("peso"));
          $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
-         $stmt->bindValue(":id", $idAtleta);
+         $stmt->bindValue(":id", $this->atleta->__get("id"));
          try{
             $stmt->execute();
             $_SESSION["email"] = $this->atleta->__get("email");
