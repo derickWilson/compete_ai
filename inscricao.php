@@ -14,12 +14,12 @@ try {
     print('['. $th->getMessage() .']');
 }
     $conn = new Conexao();
-    $ev = new Evento();
-    $evserv = new eventosService($conn, $ev);
+    $at = new Atleta();
+    $atserv = new atletaService($conn, $at);
 if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET["inscricao"]);
-    $eventoDetails = $evserv->getInscricao($eventoId,$_SESSION["id"]);
+    $eventoDetails = $atserv->getInscricao($eventoId,$_SESSION["id"]);
 } else {
     echo "selecione um campeonato";
     header("Location: eventos_cadastrados");

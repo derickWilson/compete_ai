@@ -249,6 +249,8 @@ public function logar() {
         $stmt->bindValue(":atleta", $atleta);
         try{
             $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+            return $result;
         }catch(Exception $e){
             echo "erro [".$e->getMessage()."]";
         }
