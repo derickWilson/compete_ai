@@ -19,7 +19,12 @@ try {
 if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET["inscricao"]);
-    $eventoDetails = $atserv->getInscricao($eventoId,$_SESSION["id"]);
+    $inscricao = $atserv->getInscricao($eventoId,$_SESSION["id"]);
+
+    echo "<pre>";
+    print_r($inscricao);
+    echo "</pre>";
+    
 } else {
     echo "selecione um campeonato";
     header("Location: eventos_cadastrados");
@@ -72,18 +77,20 @@ if (isset($_GET["inscricao"])) {
            }
        }
        ?>
-       <br>modalidade<select name="modalidade">
-         <option value="galo">Galo</option>
-         <option value="pluma">Pluma</option>
-         <option value="pena">Pena</option>
-         <option value="leve">Leve</option>
-         <option value="medio">Médio</option>
-         <option value="meio-pesado">Meio-Pesado</option>
-         <option value="pesado">Pesado</option>
-         <option value="super-pesado">Super-Pesado</option>
-         <option value="pesadissimo">Pesadíssimo</option>
-         <option value="super-pesadissimo">Super-Pesadíssimo</option>
-       </select>
+    <br>modalidade
+    <select name="modalidade">
+      <option value="galo" <?php if($inscricao->modalidade == "galo") echo "selected"; ?>>Galo</option>
+      <option value="pluma" <?php if($inscricao->modalidade == "pluma") echo "selected"; ?>>Pluma</option>
+      <option value="pena" <?php if($inscricao->modalidade == "pena") echo "selected"; ?>>Pena</option>
+      <option value="leve" <?php if($inscricao->modalidade == "leve") echo "selected"; ?>>Leve</option>
+      <option value="medio" <?php if($inscricao->modalidade == "medio") echo "selected"; ?>>Médio</option>
+      <option value="meio-pesado" <?php if($inscricao->modalidade == "meio-pesado") echo "selected"; ?>>Meio-Pesado</option>
+      <option value="pesado" <?php if($inscricao->modalidade == "pesado") echo "selected"; ?>>Pesado</option>
+      <option value="super-pesado" <?php if($inscricao->modalidade == "super-pesado") echo "selected"; ?>>Super-Pesado</option>
+      <option value="pesadissimo" <?php if($inscricao->modalidade == "pesadissimo") echo "selected"; ?>>Pesadíssimo</option>
+      <option value="super-pesadissimo" <?php if($inscricao->modalidade == "super-pesadissimo") echo "selected"; ?>>Super-Pesadíssimo</option>
+    </select>
+
        <br><input type="submit" value="Salvar">
    </form>
     <br><center>Tabela de Pesos</center>
