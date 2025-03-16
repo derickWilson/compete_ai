@@ -4,8 +4,11 @@ session_start();/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
+if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]){
+    header("Location: index.php");
+}
 try {
-    require_once "classes/eventosServices.php";
+    require_once "classes/atletaService.php";
     include "func/clearWord.php";
 } catch (\Throwable $th) {
     print('['. $th->getMessage() .']');
@@ -16,7 +19,7 @@ try {
 if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET["inscricao"]);
-    $eventoDetails = $evserv->getById($eventoId);
+    $eventoDetails = $evserv->getInscricao($eventoId,$_SESSION["id"]);
 } else {
     echo "selecione um campeonato";
     header("Location: eventos_cadastrados");

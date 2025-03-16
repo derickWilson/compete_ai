@@ -238,6 +238,21 @@ public function logar() {
             print("Erro ao ediar: " . $e->getMessage());
          }
     }
+    //função para pegar inscricao
+    public function getInscricao($evento,$atleta){
+        $query="SELECT FROM inscricao i
+        JOIN
+        JOIN
+        WHERE i.id_evento = :evento AND i.id_atleta = :atleta";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(":evento", $evento);
+        $stmt->bindValue(":atleta", $atleta);
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }
+    }
     //***************************FUNÇÕES DE ACADEMIA*******************/
     //funçoes de afiliação de academia
     public function Filiar($nome, $cep, $cidade, $estado) {
@@ -248,7 +263,11 @@ public function logar() {
         $stmt->bindValue(":cep", $cep);
         $stmt->bindValue(":cidade", $cidade);
         $stmt->bindValue(":estado", $estado);
-        $stmt->execute();
+        try{
+            $stmt->execute();
+        }catch(Exception $e){
+            echo "erro [".$e->getMessage()."]";
+        }    
     }
     //funçao para consegui id da academia
     public function getIdAcad($nomeAcad){
