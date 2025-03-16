@@ -240,9 +240,9 @@ public function logar() {
     }
     //função para pegar inscricao
     public function getInscricao($evento,$atleta){
-        $query="SELECT FROM inscricao i
-        JOIN
-        JOIN
+        $query="SELECT i.modalidade FROM inscricao i
+        JOIN evento e ON e.id = i.id_evento
+        JOIN atleta a ON a.id = i.id_atleta
         WHERE i.id_evento = :evento AND i.id_atleta = :atleta";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":evento", $evento);
