@@ -240,7 +240,8 @@ public function logar() {
     }
     //função para pegar inscricao
     public function getInscricao($evento,$atleta){
-        $query="SELECT i.modalidade FROM inscricao i
+        $query="SELECT e.preco, e.preco_menor, e.tipo_com, e.tipo_sem, i.mod_com, i.mod_ab_com,
+        i.mod_sem, i.mod_ab_sem,i.modalidade FROM inscricao i
         JOIN evento e ON e.id = i.id_evento
         JOIN atleta a ON a.id = i.id_atleta
         WHERE i.id_evento = :evento AND i.id_atleta = :atleta";
@@ -249,7 +250,7 @@ public function logar() {
         $stmt->bindValue(":atleta", $atleta);
         try{
             $stmt->execute();
-            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
             return $result;
         }catch(Exception $e){
             echo "erro [".$e->getMessage()."]";
