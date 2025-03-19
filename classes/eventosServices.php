@@ -272,8 +272,13 @@ public function addEvento() {
                         JOIN academia_filiada f ON a.academia = f.id 
                         WHERE i.id_evento = :evento AND
                          i.modalidade = :modalidade AND
+                         a.faixa = :faixa AND
                          (YEAR(CURDATE()) - YEAR(a.data_nascimento)) BETWEEN :idadeMinima AND :idadeMaxima";
                         $stmt = $this->conn->prepare($query);
+                        $stmt->bindParam(":evento", $id);
+                        $stmt->bindParam(":modalidade", $mod);
+                        $stmt->bindParam(":evento", $id);
+                        $stmt->bindParam(":evento", $id);
                         $stmt->bindParam(":evento", $id);
                     }
                 }
