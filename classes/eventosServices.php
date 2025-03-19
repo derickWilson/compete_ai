@@ -151,82 +151,7 @@ public function addEvento() {
         $num = $stmt->fetch(PDO::FETCH_OBJ);
         return $num->numero == 0;
     }
-    //montar chapa, não funciona
-    public function montarChapa($id,$infantil,$infantojuvenil, $masters,$pPesado,$medio){
-        $todos = $this->getInscritos($id);
-        $faixas = ["Branca", "Azul","Roxa","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
-
-        foreach($faixas as $cor){
-            $listaIdade = [
-                "infantil"=>array(),
-                "juvenil"=>array(),
-                "adulto"=>array(),
-                "master"=>array()
-            ];
-            foreach($todos as $inscrito){
-                //loop para separar por idade
-                if($inscrito->faixa == $cor){
-                    $idade = calcularIdade($inscrito->data_nascimento);
-                    switch($idade){
-                        case $idade < $infantil:
-                            array_push($listaIdade["infantil"], $inscrito);
-                            break;
-                
-                        case $idade >= $infantil && $idade < $infantojuvenil:
-                            array_push($listaIdade["juvenil"], $inscrito);
-                            break;
-                        case $idade >= $infantojuvenil && $idade < $masters:
-                            array_push($listaIdade["adulto"], $inscrito);
-                            break;
-                        case $idade >= $masters:
-                            array_push($listaIdade["master"], $inscrito);
-                            break;
-                    }
-                }
-            }
-        //separar por peso	
-            $listaPeso = [
-                "leve" => array(),
-                "medio" => array(),
-                "pesado" => array()
-            ];
-            foreach($listaIdade as $key => $value){
-                $faixaEtaria = $listaIdade[$key];
-                //faixa pega somente uma faixa etaria
-                //agora percorrer cada um e dividir por peso
-                echo "<h2>classificação : ".$key."<br></h2>";
-                foreach($value as $inscrito){
-                    // separar por peso
-                    if($inscrito->peso < $medio){
-                        array_push($listaPeso["leve"],$inscrito);
-                    }
-                    if($inscrito->peso >= $medio && $inscrito->peso < $pPesado){
-                        array_push($listaPeso["medio"],$inscrito);
-                    }
-                    if($inscrito->peso >= $pPesado){
-                        array_push($listaPeso["pesado"],$inscrito);
-                    }
-                }
-                //criar as chapas com os lista peso aqui
-                echo "<h2>faixa " . $cor . "</h2>";
-                foreach($listaPeso as $key => $inscrito){
-                    echo "<h3>peso ".$key."</h3><br>";
-                    shuffle($inscrito);
-                
-                    for($i = 0; $i < count($inscrito); $i++){
-                        echo "<ul>";
-                        echo "<li>".$inscrito->nome."</li>";
-                        if(($i+1) % 2 == 0){
-                            echo "<br>";
-                        }
-                    
-                        echo "</ul>";
-                    }
-                }
-            }   
-        }
-    }
-
+    //montar chapa
     public function montarChapas($id){
     
         $modalidades = [
@@ -263,9 +188,11 @@ public function addEvento() {
 
         //montar com quimono
         if($evento->tipo_com == 1){
+            echo "<h3>Com Quimono Normal</h3>";
             foreach($categorias_idade as $categoria => $idades){
                 foreach($modalidades as $mods){
                     foreach($faixas as $cor){
+                        echo "<h4>Categoria : ".$categoria."</h4>";
                         $query="SELECT a.nome, f.nome as academia, (YEAR(CURDATE()) - YEAR(a.data_nascimento)) AS idade, a.faixa
                         FROM inscricao i
                         JOIN atleta a ON i.id_atleta = a.id
@@ -276,14 +203,23 @@ public function addEvento() {
                          (YEAR(CURDATE()) - YEAR(a.data_nascimento)) BETWEEN :idadeMinima AND :idadeMaxima";
                         $stmt = $this->conn->prepare($query);
                         $stmt->bindParam(":evento", $id);
-                        $stmt->bindParam(":modalidade", $mod);
-                        $stmt->bindParam(":evento", $id);
-                        $stmt->bindParam(":evento", $id);
-                        $stmt->bindParam(":evento", $id);
+                        $stmt->bindParam(":modalidade", $mods);
+                        $stmt->bindParam(":faixa", $cor);
+                        $stmt->bindParam(":idadeMinima", $idades["min"]);
+                        $stmt->bindParam(":idadeMaxima", $idades["max"]);
+                        try {
+                            $stmt->execute();
+                            //chapa montada
+                            $chapa = $stmt->fetchAll(PDO::FETCH_OBJ);
+                            //embaralhar chapa
+                            shuffle($chapa);
+                        } catch (Exception $e) {
+                            echo '<p>Erro ao executar consulta : [' . $e->getMessage(). "] <p>";
+                        }
                     }
                 }
             }
-        }
+        }//fim do com quimono sem absoluto
     }
 } 
 ?>
