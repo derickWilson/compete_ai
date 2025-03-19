@@ -30,16 +30,32 @@ if (isset($_GET["id"])) {
 <body>
 
     <?php include "../menu/add_menu.php"; ?>
-    <div>
-    <form action="chapa.php">
-        <input type="number" name="camp" id="camp" value="<?php echo $camp;?>"><br>
-        <label for="idInfantil">Idade maxima infantil</label><input type="number" name="idInfantil">Anos<br>
-        <label for="idInfantoJuvenil">Idade maxima infanto junvenil</label><input type="number" name="idInfantoJuvenil">Anos<br>
-        <label for="idAdulto">Idade maxima adulto</label><input type="number" name="idAdulto">Anos<br>
-        <label for="idMasters">Idade Masters</label><input type="number" name="idMasters">Anos<br>
-    </form>
-    </div>
-    <div>
+    <div class="principla">
+        <?php
+            
+    $modalidades = [
+        "galo", "pluma", "pena", "leve", "medio", 
+        "meio-pesado", "pesado", "super-pesado", "pesadissimo", "super-pesadissimo"
+    ];
+    $categorias_idade = [
+        "PRE-MIRIM"       => ["min" => 4,  "max" => 5],   // 4 a 5 anos
+        "MIRIM 1"         => ["min" => 6,  "max" => 7],   // 6 a 7 anos
+        "MIRIM 2"         => ["min" => 8,  "max" => 9],   // 8 a 9 anos
+        "INFANTIL 1"      => ["min" => 10, "max" => 11],  // 10 a 11 anos
+        "INFANTIL 2"      => ["min" => 12, "max" => 13],  // 12 a 13 anos
+        "INFANTO-JUVENIL" => ["min" => 14, "max" => 15],  // 14 a 15 anos
+        "JUVENIL"         => ["min" => 16, "max" => 17],  // 16 a 17 anos
+        "ADULTO"          => ["min" => 18, "max" => 29],  // 18 a 29 anos
+        "MASTER"          => ["min" => 30, "max" => 100]  // 30 anos ou mais
+    ];
+
+    foreach($modalidades as $mod){
+        echo $mod."<br>";
+        foreach($categorias_idade as $key => $value){
+            echo "".$key." maior = ".$value["max"]." menor = ".$value["min"]."<br>";
+        }
+    }
+        ?>
     </div>
     <br><a href="/compete_ai/eventos.php">Voltar</a>
 
