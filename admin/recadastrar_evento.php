@@ -30,9 +30,6 @@
         $evento->__set('preco', $preco);
         $evento->__set('preco_menor', $preco_menor);
         $adEvento = new eventosService($conn,$evento);
-        //echo "<pre>";
-        //print_r($evento);
-        //echo "</pre>";
         $adEvento->editEvento();
     }
 ?>

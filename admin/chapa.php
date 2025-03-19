@@ -40,13 +40,13 @@ if (isset($_GET["id"])) {
     </form>
     </div>
     <div>
-        <?php
-        if($_SERVER["REQUEST_METHOD"] == "POST"){
-    		$eventServ->montarChapa($id, $col, $infantil, $infantoJuvenil, $mastes, $pPesado, $medio);
-        }
-        ?>
     </div>
     <br><a href="/compete_ai/eventos.php">Voltar</a>
 
 </body>
 </html>
+<?php
+if($_SERVER["REQUEST_METHOD"] == "POST"){
+    $eventServ->montarChapa($id, $col, $infantil, $infantoJuvenil, $mastes, $pPesado, $medio);
+}
+?>
