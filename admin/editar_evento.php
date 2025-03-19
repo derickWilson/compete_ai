@@ -36,7 +36,7 @@ if (isset($_GET['id'])) {
             Data do Campeopnato <input type="date" id="data_camp" name="data_camp"
             value="<?php echo $eventoDetails->data_limite; ?>"><br>
             
-            Local <input type="text" id="local_camp"
+            Local <input type="text" name="local_camp"
             value="<?php echo $eventoDetails->local_evento; ?>"><br>
 
             <p>descrição do evento</p>

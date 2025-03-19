@@ -59,8 +59,10 @@ public function addEvento() {
         $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
         try {
             $stmt->execute();
+            header("Location: /eventos.php");
+
         } catch (Exception $e) {
-            echo 'Erro ao adicionar evento: ' . $e->getMessage();
+            echo 'Erro ao editar evento: ' . $e->getMessage();
         }
     }
     //listar todos os eventos

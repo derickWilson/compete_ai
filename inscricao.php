@@ -20,6 +20,11 @@ if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET["inscricao"]);
     $inscricao = $atserv->getInscricao($eventoId,$_SESSION["id"]);
+
+    echo "<pre>";
+    print_r($inscricao);
+    echo "</pre>";
+
 } else {
     echo "selecione um campeonato";
     header("Location: eventos_cadastrados.php");

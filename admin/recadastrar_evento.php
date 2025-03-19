@@ -8,7 +8,7 @@
 
         $id = $_POST['id'];
         $nome = cleanWords($_POST['nome_evento']);
-        $local = cleanWords($_POST['local_camp']);
+        $local = $_POST['local_camp'];
         $data_camp = cleanWords($_POST['data_camp']);
         $descricao = cleanWords($_POST['desc_Evento']);
         $data_limite = cleanWords($_POST['data_limite']);
@@ -30,7 +30,9 @@
         $evento->__set('preco', $preco);
         $evento->__set('preco_menor', $preco_menor);
         $adEvento = new eventosService($conn,$evento);
+        //echo "<pre>";
+        //print_r($evento);
+        //echo "</pre>";
         $adEvento->editEvento();
-        header("Location: /eventos.php");
     }
 ?>
