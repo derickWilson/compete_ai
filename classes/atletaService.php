@@ -240,7 +240,7 @@ public function logar() {
     }
     //função para pegar inscricao
     public function getInscricao($evento,$atleta){
-        $query="SELECT e.preco, e.preco_menor, e.tipo_com, e.tipo_sem, i.mod_com, i.mod_ab_com,
+        $query="SELECT e.id,     e.preco, e.preco_menor, e.tipo_com, e.tipo_sem, i.mod_com, i.mod_ab_com,
         i.mod_sem, i.mod_ab_sem,i.modalidade FROM inscricao i
         JOIN evento e ON e.id = i.id_evento
         JOIN atleta a ON a.id = i.id_atleta

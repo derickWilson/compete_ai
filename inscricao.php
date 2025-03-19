@@ -42,17 +42,15 @@ if (isset($_GET["inscricao"])) {
 <h3><?php echo htmlspecialchars($inscricao->nome); ?></h3>
     <p>Preço
         <?php
-        echo "sua idade = ".$_SESSION["idade"]."<br>";
         if($_SESSION["idade"] > 15){
-            echo $inscricao->preco;
+            echo $inscricao->preco." R$";
         }else{
             echo "<br>to aqui no menor<br>";
-            echo $inscricao->preco_menor;
+            echo $inscricao->preco_menor." R$";
         }
          ?></p>
 <form action="editar_inscricao.php" method="POST">
-       <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
-       <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->preco); ?>">
+       <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($inscricao->id); ?>">
        <?php
        // Caso o tipo de campeonato seja com quimono
        if ($inscricao->tipo_com == 1) {
@@ -69,13 +67,6 @@ if (isset($_GET["inscricao"])) {
             echo '<input type="checkbox" name="abs_sem"'.($inscricao->mod_ab_sem == 1 ? 'checked' : '') .'> Absoluto Com Quimono ';
         }
     }
-       // Caso o tipo de campeonato seja sem quimono
-       if ($eventoDetails->tipo_sem == 1) {
-           echo '<input type="checkbox" name="sem"> Sem Quimono ';
-           if($_SESSION["idade"]> 15){
-               echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
-           }
-       }
        ?>
     <br>modalidade
     <select name="modalidade">
@@ -90,9 +81,7 @@ if (isset($_GET["inscricao"])) {
         <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>Pesadíssimo</option>
         <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
     </select>
-
-
-       <br><input type="submit" value="Salvar">
+       <br><input type="submit" value="editar">
 </form>
     <br><center>Tabela de Pesos</center>
     <center>
