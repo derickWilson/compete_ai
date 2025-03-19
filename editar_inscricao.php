@@ -16,13 +16,17 @@ try {
     $conn = new Conexao();
     $at = new Atleta();
     $atserv = new atletaService($conn, $at);
-    echo "<pre>";
-    print_r($_POST);
-    echo "</pre>";
     $evento = cleanWords($_POST["evento_id"]);
-    $com = isset($_POST["com"]);
-    $abCom = isset($_POST["abs_com"]);
-    $sem = isset($_POST["sem"]);
-    $abSem = isset($_POST["abs_sem"]);
+    $com = isset($_POST["com"]) ? 1 : 0;
+    $abCom = isset($_POST["abs_com"]) ? 1 : 0;
+    $sem = isset($_POST["sem"]) ? 1 : 0;
+    $abSem = isset($_POST["abs_sem"]) ? 1 : 0;
     $moda = cleanWords($_POST["modalidade"]);
+    $idAtleta = $_SESSION["id"];
+
+    try {
+        $atserv->editarInscricao($evento, $idAtleta, $com, $abCom, $sem, $abSem, $moda);
+    } catch (Exception $e) {
+        echo "erro ao editar inscricao [ ".$e->getMessage()." ]";
+    }
 ?>

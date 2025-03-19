@@ -129,17 +129,11 @@ CREATE TABLE IF NOT EXISTS evento(
         mod_sem TINYINT,
         mod_ab_com TINYINT,
         mod_ab_sem TINYINT,
-        modalidade VARCHAR(11),
+        modalidade VARCHAR(18),
         PRIMARY KEY (id_atleta, id_evento),
         FOREIGN KEY (id_atleta) REFERENCES atleta(id),
         FOREIGN KEY (id_evento) REFERENCES evento(id)
     );
 
-    ALTER TABLE evento
-    ADD preco_menor FLOAT(5,2)
-
-    ALTER TABLE atleta
-    ADD genero VARCHAR(9)
-
     ALTER TABLE inscricao
-    ADD modalidade VARCHAR(11)
+    MODIFY modalidade VARCHAR(18)

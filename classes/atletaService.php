@@ -240,7 +240,7 @@ public function logar() {
     }
     //função para pegar inscricao
     public function getInscricao($evento,$atleta){
-        $query="SELECT e.id,     e.preco, e.preco_menor, e.tipo_com, e.tipo_sem, i.mod_com, i.mod_ab_com,
+        $query="SELECT e.id, e.preco, e.preco_menor, e.tipo_com, e.tipo_sem, i.mod_com, i.mod_ab_com,
         i.mod_sem, i.mod_ab_sem,i.modalidade FROM inscricao i
         JOIN evento e ON e.id = i.id_evento
         JOIN atleta a ON a.id = i.id_atleta
@@ -254,6 +254,27 @@ public function logar() {
             return $result;
         }catch(Exception $e){
             echo "erro [".$e->getMessage()."]";
+        }
+    }
+    //editar inscrição
+    public function editarInscricao($evento, $idAtleta, $com, $abCom, $sem, $abSem, $moda){
+        $query= "UPDATE inscricao
+        SET mod_com = :com, mod_sem = :sem, mod_ab_com = :abCom, mod_ab_sem = :abSem, modalidade = :mod
+        WHERE id_evento = :evento AND id_atleta = :idAtleta";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(":com", $com);
+        $stmt->bindValue(":sem", $sem);
+        $stmt->bindValue(":abCom", $abCom);
+        $stmt->bindValue(":abSem", $abSem);
+        $stmt->bindValue(":mod", $moda);
+        $stmt->bindValue(":evento", $evento);
+        $stmt->bindValue(":idAtleta", $idAtleta);
+        try {
+            $stmt->execute();
+            header("Location: eventos_cadastrados.php");
+            exit();
+        } catch (Exception $e) {
+            echo "erro ao editar inscricao [ ".$e->getMessage()." ]";
         }
     }
     //***************************FUNÇÕES DE ACADEMIA*******************/
