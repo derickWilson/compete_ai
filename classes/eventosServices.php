@@ -266,13 +266,15 @@ public function addEvento() {
             foreach($categorias_idade as $categoria => $idades){
                 foreach($modalidades as $mods){
                     foreach($faixas as $cor){
-                        $query="SELECT a.nome, a.data_nascimento, f.nome,
+                        $query="SELECT a.nome, f.nome as academia, (YEAR(CURDATE()) - YEAR(a.data_nascimento)) AS idade, a.faixa
                         FROM inscricao i
                         JOIN atleta a ON i.id_atleta = a.id
                         JOIN academia_filiada f ON a.academia = f.id 
                         WHERE i.id_evento = :evento AND
-                         i.modalidade = :modalidade AND";
-                        $stmt = $this->conn->prepare($query);    
+                         i.modalidade = :modalidade AND
+                         (YEAR(CURDATE()) - YEAR(a.data_nascimento)) BETWEEN :idadeMinima AND :idadeMaxima";
+                        $stmt = $this->conn->prepare($query);
+                        $stmt->bindParam(":evento", $id);
                     }
                 }
             }
