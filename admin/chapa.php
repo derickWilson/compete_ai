@@ -48,11 +48,25 @@ if (isset($_GET["id"])) {
         "ADULTO"          => ["min" => 18, "max" => 29],  // 18 a 29 anos
         "MASTER"          => ["min" => 30, "max" => 100]  // 30 anos ou mais
     ];
+    $faixas = [
+        "Branca",
+        "Cinza",
+        "Amarela",
+        "Laranja",
+        "Verde",
+        "Azul",
+        "Roxa",
+        "Marrom",
+        "Preta",
+        "Coral",
+        "Vermelha e Branca",
+        "Vermelha"
+    ];
 
     foreach($modalidades as $mod){
         echo $mod."<br>";
         foreach($categorias_idade as $key => $value){
-            echo "".$key." maior = ".$value["max"]." menor = ".$value["min"]."<br>";
+            echo "<p><br>".$key." maior = ".$value["max"]." menor = ".$value["min"]."<br></<p>";
         }
     }
         ?>
