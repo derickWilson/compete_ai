@@ -7,14 +7,14 @@ require_once "../classes/eventosServices.php";
 include "../func/clearWord.php";
 
 $conn = new Conexao();
-$evento = new Evento();
-$eventoServ = new eventosService($conn, $evento);
+$ev = new Evento();
+$eventoServ = new eventosService($conn,$ev);
 
 if (isset($_GET["id"])) {
     $camp = cleanWords($_GET["id"]);
 } else {
     echo "Selecione um campeonato";
-    header("Loacatio: ../eventos.php");
+    header("Location: ../eventos.php");
     exit();
 }
 ?>
@@ -30,50 +30,50 @@ if (isset($_GET["id"])) {
 <body>
 
     <?php include "../menu/add_menu.php"; ?>
-    <div class="principla">
+    <div class="principal">
+        <h2>Chapas do Campeonato</h2>
+
         <?php
         $modalidades = [
             "galo", "pluma", "pena", "leve", "medio", 
             "meio-pesado", "pesado", "super-pesado", "pesadissimo", "super-pesadissimo"
         ];
         $categorias_idade = [
-            "PRE-MIRIM"       => ["min" => 4,  "max" => 5],   // 4 a 5 anos
-            "MIRIM 1"         => ["min" => 6,  "max" => 7],   // 6 a 7 anos
-            "MIRIM 2"         => ["min" => 8,  "max" => 9],   // 8 a 9 anos
-            "INFANTIL 1"      => ["min" => 10, "max" => 11],  // 10 a 11 anos
-            "INFANTIL 2"      => ["min" => 12, "max" => 13],  // 12 a 13 anos
-            "INFANTO-JUVENIL" => ["min" => 14, "max" => 15],  // 14 a 15 anos
-            "JUVENIL"         => ["min" => 16, "max" => 17],  // 16 a 17 anos
-            "ADULTO"          => ["min" => 18, "max" => 29],  // 18 a 29 anos
-            "MASTER"          => ["min" => 30, "max" => 100]  // 30 anos ou mais
+            "PRE-MIRIM"       => ["min" => 4,  "max" => 5],
+            "MIRIM 1"         => ["min" => 6,  "max" => 7],
+            "MIRIM 2"         => ["min" => 8,  "max" => 9],
+            "INFANTIL 1"      => ["min" => 10, "max" => 11],
+            "INFANTIL 2"      => ["min" => 12, "max" => 13],
+            "INFANTO-JUVENIL" => ["min" => 14, "max" => 15],
+            "JUVENIL"         => ["min" => 16, "max" => 17],
+            "ADULTO"          => ["min" => 18, "max" => 29],
+            "MASTER"          => ["min" => 30, "max" => 100]
         ];
         $faixas = [
-            "Branca",
-            "Cinza",
-            "Amarela",
-            "Laranja",
-            "Verde",
-            "Azul",
-            "Roxa",
-            "Marrom",
-            "Preta",
-            "Coral",
-            "Vermelha e Branca",
-            "Vermelha"
+            "Branca", "Cinza", "Amarela", "Laranja", "Verde",
+            "Azul", "Roxa", "Marrom", "Preta", "Coral",
+            "Vermelha e Branca", "Vermelha"
         ];
-        //iterar e montar as querys com quimono
+
         $evento = $eventoServ->getById($camp);
 
-        //montar com quimono
-        if($evento->tipo_com == 1){
-            foreach($categorias_idade as $categoria => $idades){
-                foreach($modalidades as $mods){
-                    foreach($faixas as $cor){
-                        
+        if ($evento->tipo_com == 1) {
+            foreach ($categorias_idade as $categoria => $idades) {
+                foreach ($modalidades as $mods) {
+                    foreach ($faixas as $cor) {
+                        $chapa = $eventoServ->montarChapas($camp, $mods, $cor, $idades["min"], $idades["max"]);
+                        $linha = 0;
+                        foreach ($chapa as $atleta) {
+                            if($linha%2 == 0){
+                                echo "<br>";
+                            }
+                            echo "{$atleta->nome} | {$atleta->academia} | {$atleta->faixa}";
+                            $linha += 1;
+                        }
                     }
                 }
             }
-        }//fim do com quimono sem absoluto
+        }
         ?>
     </div>
     <br><a href="/compete_ai/eventos.php">Voltar</a>

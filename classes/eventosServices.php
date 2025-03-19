@@ -152,74 +152,33 @@ public function addEvento() {
         return $num->numero == 0;
     }
     //montar chapa
-    public function montarChapas($id){
-    
-        $modalidades = [
-            "galo", "pluma", "pena", "leve", "medio", 
-            "meio-pesado", "pesado", "super-pesado", "pesadissimo", "super-pesadissimo"
-        ];
-        $categorias_idade = [
-            "PRE-MIRIM"       => ["min" => 4,  "max" => 5],   // 4 a 5 anos
-            "MIRIM 1"         => ["min" => 6,  "max" => 7],   // 6 a 7 anos
-            "MIRIM 2"         => ["min" => 8,  "max" => 9],   // 8 a 9 anos
-            "INFANTIL 1"      => ["min" => 10, "max" => 11],  // 10 a 11 anos
-            "INFANTIL 2"      => ["min" => 12, "max" => 13],  // 12 a 13 anos
-            "INFANTO-JUVENIL" => ["min" => 14, "max" => 15],  // 14 a 15 anos
-            "JUVENIL"         => ["min" => 16, "max" => 17],  // 16 a 17 anos
-            "ADULTO"          => ["min" => 18, "max" => 29],  // 18 a 29 anos
-            "MASTER"          => ["min" => 30, "max" => 100]  // 30 anos ou mais
-        ];
-        $faixas = [
-            "Branca",
-            "Cinza",
-            "Amarela",
-            "Laranja",
-            "Verde",
-            "Azul",
-            "Roxa",
-            "Marrom",
-            "Preta",
-            "Coral",
-            "Vermelha e Branca",
-            "Vermelha"
-        ];
-        //iterar e montar as querys com quimono
-        $evento = $this->getById($id);
+    public function montarChapas($id, $modalidade, $faixa, $idadeMin, $idadeMax) {
+        $query = "SELECT a.nome, f.nome as academia, 
+                         (YEAR(CURDATE()) - YEAR(a.data_nascimento)) AS idade, 
+                         a.faixa
+                  FROM inscricao i
+                  JOIN atleta a ON i.id_atleta = a.id
+                  JOIN academia_filiada f ON a.academia = f.id 
+                  WHERE i.id_evento = :evento 
+                    AND i.modalidade = :modalidade 
+                    AND a.faixa = :faixa 
+                    AND (YEAR(CURDATE()) - YEAR(a.data_nascimento)) BETWEEN :idadeMinima AND :idadeMaxima";
 
-        //montar com quimono
-        if($evento->tipo_com == 1){
-            echo "<h3>Com Quimono Normal</h3>";
-            foreach($categorias_idade as $categoria => $idades){
-                foreach($modalidades as $mods){
-                    foreach($faixas as $cor){
-                        echo "<h4>Categoria : ".$categoria."</h4>";
-                        $query="SELECT a.nome, f.nome as academia, (YEAR(CURDATE()) - YEAR(a.data_nascimento)) AS idade, a.faixa
-                        FROM inscricao i
-                        JOIN atleta a ON i.id_atleta = a.id
-                        JOIN academia_filiada f ON a.academia = f.id 
-                        WHERE i.id_evento = :evento AND
-                         i.modalidade = :modalidade AND
-                         a.faixa = :faixa AND
-                         (YEAR(CURDATE()) - YEAR(a.data_nascimento)) BETWEEN :idadeMinima AND :idadeMaxima";
-                        $stmt = $this->conn->prepare($query);
-                        $stmt->bindParam(":evento", $id);
-                        $stmt->bindParam(":modalidade", $mods);
-                        $stmt->bindParam(":faixa", $cor);
-                        $stmt->bindParam(":idadeMinima", $idades["min"]);
-                        $stmt->bindParam(":idadeMaxima", $idades["max"]);
-                        try {
-                            $stmt->execute();
-                            //chapa montada
-                            $chapa = $stmt->fetchAll(PDO::FETCH_OBJ);
-                            //embaralhar chapa
-                            shuffle($chapa);
-                        } catch (Exception $e) {
-                            echo '<p>Erro ao executar consulta : [' . $e->getMessage(). "] <p>";
-                        }
-                    }
-                }
-            }
-        }//fim do com quimono sem absoluto
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":evento", $id);
+        $stmt->bindParam(":modalidade", $modalidade);
+        $stmt->bindParam(":faixa", $faixa);
+        $stmt->bindParam(":idadeMinima", $idadeMin);
+        $stmt->bindParam(":idadeMaxima", $idadeMax);
+
+        try {
+            $stmt->execute();
+            $chapa = $stmt->fetchAll(PDO::FETCH_OBJ);
+            shuffle($chapa); // Embaralhar os atletas
+            return $chapa;
+        } catch (Exception $e) {
+            error_log("Erro ao buscar chapa: " . $e->getMessage());
+        }
     }
 } 
 ?>

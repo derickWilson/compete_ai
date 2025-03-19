@@ -48,7 +48,7 @@ if (isset($_GET['id'])) {
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     | <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
                     | <a href='admin/editar_evento.php?id=<?php echo $valor->id ?>'>Editar Evento</a>
-                    | <a href='admin/chapa.php?id=<?php echo $valor->id ?>'>Montar chapa</a>
+                    | <a href='admin/baixar_chapa.php?id=<?php echo $valor->id ?>'>Montar chapa</a>
                 <?php } ?>
                 <br class='clear'>
             </div>
