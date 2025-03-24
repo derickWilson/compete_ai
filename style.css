@@ -1,8 +1,7 @@
-/*
-*{
+/*{
     border: 2px solid red;
 }
-
+*/
 body{
     background-color: rgb(0, 0, 0);
 }
@@ -36,8 +35,8 @@ header nav{
 
 header img{
     margin-top: 10px;
-    width: 50%;
-    height: 150px;
+    width: 50% auto;
+    height: 200px;
 }
 
 header nav a{
@@ -178,9 +177,9 @@ header nav a:hover{
 }
 
 .banner{
-    margin-left: 10px;
-    height: 100px;
-    width: 1000px;
+    margin: 10px auto;
+    height: 800px auto;
+    width: 100%;
     align-self: auto;
 }
 
@@ -199,4 +198,4 @@ footer {
     color: white;
     background-color: rgb(18, 24, 44);
     text-align: center;
-}*/
+}
