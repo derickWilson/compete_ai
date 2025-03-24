@@ -178,7 +178,7 @@ header nav a:hover{
 
 .banner{
     margin: 10px auto;
-    height: 800px auto;
+    height: 800px;
     width: 100%;
     align-self: auto;
 }
