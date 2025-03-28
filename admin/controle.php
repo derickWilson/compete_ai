@@ -65,7 +65,7 @@ if (isset($_GET["user"])) {
                 <label>Nova Faixa:</label>
                 <select id="faixas" name="faixa" required>
                     <option value="Branca" <?php echo $usuario->faixa == 'Branca' ? 'selected' : ''; ?>>Branca</option>
-                    <option value="Crinza" <?php echo $usuario->faixa == 'Crinza' ? 'selected' : ''; ?>>Crinza</option>
+                    <option value="Cinza" <?php echo $usuario->faixa == 'Cinza' ? 'selected' : ''; ?>>Crinza</option>
                     <option value="Amarela" <?php echo $usuario->faixa == 'Amarela' ? 'selected' : ''; ?>>Amarela</option>
                     <option value="Laranja" <?php echo $usuario->faixa == 'Laranja' ? 'selected' : ''; ?>>Laranja</option>
                     <option value="Verde" <?php echo $usuario->faixa == 'Verde' ? 'selected' : ''; ?>>Verde</option>

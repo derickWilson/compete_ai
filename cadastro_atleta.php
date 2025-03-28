@@ -62,7 +62,7 @@ if (isset($_SESSION["logado"])){
         <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>
             <option value="Branca">Branca</option>
-            <option value="Crinza">Crinza</option>
+            <option value="Cinza">Cinza</option>
             <option value="Amarela">Amarela</option>
             <option value="Laranja">Laranja</option>
             <option value="Verde">Verde</option>
