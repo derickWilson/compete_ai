@@ -45,9 +45,7 @@
     <br class='clear'>
     </div>
     <?php }?>
-
-<center class="clear"><h3>Regras</h3></center>
-<center><h3>Patrocinio</h3></center>
+<center class="clear"><h3>Patrocinio</h3></center>
 <?php
 include "menu/footer.php";
 ?>
