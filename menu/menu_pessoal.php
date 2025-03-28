@@ -9,5 +9,6 @@
         <a href="pagina_pessoal.php">Página pessoal</a>
         <a href="eventos_cadastrados.php">Eventos Cadastrdos</a>
         <a href="logout.php">deslogar</a>
+        <a href="regras.php">regras</a>
     </nav>
 </header>

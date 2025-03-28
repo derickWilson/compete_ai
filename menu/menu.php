@@ -9,5 +9,6 @@
         <a href="cadastro_academia.php">Filiar Academia</a>
         <a href="cadastro_atleta.php">Filiar de Atleta</a>
         <a href="login.php">Logar</a>
+        <a href="regras.php">regras</a>
     </nav>
 </header>

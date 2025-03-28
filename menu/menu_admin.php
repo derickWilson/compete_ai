@@ -12,5 +12,6 @@
         <a href="/admin/criar_eventos.php">Criar Evento</a>
         <a href="/admin/pessoas.php">Atletas</a>
         <a href="/logout.php">Deslogar</a>
+        <a href="regras.php">regras</a>
     </nav>
 </header>
