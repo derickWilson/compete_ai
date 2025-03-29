@@ -48,9 +48,9 @@
     <?php }?>
 <center class="clear"><h3>Patrocinio</h3></center>
     <div class="patrocinio-container">
-        <a class="patrocinador" href="https://lsisopradores.ind.br/"><img width="340px" height="140px" src="patrocinio/patrocinador_1.jpeg"></a>
-        <a class="patrocinador" href="https://multivix.edu.br/ead/"><img width="340px" height="140px" src="patrocinio/patrocinador_2.jpeg"></a>
-        <a class="patrocinador" href="https://www.instagram.com/lotususinagem_pecas"><img width="340px" height="140px" src="patrocinio/patrocinador_3.jpeg"></a>
+        <a class="patrocinador" target="blank" href="https://lsisopradores.ind.br/"><img width="340px" height="140px" src="patrocinio/patrocinador_1.jpeg"></a>
+        <a class="patrocinador" target="blank" href="https://multivix.edu.br/ead/"><img width="340px" height="140px" src="patrocinio/patrocinador_2.jpeg"></a>
+        <a class="patrocinador" target="blank" href="https://www.instagram.com/lotususinagem_pecas"><img width="340px" height="140px" src="patrocinio/patrocinador_3.jpeg"></a>
     </div>
 <?php
 include "menu/footer.php";
