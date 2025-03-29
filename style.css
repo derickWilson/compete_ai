@@ -19,6 +19,7 @@ header nav {
 }
 
 .blue {
+    font-size: 35px;
     color: white;
     background-color: rgb(30, 60, 100); /* Manter o azul escuro no fundo */
 }
