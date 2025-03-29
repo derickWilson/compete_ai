@@ -1,3 +1,7 @@
+*{
+    border: 2px solid red;
+}
+
 body {
     background-color: rgba(0, 74, 173, 255); /* Substituído pelo novo valor */
 }
@@ -189,6 +193,22 @@ header nav a:hover {
     width: 15%;
     height: 100%;
     float: left;
+}
+/* Contêiner flexível para os patrocinadores */
+.patrocinio-container {
+    display: flex;
+    justify-content: space-between; /* Distribui o espaço uniformemente entre as imagens */
+    gap: 20px; /* Adiciona um espaçamento de 20px entre as imagens */
+    flex-wrap: wrap; /* Permite que as imagens quebrem para a linha seguinte caso não caibam em uma única linha */
+    padding: 10px;
+}
+
+/* Cada patrocinador */
+.patrocinador {
+    margin-left: 0; /* Remover o margin-left antigo */
+    flex: 1; /* Faz com que as imagens se ajustem automaticamente */
+    max-width: 340px; /* Limita a largura máxima das imagens */
+    height: auto;
 }
 
 footer {
