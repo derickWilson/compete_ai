@@ -73,9 +73,6 @@ if (isset($_GET["user"])) {
                     <option value="Roxa" <?php echo $usuario->faixa == 'Roxa' ? 'selected' : ''; ?>>Roxa</option>
                     <option value="Marrom" <?php echo $usuario->faixa == 'Marrom' ? 'selected' : ''; ?>>Marrom</option>
                     <option value="Preta" <?php echo $usuario->faixa == 'Preta' ? 'selected' : ''; ?>>Preta</option>
-                    <option value="Coral" <?php echo $usuario->faixa == 'Coral' ? 'selected' : ''; ?>>Coral</option>
-                    <option value="Vermelha e Branca" <?php echo $usuario->faixa == 'Vermelha e Branca' ? 'selected' : ''; ?>>Vermelha e Branca</option>
-                    <option value="Vermelha" <?php echo $usuario->faixa == 'Vermelha' ? 'selected' : ''; ?>>Vermelha</option>
                 </select>
             </div>
             <div>

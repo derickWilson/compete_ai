@@ -70,9 +70,6 @@ if (isset($_SESSION["logado"])){
             <option value="Roxa">Roxa</option>
             <option value="Marrom">Marrom</option>
             <option value="Preta">Preta</option>
-            <option value="Coral">Coral</option>
-            <option value="Vermelha e Branca">Vermelha e Branca</option>
-            <option value="Vermelha">Vermelha</option>
         </select><br>
         Foto Diploma ou Foto do RG<br>
         <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png"><br>
