@@ -4,7 +4,9 @@ session_start();/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
-
+echo "<pre>";
+print_r($_SESSION);
+echo "</pre>";
 try {
     require_once "classes/eventosServices.php";
     include "func/clearWord.php";
@@ -133,14 +135,15 @@ if (isset($_GET['id'])) {
             <?php
             }
             ?>
-        
-    
     <br><center>Tabela de Pesos</center>
     <center>
     <object data="tabela_de_pesosw.pdf" type="application/pdf" width="50%"></object>
     </center>
-    <br><a class="link" href="index.php">voltar</a>
+    <br><a class="link" href="index.php">voltar</a>||
     <?php
+    if(isset($_SESSION['admin']) && $_SESSION["admin"] == 1) {
+        echo "<a href='/admin/editar_evento.php?id=" . $eventoId . "'>Editar</a>";
+    }
         } // Fim da condição de um único evento
         ?>
         </div>

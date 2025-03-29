@@ -30,16 +30,29 @@
         $preco_menor = cleanWords($_POST['preco_menor']); 
 
         //tratar imagen
-        $imagen = $velho->imagen;
+        $imagenDefinitiva = $velho->imagen;
         if(isset($_FILES["imagen_nova"]) && $_FILES["imagen_nova"]["error"] === UPLOAD_ERR_OK){
             $imagen = $_FILES["imagen_nova"];
             $ext = pathinfo($imagen["imagen_nova"],PATHINFO_EXTENSION);
             $novoNome = "img_".time().'.'.$ext;
             $caminhoParaSalvar = "../uploads/" . $novoNome;
             //remover o antigo
+            if(!empty("../uploads/".$imagenDefinitiva) && file_exists("../uploads/".$imagenDefinitiva)){
+                unlink("../uploads/".$imagenDefinitiva);
+            }
+            if($imagen["size"] > 0){
+                if(move_uploaded_file($imagen["tmp_name"], $caminhoParaSalvar)){
+                    $imagenDefinitiva = $novoNome;
+                }else{
+                    echo "erro ao mover arquivo";
+                }
+            }else{
+                echo "erroc no arquivo";
+            }
         }
         $evento->__set('id', $id);
         $evento->__set('nome', $nome);
+        $evento->__set('img', $imagenDefinitiva);
         $evento->__set('data_camp', $data_camp);
         $evento->__set('local_camp', $local);
         $evento->__set('descricao', $descricao);
