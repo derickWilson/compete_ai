@@ -3,11 +3,14 @@ class Evento {
     private $id;
     private $nome;
     private $data_camp;
+    private $local_camp;
     private $img;
     private $descricao;
     private $data_limite;
     private $tipoCom;
     private $tipoSem;
+    //private $tipoAbCom;
+    //private $tipoAbSem;
     private $preco;
     private $preco_menor;
 

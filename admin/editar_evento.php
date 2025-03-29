@@ -29,10 +29,13 @@ if (isset($_GET['id'])) {
 <?php include "../menu/add_menu.php"; ?>
     <div class="principal">
         <form action="recadastrar_evento.php" method="POST" id="evento" enctype="multipart/form-data">
+            Imagen:<br>
+            <img src="/uploads/<?php echo $eventoDetails->imagen; ?>" alt="imagen" width="100%" height="500px">
+            Nova Imagen<br>
+            <input type="file" name="imagen_nova" id="imagen_nova"><br>
             Nome do evento <input type="text" id="nome_evento" name="nome_evento" 
             value="<?php echo $eventoDetails->nome; ?>"><br>
             <br>
-
             Data do Campeopnato <input type="date" id="data_camp" name="data_camp"
             value="<?php echo $eventoDetails->data_limite; ?>"><br>
             

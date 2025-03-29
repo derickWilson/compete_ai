@@ -37,6 +37,7 @@ public function addEvento() {
     public function editEvento() {
         $query = "UPDATE evento SET
         nome = :nome,
+        imagen = :imagen_nova,
         descricao = :descricao,
         data_limite = :data_limite,
         data_evento = :data_camp,
@@ -50,7 +51,7 @@ public function addEvento() {
         $stmt->bindValue(':id', $this->evento->__get('id'));
         $stmt->bindValue(':nome', $this->evento->__get('nome'));
         $stmt->bindValue(':data_camp', $this->evento->__get('data_camp'));
-        $stmt->bindValue(':local_comp', $this->evento->__get('local'));
+        $stmt->bindValue(':local_comp', $this->evento->__get('local_camp'));
         $stmt->bindValue(':descricao', $this->evento->__get('descricao'));
         $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'));
         $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'));
@@ -59,8 +60,7 @@ public function addEvento() {
         $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
         try {
             $stmt->execute();
-            header("Location: /eventos.php");
-
+            header("Location: /eventos.php?id=".$this->evento->__get('id'));
         } catch (Exception $e) {
             echo 'Erro ao editar evento: ' . $e->getMessage();
         }

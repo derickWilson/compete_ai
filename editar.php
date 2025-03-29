@@ -15,7 +15,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $foto_antiga = $atleta->foto;
     // Verifica se o arquivo foi enviado
     if (isset($_FILES['diploma_novo']) && $_FILES['diploma_novo']['error'] === UPLOAD_ERR_OK) {
-        echo "tem diploma selecionado";
         $diploma = $_FILES['diploma_novo'];
         $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
         $novoNome = 'diploma_' . time() . '.' . $extensao;
