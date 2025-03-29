@@ -47,6 +47,11 @@
     </div>
     <?php }?>
 <center class="clear"><h3>Patrocinio</h3></center>
+    <div >
+        <a class="patrocinador" href=""><img src="patrocinio/patrocinador_1.jpeg"></a>
+        <a class="patrocinador" href=""><img src="patrocinio/patrocinador_2.jpeg"></a>
+        <a class="patrocinador" href=""><img src="patrocinio/patrocinador_3.jpeg"></a>
+    </div>
 <?php
 include "menu/footer.php";
 ?>
