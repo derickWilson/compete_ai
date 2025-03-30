@@ -16,34 +16,11 @@ header {
 }
 
 header nav {
-    width: 100%;
+    width: auto;
     height: 30px auto;
     align-items: center auto;
     padding: 30px;
 }
-.ita{
-    font-style: italic;
-    color: rgb(81, 126, 126);
-    font-size: 15px;
-}
-.blue {
-    font-size: 35px;
-    color: white;
-    background-color: rgb(30, 60, 100); /* Manter o azul escuro no fundo */
-}
-
-.link {
-    background-color: white;
-    border-radius: 2px;
-    color: black;
-}
-
-header img {
-    margin-top: 10px;
-    width: 50% auto;
-    height: 200px;
-}
-
 header nav a {
     padding: 5px;
     border-radius: 30px;
@@ -61,6 +38,24 @@ header nav a:hover {
     background-color: rgb(245, 0, 0); /* Vermelho para destaque no hover */
     align-items: center;
     text-decoration: none;
+}
+
+.blue {
+    font-size: 35px;
+    color: white;
+    background-color: rgb(30, 60, 100); /* Manter o azul escuro no fundo */
+}
+
+.link {
+    background-color: white;
+    border-radius: 2px;
+    color: black;
+}
+
+header img {
+    margin-top: 10px;
+    width: 50% auto;
+    height: 200px;
 }
 
 .campeonato {
