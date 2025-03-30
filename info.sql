@@ -137,3 +137,6 @@ CREATE TABLE IF NOT EXISTS evento(
 
     ALTER TABLE inscricao
     MODIFY modalidade VARCHAR(18)
+
+    ALTER TABLE atleta
+    ADD cpf VARCHAR(12)

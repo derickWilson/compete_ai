@@ -34,10 +34,11 @@ if (isset($_SESSION["logado"])){
     <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png"><br>
 
     Nome<input name="nome" type="text" placeholder="nome completo" required><br>
+    CPF<span class="ita">(apenas numeros)</span> <input name="cpf" type="text" placeholder="0000000000" maxlength="12" required><br>
     Genero
     <select name="genero">
-    <option value="Masculino">Masculino</option>
-    <option value="Feminino">Feminino</option>
+        <option value="Masculino">Masculino</option>
+        <option value="Feminino">Feminino</option>
     </select><br>
         <?php
             if(isset($erro) && $erro == 1){

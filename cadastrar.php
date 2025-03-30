@@ -61,6 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
+        $atletas->__set("cpf", cleanWords($_POST["cpf"]));
         $atletas->__set("senha", cleanWords($_POST["senha"]));
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("email", cleanWords($_POST["email"]));
@@ -120,6 +121,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
         }
         $atletas->__set("nome", cleanWords($_POST["nome"]));
+        $atletas->__set("cpf", cleanWords($_POST["cpf"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
         $atletas->__set("senha", cleanWords($_POST["senha"]));
         $atletas->__set("email", cleanWords($_POST["email"]));

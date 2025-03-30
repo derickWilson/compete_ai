@@ -4,6 +4,7 @@ session_start();/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
+
 try {
     require_once "classes/eventosServices.php";
     include "func/clearWord.php";
@@ -15,7 +16,7 @@ try {
     $evserv = new eventosService($conn, $ev);
     $tudo = true;    
 if (isset($_GET['id'])) {
-    // Usado para listar os detalhes de um único evento
+    // Usado para listar os detalhes de um único eventom
     $eventoId = (int) cleanWords($_GET['id']);
     $eventoDetails = $evserv->getById($eventoId);
     $tudo = false;
@@ -67,7 +68,7 @@ if (isset($_GET['id'])) {
                     <?php
                     if(!isset($_SESSION["idade"])){
                         echo $eventoDetails->preco . "R$ para maiores de 15 anos<br>";
-                        echo "Preço " . $eventoDetails->preco_menor . "R$ para maiores de 15 anos";
+                        echo "Preço " . $eventoDetails->preco_menor . "R$ para menores de 15 anos";
                     }else{
                         if($_SESSION["idade"] > 15){
                             echo $eventoDetails->preco."R$";
@@ -134,7 +135,7 @@ if (isset($_GET['id'])) {
             ?>
     <br><center>Tabela de Pesos</center>
     <center>
-    <object data="tabela_de_pesosw.pdf" type="application/pdf" width="50%"></object>
+    <object data="tabela_de_pesos.pdf" type="application/pdf" width="60%" height="300px"></object>
     </center>
     <br><a class="link" href="index.php">voltar</a>||
     <?php

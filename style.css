@@ -21,7 +21,11 @@ header nav {
     align-items: center auto;
     padding: 30px;
 }
-
+.ita{
+    font-style: italic;
+    color: rgb(81, 126, 126);
+    font-size: 15px;
+}
 .blue {
     font-size: 35px;
     color: white;

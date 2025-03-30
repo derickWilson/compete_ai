@@ -52,6 +52,7 @@
     <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png" required><br>
 
     Nome do Responsavel  <input name="nome" type="text" placeholder="nome completo" required><br>
+    CPF<span class="ita">(apenas numeros)</span> <input name="cpf" type="text" placeholder="0000000000" maxlength="12" required><br>
     Genero
     <select name="genero">
     <option value="Masculino">Masculino</option>

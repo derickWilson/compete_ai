@@ -1,5 +1,7 @@
 <?php
 class Atleta {
+    private $nome;
+    private $cpf;
     private $id;
     private $foto;
     private $genero;
