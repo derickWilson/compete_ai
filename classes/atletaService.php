@@ -242,7 +242,7 @@ public function logar() {
     }
     //função para pegar inscricao
     public function getInscricao($evento,$atleta){
-        $query="SELECT e.id, e.preco, e.preco_menor, e.tipo_com, e.tipo_sem, i.mod_com, i.mod_ab_com,
+        $query="SELECT e.nome as nome, e.id, e.preco, e.preco_menor, e.preco_abs, e.tipo_com, e.tipo_sem, i.mod_com, i.mod_ab_com,
         i.mod_sem, i.mod_ab_sem,i.modalidade FROM inscricao i
         JOIN evento e ON e.id = i.id_evento
         JOIN atleta a ON a.id = i.id_atleta
@@ -291,6 +291,21 @@ public function logar() {
             exit();
         } catch (Exception $e) {
             echo "erro ao editar inscricao [ ".$e->getMessage()." ]";
+        }
+    }
+
+    //excluir inscricao
+    public function excluirInscricao($evento, $atleta){
+        $quary = "DELETE FROM inscricao WHERE id_atleta = :idA AND id_evento = :idE";
+        $stmt = $this->conn->prepare($quary);
+        $stmt->bindValue(":idA", $atleta);
+        $stmt->bindValue(":idE", $evento);
+        try {
+            $stmt->execute();
+            header("Location: /eventos_cadastrados.php");
+            exit();
+        } catch (Exception $e) {
+            echo "erro ao excluit inscricao [ ".$e->getMessage()." ]";
         }
     }
     //***************************FUNÇÕES DE ACADEMIA*******************/

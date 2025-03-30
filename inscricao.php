@@ -20,6 +20,10 @@ if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET["inscricao"]);
     $inscricao = $atserv->getInscricao($eventoId,$_SESSION["id"]);
+
+echo "<pre>";
+print_r($inscricao);
+echo "</pre>";    
 } else {
     echo "selecione um campeonato";
     header("Location: eventos_cadastrados.php");
@@ -31,16 +35,21 @@ if (isset($_GET["inscricao"])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Inscrição</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/estilos/icone.jpeg">
 </head>
 <body>
+    <?php
+        include "menu/add_menu.php";
+    ?>
 <div class='principal'>
 <h3><?php echo htmlspecialchars($inscricao->nome); ?></h3>
     <p>Preço
         <?php
         if($_SESSION["idade"] > 15){
             echo $inscricao->preco." R$";
+            echo "<br>Preco Absoluto ".$inscricao->preco_abs." R$";
         }else{
-            echo "<br>to aqui no menor<br>";
             echo $inscricao->preco_menor." R$";
         }
          ?></p>
@@ -76,7 +85,7 @@ if (isset($_GET["inscricao"])) {
         <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>Pesadíssimo</option>
         <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
     </select>
-       <br><input type="submit" value="editar">
+       <br><input type="submit" value="editar">|<a href="exclui_inscricao.php?id=<?php echo $eventoId;?>">Remover Inscrição</a>
 </form>
     <br><center>Tabela de Pesos</center>
     <center>
