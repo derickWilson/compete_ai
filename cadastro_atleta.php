@@ -51,14 +51,19 @@ if (isset($_SESSION["logado"])){
         senha  <input type="password" name="senha" id="senha" required><br>
         Data de Nascimento  <input type="date" name="data_nascimento" id="data_nasc" required><br>
         Fone  <input maxlength="12" type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
-        Academia/Equipe  <select name="academia" id="academia">
-            <option value="">--selecione sua academia--</option>
-            <?php
-                foreach($academias as $academia){
-                    echo "<option value=" .$academia->id . ">".$academia->nome."</option>";
-                }
-            ?>
-        </select><br>
+        Academia/Equipe  
+            <select name="academia" id="academia">
+                <option value="">--selecione sua academia--</option>
+                <?php
+                    foreach($academias as $academia){
+                        echo "<option value=" .$academia->id . ">".$academia->nome."</option>";
+                    }
+                ?>
+            </select><br>
+                
+            <!-- Mensagem de aviso -->
+            <span class="aviso">Caso sua academia não apareça, espere sua validação.</span><br>
+
         Faixa 
         <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>

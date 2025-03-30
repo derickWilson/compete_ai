@@ -227,3 +227,15 @@ footer a:hover{
     color: white;
     text-decoration: none;
 }
+
+.aviso {
+    color: #f39c12; /* Cor de texto laranja para destacar */
+    font-size: 14px; /* Um tamanho de fonte legível */
+    font-weight: bold; /* Deixar em negrito */
+    background-color: #fff3cd; /* Fundo amarelo claro */
+    padding: 10px; /* Espaçamento interno */
+    border: 1px solid #f8d7da; /* Borda vermelha clara */
+    border-radius: 5px; /* Bordas arredondadas */
+    display: inline-block; /* Faz com que a mensagem se comporte como um bloco */
+    margin-top: 10px; /* Um pouco de espaço acima */
+}
