@@ -23,7 +23,7 @@ if (isset($_GET['id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
-    <title>Criar evento</title>
+    <title>Editar evento</title>
 </head>
 <body>
 <?php include "../menu/add_menu.php"; ?>
@@ -61,6 +61,9 @@ if (isset($_GET['id'])) {
             <br>
             Preco geral<input type="number" name="preco" id="preco" placeholder="Preço por Inscrição acima dos 15 anos"
             value="<?php echo $eventoDetails->preco; ?>"><br>
+
+            Preco Absoluto<input type="number" name="preco_abs" id="preco" placeholder="Preço por Inscrição no Absoluto"
+            value="<?php echo $eventoDetails->preco_abs; ?>"><br>
 
             Preco para menores de 15<input type="number" name="preco_menor" id="preco_menor" placeholder="Preço por Inscrição abaixo dos 15 anos"
             value="<?php echo $eventoDetails->preco_menor; ?>"><br>

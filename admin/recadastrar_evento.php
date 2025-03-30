@@ -28,6 +28,7 @@
         //$tipoAbSem = isset($_POST['tipo_sem']) ? 1 : 0;
         $preco = cleanWords($_POST['preco']);
         $preco_menor = cleanWords($_POST['preco_menor']); 
+        $preco_abs = cleanWords($_POST['preco_abs']); 
 
         //tratar imagen
         $imagenDefinitiva = $velho->imagen;
@@ -63,6 +64,7 @@
         //$evento->__set('tipoAbSem', $tipoAbSem);
         $evento->__set('preco', $preco);
         $evento->__set('preco_menor', $preco_menor);
+        $evento->__set('preco_abs', $preco_menor);
         $adEvento->editEvento();
     }
 ?>

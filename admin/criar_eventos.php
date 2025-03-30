@@ -34,6 +34,8 @@ is_adm();
             <br>
             Preco para maiores de 15
             <input type="number" name="preco" id="preco" placeholder="Preço por Inscrição">
+            Preco para Abosoluto
+            <input type="number" name="preco_abs" placeholder="Preço por Absoluto">
             <br>Preco para menores de 15
             <input type="number" name="preco_menor" id="preco_menor" placeholder="Preço por Inscrição abaixo dos 15 anos"><br>
             <br><hr><br><input type="submit" value="Cadastrar evento">

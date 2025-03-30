@@ -68,9 +68,11 @@ if (isset($_GET['id'])) {
                     if(!isset($_SESSION["idade"])){
                         echo $eventoDetails->preco . "R$ para maiores de 15 anos<br>";
                         echo "Preço " . $eventoDetails->preco_menor . "R$ para menores de 15 anos";
+                        echo "Preço " . $eventoDetails->preco_abs . "R$ para Absoluto";
                     }else{
                         if($_SESSION["idade"] > 15){
                             echo $eventoDetails->preco."R$";
+                            echo "<br>Preco Absoluto " . $eventoDetails->preco_abs."R$";
                         }else{
                             echo $eventoDetails->preco_menor."R$";
                         }

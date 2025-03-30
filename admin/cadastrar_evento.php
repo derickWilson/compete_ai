@@ -15,6 +15,7 @@
         $tipoSem = isset($_POST['tipo_sem']) ? 1 : 0;
         $preco = cleanWords($_POST['preco']);
         $preco_menor = cleanWords($_POST['preco_menor']);
+        $preco_abs = cleanWords($_POST['preco_abs']);
         $caminhoParaSalvar = null;
 
             // tratar a imagem fornecida
@@ -46,6 +47,8 @@
             $evento->__set('tipoSem', $tipoSem);
             $evento->__set('img', $img_evento['name']);
             $evento->__set('preco', $preco);
+            $evento->__set('preco_menor', $preco_menor);
+            $evento->__set('preco_abs', $preco_abs);
 
             $adEvento = new eventosService($conn,$evento);
 
