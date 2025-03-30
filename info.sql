@@ -140,3 +140,6 @@ CREATE TABLE IF NOT EXISTS evento(
 
     ALTER TABLE atleta
     ADD cpf VARCHAR(12)
+
+    ALTER TABLE evento
+    ADD preco_abs FLOAT(5,2)
