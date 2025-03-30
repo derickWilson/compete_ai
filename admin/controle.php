@@ -76,7 +76,7 @@ if (isset($_GET["user"])) {
                 </select>
             </div>
             <div>
-                <button type="submit">Salvar Alterações</button>
+                <button type="submit">Salvar Alterações</button>|<a href="/admin/excluir.php?id=<?php echo $usuario->id;?>">EXCLUIR</a><br>
                 <a href="painel_administrativo.php">Voltar</a>
             </div>
         </form>

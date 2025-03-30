@@ -279,6 +279,20 @@ public function logar() {
             echo "erro ao editar inscricao [ ".$e->getMessage()." ]";
         }
     }
+
+    //Deletar atleta
+    public function excluirAtleta($id){
+        $quary = "DELETE FROM atleta WHERE id = :id";
+        $stmt = $this->conn->prepare($quary);
+        $stmt->bindValue(":id", $id);
+        try {
+            $stmt->execute();
+            header("Location: /admin/pessoas.php");
+            exit();
+        } catch (Exception $e) {
+            echo "erro ao editar inscricao [ ".$e->getMessage()." ]";
+        }
+    }
     //***************************FUNÇÕES DE ACADEMIA*******************/
     //funçoes de afiliação de academia
     public function Filiar($nome, $cep, $cidade, $estado) {
