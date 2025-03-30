@@ -33,7 +33,6 @@ if (isset($_GET['id'])) {
     <title>Eventos</title>
 </head>
 <body>
-
     <?php
     include_once "menu/add_menu.php";
     ?>
@@ -112,7 +111,7 @@ if (isset($_GET['id'])) {
                               <option value="pesado">Pesado</option>
                               <option value="super-pesado">Super-Pesado</option>
                               <option value="pesadissimo">Pesadíssimo</option>
-                              <option value="super-pesadissimo">Super-Pesadíssimo</option>
+                              <?php if($_SESSION["idade"] > 15) echo "<option value='super-pesadissimo'>Super-Pesadíssimo</option>";?>
                             </select>
 
                             <input type="submit" value="Inscrever-se">
