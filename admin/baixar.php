@@ -26,7 +26,7 @@ if (isset($_GET["id"])) {
 
     // Cabeçalho do arquivo CSV
     $header = array(
-        "Campeonato", "Atleta", "Idade", "Faixa",
+        "Inscrição","Campeonato", "Atleta", "Idade", "Faixa",
         "Peso", "Academia", "modalidade","Com Quimono", "Sem Quimono", "Absoluto Com Quimono",
         "Absoluto Sem Quimono"
     );
@@ -45,6 +45,7 @@ if (isset($_GET["id"])) {
     // Escreve os dados no arquivo CSV
     foreach ($dados as $value) {
         fputcsv($output, [
+            $value->id.$value->ide,
             $value->evento,
             $value->inscrito,
             calcularIdade($value->data_nascimento),
