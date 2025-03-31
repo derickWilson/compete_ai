@@ -139,7 +139,7 @@ CREATE TABLE IF NOT EXISTS evento(
     MODIFY modalidade VARCHAR(18)
 
     ALTER TABLE atleta
-    ADD cpf VARCHAR(12)
+    MODIFY cpf VARCHAR(16)
 
     ALTER TABLE evento
     ADD preco_abs FLOAT(5,2)

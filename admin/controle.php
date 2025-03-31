@@ -21,6 +21,7 @@ if (isset($_GET["user"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
     <title>Controle de Usuário</title>
+    <link rel="icon" href="/estilos/icone.jpeg">
 </head>
 <body>
     <header>
@@ -37,7 +38,9 @@ if (isset($_GET["user"])) {
             <div>
                 <label>Nome: </label>
                 <span><?php echo htmlspecialchars($usuario->nome); ?></span><br>
-                Email: <a href="mailto:<?php echo $usuario->email;?>"><?php echo $usuario->email; ?></a>
+                Email: <a href="mailto:<?php echo $usuario->email;?>"><?php echo $usuario->email; ?></a><br>
+                fone <?php echo $usuario->fone;?><br>
+                Data de Nascimento <?php echo $usuario->data_nascimento;?><br>
             </div>
             <div>
                 <label>Faixa Atual:</label>
@@ -66,7 +69,7 @@ if (isset($_GET["user"])) {
                 <label>Nova Faixa:</label>
                 <select id="faixas" name="faixa" required>
                     <option value="Branca" <?php echo $usuario->faixa == 'Branca' ? 'selected' : ''; ?>>Branca</option>
-                    <option value="Cinza" <?php echo $usuario->faixa == 'Cinza' ? 'selected' : ''; ?>>Crinza</option>
+                    <option value="Cinza" <?php echo $usuario->faixa == 'Cinza' ? 'selected' : ''; ?>>Cinza</option>
                     <option value="Amarela" <?php echo $usuario->faixa == 'Amarela' ? 'selected' : ''; ?>>Amarela</option>
                     <option value="Laranja" <?php echo $usuario->faixa == 'Laranja' ? 'selected' : ''; ?>>Laranja</option>
                     <option value="Verde" <?php echo $usuario->faixa == 'Verde' ? 'selected' : ''; ?>>Verde</option>
@@ -77,8 +80,8 @@ if (isset($_GET["user"])) {
                 </select>
             </div>
             <div>
-                <button type="submit">Salvar Alterações</button>|<a href="/admin/excluir.php?id=<?php echo $usuario->id;?>">EXCLUIR</a><br>
-                <a href="painel_administrativo.php">Voltar</a>
+            <button type="submit">Salvar Alterações</button>|<a class ="danger" href="/admin/excluir.php?id=<?php echo $usuario->id;?>">EXCLUIR</a><br>
+            <a href="painel_administrativo.php">Voltar</a>
             </div>
         </form>
     </div>

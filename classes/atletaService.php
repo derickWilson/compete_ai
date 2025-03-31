@@ -282,11 +282,15 @@ public function logar() {
 
     //Deletar atleta
     public function excluirAtleta($id){
+        $dados = $this->getById($id);
         $quary = "DELETE FROM atleta WHERE id = :id";
         $stmt = $this->conn->prepare($quary);
         $stmt->bindValue(":id", $id);
         try {
             $stmt->execute();
+            //remover diploma e foto
+            unlink("diploma/".$dados->diploma);
+            unlink("fotos/".$dados->foto);
             header("Location: /admin/pessoas.php");
             exit();
         } catch (Exception $e) {
