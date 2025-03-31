@@ -6,42 +6,70 @@ div, h2, h3 {
     background-color: #f4f9ff; /* Claro para contraste com o fundo azul */
 }
 
+/* Cabeçalho */
 header {
-    background-color: rgb(30, 60, 100); /* Um tom mais escuro de azul */
+    background-color: rgb(30, 60, 100);
     width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
 }
 
-header nav {
-    width: auto;
-    height: auto;
-    align-items: center auto;
-    padding-top: 10px;
-    padding-bottom: 10px;
+/* Centraliza o título e logo */
+header .center-content {
+    text-align: center;
 }
-header nav a {
-    padding: 5px;
-    border-radius: 30px;
-    font-size: 20px;
-    background-color: rgb(255, 255, 255); /* Branco para contraste com o fundo escuro */
-    color: rgb(30, 60, 100); /* Azul escuro */
+
+/* Imagem de logo ajustada para responsividade */
+header img {
+    width: 50%;
+    max-width: 400px; /* Limita o tamanho máximo da imagem */
+    height: auto; /* Garante que a imagem não distorça */
+    margin-top: 10px;
+}
+
+/* Navegação */
+header nav {
+    display: flex;
+    justify-content: space-evenly; /* Distribui os links igualmente */
     align-items: center;
+    flex-wrap: wrap; /* Permite que os links se movam para a linha seguinte em telas pequenas */
+    padding: 10px 0;
+}
+
+header nav a {
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 16px;
+    background-color: rgb(255, 255, 255);
+    color: rgb(30, 60, 100);
     text-decoration: none;
-    align-self: auto;
-    gap: inherit;
+    transition: background-color 0.3s, color 0.3s; /* Transições suaves */
 }
 
 header nav a:hover {
-    border-radius: 30px;
+    background-color: rgb(245, 0, 0);
     color: rgb(255, 255, 255);
-    background-color: rgb(245, 0, 0); /* Vermelho para destaque no hover */
-    align-items: center;
-    text-decoration: none;
 }
 
+/* Estilo do título centralizado */
 .blue {
     font-size: 35px;
     color: white;
-    background-color: rgb(30, 60, 100); /* Manter o azul escuro no fundo */
+    background-color: rgb(30, 60, 100);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    /* Ajusta o tamanho dos links em telas menores */
+    header nav a {
+        font-size: 14px; 
+        padding: 8px 15px; 
+    }
+
+    /* Ajusta o tamanho da imagem em telas menores */
+    header img {
+        width: 80%; /* Aumenta a largura da imagem em telas menores */
+    }
 }
 
 .link {
