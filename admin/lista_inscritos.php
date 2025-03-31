@@ -18,6 +18,9 @@ try {
     $evento = new Evento();
     $ev = new eventosService($conn, $evento);
     $inscritos = $ev->getInscritos($idEvento);
+echo "<pre>";
+print_r($inscritos);
+echo "</pre>";    
 } catch (Exception $e) {
     die("Erro ao obter inscritos: " . $e->getMessage());
 }
@@ -37,6 +40,7 @@ try {
     <h3>Inscritos no Evento <?php echo htmlspecialchars($inscritos[0]->evento); ?></h3>
     <table border="1">
         <tr>
+            <th>Inscrição</th>
             <th>Nome do Atleta</th>
             <th>Idade</th>
             <th>Faixa</th>
@@ -50,6 +54,7 @@ try {
         </tr>
         <?php foreach ($inscritos as $inscrito) { ?>
         <tr>
+            <td><?php echo $inscrito->id.$inscrito->ide; ?></td>
             <td><?php echo htmlspecialchars($inscrito->inscrito); ?></td>
             <td><?php echo calcularIdade($inscrito->data_nascimento); ?></td>
             <td><?php echo htmlspecialchars($inscrito->faixa); ?></td>

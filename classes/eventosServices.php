@@ -99,7 +99,7 @@ public function addEvento() {
     }
     //pegar todos os inscritos de um evento
     public function getInscritos($id){
-        $query = "SELECT e.nome AS evento, a.nome AS inscrito, a.data_nascimento,
+        $query = "SELECT e.nome AS evento, e.id AS ide, a.nome AS inscrito, a.data_nascimento, a.id,
                 a.faixa, a.peso, f.nome  as academia, f.id as idAcademia,
                 i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem, i.modalidade as modalidade
                 FROM evento e
