@@ -36,7 +36,8 @@ if (isset($_GET["user"])) {
             
             <div>
                 <label>Nome: </label>
-                <span><?php echo htmlspecialchars($usuario->nome); ?></span>
+                <span><?php echo htmlspecialchars($usuario->nome); ?></span><br>
+                Email: <?php $usuario->email?>
             </div>
             <div>
                 <label>Faixa Atual:</label>
