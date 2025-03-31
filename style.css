@@ -239,3 +239,19 @@ footer a:hover{
     display: inline-block; /* Faz com que a mensagem se comporte como um bloco */
     margin-top: 10px; /* Um pouco de espaço acima */
 }
+.danger {
+    background-color: rgb(245, 0, 0); /* Vermelho vibrante */
+    color: white; /* Texto branco para contraste */
+    padding: 10px 20px; /* Espaçamento interno do botão */
+    border-radius: 5px; /* Bordas arredondadas */
+    font-size: 16px; /* Tamanho da fonte */
+    text-decoration: none; /* Remover o sublinhado de links */
+    display: inline-block; /* Exibir como bloco para permitir o padding */
+    text-align: center; /* Alinhar o texto ao centro */
+    cursor: pointer; /* Mostrar que é clicável */
+}
+
+.danger:hover {
+    background-color: rgb(220, 0, 0); /* Cor de fundo levemente mais escura ao passar o mouse */
+    text-decoration: none; /* Garantir que o sublinhado não apareça ao passar o mouse */
+}

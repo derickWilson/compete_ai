@@ -19,11 +19,7 @@ try {
 if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET["inscricao"]);
-    $inscricao = $atserv->getInscricao($eventoId,$_SESSION["id"]);
-
-echo "<pre>";
-print_r($inscricao);
-echo "</pre>";    
+    $inscricao = $atserv->getInscricao($eventoId,$_SESSION["id"]);    
 } else {
     echo "selecione um campeonato";
     header("Location: eventos_cadastrados.php");
@@ -85,7 +81,7 @@ echo "</pre>";
         <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>Pesadíssimo</option>
         <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
     </select>
-       <br><input type="submit" value="editar">|<a href="exclui_inscricao.php?id=<?php echo $eventoId;?>">Remover Inscrição</a>
+       <br><input type="submit" value="editar">|<a class ="danger" href="exclui_inscricao.php?id=<?php echo $eventoId;?>">Remover Inscrição</a>
 </form>
     <br><center>Tabela de Pesos</center>
     <center>
