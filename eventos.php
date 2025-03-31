@@ -30,6 +30,7 @@ if (isset($_GET['id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/estilos/icone.jpeg">
     <title>Eventos</title>
 </head>
 <body>
@@ -136,7 +137,7 @@ if (isset($_GET['id'])) {
             ?>
     <br><center>Tabela de Pesos</center>
     <center>
-    <object data="tabela_de_pesos.pdf" type="application/pdf" width="60%" height="300px"></object>
+    <object data="tabela_de_pesosw.pdf" type="application/pdf" width="60%" height="300px"></object>
     </center>
     <br><a class="link" href="index.php">voltar</a>||
     <?php
