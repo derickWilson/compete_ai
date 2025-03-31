@@ -37,7 +37,7 @@ if (isset($_GET["user"])) {
             <div>
                 <label>Nome: </label>
                 <span><?php echo htmlspecialchars($usuario->nome); ?></span><br>
-                Email: <?php $usuario->email?>
+                Email: <a href="mailto:<?php echo $usuario->email;?>"><?php echo $usuario->email; ?></a>
             </div>
             <div>
                 <label>Faixa Atual:</label>
