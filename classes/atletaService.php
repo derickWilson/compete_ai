@@ -159,7 +159,7 @@ public function logar() {
     }
     //retornar um atleta especifico
     public function getById($id){
-        $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto,
+        $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto, a.academia as acadid
                 a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel
                 FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
@@ -237,7 +237,7 @@ public function logar() {
             header("Location: /pagina_pessoal.php");
             exit();
          }catch(Exception $e){
-            print("Erro ao ediar: " . $e->getMessage());
+            print("Erro ao editar: " . $e->getMessage());
          }
     }
     //função para pegar inscricao
@@ -291,6 +291,31 @@ public function logar() {
             //remover diploma e foto
             unlink("diploma/".$dados->diploma);
             unlink("fotos/".$dados->foto);
+
+            if($dados->responsavel){
+                //deletar todos os atletas
+                $quary="SELECT id FROM atleta WHERE academia = :acad";
+                $stmt = $this->conn->prepare($quary);
+                $stmt->bindValue(":acad", $dados->acadid);
+                try {
+                    $stmt->execute();
+                    $lista = $stmt->fetchAll(PDO::FETCH_OBJ);
+                    
+                    // Deletar cada atleta da academia
+                    foreach ($lista as $atleta) {
+                        $this->excluirAtleta($atleta->id);
+                    }
+                
+                    // Deletar a própria academia
+                    $query = "DELETE FROM academia_filiada WHERE id = :acad";
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bindValue(":acad", $dados->acadid);
+                    $stmt->execute();
+                } catch (Exception $e) {
+                    echo "erro ao editar inscricao [ ".$e->getMessage()." ]";
+                }
+                
+            }
             header("Location: /admin/pessoas.php");
             exit();
         } catch (Exception $e) {
