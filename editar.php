@@ -20,7 +20,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $novoNome = 'diploma_' . time() . '.' . $extensao;
         $caminhoParaSalvar = 'diplomas/' . $novoNome;
         //excluir antigo diploma
-        if(!empty("diplomas/".$diploma_antigo) && file_exists("diplomas/".$diploma_antigo)){
+        if(!empty($diploma_antigo) && file_exists("diplomas/".$diploma_antigo)){
             unlink("diplomas/".$diploma_antigo);
         }
         if ($diploma["size"] > 0) {
@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
         $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
         //excluir foto antiga   
-        if(!empty('fotos/'.$foto_antiga) && file_exists("fotos/".$foto_antiga)){
+        if(!empty($foto_antiga) && file_exists("fotos/".$foto_antiga)){
             unlink('fotos/'.$foto_antiga);
         }
         if ($foto['size'] > 0) {

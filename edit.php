@@ -41,7 +41,7 @@ $atleta = $attServ->getById($_SESSION["id"]);
         <select id="faixa" name="faixa">
             <option value="">Graduação</option>
             <option value="Branca" <?php if ($atleta->faixa == "Branca") echo "selected"; ?>>Branca</option>
-            <option value="Cinza" <?php if ($atleta->faixa == "Cinza") echo "selected"; ?>>Branca</option>
+            <option value="Cinza" <?php if ($atleta->faixa == "Cinza") echo "selected"; ?>>cinza</option>
             <option value="Amarela" <?php if ($atleta->faixa == "Amarela") echo "selected"; ?>>Amarela</option>
             <option value="Laranja" <?php if ($atleta->faixa == "Laranja") echo "selected"; ?>>Laranja</option>
             <option value="Verde" <?php if ($atleta->faixa == "Verde") echo "selected"; ?>>Verde</option>

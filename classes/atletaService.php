@@ -160,7 +160,7 @@ public function logar() {
     //retornar um atleta especifico
     public function getById($id){
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto,
-                a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma
+                a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel
                 FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":id", $id);
