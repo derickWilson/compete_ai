@@ -49,9 +49,6 @@ $atleta = $attServ->getById($_SESSION["id"]);
             <option value="Roxa" <?php if ($atleta->faixa == "Roxa") echo "selected"; ?>>Roxa</option>
             <option value="Marrom" <?php if ($atleta->faixa == "Marrom") echo "selected"; ?>>Marrom</option>
             <option value="Preta" <?php if ($atleta->faixa == "Preta") echo "selected"; ?>>Preta</option>
-            <option value="Coral" <?php if ($atleta->faixa == "Coral") echo "selected"; ?>>Coral</option>
-            <option value="Vermelha e Branca" <?php if ($atleta->faixa == "Vermelha e Branca") echo "selected"; ?>>Vermelha e Branca</option>
-            <option value="Vermelha" <?php if ($atleta->faixa == "Vermelha") echo "selected"; ?>>Vermelha</option>
         </select>
         <br>
         <label for="diploma_novo">Diploma</label><br>

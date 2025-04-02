@@ -34,7 +34,7 @@ if (isset($_SESSION["logado"])){
     <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png"><br>
 
     Nome<input name="nome" type="text" placeholder="nome completo" required><br>
-    CPF<input name="cpf" type="text" placeholder="0000000000" maxlength="15" required><br>
+    CPF<input name="cpf" type="text" placeholder="0000000000" maxlength="19" required><br>
     Genero
     <select name="genero">
         <option value="Masculino">Masculino</option>
@@ -50,7 +50,7 @@ if (isset($_SESSION["logado"])){
         ?>
         senha  <input type="password" name="senha" id="senha" required><br>
         Data de Nascimento  <input type="date" name="data_nascimento" id="data_nasc" required><br>
-        Fone  <input maxlength="12" type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
+        Fone  <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
         Academia/Equipe  
             <select name="academia" id="academia">
                 <option value="">--selecione sua academia--</option>

@@ -27,6 +27,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
     CREATE TABLE IF NOT EXISTS atleta(
         id INT NOT NULL AUTO_INCREMENT,
         nome VARCHAR(50) NOT NULL,
+        cpf VARCHAR(19),
         foto VARCHAR(30) NOT NULL,
         senha VARCHAR(100) NOT NULL,
         email VARCHAR (100) NOT NULL,
@@ -57,6 +58,7 @@ CREATE TABLE IF NOT EXISTS evento(
     imagen VARCHAR(30),
     preco FLOAT(5,2),
     preco_menor FLOAT(5,2),
+    preco_abs FLOAT(5,2),
     PRIMARY KEY (id)
 );
 
@@ -73,15 +75,3 @@ CREATE TABLE IF NOT EXISTS evento(
         FOREIGN KEY (id_atleta) REFERENCES atleta(id),
         FOREIGN KEY (id_evento) REFERENCES evento(id)
     );
-
-    ALTER TABLE inscricao
-    MODIFY modalidade VARCHAR(18)
-
-    ALTER TABLE atleta
-    ADD cpf VARCHAR(16)
-
-    ALTER TABLE atleta
-    MODIFY cpf VARCHAR(16)
-
-    ALTER TABLE evento
-    ADD preco_abs FLOAT(5,2)
