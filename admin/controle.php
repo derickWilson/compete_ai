@@ -9,6 +9,9 @@ $atleta = new Atleta();
 $attServ = new atletaService($conn, $atleta);
 if (isset($_GET["user"])) {
     $usuario = $attServ->getById(cleanWords($_GET["user"]));
+    echo "<pre>";
+    print_r($usuario);
+    echo "</pre>";
 } else {
     echo "Selecione um usuário";
     exit();
