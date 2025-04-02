@@ -32,7 +32,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         senha VARCHAR(100) NOT NULL,
         email VARCHAR (100) NOT NULL,
         data_nascimento DATE NOT NULL,
-        fone VARCHAR(12) NOT NULL,
+        fone VARCHAR(15) NOT NULL,
         academia INT,
         faixa VARCHAR(30) NOT NULL,
         peso FLOAT(5,2) NOT NULL,
