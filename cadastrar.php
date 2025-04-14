@@ -12,10 +12,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         //filiar academia
         try {
             //filiar academia
-            $attServ->Filiar(cleanWords($_POST["academia"]),
-            cleanWords($_POST["cep"]),
-            cleanWords($_POST["cidade"]),
-            cleanWords($_POST["estado"]));
+            if($attServ->existAcad(cleanWords($_POST["academia"]))){
+                $attServ->Filiar(cleanWords($_POST["academia"]),cleanWords($_POST["cep"]),cleanWords($_POST["cidade"]),cleanWords($_POST["estado"]));
+            }
         } catch (Exception $e) {
             echo "Erro ao filiar academia: " . $e->getMessage();
         }

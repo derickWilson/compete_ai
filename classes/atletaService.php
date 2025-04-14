@@ -363,11 +363,24 @@
                 echo "erro [".$e->getMessage()."]";
             }    
         }
+        //ver se academia existe
+        public function existAcad($nome){
+            $query = "SELECT COUNT(*) as num FROM academia_filiada WHERE nome = :nome";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(":nome", $nome);
+            try{
+                $stmt->execute();
+                $resp = $stmt->fetch(PDO::FETCH_OBJ);
+                return $resp->num == 0;
+            }catch(Exception $e){
+                echo "erro [".$e->getMessage()."]";
+            }
+        }
         //funçao para consegui id da academia
         public function getIdAcad($nomeAcad){
             $query = "SELECT id FROM academia_filiada WHERE nome = :nome";
             $stmt = $this->conn->prepare($query);
-            $stmt->bindValue("nome", $nomeAcad);
+            $stmt->bindValue(":nome", $nomeAcad);
             try{
                 $stmt->execute();
             }catch(Exception $e){
