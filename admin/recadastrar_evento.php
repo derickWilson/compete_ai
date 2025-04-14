@@ -51,6 +51,38 @@
                 echo "erroc no arquivo";
             }
         }
+
+        //tratar documento de ementa
+        $docDef = $velho->doc;
+        // tratar o novo documento (ementa)
+        if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
+            $doc = $_FILES['nDoc'];
+            $ext = pathinfo($doc['name'], PATHINFO_EXTENSION);
+        
+            // validação extra (aceita apenas .pdf)
+            if (strtolower($ext) !== 'pdf' || mime_content_type($doc['tmp_name']) !== 'application/pdf') {
+                echo "Arquivo inválido. Apenas PDF é permitido.";
+                exit();
+            }
+        
+            $novoNomeDoc = "doc_" . time() . '.' . $ext;
+            $caminhoDoc = "../docs/" . $novoNomeDoc;
+        
+            // remove documento antigo se existir
+            if (!empty("../docs/" . $docDef) && file_exists("../docs/" . $docDef)) {
+                unlink("../docs/" . $docDef);
+            }
+        
+            // move novo documento
+            if ($doc['size'] > 0) {
+                if (move_uploaded_file($doc['tmp_name'], $caminhoDoc)) {
+                    $docDef = $novoNomeDoc;
+                } else {
+                    echo "Erro ao mover o novo documento.";
+                }
+            }
+        }
+
         $evento->__set('id', $id);
         $evento->__set('nome', $nome);
         $evento->__set('img', $imagenDefinitiva);
@@ -65,6 +97,7 @@
         $evento->__set('preco', $preco);
         $evento->__set('preco_menor', $preco_menor);
         $evento->__set('preco_abs', $preco_menor);
+        $evento->__set('doc', $docDef);
         $adEvento->editEvento();
     }
 ?>

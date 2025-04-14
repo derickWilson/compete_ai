@@ -33,6 +33,8 @@ if (isset($_GET['id'])) {
             <img src="/uploads/<?php echo $eventoDetails->imagen; ?>" alt="imagen" width="100%" height="500px">
             Nova Imagen<br>
             <input type="file" name="imagen_nova" id="imagen_nova"><br>
+            Nova Ementa<br>
+            <input type="file" name="nDoc"><br>            
             Nome do evento <input type="text" id="nome_evento" name="nome_evento" 
             value="<?php echo $eventoDetails->nome; ?>"><br>
             <br>

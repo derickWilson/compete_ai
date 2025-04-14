@@ -138,7 +138,7 @@
                 ?>
         <br><center>Tabela de Pesos</center>
         <center>
-        <object data="tabela_de_pesosw.pdf" type="application/pdf" width="60%" height="300px"></object>
+        <object data="tabela_de_pesos.pdf" type="application/pdf" width="60%" height="300px"></object>
         </center>
         <br><a class="link" href="index.php">voltar</a>||
         <?php
