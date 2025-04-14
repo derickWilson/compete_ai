@@ -22,7 +22,8 @@ is_adm();
             
             Local <input type="text" id="local_camp"><br>
 
-            <input type="file" name="img_evento" accept="image/*">
+            Imagen do Evento<input type="file" name="img_evento" accept="image/*"><br>
+            Ementa<input type="file" name="doc" accept="application/pdf"><br>
             <p>descrição do evento</p>
             <textarea name="desc_Evento" placeholder="descreva o campeopnato">
             </textarea><br>

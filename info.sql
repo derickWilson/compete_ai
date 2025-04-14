@@ -77,4 +77,4 @@ CREATE TABLE IF NOT EXISTS evento(
     );
 
     ALTER TABLE evento
-    ADD doc VARCHAR (20)
+    ADD doc VARCHAR (20);

@@ -18,8 +18,33 @@
         $preco_abs = cleanWords($_POST['preco_abs']);
         $caminhoParaSalvar = null;
 
+        //tratar ementa
+        $docPath = null;
+
+        if (isset($_FILES['doc']) && $_FILES['doc']['error'] === UPLOAD_ERR_OK) {
+            $doc = $_FILES['doc'];
+            $ext = pathinfo($doc['name'], PATHINFO_EXTENSION);
+        
+            // Verificação extra: só aceita PDF
+            if (strtolower($ext) !== 'pdf' || mime_content_type($doc['tmp_name']) !== 'application/pdf') {
+                echo "Arquivo inválido. Apenas PDFs são permitidos.";
+                exit();
+            }
+        
+            $nomeArquivo = 'doc_' . time() . '.' . $ext;
+            $docPath = "../docs/" . $nomeArquivo;
+        
+            if ($doc['size'] > 0) {
+                if (move_uploaded_file($doc['tmp_name'], $docPath)) {
+                    echo "Ementa enviada com sucesso!";
+                } else {
+                    echo "Erro ao mover a ementa.";
+                }
+            }
+        }
+
             // tratar a imagem fornecida
-            if(isset($_FILES['img_evento']) && $_FILES['img_evento']['error'] === UPLOAD_ERR_OK){
+        if(isset($_FILES['img_evento']) && $_FILES['img_evento']['error'] === UPLOAD_ERR_OK){
                 $img_evento = $_FILES['img_evento'];
                 $ext = pathinfo($img_evento['name'], PATHINFO_EXTENSION);
                 $img_evento['name'] = 'img_'.time().'.'.$ext;
@@ -49,7 +74,7 @@
             $evento->__set('preco', $preco);
             $evento->__set('preco_menor', $preco_menor);
             $evento->__set('preco_abs', $preco_abs);
-
+            $evento->__set('doc',$nomeArquivo);
             $adEvento = new eventosService($conn,$evento);
 
 
