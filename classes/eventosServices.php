@@ -48,7 +48,8 @@ public function addEvento() {
         tipo_sem = :tipoSem,
         preco = :preco,
         preco_abs = :preco_abs,
-        preco_menor = :preco_menor
+        preco_menor = :preco_menor,
+        doc = :doc
         WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $this->evento->__get('id'));
@@ -63,6 +64,7 @@ public function addEvento() {
         $stmt->bindValue(':preco', $this->evento->__get('preco'));
         $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
         $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
+        $stmt->bindValue(':doc', $this->evento->__get('doc'));
         try {
             $stmt->execute();
             header("Location: /eventos.php?id=".$this->evento->__get('id'));
