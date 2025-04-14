@@ -14,8 +14,8 @@ class eventosService{
 
 //adicionar um evento novo
 public function addEvento() {
-    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs)
-    VALUES(:nome, :descricao, :data_limite, :data_camp, :local_comp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs)";
+    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc)
+    VALUES(:nome, :descricao, :data_limite, :data_camp, :local_comp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc)";
     $stmt = $this->conn->prepare($query);
     $stmt->bindValue(':nome', $this->evento->__get('nome'));
     $stmt->bindValue(':data_camp', $this->evento->__get('data_camp'));
@@ -28,6 +28,7 @@ public function addEvento() {
     $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
     $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
     $stmt->bindValue(':img', $this->evento->__get('img'));
+    $stmt->bindValue(':doc', $this->evento->__get('doc'));
     try {
         $stmt->execute();
     } catch (Exception $e) {
@@ -86,7 +87,7 @@ public function addEvento() {
         //$query = "SELECT id, nome, descricao, data_limite, tipo_com, tipo_sem, preco
         // FROM evento as e 
         // WHERE e.data_limite <= CURRENT_DATE() AND id = :id";
-        $query = "SELECT id, nome, descricao, data_evento, data_limite, local_evento, tipo_com, tipo_sem, preco, imagen, preco_menor, preco_abs
+        $query = "SELECT id, nome, descricao, data_evento, data_limite, local_evento, tipo_com, tipo_sem, preco, imagen, preco_menor, preco_abs, doc
                     FROM evento as e WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id);

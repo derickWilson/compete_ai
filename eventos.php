@@ -79,6 +79,7 @@
                             }
                         }
                         ?></p>
+                        <p><a href="<?echo '//doc/'.$eventoDetails->doc; ?>" download>baixe a ementa</a></p>
                     <?php
                     if (isset($_SESSION['logado']) && $_SESSION['logado']) {
                         if($evserv->isInscrito($_SESSION["id"], $eventoId)){
