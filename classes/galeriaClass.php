@@ -28,7 +28,7 @@
 
         // adicionar uma foto nova na galeria
         public function addGaleria() {
-            $query = "INSERT INTO galeria (imagem, titulo) VALUES (:imagem, :titulo)";
+            $query = "INSERT INTO galeria (imagem, legenda) VALUES (:imagem, :titulo)";
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(':imagem', $this->galeria->__get('img'));
             $stmt->bindValue(':titulo', $this->galeria->__get('legenda'));
@@ -41,5 +41,17 @@
             }
         }
 
+        //pegar todas as fotos da galeria
+        public function listGaleria() {
+            $query = "SELECT imgagem, legenda  FROM galeria";
+            $stmt = $this->conn->prepare($query);
+            try {
+                $stmt->execute();
+                return $stmt->fetchAll(PDO::FETCH_OBJ);
+            } catch (Exception $e) {
+                echo "[ ".$e->getMessage()." ]";
+                return [];
+            }
+        }
     }
 ?>
