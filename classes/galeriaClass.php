@@ -50,7 +50,6 @@
                 return $stmt->fetchAll(PDO::FETCH_OBJ);
             } catch (Exception $e) {
                 echo "[ ".$e->getMessage()." ]";
-                return [];
             }
         }
 
