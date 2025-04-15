@@ -283,3 +283,21 @@ footer a:hover{
     background-color: rgb(220, 0, 0); /* Cor de fundo levemente mais escura ao passar o mouse */
     text-decoration: none; /* Garantir que o sublinhado não apareça ao passar o mouse */
 }
+
+.botao-acao {
+    background-color: #3498db; /* Azul amigável */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+}
+
+.botao-acao:hover {
+    background-color: #2980b9; /* Azul um pouco mais escuro no hover */
+    text-decoration: none;
+    cursor: pointer;
+}

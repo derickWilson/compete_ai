@@ -21,7 +21,7 @@
         private $conn;
         private $galeria;
 
-        public function __constructor(Conexao $conn, Galeria $galeria) {
+        public function __construct(Conexao $conn, Galeria $galeria) {
             $this->$conn = $conn->conectar();
             $this->$galeria = $galeria;
         }
@@ -35,7 +35,7 @@
             try {
                 $stmt->execute();
                 //alert 1 :aguarde sua conta ser validada
-                header("Location: index.php?message=1");
+                header("Location: /admin/galeria.php?message=1");
             } catch (Exception $e) {
                 echo "[ ".$e->getMessage()."]";
             }
