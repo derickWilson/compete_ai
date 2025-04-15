@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS evento(
     preco FLOAT(5,2),
     preco_menor FLOAT(5,2),
     preco_abs FLOAT(5,2),
+    doc VARCHAR (20),
     PRIMARY KEY (id)
 );
 
@@ -75,6 +76,3 @@ CREATE TABLE IF NOT EXISTS evento(
         FOREIGN KEY (id_atleta) REFERENCES atleta(id),
         FOREIGN KEY (id_evento) REFERENCES evento(id)
     );
-
-    ALTER TABLE evento
-    ADD doc VARCHAR (20);
