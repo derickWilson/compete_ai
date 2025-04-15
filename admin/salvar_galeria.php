@@ -42,8 +42,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $servico = new GaleriaService($conn, $galeria);
 
     $servico->addGaleria();
-
-    header("Location: galeria_listar.php?message=1");
     exit();
 }
 ?>

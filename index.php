@@ -12,6 +12,12 @@
     $tudo = true;
     //pegar todos    
     $list = $evserv->listAll();
+    
+    require_once "classes/galeriaClass.php";
+    $galeria = new Galeria();
+    $galeriaServ = new GaleriaService($conn, $galeria);
+    $fotos = $galeriaServ->listGaleria();
+
 ?>
 <!DOCTYPE html>
 <html lang="pt">

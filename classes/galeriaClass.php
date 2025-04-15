@@ -1,4 +1,9 @@
 <?php
+        try {
+            require_once __DIR__ . "/../func/database.php";  // Caminho absoluto para database.php            
+        } catch (\Throwable $th) {
+            print("[". $th->getMessage() ."]");
+        }
     class Galeria{
         // Getters and setters for all properties
         private $img;
@@ -13,11 +18,6 @@
     }
 
     class GaleriaService{
-        try {
-            require_once __DIR__ . "/../func/database.php";  // Caminho absoluto para database.php            
-        } catch (\Throwable $th) {
-            print("[". $th->getMessage() ."]");
-        }
         private $conn;
         private $galeria;
 
