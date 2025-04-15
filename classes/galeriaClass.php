@@ -43,7 +43,7 @@
 
         //pegar todas as fotos da galeria
         public function listGaleria() {
-            $query = "SELECT imgagem, legenda  FROM galeria";
+            $query = "SELECT id, imgagem, legenda FROM galeria";
             $stmt = $this->conn->prepare($query);
             try {
                 $stmt->execute();
@@ -53,5 +53,29 @@
                 return [];
             }
         }
+
+        //deletar da galeria
+        public function deleteGaleria($id) {
+            // Primeiro, buscar o nome do arquivo para poder excluir do servidor
+            $stmt = $this->conn->prepare("SELECT imagem FROM galeria WHERE id = :id");
+            $stmt->bindValue(":id", $id);
+            $stmt->execute();
+            $img = $stmt->fetch(PDO::FETCH_OBJ);
+        
+            if ($img) {
+                // Excluir o arquivo da pasta
+                $caminho = __DIR__ . "/../galeria/" . $img->imagem;
+                if (file_exists($caminho)) {
+                    unlink($caminho);
+                }
+        
+                // Agora excluir do banco
+                $stmt = $this->conn->prepare("DELETE FROM galeria WHERE id = :id");
+                $stmt->bindValue(":id", $id);
+                return $stmt->execute();
+            }
+            return false;
+        }
+        
     }
 ?>
