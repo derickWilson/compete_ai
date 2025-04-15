@@ -68,7 +68,7 @@
                         <?php
                         if(!isset($_SESSION["idade"])){
                             echo $eventoDetails->preco . "R$ para maiores de 15 anos<br>";
-                            echo "Preço " . $eventoDetails->preco_menor . "R$ para menores de 15 anos";
+                            echo "Preço " . $eventoDetails->preco_menor . "R$ para menores de 15 anos<br>";
                             echo "Preço " . $eventoDetails->preco_abs . "R$ para Absoluto";
                         }else{
                             if($_SESSION["idade"] > 15){
@@ -79,7 +79,11 @@
                             }
                         }
                         ?></p>
-                        <p><a href="<?echo '//doc/'.$eventoDetails->doc; ?>" download>baixe a ementa</a></p>
+                        <?php if (!empty($eventoDetails->doc)) { ?>
+                            <p><a href="<?php echo '/doc/' . htmlspecialchars($eventoDetails->doc); ?>" download>Baixe o Edital do Evento</a></p>
+                        <?php } else { ?>
+                            <p><em>Edital não disponível para este evento.</em></p>
+                        <?php } ?>
                     <?php
                     if (isset($_SESSION['logado']) && $_SESSION['logado']) {
                         if($evserv->isInscrito($_SESSION["id"], $eventoId)){
