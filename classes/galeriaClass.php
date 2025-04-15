@@ -22,8 +22,8 @@
         private $galeria;
 
         public function __construct(Conexao $conn, Galeria $galeria) {
-            $this->$conn = $conn->conectar();
-            $this->$galeria = $galeria;
+            $this->conn = $conn->conectar();
+            $this->galeria = $galeria;
         }
 
         // adicionar uma foto nova na galeria
@@ -43,7 +43,7 @@
 
         //pegar todas as fotos da galeria
         public function listGaleria() {
-            $query = "SELECT id, imgagem, legenda FROM galeria";
+            $query = "SELECT id, imagem, legenda FROM galeria";
             $stmt = $this->conn->prepare($query);
             try {
                 $stmt->execute();

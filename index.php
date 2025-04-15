@@ -41,6 +41,31 @@
         }
     ?>
 </div>
+
+<center><h3>Galeria de Fotos</h3></center>
+<div class="galeria-carousel">
+    <button id="prev" class="carousel-btn">&#8592;</button>
+
+    <div class="galeria-wrapper">
+    <?php if (!empty($fotos)): ?>
+        <?php foreach ($fotos as $index => $foto): ?>
+            <div class="galeria-slide <?php echo $index === 0 ? 'ativo' : ''; ?>">
+                <img src="/galeria/<?php echo htmlspecialchars($foto->imagem); ?>" alt="Foto Galeria">
+                <p><?php echo htmlspecialchars($foto->legenda); ?></p>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <div class="galeria-slide ativo">
+            <p>Nenhuma foto cadastrada na galeria ainda.</p>
+        </div>
+    <?php endif; ?>
+</div>
+
+
+    <button id="next" class="carousel-btn">&#8594;</button>
+</div>
+
+
 <center><h3>Proximos Eventos</h3></center>
 <?php
 // Listar todos os eventos
@@ -62,4 +87,21 @@
 include "menu/footer.php";
 ?>
 </body>
+<script>
+    const slides = document.querySelectorAll('.galeria-slide');
+    let currentIndex = 0;
+
+    document.getElementById('next').addEventListener('click', () => {
+        slides[currentIndex].classList.remove('ativo');
+        currentIndex = (currentIndex + 1) % slides.length;
+        slides[currentIndex].classList.add('ativo');
+    });
+
+    document.getElementById('prev').addEventListener('click', () => {
+        slides[currentIndex].classList.remove('ativo');
+        currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+        slides[currentIndex].classList.add('ativo');
+    });
+</script>
+
 </html>
