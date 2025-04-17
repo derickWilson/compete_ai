@@ -23,12 +23,12 @@
             $stmt = $this->conn->prepare($query);
             // Bind dos valores
             $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
-            $stmt->bindValue(":nome", $this->atleta->__get("nome"));
+            $stmt->bindValue(":nome", ucwords($this->atleta->__get("nome")));
             $stmt->bindValue(":cpf", $this->atleta->__get("cpf"));
             $stmt->bindValue(":genero", $this->atleta->__get("genero"));
             $stmt->bindValue(":foto", $this->atleta->__get("foto"));
             $stmt->bindValue(":senha", $senhaCriptografada);
-            $stmt->bindValue(":email", $this->atleta->__get("email"));
+            $stmt->bindValue(":email", strtolower($this->atleta->__get("email")));
             $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
             $stmt->bindValue(":fone", $this->atleta->__get("fone"));
             $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
@@ -55,13 +55,13 @@
             $stmt = $this->conn->prepare($query);
             // Bind dos valores
             $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);        
-            $stmt->bindValue(":nome", $this->atleta->__get("nome"));
+            $stmt->bindValue(":nome", ucwords($this->atleta->__get("nome")));
             $stmt->bindValue(":cpf", $this->atleta->__get("cpf"));
             $stmt->bindValue(":genero", $this->atleta->__get("genero"));
             $stmt->bindValue(":foto", $this->atleta->__get("foto"));
             $stmt->bindValue(":academia", $this->atleta->__get("academia"));
             $stmt->bindValue(":senha", $senhaCriptografada);
-            $stmt->bindValue(":email", $this->atleta->__get("email"));
+            $stmt->bindValue(":email", strtolower($this->atleta->__get("email")));
             $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
             $stmt->bindValue(":fone", $this->atleta->__get("fone"));
             $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
@@ -353,9 +353,9 @@
             // Insere a academia e retorna o ID da academia inserida
             $query = "INSERT INTO academia_filiada (nome, cep, cidade, estado) VALUES (:nome, :cep, :cidade, :estado)";
             $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(":nome", $nome);
+            $stmt->bindValue(":nome", ucwords($nome));
             $stmt->bindValue(":cep", $cep);
-            $stmt->bindValue(":cidade", $cidade);
+            $stmt->bindValue(":cidade", ucwords($cidade));
             $stmt->bindValue(":estado", $estado);
             try{
                 $stmt->execute();
