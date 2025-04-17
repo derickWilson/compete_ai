@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS evento(
         mod_ab_com TINYINT,
         mod_ab_sem TINYINT,
         modalidade VARCHAR(18),
+        pago TINYINT(1) default 0,
         PRIMARY KEY (id_atleta, id_evento),
         FOREIGN KEY (id_atleta) REFERENCES atleta(id),
         FOREIGN KEY (id_evento) REFERENCES evento(id)
@@ -83,3 +84,9 @@ CREATE TABLE IF NOT EXISTS galeria (
     imagem VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
+
+ALTER TABLE inscricao
+ADD COLUMN pago TINYINT(1) DEFAULT 0;
+
+ALTER TABLE inscricao
+ADD COLUMN cobranca VARCHAR(30) DEFAULT 0;
