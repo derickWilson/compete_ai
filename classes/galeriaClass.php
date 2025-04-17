@@ -52,7 +52,35 @@
                 echo "[ ".$e->getMessage()." ]";
             }
         }
+        //pegar uma única foto da galeria
+        public function getById($id){
+            $query = "SELECT imagem, legenda FROM galeria WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(":id",$id);
+            try {
+                $stmt->execute();
+                return $stmt->fetch(PDO::FETCH_OBJ);
+            } catch (Exception $e) {
+                echo "[ ".$e->getMessage()." ]";
+            }
+        }
 
+        //editar galeria
+        public function editarGaleria(){
+            $sql = "UPDATE galeria SET imagem = :imagem, legenda = :legenda WHERE id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':imagem', $this->imagem);
+            $stmt->bindParam(':legenda', $this->legenda);
+            $stmt->bindParam(':id', $this->id);
+            
+            try {
+                $stmt->execute();
+                header("Location: galeria.php?message=Imagem atualizada com sucesso&message_type=success");
+                exit();
+            } catch (Exception $e) {
+                echo "[ ".$e->getMessage()." ]";
+            }
+        }
         //deletar da galeria
         public function deleteGaleria($id) {
             // Primeiro, buscar o nome do arquivo para poder excluir do servidor

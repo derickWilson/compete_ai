@@ -360,3 +360,29 @@ footer a:hover{
 .carousel-btn:hover {
     background-color: #355d99;
 }
+
+.aviso {
+    font-size: 14px; /* Tamanho padrão para mensagens */
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.aviso.success {
+    background-color: #d4edda; /* Verde claro */
+    color: #155724; /* Verde escuro */
+    border: 1px solid #c3e6cb; /* Borda verde clara */
+}
+
+.aviso.error {
+    background-color: #f8d7da; /* Vermelho claro */
+    color: #721c24; /* Vermelho escuro */
+    border: 1px solid #f5c6cb; /* Borda vermelha clara */
+}
+
+.aviso.info {
+    background-color: #d1ecf1; /* Azul claro */
+    color: #0c5460; /* Azul escuro */
+    border: 1px solid #bee5eb; /* Borda azul clara */
+}

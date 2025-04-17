@@ -2,7 +2,7 @@
 session_start();
 require "../func/is_adm.php";
 is_adm();
-include_once "../classes/galeriaClass.php";
+require_once "../classes/galeriaClass.php";
 
 try {
     $con = new Conexao();
@@ -25,6 +25,11 @@ try {
 <body>
 <?php include "../menu/add_menu.php"; ?>
 
+<?php if (isset($_GET['message'])) { // Mensagem de erro ou sucesso ?>
+    <div class="aviso <?php echo htmlspecialchars($_GET['message_type']); ?>">
+        <?php echo htmlspecialchars($_GET['message']); ?>
+    </div>
+<?php } ?>
 <center><h3>Galeria de Fotos</h3></center>
 <div class="principal">
     <?php if (!empty($lista)) { 
