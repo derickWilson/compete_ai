@@ -6,6 +6,7 @@
         }
     class Galeria{
         // Getters and setters for all properties
+        private $id;
         private $img;
         private $legenda;
         public function __get($atributo) {
@@ -69,10 +70,9 @@
         public function editarGaleria(){
             $sql = "UPDATE galeria SET imagem = :imagem, legenda = :legenda WHERE id = :id";
             $stmt = $this->conn->prepare($sql);
-            $stmt->bindParam(':imagem', $this->imagem);
-            $stmt->bindParam(':legenda', $this->legenda);
-            $stmt->bindParam(':id', $this->id);
-            
+            $stmt->bindValue(':imagem', $this->galeria->__get("img"));
+            $stmt->bindValue(':legenda', $this->galeria->__get("legenda"));
+            $stmt->bindValue(':id', $this->galeria->__get("id"));
             try {
                 $stmt->execute();
                 header("Location: galeria.php?message=Imagem atualizada com sucesso&message_type=success");
