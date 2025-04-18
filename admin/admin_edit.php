@@ -1,5 +1,4 @@
 <?php
-
 require "../func/is_adm.php";
 is_adm();
 

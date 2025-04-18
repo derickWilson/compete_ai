@@ -1,4 +1,4 @@
-    <?php
+<?php
     require "../func/is_adm.php";
     is_adm();
     // Verifica se o formulário foi submetido
