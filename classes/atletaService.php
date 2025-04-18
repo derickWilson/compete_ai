@@ -1,4 +1,5 @@
-    <?php
+<?php
+    ob_start(); // INICIA O BUFFER DE SAÍDA
     session_start();
     try {
         require_once __DIR__ . "/../func/database.php";  // Caminho absoluto para database.php
@@ -448,4 +449,4 @@
             return $lista;
         }
     }
-    ?>
+?>

@@ -1,8 +1,7 @@
 <?php
 session_start();
-if(!$_SESSION["logado"]){  
+if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
 ?>
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>
