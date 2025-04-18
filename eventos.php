@@ -1,5 +1,6 @@
-    <?php
+<?php
     // Incluindo arquivos necessários
+    ob_start(); // INICIA O BUFFER DE SAÍDA
     session_start();/*
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
@@ -152,8 +153,8 @@
             } // Fim da condição de um único evento
             ?>
             </div>
-    <?php
-    include "menu/footer.php";
-    ?>
-    </body>
-    </html>
+<?php
+include "menu/footer.php";
+?>
+</body>
+</html>
