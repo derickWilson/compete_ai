@@ -74,7 +74,7 @@
             $evento->__set('preco', $preco);
             $evento->__set('preco_menor', $preco_menor);
             $evento->__set('preco_abs', $preco_abs);
-            $evento->__set('doc',$nomeArquivo);
+            $evento->__set('doc', $nomeArquivo);
             $adEvento = new eventosService($conn,$evento);
 
 
