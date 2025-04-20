@@ -9,9 +9,7 @@ $atleta = new Atleta();
 $attServ = new atletaService($conn, $atleta);
 if (isset($_GET["user"])) {
     $usuario = $attServ->getById(cleanWords($_GET["user"]));
-    echo "<pre>";
-    print_r($usuario);
-    echo "</pre>";
+    $foneLimpo = preg_replace('/\D/', '', $usuario->fone); // Remove tudo que não for número
 } else {
     echo "Selecione um usuário";
     exit();
@@ -42,7 +40,7 @@ if (isset($_GET["user"])) {
                 <label>Nome: </label>
                 <span><?php echo htmlspecialchars($usuario->nome); ?></span><br>
                 Email: <a href="mailto:<?php echo $usuario->email;?>"><?php echo $usuario->email; ?></a><br>
-                fone <?php echo $usuario->fone;?><br>
+                Fone: <a href="https://wa.me/<?php echo $foneLimpo; ?>" target="_blank"><?php echo $usuario->fone; ?></a><br>
                 Data de Nascimento <?php echo $usuario->data_nascimento;?><br>
             </div>
             <div>
