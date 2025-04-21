@@ -36,13 +36,15 @@ if (isset($_GET["user"])) {
         <form action="admin_edit.php" method="POST">
             <input type="hidden" name="id" value="<?php echo htmlspecialchars($usuario->id); ?>">
             
-            <div>
-                <label>Nome: </label>
-                <span><?php echo htmlspecialchars($usuario->nome); ?></span><br>
-                Email: <a href="mailto:<?php echo $usuario->email;?>"><?php echo $usuario->email; ?></a><br>
-                Fone: <a href="https://wa.me/<?php echo $foneLimpo; ?>" target="_blank"><?php echo $usuario->fone; ?></a><br>
-                Data de Nascimento <?php echo $usuario->data_nascimento;?><br>
-            </div>
+        <div>
+            <label>Nome: </label>
+            <span><?php echo htmlspecialchars($usuario->nome); ?></span><br>
+            Email: <a href="mailto:<?php echo $usuario->email;?>"><?php echo $usuario->email; ?></a><br>
+            Fone: <a href="https://wa.me/<?php echo $foneLimpo; ?>" target="_blank"><?php echo $usuario->fone; ?></a><br>
+            Data de Nascimento: <?php echo $usuario->data_nascimento;?><br>
+            <strong>Academia:</strong> <?php echo htmlspecialchars($usuario->academia); ?><br>
+        </div>
+
             <div>
                 <label>Faixa Atual:</label>
                 <span><?php echo htmlspecialchars($usuario->faixa); ?></span>
