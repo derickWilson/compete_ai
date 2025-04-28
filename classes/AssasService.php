@@ -118,24 +118,25 @@ class AsaasService {
         return $traducoes[$status] ?? $status;
     }
 
-    public function atualizarInscricaoComPagamento($inscricaoId, $cobrancaId, $status, $valor) {
+    public function atualizarInscricaoComPagamento($atletaId, $eventoId, $cobrancaId, $status, $valor) {
         $query = "UPDATE inscricao SET 
                  id_cobranca_asaas = :cobranca_id,
                  status_pagamento = :status,
                  valor_pago = :valor
-                 WHERE id = :inscricao_id";
+                 WHERE id_atleta = :atleta_id AND id_evento = :evento_id";
         
         try {
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(':cobranca_id', $cobrancaId);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':valor', $valor);
-            $stmt->bindValue(':inscricao_id', $inscricaoId);
+            $stmt->bindValue(':atleta_id', $atletaId);
+            $stmt->bindValue(':evento_id', $eventoId);
             
-            $stmt->execute();
+            $stmt->execute(); // Executa sem retorno
         } catch (Exception $e) {
             error_log("Erro ao atualizar inscrição: " . $e->getMessage());
-            return false;
+            throw new Exception("Falha ao atualizar inscrição com dados de pagamento");
         }
     }
     public function buscarOuCriarCliente($dadosAtleta) {

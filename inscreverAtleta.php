@@ -60,15 +60,35 @@ if (($mod_ab_com || $mod_ab_sem) && $eventoDetails->preco_abs > 0) {
     try {
         $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem, $modalidade_escolhida);
         
-    
-        // 9. Atualiza a inscrição com dados do pagamento
-    $asaasService->atualizarInscricaoComPagamento(
-        $atleta_id,
-        $evento_id,
-        $cobranca['id'],
-        'PENDING',
-        $valor
-    );
+        // 8. Busca ou cria cliente no Asaas
+        $dadosAtleta = [
+            'id' => $atleta_id,
+            'nome' => $_SESSION['nome'],
+            'cpf' => $_SESSION['cpf'],
+            'email' => $_SESSION['email'],
+            'fone' => $_SESSION['fone']
+        ];
+
+        $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
+
+        // 9. Cria a cobrança no Asaas
+        $descricao = "Inscrição no campeonato: " . $eventoDetails->nome;
+        $cobranca = $asaasService->criarCobranca([
+            'customer' => $customerId,
+            'value' => $valor,
+            'dueDate' => date('Y-m-d', strtotime('+3 days')),
+            'description' => $descricao,
+            'billingType' => 'PIX'
+        ]);
+
+        // 10. Atualiza a inscrição com dados do pagamento
+         $asaasService->atualizarInscricaoComPagamento(
+             $atleta_id,
+             $evento_id, 
+             $cobranca['id'],
+             'PENDING',
+             $valor
+         );
     } catch (Exception $e) {
         echo '<p>Erro ao realizar a inscrição: ' . $e->getMessage() . '</p>';
     }
