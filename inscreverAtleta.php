@@ -52,34 +52,40 @@ if ($absoluto_selecionado && $eventoDetails->preco_abs > 0) {
 }
 
 // Fazer a inscrição no banco de dados
+// ... (código existente)
+
 try {
-    // 1. Registrar a inscrição
-    $evserv->inscrever(
-        $_SESSION['id'], 
-        $evento_id, 
-        $mod_com, 
-        $mod_sem, 
-        $mod_ab_com, 
-        $mod_ab_sem, 
-        $modalidade_escolhida
-    );
+    // Instanciar serviços
+    $conn = new Conexao();
+    $evento = new Evento();
+    $evserv = new eventosService($conn, $evento);
+    $atletaService = new atletaService($conn, new Atleta());
     
-    // 2. Criar cobrança no Asaas
-    $descricao = "Inscrição no campeonato: " . $eventoDetails->nome;
-    if ($absoluto_selecionado) {
-        $descricao .= " (Absoluto)";
-    }
+    // Configurar AsaasService com suas credenciais
+    $asaasService = new AsaasService(ASAAS_API_KEY, ASAAS_API_URL);
+    $atletaService->setAsaasService($asaasService);
     
+    // Criar cobrança
     $cobranca = $atletaService->criarCobrancaInscricao(
         $evento_id,
         $_SESSION['id'],
         $valor,
+        $descricao
     );
     
-    // 3. Redirecionar para página de pagamento
+    if (!isset($cobranca['id'])) {
+        throw new Exception("Não foi possível gerar a cobrança");
+    }
+    
+    // Redirecionar para página de pagamento
     header("Location: pagamento.php?cobranca=" . $cobranca['id']);
     exit();
     
 } catch (Exception $e) {
+    $_SESSION['erro_inscricao'] = $e->getMessage();
+    header("Location: evento_detalhes.php?id=" . ($evento_id ?? ''));
+    exit();
+}catch (Exception $e) {
     die("Erro ao processar inscrição: " . $e->getMessage());
 }
+?>

@@ -85,5 +85,17 @@ CREATE TABLE IF NOT EXISTS galeria (
     PRIMARY KEY (id)
 );
 
-ALTER TABLE inscricoes ADD COLUMN id_cobranca_asaas VARCHAR(255) NULL;
-ALTER TABLE inscricoes ADD COLUMN status_cobranca VARCHAR(50) NULL;
+-- Tabela inscricao
+ALTER TABLE inscricao
+ADD COLUMN id_cobranca_asaas VARCHAR(255) NULL COMMENT 'ID da cobrança no Asaas',
+ADD COLUMN status_pagamento VARCHAR(20) NULL COMMENT 'PENDING, RECEIVED, CONFIRMED, OVERDUE',
+ADD COLUMN data_vencimento DATE NULL COMMENT 'Data de vencimento',
+ADD COLUMN valor DECIMAL(10,2) NULL COMMENT 'Valor da inscrição',
+ADD COLUMN url_pagamento TEXT NULL COMMENT 'URL para pagamento';
+
+-- Tabela atleta
+ALTER TABLE atleta
+ADD COLUMN id_cliente_asaas VARCHAR(255) NULL COMMENT 'ID do cliente no Asaas';
+
+-- Índice para melhor performance
+CREATE INDEX idx_inscricao_cobranca ON inscricao(id_cobranca_asaas);
