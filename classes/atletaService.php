@@ -5,7 +5,6 @@
         require_once __DIR__ . "/../func/database.php";  // Caminho absoluto para database.php
         require_once __DIR__ . "/../classes/atletaClass.php";  // Caminho absoluto para atletaClass.php
         include __DIR__ . "/../func/calcularIdade.php";
-        require_once "/../classes/AsaasService.php";
     } catch (\Throwable $th) {
         print("[". $th->getMessage() ."]");
     }
@@ -13,7 +12,6 @@
         private $conn;
         private $atleta;
         // Adicione na classe AtletaService
-        private $asaasService;
         public function __construct(Conexao $conn, Atleta $atleta) {
             $this->conn = $conn->conectar();
             $this->atleta = $atleta;

@@ -1,13 +1,52 @@
 <?php
+require_once __DIR__ . '/config_asaas.php';
+require_once __DIR__ . "/../func/database.php";
+
 class AsaasService {
     private $apiKey;
     private $baseUrl;
+    private $timeout = 30;
 
-    public function __construct($apiKey, $baseUrl = 'https://api-sandbox.asaas.com/v3') {
-        $this->apiKey = $apiKey;
-        $this->baseUrl = $baseUrl;
+    private $conn;
+    public function __construct(Conexao $conn, $apiKey, $baseUrl = 'https://api.asaas.com/v3') {
+        $this->apiKey = ASAAS_TOKEN;
+        $this->baseUrl = rtrim($baseUrl, '/');
+        $this->conn = $conn->conectar();
     }
 
+    // Métodos principais da API Asaas
+    public function criarCliente(array $dadosCliente) {
+        $required = ['name', 'cpfCnpj', 'email'];
+        $this->validateFields($dadosCliente, $required);
+        
+        return $this->sendRequest('POST', '/customers', $dadosCliente);
+    }
+
+    public function buscarCliente($clienteId) {
+        return $this->sendRequest('GET', '/customers/' . $clienteId);
+    }
+
+    public function buscarClientePorCpfCnpj($cpfCnpj) {
+        return $this->sendRequest('GET', '/customers?cpfCnpj=' . $cpfCnpj);
+    }
+
+    public function criarCobranca(array $dadosCobranca) {
+        $required = ['customer', 'value', 'dueDate'];
+        $this->validateFields($dadosCobranca, $required);
+        
+        return $this->sendRequest('POST', '/payments', $dadosCobranca);
+    }
+
+    public function buscarCobranca($cobrancaId) {
+        return $this->sendRequest('GET', '/payments/' . $cobrancaId);
+    }
+
+    public function listarCobrancas($filtros = []) {
+        $query = !empty($filtros) ? '?' . http_build_query($filtros) : '';
+        return $this->sendRequest('GET', '/payments' . $query);
+    }
+
+    // Método base para requisições
     private function sendRequest($method, $endpoint, $data = null) {
         $url = $this->baseUrl . $endpoint;
         
@@ -17,7 +56,7 @@ class AsaasService {
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
+            CURLOPT_TIMEOUT => $this->timeout,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER => [
@@ -35,28 +74,88 @@ class AsaasService {
         
         $response = curl_exec($curl);
         $error = curl_error($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
         curl_close($curl);
         
         if ($error) {
-            throw new Exception("cURL Error: " . $error);
+            throw new Exception("Erro na conexão: " . $error);
         }
         
-        return json_decode($response, true);
+        $result = json_decode($response, true);
+        
+        if ($httpCode >= 400) {
+            $errorMsg = $result['errors'][0]['description'] ?? 'Erro desconhecido';
+            throw new Exception("Erro na API Asaas: " . $errorMsg, $httpCode);
+        }
+        
+        return $result;
     }
 
-    public function criarCliente(array $dadosCliente) {
-        return $this->sendRequest('POST', '/customers', $dadosCliente);
+    // Validação de campos obrigatórios
+    private function validateFields($data, $requiredFields) {
+        foreach ($requiredFields as $field) {
+            if (empty($data[$field])) {
+                throw new InvalidArgumentException("O campo '$field' é obrigatório");
+            }
+        }
     }
 
-    public function buscarClientePorCpfCnpj($cpfCnpj) {
-        return $this->sendRequest('GET', '/customers?cpfCnpj=' . $cpfCnpj);
+    // Constantes para status
+    const STATUS_PENDENTE = 'PENDING';
+    const STATUS_PAGO = 'RECEIVED';
+    const STATUS_CONFIRMADO = 'CONFIRMED';
+    
+    // Tradução de status
+    public function traduzirStatus($status) {
+        $traducoes = [
+            self::STATUS_PENDENTE => 'Pendente',
+            self::STATUS_PAGO => 'Pago',
+            self::STATUS_CONFIRMADO => 'Confirmado',
+            'OVERDUE' => 'Atrasado',
+            'REFUNDED' => 'Reembolsado'
+        ];
+        
+        return $traducoes[$status] ?? $status;
     }
 
-    public function criarCobranca(array $dadosCobranca) {
-        return $this->sendRequest('POST', '/payments', $dadosCobranca);
+    public function atualizarInscricaoComPagamento($inscricaoId, $cobrancaId, $status, $valor) {
+        $query = "UPDATE inscricao SET 
+                 id_cobranca_asaas = :cobranca_id,
+                 status_pagamento = :status,
+                 valor_pago = :valor
+                 WHERE id = :inscricao_id";
+        
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':cobranca_id', $cobrancaId);
+            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':valor', $valor);
+            $stmt->bindValue(':inscricao_id', $inscricaoId);
+            
+            return $stmt->execute();
+        } catch (Exception $e) {
+            error_log("Erro ao atualizar inscrição: " . $e->getMessage());
+            return false;
+        }
     }
+    public function buscarOuCriarCliente($dadosAtleta) {
+        // Tenta encontrar cliente existente por CPF
+        $clientes = $this->buscarClientePorCpfCnpj($dadosAtleta['cpf']);
 
-    public function buscarCobrancasPorCliente($customerId) {
-        return $this->sendRequest('GET', '/payments?customer=' . $customerId);
+        if (!empty($clientes['data']) && count($clientes['data']) > 0) {
+            return $clientes['data'][0]['id']; // Retorna ID do cliente existente
+        }
+
+        // Cria novo cliente se não existir
+        $novoCliente = $this->criarCliente([
+            'name' => $dadosAtleta['nome'],
+            'cpfCnpj' => $dadosAtleta['cpf'],
+            'email' => $dadosAtleta['email'],
+            'mobilePhone' => $dadosAtleta['fone'],
+            'externalReference' => 'ATL_' . $dadosAtleta['id']
+        ]);
+
+        return $novoCliente['id'];
     }
 }
+?>

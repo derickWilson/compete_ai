@@ -120,26 +120,31 @@ public function addEvento() {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     //inscrever um atleta em um evento
-    public function inscrever( $id_atleta, $id_evento, $com, $abs_com, $sem, $abs_sem, $modalidade_escolhida){
-        //funçao para inscrever um atleta em um evento
-        $query = 'INSERT INTO inscricao (id_atleta, id_evento,mod_com,mod_sem,mod_ab_com,mod_ab_sem,modalidade)
-                    VALUES (:atleta, :evento, :com, :sem, :abs_com, :abs_sem, :modalidade)';
+    public function inscrever($id_atleta, $id_evento, $com, $abs_com, $sem, $abs_sem, $modalidade_escolhida, $id_cobranca = null, $status_pagamento = 'PENDING', $valor_pago = null) { 
+        $query = 'INSERT INTO inscricao (
+                    id_atleta, id_evento, mod_com, mod_sem, mod_ab_com, mod_ab_sem, 
+                    modalidade, id_cobranca_asaas, status_pagamento, valor_pago
+                  ) VALUES (
+                    :atleta, :evento, :com, :sem, :abs_com, :abs_sem, 
+                    :modalidade, :cobranca_id, :status_pagamento, :valor_pago
+                  )';
+        
         $stmt = $this->conn->prepare($query);
-
+    
         $stmt->bindValue(':atleta', $id_atleta);
         $stmt->bindValue(':evento', $id_evento);
         $stmt->bindValue(':com', $com);
-        $stmt->bindValue(':sem', $abs_com);
-        $stmt->bindValue(':abs_com', $sem);
+        $stmt->bindValue(':sem', $sem);
+        $stmt->bindValue(':abs_com', $abs_com);
         $stmt->bindValue(':abs_sem', $abs_sem);
         $stmt->bindValue(':modalidade', $modalidade_escolhida);
-
+        $stmt->bindValue(':cobranca_id', $id_cobranca);
+        $stmt->bindValue(':status_pagamento', $status_pagamento);
+        $stmt->bindValue(':valor_pago', $valor_pago);
         try {
             $stmt->execute();
-            header("Location: eventos.php");
-            exit();
         } catch (Exception $e) {
-            echo 'Erro ao realizar inscrição : ' . $e->getMessage();
+            throw new Exception("Erro ao realizar inscrição: " . $e->getMessage());
         }
     }
     //ver se um atleta ja esta inscrito em um evento
