@@ -6,11 +6,11 @@ if (!isset($_SESSION['logado']) || !$_SESSION['logado']) {
     header("location: eventos.php");
     exit();
 }
+
 // Verifica se a requisição é POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Captura e valida os dados do formulário
     // Incluindo arquivos necessários
-    // Teste de conexão e instâncias
     try {
         require_once "classes/eventosServices.php";
         include "func/clearWord.php";
@@ -28,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("location: eventos.php");
         exit();
     }
+
     // Captura as opções do formulário
     $mod_com = isset($_POST['com']) ? 1 : 0;
     $mod_sem = isset($_POST['sem']) ? 1 : 0;
@@ -36,45 +37,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $modalidade_escolhida = cleanWords($_POST["modalidade"]);
     // Dados do atleta
     $atleta_id = $_SESSION['id'];
-    //********** API*/
+
+    // ********** API Asaas ********** //
     require_once "func/api_asaas.php";
 
-// Dados do atleta — pode pegar do banco ou session
-$cpf = $_SESSION["cpf"];
-$nome = $_SESSION["nome"];
-$email = $_SESSION["email"];
-$fone = $_SESSION["fone"];
-$grupo = "Nome da Academia";
+    // Dados do atleta — pode pegar do banco ou session
+    $cpf = $_SESSION["cpf"];
+    $nome = $_SESSION["nome"];
+    $email = $_SESSION["email"];
+    $fone = $_SESSION["fone"];
+    $grupo = $_SESSION["academia"];
 
-// Verifica/Cria cliente
-$cliente_id = buscarClienteAsaas($cpf);
-if (!$cliente_id) {
-    $cliente_id = criarClienteAsaas($nome, $cpf, $email, $fone, $referencia, $grupo);
-}
-if (!$cliente_id) die("Erro ao registrar cliente no Asaas.");
+    // Cria a instância da classe AsaasService
+    $asaasService = new AsaasService();
 
-// Determina valor
-$valor = $_SESSION["idade"] > 15 ? $eventoDetails->preco : $eventoDetails->preco_menor;
-$descricao = "Inscrição no campeonato: " . $eventoDetails->nome;
-$referencia_pag = "evento_{$evento_id}_user_{$_SESSION['id']}";
+    // Verifica/Cria cliente no Asaas
+    $cliente_id = $asaasService->buscarCliente($cpf);  // Metodo que consulta cliente
+    if (!$cliente_id) {
+        // Caso o cliente não exista, cria um novo cliente
+        $dados_cliente = [
+            'name' => $nome,
+            'cpfCnpj' => $cpf,
+            'email' => $email,
+            'phone' => $fone,
+            'groupName' => $grupo,
+            'externalReference' => "user_{$_SESSION['id']}"
+        ];
+        $cliente_id = $asaasService->criarCliente($dados_cliente);
+    }
+    if (!$cliente_id) die("Erro ao registrar cliente no Asaas.");
 
-// Cria cobrança
-$cobranca = criarCobrancaAsaas($cliente_id, $valor, $descricao, $referencia_pag);
+    // Determina valor para a inscrição
+    $valor = $_SESSION["idade"] > 15 ? $eventoDetails->preco : $eventoDetails->preco_menor;
+    $descricao = "Inscrição no campeonato: " . $eventoDetails->nome;
+    $referencia_pag = "evento_{$evento_id}_user_{$_SESSION['id']}";
 
-if ($cobranca && isset($cobranca["id"])) {
-    $id_cobranca = $cobranca["id"];
-    $query = "UPDATE inscricao SET cobranca = '$id_cobranca' WHERE id_atleta = $atleta_id AND id_evento = $evento_id";
-    $conn->query($query);
+    // Cria cobrança no Asaas
+    $cobranca_dados = [
+        'billingType' => 'PIX',
+        'customer' => $cliente_id,
+        'value' => $valor,
+        'dueDate' => date('Y-m-d', strtotime('+7 days')),  // Definir data de vencimento
+        'description' => $descricao
+    ];
+    $cobranca = $asaasService->criarCobranca($cobranca_dados);
 
-    echo "<p>Inscrição feita com sucesso! Escaneie o QR Code para pagar:</p>";
-    echo "<img src='{$cobranca['pixQrCodeImage']}' alt='PIX QR Code'>";
-    echo "<br><a href='{$cobranca['invoiceUrl']}' target='_blank'>Pagar Agora</a>";
-} else {
-    echo "Erro ao gerar cobrança.";
-}
+    if ($cobranca && isset($cobranca["id"])) {
+        $id_cobranca = $cobranca["id"];
+        $query = "UPDATE inscricao SET cobranca = '$id_cobranca' WHERE id_atleta = $atleta_id AND id_evento = $evento_id";
+        $conn->query($query);
+
+        echo "<p>Inscrição feita com sucesso! Escaneie o QR Code para pagar:</p>";
+        echo "<img src='{$cobranca['pixQrCodeImage']}' alt='PIX QR Code'>";
+        echo "<br><a href='{$cobranca['invoiceUrl']}' target='_blank'>Pagar Agora</a>";
+    } else {
+        echo "Erro ao gerar cobrança.";
+    }
     /******************* */
     try {
-
         $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem, $modalidade_escolhida);
     } catch (Exception $e) {
         echo '<p>Erro ao realizar a inscrição: ' . $e->getMessage() . '</p>';

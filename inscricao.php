@@ -61,7 +61,7 @@ if (isset($_GET["inscricao"])) {
            }
        }
        if ($inscricao->tipo_sem == 1) {
-        echo '<input type="checkbox" name="sem"'.($inscricao->mod_semm == 1 ? 'checked' : '') .'> Com Quimono ';
+        echo '<input type="checkbox" name="sem"'.($inscricao->mod_sem == 1 ? 'checked' : '') .'> Com Quimono ';
         
         if($_SESSION["idade"]> 15){
             echo '<input type="checkbox" name="abs_sem"'.($inscricao->mod_ab_sem == 1 ? 'checked' : '') .'> Absoluto Com Quimono ';

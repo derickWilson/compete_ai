@@ -39,6 +39,133 @@ if ($err) {
   echo $response;
 }
 ?>
+
+Responses
+Response body
+object
+object
+string
+
+Tipo de objeto
+hasMore
+boolean
+
+Indica se há mais uma página a ser buscada
+totalCount
+int32
+
+Quantidade total de itens para os filtros informados
+limit
+int32
+
+Quantidade de objetos por página
+offset
+int32
+
+Posição do objeto a partir do qual a página deve ser carregada
+data
+array of objects
+
+Lista de objetos
+object
+object
+string
+
+Tipo de objeto
+id
+string
+
+Identificador único do cliente no Asaas
+dateCreated
+string
+
+Data de criação do cliente
+name
+string
+
+Nome do cliente
+email
+string
+
+E-mail do cliente
+phone
+string
+
+Telefone do cliente
+mobilePhone
+string
+
+Celular do cliente
+address
+string
+
+Endereço do cliente
+addressNumber
+string
+
+Número do endereço do cliente
+complement
+string
+
+Complemento do endereço do cliente
+province
+string
+
+Bairro do endereço do cliente
+city
+string
+
+Identificador único da cidade no Asaas
+cityName
+string
+
+Cidade do endereço do cliente
+state
+string
+
+Estado do endereço do cliente
+country
+string
+
+País do cliente
+postalCode
+string
+
+CEP do endereço do cliente
+cpfCnpj
+string
+
+CPF ou CNPJ do cliente
+personType
+string
+
+Tipo de pessoa
+
+JURIDICA FISICA
+deleted
+boolean
+
+Indica se é um cliente deletado
+additionalEmails
+string
+
+E-mails adicionais do cliente
+externalReference
+string
+
+Referência externa do cliente
+notificationDisabled
+boolean
+
+Indica se as notificações estão desabilitadas
+observations
+string
+
+Observações do cliente
+foreignCustomer
+boolean
+
+indica se o pagador é estrangeiro
 ******************************************************************************************************************************************************************************************************************************************************************************************************************
 Criar novo cliente
 post https://api-sandbox.asaas.com/v3/customers
@@ -182,3 +309,85 @@ if ($err) {
 } else {
   echo $response;
 }?>
+*************************************************************
+Atualizar cobrança existente
+put https://api-sandbox.asaas.com/v3/payments/{id}
+
+Somente é possível atualizar cobranças aguardando pagamento ou vencidas. Uma vez criada, não é possível alterar o cliente ao qual a cobrança pertence.
+Atualizar split após confirmação da cobrança
+
+Só é permitido alterar splits de cobranças feitas com cartão de crédito ou débito.
+
+A data máxima para realizar a alteração é até 1 dia útil antes da data prevista de pagamento.
+
+É permitido alterar apenas cobranças com status CONFIRMED e que não possui antecipação.
+
+A única exceção às regras anteriores ocorre quando há um bloqueio por divergência de split no momento do recebimento da cobrança. Nesse caso, será permitida a atualização do split para cobranças com os status CONFIRMED, RECEIVED e mesmo no caso da cobrança possuir antecipação. Contudo, não será permitido atualizar nenhum outro campo além do split.
+
+Nos casos de antecipação automática com split configurado por valor fixo na emissão da cobrança, o cálculo do split considerará a taxa mais alta aplicável ao cartão de crédito utilizado.
+Path Params
+
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/payments/id",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "PUT",
+  CURLOPT_POSTFIELDS => json_encode([
+    'billingType' => 'BOLETO',
+    'value' => 333,
+    'description' => 'evento tal'
+  ]),
+  CURLOPT_HTTPHEADER => [
+    "accept: application/json",
+    "content-type: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+**************************
+Recuperar um único cliente
+get https://api-sandbox.asaas.com/v3/customers/{id}
+
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/customers/cus_333",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "accept: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
