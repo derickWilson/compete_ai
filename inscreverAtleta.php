@@ -1,91 +1,61 @@
 <?php
 session_start();
-
-// Verificações iniciais (usuário logado, método POST, etc.)
-if (!isset($_SESSION["logado"])) {
-    header("Location: index.php");
+// Verifica se o usuário está logado
+if (!isset($_SESSION['logado']) || !$_SESSION['logado']) {
+    echo "<p>Você deve estar logado para se inscrever.</p>";
+    header("location: eventos.php");
     exit();
 }
-
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    echo "Método inválido";
-    exit();
-}
-
-require_once "classes/atletaService.php";
-require_once "classes/AsaasService.php";
-require_once "classes/conexao.php";
-require_once "classes/eventosServices.php";
-require_once "func/clearWord.php";
-
-// Obter dados do formulário
-$evento_id = (int) cleanWords($_POST['evento_id']);
-$mod_com = isset($_POST['com']) ? 1 : 0;
-$mod_sem = isset($_POST['sem']) ? 1 : 0;
-$mod_ab_com = isset($_POST['abs_com']) ? 1 : 0;
-$mod_ab_sem = isset($_POST['abs_sem']) ? 1 : 0;
-$modalidade_escolhida = cleanWords($_POST["modalidade"]);
-
-// Verificar se selecionou alguma modalidade absoluta
-$absoluto_selecionado = ($mod_ab_com == 1 || $mod_ab_sem == 1);
-
-// Instanciar serviços
-$conn = new Conexao();
-$evento = new Evento();
-$evserv = new eventosService($conn, $evento);
-$atletaService = new atletaService($conn, new Atleta());
-$asaasService = new AsaasService(ASAAS_API_URL, ASAAS_TOKEN);
-$atletaService->setAsaasService($asaasService);
-
-// Obter detalhes do evento
-$eventoDetails = $evserv->getById($evento_id);
-if (!$eventoDetails) {
-    die("Evento não encontrado");
-}
-
-// CALCULAR VALOR COM BASE NAS MODALIDADES SELECIONADAS
-$valor = $_SESSION["idade"] > 15 ? $eventoDetails->preco : $eventoDetails->preco_menor;
-
-// Se selecionou absoluto E o evento tem preço especial para absoluto
-if ($absoluto_selecionado && $eventoDetails->preco_abs > 0) {
-    $valor = $eventoDetails->preco_abs;
-}
-
-// Fazer a inscrição no banco de dados
-// ... (código existente)
-
-try {
-    // Instanciar serviços
-    $conn = new Conexao();
-    $evento = new Evento();
-    $evserv = new eventosService($conn, $evento);
-    $atletaService = new atletaService($conn, new Atleta());
-    
-    // Configurar AsaasService com suas credenciais
-    $asaasService = new AsaasService(ASAAS_API_KEY, ASAAS_API_URL);
-    $atletaService->setAsaasService($asaasService);
-    
-    // Criar cobrança
-    $cobranca = $atletaService->criarCobrancaInscricao(
-        $evento_id,
-        $_SESSION['id'],
-        $valor,
-        $descricao
-    );
-    
-    if (!isset($cobranca['id'])) {
-        throw new Exception("Não foi possível gerar a cobrança");
+// Verifica se a requisição é POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Captura e valida os dados do formulário
+    // Incluindo arquivos necessários
+    // Teste de conexão e instâncias
+    try {
+        require_once "classes/eventosServices.php";z
+        include "func/clearWord.php";
+        $conn = new Conexao();
+        $ev = new Evento();
+        $evserv = new eventosService($conn, $ev);
+    } catch (Exception $e) {
+        die("Erro na conexão ou instância: " . $e->getMessage());
     }
-    
-    // Redirecionar para página de pagamento
-    header("Location: pagamento.php?cobranca=" . $cobranca['id']);
-    exit();
-    
-} catch (Exception $e) {
-    $_SESSION['erro_inscricao'] = $e->getMessage();
-    header("Location: evento_detalhes.php?id=" . ($evento_id ?? ''));
-    exit();
-}catch (Exception $e) {
-    die("Erro ao processar inscrição: " . $e->getMessage());
+    $evento_id = isset($_POST['evento_id']) ? (int) cleanWords($_POST['evento_id']) : 0;
+    // Verifica se o evento existe
+    $eventoDetails = $evserv->getById($evento_id);
+    if (!$eventoDetails) {
+        echo '<p>Evento não encontrado.</p>';
+        header("location: eventos.php");
+        exit();
+    }
+    // Captura as opções do formulário
+    $mod_com = isset($_POST['com']) ? 1 : 0;
+    $mod_sem = isset($_POST['sem']) ? 1 : 0;
+    $mod_ab_com = isset($_POST['abs_com']) ? 1 : 0;
+    $mod_ab_sem = isset($_POST['abs_sem']) ? 1 : 0;
+    $modalidade_escolhida = cleanWords($_POST["modalidade"]);
+    // Dados do atleta
+    $atleta_id = $_SESSION['id'];
+    //********** API*/
+    require_once "func/api_asaas.php";
+
+// Dados do atleta — pode pegar do banco ou session
+$cpf = $_SESSION["cpf"];
+$nome = $_SESSION["nome"];
+$email = $_SESSION["email"];
+$fone = $_SESSION["fone"];
+
+// Determina valor
+$valor = $_SESSION["idade"] > 15 ? $eventoDetails->preco : $eventoDetails->preco_menor;
+$descricao = "Inscrição no campeonato: " . $eventoDetails->nome;
+ /******************* */
+    try {
+
+        $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem, $modalidade_escolhida);
+    } catch (Exception $e) {
+        echo '<p>Erro ao realizar a inscrição: ' . $e->getMessage() . '</p>';
+    }
+} else {
+    echo "<p>Método de requisição inválido.</p>";
 }
 ?>
