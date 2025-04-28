@@ -132,7 +132,7 @@ class AsaasService {
             $stmt->bindValue(':valor', $valor);
             $stmt->bindValue(':inscricao_id', $inscricaoId);
             
-            return $stmt->execute();
+            $stmt->execute();
         } catch (Exception $e) {
             error_log("Erro ao atualizar inscrição: " . $e->getMessage());
             return false;
