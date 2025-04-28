@@ -202,4 +202,13 @@ class AsaasService {
     public function setToken(string $token): void {
         $this->token = $token;
     }
+        /**
+     * Atualiza um cliente existente no Asaas
+     * @param string $customerId ID do cliente no Asaas
+     * @param array $dados Dados do cliente para atualização
+     * @return array Resposta da API
+     */
+    public function atualizarCliente($customerId, array $dados) {
+        return $this->enviarRequisicao("customers/{$customerId}", "POST", $dados);
+    }
 }

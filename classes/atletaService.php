@@ -5,13 +5,16 @@
         require_once __DIR__ . "/../func/database.php";  // Caminho absoluto para database.php
         require_once __DIR__ . "/../classes/atletaClass.php";  // Caminho absoluto para atletaClass.php
         include __DIR__ . "/../func/calcularIdade.php";
-        
+        require_once "/../classes/AsaasService.php";
     } catch (\Throwable $th) {
         print("[". $th->getMessage() ."]");
     }
     class atletaService {
         private $conn;
         private $atleta;
+        // Adicione na classe AtletaService
+        private $asaasService;
+
         public function __construct(Conexao $conn, Atleta $atleta) {
             $this->conn = $conn->conectar();
             $this->atleta = $atleta;
@@ -389,6 +392,7 @@
             }
             return $stmt->fetch(PDO::FETCH_ASSOC);
         }
+
         //conseguir o id do responsavel
         public function getResponsavel($email, $nome){
             $query = "SELECT id FROM atleta WHERE email = :email AND nome = :nome";
@@ -447,6 +451,91 @@
             }
             $lista = $stmt->fetchAll(PDO::FETCH_OBJ);
             return $lista;
+        }
+        //********************API*******************//
+        // Adicione na classe AtletaService
+        public function setAsaasService(AsaasService $asaasService) {
+            $this->asaasService = $asaasService;
+        }
+
+        /**
+         * Cria ou atualiza cliente no Asaas
+         */
+        
+        private function atualizarIdClienteAsaas($atletaId, $asaasId) {
+            $query = "UPDATE atleta SET id_cliente_asaas = :asaasId WHERE id = :atletaId";
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([':asaasId' => $asaasId, ':atletaId' => $atletaId]);
+        }
+/**
+ * Cria ou atualiza cliente no Asaas
+ */
+        public function sincronizarClienteAsaas($atletaId) {
+            $atleta = $this->getById($atletaId);
+            
+            $dadosCliente = [
+                'name' => $atleta->nome,
+                'cpfCnpj' => $atleta->cpf,
+                'email' => $atleta->email,
+                'phone' => $atleta->fone,
+                'mobilePhone' => $atleta->fone,
+                'externalReference' => 'atleta_'.$atleta->id
+            ];
+            
+            if (empty($atleta->id_cliente_asaas)) {
+                // Cria novo cliente
+                $cliente = $this->asaasService->criarCliente($dadosCliente);
+                $this->atualizarIdClienteAsaas($atleta->id, $cliente['id']);
+                return $cliente['id'];
+            } else {
+                // Atualiza cliente existente - USANDO O MÉTODO CORRETO
+                $this->asaasService->enviarRequisicao(
+                    "customers/{$atleta->id_cliente_asaas}", 
+                    "POST", 
+                    $dadosCliente
+                );
+                return $atleta->id_cliente_asaas;
+            }
+        }
+        /**
+         * Cria cobrança para uma inscrição
+         */
+        public function criarCobrancaInscricao($eventoId, $atletaId, $valor) {
+            $clienteId = $this->sincronizarClienteAsaas($atletaId);
+
+            $cobranca = $this->asaasService->criarCobranca([
+                'customer' => $clienteId,
+                'billingType' => 'PIX',
+                'value' => $valor,
+                'dueDate' => date('Y-m-d', strtotime('+3 days')),
+                'description' => 'Inscrição em evento',
+                'externalReference' => 'evento_'.$eventoId.'_atleta_'.$atletaId
+            ]);
+
+            $this->atualizarDadosCobrancaInscricao($eventoId, $atletaId, $cobranca);
+
+            return $cobranca;
+        }
+
+        private function atualizarDadosCobrancaInscricao($eventoId, $atletaId, $cobranca) {
+            $query = "UPDATE inscricao SET 
+                      id_cobranca_asaas = :cobrancaId,
+                      status_pagamento = :status,
+                      data_vencimento = :vencimento,
+                      valor = :valor,
+                      url_pagamento = :url
+                      WHERE id_atleta = :atletaId AND id_evento = :eventoId";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->execute([
+                ':cobrancaId' => $cobranca['id'],
+                ':status' => $cobranca['status'],
+                ':vencimento' => $cobranca['dueDate'],
+                ':valor' => $cobranca['value'],
+                ':url' => $cobranca['invoiceUrl'],
+                ':atletaId' => $atletaId,
+                ':eventoId' => $eventoId
+            ]);
         }
     }
 ?>
