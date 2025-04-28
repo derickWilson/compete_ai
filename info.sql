@@ -85,8 +85,5 @@ CREATE TABLE IF NOT EXISTS galeria (
     PRIMARY KEY (id)
 );
 
-ALTER TABLE inscricao
-ADD COLUMN pago TINYINT(1) DEFAULT 0;
-
-ALTER TABLE inscricao
-ADD COLUMN cobranca VARCHAR(30) DEFAULT 0;
+ALTER TABLE inscricoes ADD COLUMN id_cobranca_asaas VARCHAR(255) NULL;
+ALTER TABLE inscricoes ADD COLUMN status_cobranca VARCHAR(50) NULL;
