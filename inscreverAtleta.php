@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Teste de conexão e instâncias
     try {
         require_once "classes/eventosServices.php";
-        require_once "classes/AsaasService.php";
+        require_once "classes/AssasService.php";
         include "func/clearWord.php";
         $conn = new Conexao();
         $ev = new Evento();
