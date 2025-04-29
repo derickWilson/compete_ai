@@ -242,23 +242,29 @@
             }
         }
         //função para pegar inscricao
-        public function getInscricao($evento,$atleta){
-            $query="SELECT e.nome as nome, e.id, e.preco, e.preco_menor, e.preco_abs, e.tipo_com, e.tipo_sem, i.mod_com, i.mod_ab_com,
-            i.mod_sem, i.mod_ab_sem,i.modalidade FROM inscricao i
-            JOIN evento e ON e.id = i.id_evento
-            JOIN atleta a ON a.id = i.id_atleta
-            WHERE i.id_evento = :evento AND i.id_atleta = :atleta";
+        public function getInscricao($evento, $atleta){
+            $query = "SELECT 
+                        e.nome AS nome, e.id, e.preco, e.preco_menor, e.preco_abs, 
+                        e.tipo_com, e.tipo_sem, 
+                        i.mod_com, i.mod_ab_com, i.mod_sem, i.mod_ab_sem, i.modalidade,
+                        i.id_cobranca_asaas
+                      FROM inscricao i
+                      JOIN evento e ON e.id = i.id_evento
+                      JOIN atleta a ON a.id = i.id_atleta
+                      WHERE i.id_evento = :evento AND i.id_atleta = :atleta";
+                      
             $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(":evento", $evento);
-            $stmt->bindValue(":atleta", $atleta);
-            try{
+            $stmt->bindValue(":evento", $evento, PDO::PARAM_INT);
+            $stmt->bindValue(":atleta", $atleta, PDO::PARAM_INT);
+        
+            try {
                 $stmt->execute();
-                $result = $stmt->fetch(PDO::FETCH_OBJ);
-                return $result;
-            }catch(Exception $e){
-                echo "erro [".$e->getMessage()."]";
+                return $stmt->fetch(PDO::FETCH_OBJ);
+            } catch(Exception $e) {
+                error_log("Erro ao buscar inscrição: " . $e->getMessage());
+                return null;
             }
-        }
+        }        
         //editar inscrição
         public function editarInscricao($evento, $idAtleta, $com, $abCom, $sem, $abSem, $moda){
             $query= "UPDATE inscricao

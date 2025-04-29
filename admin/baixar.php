@@ -59,8 +59,6 @@ if (isset($_GET["id"])) {
         $value->status_pagamento === 'RECEIVED' ? "Pago" : "Pendente",
         $value->valor_pago ? number_format($value->valor_pago, 2, ',', '.') : "0,00"
     ]);
-    
-
     // Fecha o fluxo de saída
     fclose($output);
     exit();

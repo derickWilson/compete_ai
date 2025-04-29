@@ -27,7 +27,8 @@ class AsaasService {
     }
 
     public function buscarClientePorCpfCnpj($cpfCnpj) {
-        return $this->sendRequest('GET', '/customers?cpfCnpj=' . $cpfCnpj);
+        $cpfLimpo = clearNumber($cpfCnpj);
+        return $this->sendRequest('GET', '/customers?cpfCnpj=' . $cpfLimpo);
     }
 
     public function criarCobranca(array $dadosCobranca) {
@@ -140,23 +141,28 @@ class AsaasService {
         }
     }
     public function buscarOuCriarCliente($dadosAtleta) {
-        // Tenta encontrar cliente existente por CPF
-        $clientes = $this->buscarClientePorCpfCnpj($dadosAtleta['cpf']);
-
+        $cpfLimpo = $this->clearNumber($dadosAtleta['cpf']);
+        $foneLimpo = $this->clearNumber($dadosAtleta['fone']);
+    
+        $clientes = $this->buscarClientePorCpfCnpj($cpfLimpo);
+    
         if (!empty($clientes['data']) && count($clientes['data']) > 0) {
-            return $clientes['data'][0]['id']; // Retorna ID do cliente existente
+            return $clientes['data'][0]['id'];
         }
-
-        // Cria novo cliente se não existir
+    
         $novoCliente = $this->criarCliente([
             'name' => $dadosAtleta['nome'],
-            'cpfCnpj' => $dadosAtleta['cpf'],
+            'cpfCnpj' => $cpfLimpo,
             'email' => $dadosAtleta['email'],
-            'mobilePhone' => $dadosAtleta['fone'],
+            'mobilePhone' => $foneLimpo,
             'externalReference' => 'ATL_' . $dadosAtleta['id']
         ]);
-
+    
         return $novoCliente['id'];
+    }    
+
+    function clearNumber($str) {
+        return preg_replace('/\D/', '', $str);
     }
 }
 ?>

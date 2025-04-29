@@ -391,3 +391,44 @@ if ($err) {
 } else {
   echo $response;
 }
+
+*****************DELETAR cobrança***************
+Responses
+Response body
+object
+deleted
+boolean
+
+Indica se a cobrança foi removida
+id
+string
+
+Identificador único da cobrança no Asaas
+
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/payments/id_unico_da%20cobranca",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "DELETE",
+  CURLOPT_HTTPHEADER => [
+    "accept: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
