@@ -86,6 +86,6 @@ CREATE TABLE IF NOT EXISTS galeria (
 );
 
 -- Tabela inscricao
-ADD COLUMN id_cobranca_asaas VARCHAR(50) NULL,
-ADD COLUMN status_pagamento VARCHAR(20) DEFAULT 'PENDING',
-ADD COLUMN valor_pago FLOAT(5,2) NULL,
+ALTER TABLE inscricao ADD COLUMN id_cobranca_asaas VARCHAR(50) NULL,
+ALTER TABLE inscricao ADD COLUMN status_pagamento VARCHAR(20) DEFAULT 'PENDING',
+ALTER TABLE inscricao ADD COLUMN valor_pago FLOAT(5,2) NULL,

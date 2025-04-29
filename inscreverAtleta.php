@@ -13,6 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Teste de conexão e instâncias
     try {
         require_once "classes/eventosServices.php";
+        require_once "classes/AsaasService.php";
         include "func/clearWord.php";
         $conn = new Conexao();
         $ev = new Evento();
@@ -61,6 +62,7 @@ if (($mod_ab_com || $mod_ab_sem) && $eventoDetails->preco_abs > 0) {
         $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem, $modalidade_escolhida);
         
         // 8. Busca ou cria cliente no Asaas
+        $asaasService = new AsaasService($conn);
         $dadosAtleta = [
             'id' => $atleta_id,
             'nome' => $_SESSION['nome'],
