@@ -82,13 +82,13 @@ if (($mod_ab_com || $mod_ab_sem) && $eventoDetails->preco_abs > 0) {
         ]);
 
         // 10. Atualiza a inscrição com dados do pagamento
-         $asaasService->atualizarInscricaoComPagamento(
-             $atleta_id,
-             $evento_id, 
-             $cobranca['id'],
-             'PENDING',
-             $valor
-         );
+        $asaasService->atualizarInscricaoComPagamento(
+            $atleta_id,
+            $evento_id, 
+            $cobranca['id'],
+            'PENDING',
+            $valor
+        );
     } catch (Exception $e) {
         echo '<p>Erro ao realizar a inscrição: ' . $e->getMessage() . '</p>';
     }

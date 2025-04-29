@@ -449,5 +449,24 @@
             $lista = $stmt->fetchAll(PDO::FETCH_OBJ);
             return $lista;
         }
-    }
+        /********API**********/
+
+        public function verificarStatusPagamento($atletaId, $eventoId) {
+            $query = "SELECT status_pagamento FROM inscricao 
+                      WHERE id_atleta = :atletaId AND id_evento = :eventoId";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':atletaId', $atletaId);
+            $stmt->bindValue(':eventoId', $eventoId);
+            $stmt->execute();
+            
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($result && isset($result['status_pagamento'])) {
+                return $result['status_pagamento'] == 'RECEIVED' ? 'PAGO' : 'PENDENTE';
+            }
+            
+            return 'NÃO ENCONTRADO';
+        }
+    }    
 ?>

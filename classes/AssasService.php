@@ -8,7 +8,7 @@ class AsaasService {
     private $timeout = 30;
 
     private $conn;
-    public function __construct(Conexao $conn, $apiKey, $baseUrl = 'https://api.asaas.com/v3') {
+    public function __construct(Conexao $conn, $baseUrl = 'https://api.asaas.com/v3') {
         $this->apiKey = ASAAS_TOKEN;
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->conn = $conn->conectar();
