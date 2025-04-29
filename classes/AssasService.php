@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/config_asaas.php';
 require_once __DIR__ . "/../func/database.php";
 
 /**
@@ -10,6 +9,7 @@ class AsaasService {
     private $baseUrl;
     private $timeout = 30;
     private $conn;
+    private const ASAAS_TOKEN = '';
 
     /**
      * Construtor da classe.
