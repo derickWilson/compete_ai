@@ -120,7 +120,7 @@ public function addEvento() {
             throw new Exception("Erro ao carregar lista de inscritos");
         }        
         return $stmt->fetchAll(PDO::FETCH_OBJ);
-    }
+    }   
     //inscrever um atleta em um evento
     public function inscrever($id_atleta, $id_evento, $com, $abs_com, $sem, $abs_sem, $modalidade_escolhida, $id_cobranca = null, $status_pagamento = 'PENDING', $valor_pago = null) { 
         $query = 'INSERT INTO inscricao (
