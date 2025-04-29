@@ -6,21 +6,17 @@ is_adm();
 require_once __DIR__ . "/../classes/eventosServices.php";
 require_once __DIR__ . "/../func/calcularIdade.php";
 require_once __DIR__ . "/../func/clearWord.php";
-// Verifique se o ID do evento foi passado via GET
+
 if (!isset($_GET['id'])) {
-    exit();  // Adicione exit para parar a execução se não houver 'id'
+    exit();
 }
 
 $idEvento = cleanWords($_GET['id']);
 try {
-    // Obtenha os inscritos
     $conn = new Conexao();
     $evento = new Evento();
     $ev = new eventosService($conn, $evento);
     $inscritos = $ev->getInscritos($idEvento);
-echo "<pre>";
-print_r($inscritos);
-echo "</pre>";    
 } catch (Exception $e) {
     die("Erro ao obter inscritos: " . $e->getMessage());
 }
@@ -32,6 +28,19 @@ echo "</pre>";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
     <title>Lista de Inscritos</title>
+    <style>
+        .status-pago {
+            color: green;
+            font-weight: bold;
+        }
+        .status-pendente {
+            color: orange;
+            font-weight: bold;
+        }
+        .status-outros {
+            color: #666;
+        }
+    </style>
 </head>
 <body>
 <?php include "../menu/menu_admin.php"; ?>
@@ -51,22 +60,36 @@ echo "</pre>";
             <th>Modo Sem</th>
             <th>Abst. Com</th>
             <th>Abst. Sem</th>
+            <th>Status Pagamento</th>
         </tr>
-        <?php foreach ($inscritos as $inscrito) { ?>
-        <tr>
-            <td><?php echo $inscrito->id.$inscrito->ide; ?></td>
-            <td><?php echo htmlspecialchars($inscrito->inscrito); ?></td>
-            <td><?php echo calcularIdade($inscrito->data_nascimento); ?></td>
-            <td><?php echo htmlspecialchars($inscrito->faixa); ?></td>
-            <td><?php echo htmlspecialchars($inscrito->peso); ?></td>
-            <td><?php echo htmlspecialchars($inscrito->modalidade); ?></td>
-            <td><?php echo htmlspecialchars($inscrito->academia); ?></td>
-            <td><?php echo $inscrito->mod_com ? "Sim" : "Não"; ?></td>
-            <td><?php echo $inscrito->mod_sem ? "Sim" : "Não"; ?></td>
-            <td><?php echo $inscrito->mod_ab_com ? "Sim" : "Não"; ?></td>
-            <td><?php echo $inscrito->mod_ab_sem ? "Sim" : "Não"; ?></td>
-        </tr>
-        <?php } ?>
+        <?php foreach ($inscritos as $inscrito) { 
+    $statusClass = 'status-outros';
+    if ($inscrito->status_pagamento === 'RECEIVED') {
+        $statusClass = 'status-pago';
+    } elseif ($inscrito->status_pagamento === 'PENDING') {
+        $statusClass = 'status-pendente';
+    }
+?>
+<tr>
+    <td><?= $inscrito->id.$inscrito->ide ?></td>
+    <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
+    <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
+    <td><?= htmlspecialchars($inscrito->faixa) ?></td>
+    <td><?= htmlspecialchars($inscrito->peso) ?></td>
+    <td><?= htmlspecialchars($inscrito->modalidade) ?></td>
+    <td><?= htmlspecialchars($inscrito->academia) ?></td>
+    <td><?= $inscrito->mod_com ? "Sim" : "Não" ?></td>
+    <td><?= $inscrito->mod_sem ? "Sim" : "Não" ?></td>
+    <td><?= $inscrito->mod_ab_com ? "Sim" : "Não" ?></td>
+    <td><?= $inscrito->mod_ab_sem ? "Sim" : "Não" ?></td>
+    <td class="<?= $statusClass ?>">
+        <?= $inscrito->status_pagamento === 'RECEIVED' ? 'Pago' : 'Pendente' ?>
+        <?php if ($inscrito->status_pagamento === 'RECEIVED'): ?>
+            <br>(R$ <?= number_format($inscrito->valor_pago, 2, ',', '.') ?>)
+        <?php endif; ?>
+    </td>
+</tr>
+<?php } ?>
     </table>
     <form action="baixar.php" method="GET">
         <input type="hidden" name="id" value="<?php echo htmlspecialchars($_GET['id'], ENT_QUOTES, 'UTF-8'); ?>">
@@ -74,11 +97,9 @@ echo "</pre>";
     </form>
     <br><a href="/compete_ai/eventos.php">Voltar</a>
 <?php } else {
-            echo "<p>Nenhum inscrito encontrado para este campeonato.</p>";
-        } 
+    echo "<p>Nenhum inscrito encontrado para este campeonato.</p>";
+} 
 ?>
-<?php
-include "/menu/footer.php";
-?>
+<?php include "/menu/footer.php"; ?>
 </body>
 </html>

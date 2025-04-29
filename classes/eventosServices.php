@@ -103,8 +103,9 @@ public function addEvento() {
     //pegar todos os inscritos de um evento
     public function getInscritos($id){
         $query = "SELECT e.nome AS evento, e.id AS ide, a.nome AS inscrito, a.data_nascimento, a.id,
-                a.faixa, a.peso, f.nome  as academia, f.id as idAcademia,
-                i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem, i.modalidade as modalidade
+                a.faixa, a.peso, f.nome as academia, f.id as idAcademia,
+                i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem, i.modalidade as modalidade,
+                i.status_pagamento, i.id_cobranca_asaas, i.valor_pago
                 FROM evento e
                 JOIN inscricao i ON i.id_evento = e.id
                 JOIN atleta a ON a.id = i.id_atleta
@@ -115,7 +116,8 @@ public function addEvento() {
         try {
             $stmt->execute();
         } catch (Exception $e) {
-            echo 'Erro ao listar inscrito evento: ' . $e->getMessage();
+            error_log('Erro ao listar inscritos no evento: ' . $e->getMessage());
+            throw new Exception("Erro ao carregar lista de inscritos");
         }        
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
