@@ -195,6 +195,47 @@ class AsaasService {
             ]
         ];
     }
+    /**
+ * Busca informações completas de uma cobrança (incluindo dados PIX)
+ */
+    public function buscarCobrancaCompleta($cobrancaId) {
+        // Validação básica do ID
+        if (empty($cobrancaId)) {
+            throw new InvalidArgumentException("ID da cobrança é obrigatório");
+        }
+
+        try {
+            // 1. Busca os dados básicos da cobrança
+            $cobranca = $this->sendRequest('GET', '/payments/' . $cobrancaId);
+
+            // 2. Busca informações específicas de pagamento (PIX)
+            $billingInfo = $this->sendRequest('GET', '/payments/' . $cobrancaId . '/billingInfo');
+
+            // 3. Formata a resposta unificada
+            return [
+                'success' => true,
+                'payment' => [
+                    'id' => $cobranca['id'],
+                    'status' => $cobranca['status'],
+                    'value' => $cobranca['value'],
+                    'dueDate' => $cobranca['dueDate'],
+                    'description' => $cobranca['description'],
+                    'invoiceUrl' => $cobranca['invoiceUrl'],
+                    'pix' => $billingInfo['pix'] ?? null,
+                    'creditCard' => $billingInfo['creditCard'] ?? null,
+                    'bankSlip' => $billingInfo['bankSlip'] ?? null
+                ]
+            ];
+
+        } catch (Exception $e) {
+            error_log("Erro ao buscar cobrança: " . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+                'payment' => null
+            ];
+        }
+    }
 
     /**
      * Método interno para enviar requisições

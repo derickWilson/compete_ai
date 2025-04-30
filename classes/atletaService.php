@@ -201,8 +201,8 @@
         }
         public function listarCampeonatos($id_atleta){
             $query = 'SELECT e.id as idC, e.nome as campeonato, e.local_evento as lugar, e.data_evento as dia,
-            i.mod_com as mcom, i.mod_sem as msem, 
-            i.mod_ab_com as macom, i.mod_ab_sem as masem, i.modalidade
+            i.mod_com as mcom, i.mod_sem as msem, i.mod_ab_com as macom, i.mod_ab_sem as masem, i.modalidade,
+            i.id_cobranca_asaas, i.valor_pago, i.status_pagamento
             FROM inscricao i
             JOIN evento e ON e.id = i.id_evento
             WHERE i.id_atleta = :idAtleta';
