@@ -338,3 +338,4 @@ class AssasService {
         return preg_replace('/\D/', '', $str);
     }
 }
+?>
