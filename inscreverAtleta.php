@@ -51,10 +51,14 @@ try {
     $modalidade_escolhida = cleanWords($_POST['modalidade']);
 
     // Cálculo do valor
-    $valor = ($_SESSION['idade'] > 15) ? $eventoDetails->preco : $eventoDetails->preco_menor;
+    // Cálculo do valor com a taxa de 1,98%
+    $taxa = 1.0198;
+    $valor = ($_SESSION['idade'] > 15) ? $eventoDetails->preco * $taxa : $eventoDetails->preco_menor * $taxa;
+    
     if (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
-        $valor = $eventoDetails->preco_abs;
+        $valor = $eventoDetails->preco_abs * $taxa;
     }
+
 
     // 1. Inscreve no banco de dados local
     $evserv->inscrever(

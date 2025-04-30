@@ -12,7 +12,7 @@ curl_setopt_array($curl, [
   CURLOPT_CUSTOMREQUEST => "POST",
   CURLOPT_POSTFIELDS => json_encode([
     'name' => 'derick',#nomr
-    'cpfCnpj' => '50132790890',#cpf
+    'cpfCnpj' => '',#cpf
     'email' => 'q@1.com',#email
     'phone' => '11992393070',#fone
     'company' => 'wft'#academia
@@ -50,7 +50,7 @@ resposta:
     "complement": null,
     "province": null,
     "postalCode": null,
-    "cpfCnpj": "50132790890",
+    "cpfCnpj": "55555",
     "personType": "FISICA",
     "deleted": false,
     "additionalEmails": null,
@@ -76,7 +76,7 @@ resposta:
 $curl = curl_init();
 
 curl_setopt_array($curl, [
-  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/customers?cpfCnpj=50132790890",
+  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/customers?cpfCnpj=5555",
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => "",
   CURLOPT_MAXREDIRS => 10,
@@ -121,7 +121,7 @@ if ($err) {
         "complement": null,
         "province": null,
         "postalCode": null,
-        "cpfCnpj": "50132790890",
+        "cpfCnpj": "33",
         "personType": "FISICA",
         "deleted": false,
         "additionalEmails": null,

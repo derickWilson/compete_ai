@@ -3,16 +3,21 @@ session_start();
 if (!isset($_SESSION["logado"])){
     header("Location: index.php");
     exit();
-}else{
-    require_once "classes/atletaService.php";
-    try {
-        $conn = new Conexao();
-        $atleta = new Atleta();
-        $ev = new atletaService($conn, $atleta);
-        $inscritos = $ev->listarCampeonatos($_SESSION["id"]);
-    } catch (Exception $e) {
-        die("Erro ao obter inscritos: " . $e->getMessage());
-    }
+}
+
+require_once "classes/atletaService.php";
+require_once "classes/AssasService.php";
+require_once "func/database.php";
+
+try {
+    $conn = new Conexao();
+    $atleta = new Atleta();
+    $atletaService = new atletaService($conn, $atleta);
+    $asaasService = new AssasService($conn);
+    
+    $inscritos = $atletaService->listarCampeonatos($_SESSION["id"]);
+} catch (Exception $e) {
+    die("Erro ao obter inscritos: " . $e->getMessage());
 }
 ?>
 <!DOCTYPE html>
@@ -20,7 +25,6 @@ if (!isset($_SESSION["logado"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
     <title>Campeonatos cadastrados</title>
     <style>
         .pago { color: green; font-weight: bold; }
@@ -32,48 +36,64 @@ if (!isset($_SESSION["logado"])){
             text-decoration: none;
             border-radius: 4px;
             font-size: 14px;
+            margin-right: 5px;
         }
     </style>
 </head>
 <body>
 <?php include "menu/add_menu.php"; ?>
-<h3>Campeonato Inscritos</h3>
+<h3>Campeonatos Inscritos</h3>
 <div class="principal">
 <table border="1">
     <tr>
-        <th>Nº de inscricao</th>
+        <th>Nº Inscrição</th>
         <th>Campeonato</th>
         <th>Local</th>
         <th>Data</th>
         <th>Modalidade</th>
         <th>Com Quimono</th>
         <th>Sem Quimono</th>
-        <th>Absoluto sem Quimono</th>
-        <th>Absoluto com Quimono</th>
-        <th>Status Pagamento</th>
+        <th>Absoluto c/ Quimono</th>
+        <th>Absoluto s/ Quimono</th>
+        <th>Status</th>
         <th>Ações</th>
     </tr>
-    <?php foreach ($inscritos as $key => $inscrito) { 
-        $statusPagamento = $ev->verificarStatusPagamento($_SESSION["id"], $inscrito->idC);
+    <?php foreach ($inscritos as $inscrito) { 
+        $statusPagamento = $inscrito->status_pagamento ?? 'PENDENTE';
+        $cobrancaId = $inscrito->id_cobranca_asaas ?? null;
+        
+        // Se existir cobrança, verifica status atualizado
+        if ($cobrancaId) {
+            try {
+                $statusInfo = $asaasService->verificarStatusCobranca($cobrancaId);
+                $statusPagamento = $statusInfo['traduzido'];
+            } catch (Exception $e) {
+                $statusPagamento = 'ERRO';
+            }
+        }
     ?>
     <tr>
-        <td><h5><?php echo $_SESSION["id"].$inscrito->idC; ?></h5></td>
-        <td><h5><a href="eventos.php?id=<?php echo (int)$inscrito->idC; ?>"><?php echo $inscrito->campeonato; ?></a></h5></td>
-        <td><h5><?php echo $inscrito->lugar; ?></h5></td>
-        <td><h5><?php echo $inscrito->dia; ?></h5></td>
-        <td><h5><?php echo $inscrito->modalidade; ?></h5></td>
-        <td><h5><?php echo $inscrito->mcom ? "X": ""; ?></h5></td>
-        <td><h5><?php echo $inscrito->msem ? "X": ""; ?></h5></td>
-        <td><h5><?php echo $inscrito->macom ? "X": ""; ?></h5></td>
-        <td><h5><?php echo $inscrito->masem ? "X": ""; ?></h5></td>
-        <td class="<?php echo $statusPagamento == 'PAGO' ? 'pago' : 'pendente'; ?>">
-            <h5><?php echo $statusPagamento; ?></h5>
+        <td><?= $_SESSION["id"].$inscrito->idC ?></td>
+        <td><a href="eventos.php?id=<?= (int)$inscrito->idC ?>"><?= $inscrito->campeonato ?></a></td>
+        <td><?= $inscrito->lugar ?></td>
+        <td><?= $inscrito->dia ?></td>
+        <td><?= $inscrito->modalidade ?></td>
+        <td><?= $inscrito->mcom ? "X" : "" ?></td>
+        <td><?= $inscrito->msem ? "X" : "" ?></td>
+        <td><?= $inscrito->macom ? "X" : "" ?></td>
+        <td><?= $inscrito->masem ? "X" : "" ?></td>
+        <td class="<?= $statusPagamento == 'PAGO' ? 'pago' : 'pendente' ?>">
+            <?= $statusPagamento ?>
         </td>
         <td>
             <?php if ($statusPagamento != 'PAGO'): ?>
-                <a href="pagamento.php?evento=<?php echo $inscrito->idC; ?>&inscricao=<?php echo $_SESSION["id"].$inscrito->idC; ?>" class="btn-pagar">Pagar</a>
+                <?php if ($cobrancaId): ?>
+                    <a href="pagamento.php?cobranca_id=<?= $cobrancaId ?>" class="btn-pagar">Pagar</a>
+                <?php else: ?>
+                    <a href="gerar_cobranca.php?evento_id=<?= $inscrito->idC ?>&atleta_id=<?= $_SESSION["id"] ?>" class="btn-pagar">Gerar Pagamento</a>
+                <?php endif; ?>
             <?php endif; ?>
-            <a href="inscricao.php?inscricao=<?php echo htmlspecialchars($inscrito->idC); ?>">Editar</a>
+            <a href="inscricao.php?inscricao=<?= $inscrito->idC ?>">Editar</a>
         </td>
     </tr>
     <?php } ?>

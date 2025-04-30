@@ -66,20 +66,32 @@
                     <p>Data do Campeonato: <?php echo htmlspecialchars($eventoDetails->data_evento); ?></p>
                     <p>Local do Campeonato: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
                     <p>Preço
-                        <?php
-                        if(!isset($_SESSION["idade"])){
-                            echo $eventoDetails->preco . "R$ para maiores de 15 anos<br>";
-                            echo "Preço " . $eventoDetails->preco_menor . "R$ para menores de 15 anos<br>";
-                            echo "Preço " . $eventoDetails->preco_abs . "R$ para Absoluto";
-                        }else{
-                            if($_SESSION["idade"] > 15){
-                                echo $eventoDetails->preco."R$";
-                                echo "<br>Preco Absoluto " . $eventoDetails->preco_abs."R$";
-                            }else{
-                                echo $eventoDetails->preco_menor."R$";
-                            }
+                    <?php
+                    // Calcular a taxa de 1,98%
+                    $taxa = 1.0198;
+                                
+                    if(!isset($_SESSION["idade"])){
+                        $precoComTaxa = $eventoDetails->preco * $taxa;
+                        $precoMenorComTaxa = $eventoDetails->preco_menor * $taxa;
+                        $precoAbsComTaxa = $eventoDetails->preco_abs * $taxa;
+                    
+                        echo number_format($precoComTaxa, 2, ',', '.') . " R$ para maiores de 15 anos<br>";
+                        echo number_format($precoMenorComTaxa, 2, ',', '.') . " R$ para menores de 15 anos<br>";
+                        echo number_format($precoAbsComTaxa, 2, ',', '.') . " R$ para Absoluto";
+                    } else {
+                        if($_SESSION["idade"] > 15){
+                            $precoComTaxa = $eventoDetails->preco * $taxa;
+                            $precoAbsComTaxa = $eventoDetails->preco_abs * $taxa;
+                        
+                            echo number_format($precoComTaxa, 2, ',', '.') . " R$";
+                            echo "<br>Preço Absoluto " . number_format($precoAbsComTaxa, 2, ',', '.') . " R$";
+                        } else {
+                            $precoMenorComTaxa = $eventoDetails->preco_menor * $taxa;
+                            echo number_format($precoMenorComTaxa, 2, ',', '.') . " R$";
                         }
-                        ?></p>
+                    }
+                    ?></p>
+
                         <?php if (!empty($eventoDetails->doc)) { ?>
                             <p><a href="<?php echo '/doc/' . htmlspecialchars($eventoDetails->doc); ?>" download>Baixe o Edital do Evento</a></p>
                         <?php } else { ?>
