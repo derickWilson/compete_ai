@@ -140,26 +140,40 @@ class AsaasService {
      * @return string ID do cliente no Asaas.
      */
     public function buscarOuCriarCliente($dadosAtleta) {
+        // Validação rigorosa
         $cpfLimpo = $this->clearNumber($dadosAtleta['cpf']);
-        $foneLimpo = $this->clearNumber($dadosAtleta['fone']);
-
-        $clientes = $this->buscarClientePorCpfCnpj($cpfLimpo);
-
-        if (!empty($clientes['data']) && count($clientes['data']) > 0) {
-            return $clientes['data'][0]['id'];
+        if (strlen($cpfLimpo) != 11 || !preg_match('/^\d{11}$/', $cpfLimpo)) {
+            throw new Exception("CPF inválido: deve conter 11 dígitos.");
         }
-
+    
+        if (!filter_var($dadosAtleta['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("E-mail inválido: " . $dadosAtleta['email']);
+        }
+    
+        // Debug: log dos dados do cliente
+        error_log("Tentando criar/buscar cliente: " . print_r($dadosAtleta, true));
+    
+        $clientes = $this->buscarClientePorCpfCnpj($cpfLimpo);
+    
+        if (!empty($clientes['data'])) {
+            return $clientes['data'][0]['id']; // Retorna ID existente
+        }
+    
+        // Cria novo cliente com dados completos
         $novoCliente = $this->criarCliente([
             'name' => $dadosAtleta['nome'],
             'cpfCnpj' => $cpfLimpo,
             'email' => $dadosAtleta['email'],
-            'mobilePhone' => $foneLimpo,
+            'mobilePhone' => $this->clearNumber($dadosAtleta['fone']),
             'externalReference' => 'ATL_' . $dadosAtleta['id']
         ]);
-
+    
+        if (empty($novoCliente['id'])) {
+            throw new Exception("Falha ao criar cliente no Asaas: " . print_r($novoCliente, true));
+        }
+    
         return $novoCliente['id'];
     }
-
     /**
      * Envia requisição HTTP para a API Asaas.
      *
