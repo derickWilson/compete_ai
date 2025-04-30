@@ -12,7 +12,8 @@ class AssasService {
     const STATUS_CONFIRMADO = 'CONFIRMED';
 
     // Token de acesso (substitua pelo seu token real)
-    private const ASAAS_TOKEN = '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRkN2RjYmEwLTFlMGEtNDdlMS04ODJlLTMyYjg0NmUyYTE4Nzo6JGFhY2hfMGQ1YWVlMTItZjcwZi00OGQ5LTk1NTUtOTJjZjYzNzk0NjE4';
+    private const ASAAS_TOKEN = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjlhMDQ4ODc0LTJmMjMtNDIwMC1hY2JkLTAyMTViZDdiYmZkMzo6JGFhY2hfZjExMWYyNGYtNGU5NC00ZmZiLWFmNTEtMzk2N2NjZDQwMTk2';
+//    private const ASAAS_TOKEN = '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRkN2RjYmEwLTFlMGEtNDdlMS04ODJlLTMyYjg0NmUyYTE4Nzo6JGFhY2hfMGQ1YWVlMTItZjcwZi00OGQ5LTk1NTUtOTJjZjYzNzk0NjE4';
 
     public function __construct(Conexao $conn, $baseUrl = 'https://api.asaas.com/v3') {
         $this->apiKey = self::ASAAS_TOKEN;
@@ -72,23 +73,61 @@ class AssasService {
      * Cria um novo cliente no Asaas (versão simplificada)
      */
     public function criarCliente(array $dadosCliente) {
-        // Campos obrigatórios mínimos
-        $this->validateFields($dadosCliente, ['name', 'cpfCnpj']);
-
-        // Padroniza os dados com valores default
+        // Validação reforçada
+        $this->validateFields($dadosCliente, ['name', 'cpfCnpj', 'email']); // Email agora obrigatório
+        
+        // Limpa e valida CPF/CNPJ
+        $cpfCnpj = $this->clearNumber($dadosCliente['cpfCnpj']);
+        if (strlen($cpfCnpj) !== 11 && strlen($cpfCnpj) !== 14) {
+            throw new InvalidArgumentException("CPF/CNPJ inválido. Deve ter 11 ou 14 dígitos");
+        }
+    
+        // Prepara payload com validações específicas
         $payload = [
-            'name' => $dadosCliente['name'],
-            'cpfCnpj' => $this->clearNumber($dadosCliente['cpfCnpj']),
-            'email' => $dadosCliente['email'] ?? '',
-            'phone' => $this->clearNumber($dadosCliente['phone'] ?? ''),
-            'mobilePhone' => $this->clearNumber($dadosCliente['mobilePhone'] ?? ''),
-            'company' => $dadosCliente['company'] ?? '',
-            'externalReference' => $dadosCliente['externalReference'] ?? ''
+            'name' => substr($dadosCliente['name'], 0, 80), // Limita tamanho do nome
+            'cpfCnpj' => $cpfCnpj,
+            'email' => filter_var($dadosCliente['email'], FILTER_VALIDATE_EMAIL),
+            'phone' => $this->formatarTelefone($dadosCliente['phone'] ?? ''),
+            'mobilePhone' => $this->formatarTelefone($dadosCliente['mobilePhone'] ?? ''),
+            'company' => substr($dadosCliente['company'] ?? '', 0, 100), // Limita tamanho
+            'externalReference' => substr($dadosCliente['externalReference'] ?? '', 0, 50),
+            'notificationDisabled' => true // Desativa notificações não essenciais
         ];
-
-        return $this->sendRequest('POST', '/customers', $payload);
+    
+        // Valida e-mail
+        if ($payload['email'] === false) {
+            throw new InvalidArgumentException("E-mail inválido");
+        }
+    
+        // Remove campos vazios
+        $payload = array_filter($payload, function($value) {
+            return $value !== '' && $value !== null;
+        });
+    
+        try {
+            $resposta = $this->sendRequest('POST', '/customers', $payload);
+            
+            // Verifica se a resposta contém o ID do cliente
+            if (empty($resposta['id'])) {
+                throw new Exception("Resposta da API não contém ID do cliente");
+            }
+            
+            return $resposta; // Retorna toda a resposta para tratamento completo
+            
+        } catch (Exception $e) {
+            error_log("Erro ao criar cliente. Payload: " . json_encode($payload));
+            throw new Exception("Falha ao cadastrar cliente: " . $e->getMessage());
+        }
     }
-
+    
+    // Novo método auxiliar para telefones
+    private function formatarTelefone($numero) {
+        $limpo = $this->clearNumber($numero);
+        if (empty($limpo)) return '';
+        
+        // Formato: +5585999999999 (código país + DDD + número)
+        return '+55' . $limpo;
+    }
     /**
      * Busca um cliente pelo ID
      */
