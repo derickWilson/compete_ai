@@ -28,17 +28,17 @@ class AsaasService {
         if (empty($dadosAtleta['cpf']) || empty($dadosAtleta['email'])) {
             throw new InvalidArgumentException("Dados incompletos para cadastro");
         }
-    
+
         $cpfLimpo = $this->clearNumber($dadosAtleta['cpf']);
-        
+
         try {
             // 1. Tenta buscar cliente existente
             $busca = $this->buscarClientePorCpfCnpj($cpfLimpo);
-            
+
             if ($busca['success']) {
                 return $busca['data']['id']; // Retorna ID existente
             }
-        
+
             // 2. Cria novo cliente com estrutura completa
             $novoCliente = $this->criarCliente([
                 'name' => $dadosAtleta['nome'],
@@ -49,9 +49,9 @@ class AsaasService {
                 'externalReference' => 'ATL_' . $dadosAtleta['id'],
                 'notificationDisabled' => true
             ]);
-        
+
             return $novoCliente['id'];
-            
+
         } catch (Exception $e) {
             error_log("Erro ao processar cliente: " . $e->getMessage());
             throw new Exception("Falha no cadastro do cliente. Por favor, verifique os dados e tente novamente");
@@ -86,24 +86,48 @@ class AsaasService {
     }
 
     /**
-     * Busca cliente pelo CPF/CNPJ
-     */
-    public function buscarClientePorCpfCnpj($cpfCnpj) {
-        $cpfLimpo = $this->clearNumber($cpfCnpj);
-        return $this->sendRequest('GET', '/customers?cpfCnpj=' . $cpfLimpo);
-    }
-
-    /**
-     * Cria uma nova cobrança
+     * Cria cobrança com PIX como padrão e tratamento completo da resposta
      */
     public function criarCobranca(array $dadosCobranca) {
-        $this->validateFields($dadosCobranca, ['customer', 'value', 'dueDate']);
+        // Campos obrigatórios
+        $required = ['customer', 'value', 'dueDate', 'description'];
+        $this->validateFields($dadosCobranca, $required);
 
-        // Formata os valores
-        $dadosCobranca['value'] = (float) $dadosCobranca['value'];
-        $dadosCobranca['dueDate'] = date('Y-m-d', strtotime($dadosCobranca['dueDate']));
+        // Formata os dados conforme a API espera
+        $payload = [
+            'customer' => $dadosCobranca['customer'], // ID do cliente no Asaas
+            'billingType' => 'PIX', // Fixo como PIX conforme sua requisição
+            'value' => number_format((float)$dadosCobranca['value'], 2, '.', ''),
+            'dueDate' => date('Y-m-d', strtotime($dadosCobranca['dueDate'])),
+            'description' => $dadosCobranca['description'],
+            'externalReference' => $dadosCobranca['externalReference'] ?? null,
+            'discount' => $dadosCobranca['discount'] ?? null,
+            'fine' => $dadosCobranca['fine'] ?? null,
+            'interest' => $dadosCobranca['interest'] ?? null
+        ];
 
-        return $this->sendRequest('POST', '/payments', $dadosCobranca);
+        // Remove valores nulos para evitar erros na API
+        $payload = array_filter($payload, function($value) {
+            return $value !== null;
+        });
+
+        $resposta = $this->sendRequest('POST', '/payments', $payload);
+
+        // Padroniza a resposta
+        return [
+            'success' => true,
+            'payment' => [
+                'id' => $resposta['id'],
+                'status' => $resposta['status'],
+                'value' => $resposta['value'],
+                'netValue' => $resposta['netValue'],
+                'dueDate' => $resposta['dueDate'],
+                'invoiceUrl' => $resposta['invoiceUrl'],
+                'description' => $resposta['description'],
+                'billingType' => $resposta['billingType'],
+                'externalReference' => $resposta['externalReference']
+            ]
+        ];
     }
 
     /**

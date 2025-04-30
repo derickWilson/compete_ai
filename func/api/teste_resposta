@@ -179,3 +179,57 @@ if ($err) {
 } else {
   echo $response;
 }
+
+RESPOSTA:
+{
+    "object": "payment",
+    "id": "pay_wnpckgitsyj31o9f",
+    "dateCreated": "2025-04-30",
+    "customer": "cus_000006671245",
+    "checkoutSession": null,
+    "paymentLink": null,
+    "value": 100,
+    "netValue": 99.01,
+    "originalValue": null,
+    "interestValue": null,
+    "description": "campeonato tal",
+    "billingType": "PIX",
+    "pixTransaction": null,
+    "status": "PENDING",
+    "dueDate": "2025-10-07",
+    "originalDueDate": "2025-10-07",
+    "paymentDate": null,
+    "clientPaymentDate": null,
+    "installmentNumber": null,
+    "invoiceUrl": "https://sandbox.asaas.com/i/wnpckgitsyj31o9f",
+    "invoiceNumber": "08826104",
+    "externalReference": null,
+    "deleted": false,
+    "anticipated": false,
+    "anticipable": false,
+    "creditDate": null,
+    "estimatedCreditDate": null,
+    "transactionReceiptUrl": null,
+    "nossoNumero": null,
+    "bankSlipUrl": null,
+    "lastInvoiceViewedDate": null,
+    "lastBankSlipViewedDate": null,
+    "discount": {
+      "value": 0,
+      "limitDate": null,
+      "dueDateLimitDays": 0,
+      "type": "FIXED"
+    },
+    "fine": {
+      "value": 0,
+      "type": "FIXED"
+    },
+    "interest": {
+      "value": 0,
+      "type": "PERCENTAGE"
+    },
+    "postalService": false,
+    "custody": null,
+    "escrow": null,
+    "refunds": null
+  }
