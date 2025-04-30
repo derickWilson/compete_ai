@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . "/../func/database.php";
-
-class AsaasService {
+class AssasService {
     private $apiKey;
     private $baseUrl;
     private $timeout = 30;
@@ -36,7 +35,7 @@ class AsaasService {
             $busca = $this->buscarClientePorCpfCnpj($cpfLimpo);
 
             if ($busca['success']) {
-                return $busca['data']['id']; // Retorna ID existente
+                return $busca['id']; // Retorna ID existente
             }
 
             // 2. Cria novo cliente com estrutura completa
@@ -128,6 +127,43 @@ class AsaasService {
                 'externalReference' => $resposta['externalReference']
             ]
         ];
+    }
+        /**
+     * Verifica o status atual de uma cobrança
+     * @param string $cobrancaId ID da cobrança no Asaas
+     * @return array Retorna o status e informações adicionais
+     * @throws Exception Em caso de erro na API
+     */
+    public function verificarStatusCobranca($cobrancaId) {
+        if (empty($cobrancaId)) {
+            throw new InvalidArgumentException("ID da cobrança é obrigatório");
+        }
+
+        $resposta = $this->sendRequest('GET', "/payments/{$cobrancaId}/status");
+
+        return [
+            'status' => $resposta['status'],
+            'traduzido' => $this->traduzirStatus($resposta['status'])
+        ];
+    }
+    public function traduzirStatus($status) {
+        $traducoes = [
+            'PENDING' => 'PENDENTE',
+            'RECEIVED' => 'PAGO',
+            'CONFIRMED' => 'CONFIRMADO',
+            'OVERDUE' => 'VENCIDO',
+            'REFUNDED' => 'REEMBOLSADO',
+            'RECEIVED_IN_CASH' => 'RECEBIDO EM DINHEIRO',
+            'REFUND_REQUESTED' => 'SOLICITADO REEMBOLSO',
+            'CHARGEBACK_REQUESTED' => 'SOLICITADO CHARGEBACK',
+            'CHARGEBACK_DISPUTE' => 'EM DISPUTA',
+            'AWAITING_CHARGEBACK_REVERSAL' => 'AGUARDANDO REVERSÃO',
+            'DUNNING_REQUESTED' => 'EM COBRANÇA',
+            'DUNNING_RECEIVED' => 'COBRANÇA RECEBIDA',
+            'AWAITING_RISK_ANALYSIS' => 'AGUARDANDO ANÁLISE'
+        ];
+    
+        return $traducoes[$status] ?? $status;
     }
 
     /**
@@ -300,20 +336,5 @@ class AsaasService {
      */
     public function clearNumber($str) {
         return preg_replace('/\D/', '', $str);
-    }
-
-    /**
-     * Traduz status para português
-     */
-    public function traduzirStatus($status) {
-        $traducoes = [
-            self::STATUS_PENDENTE => 'Pendente',
-            self::STATUS_PAGO => 'Pago',
-            self::STATUS_CONFIRMADO => 'Confirmado',
-            'OVERDUE' => 'Atrasado',
-            'REFUNDED' => 'Reembolsado'
-        ];
-
-        return $traducoes[$status] ?? $status;
     }
 }

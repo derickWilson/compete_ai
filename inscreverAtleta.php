@@ -29,7 +29,7 @@ try {
     $conn = new Conexao();
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
-    $asaasService = new AsaasService($conn);
+    $asaasService = new AssasService($conn);
 
     // Validação do evento
     $evento_id = (int) cleanWords($_POST['evento_id']);
@@ -96,12 +96,12 @@ try {
         $_SESSION['id'],
         $evento_id,
         $cobranca['payment']['id'],
-        AsaasService::STATUS_PENDENTE,
+        AssasService::STATUS_PENDENTE,
         $valor
     );
 
-    // Redireciona para comprovante
-    header("Location: comprovante.php?id=" . $cobranca['payment']['id']);
+    // Redireciona para os eventos
+    header("Location: eventos_cadastrados.php");
     exit();
 
 } catch (Exception $e) {
