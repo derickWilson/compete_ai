@@ -41,7 +41,6 @@ try {
     die("Erro ao processar pagamento: " . $e->getMessage());
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="pt">
 <head>

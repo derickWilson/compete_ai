@@ -70,7 +70,14 @@ try {
         $modalidades['abs_sem'],
         $modalidade_escolhida
     );
-
+    // Em inscreverAtleta.php, antes de criar $dadosAtleta
+    $requiredSession = ['id', 'nome', 'cpf', 'email', 'fone'];
+    foreach ($requiredSession as $field) {
+        if (empty($_SESSION[$field])) {
+            error_log("Campo $field faltando na sessão");
+            throw new Exception("Dados incompletos na sessão");
+        }
+    }
     // 2. Integração com Asaas
     $dadosAtleta = [
         'id' => $_SESSION['id'],

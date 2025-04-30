@@ -12,9 +12,9 @@ class AssasService {
     const STATUS_CONFIRMADO = 'CONFIRMED';
 
     // Token de acesso (substitua pelo seu token real)
-    private const ASAAS_TOKEN = 'aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjlhMDQ4ODc0LTJmMjMtNDIwMC1hY2JkLTAyMTViZDdiYmZkMzo6JGFhY2hfZjExMWYyNGYtNGU5NC00ZmZiLWFmNTEtMzk2N2NjZDQwMTk2';
+    private const ASAAS_TOKEN = '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRkN2RjYmEwLTFlMGEtNDdlMS04ODJlLTMyYjg0NmUyYTE4Nzo6JGFhY2hfMGQ1YWVlMTItZjcwZi00OGQ5LTk1NTUtOTJjZjYzNzk0NjE4';
 
-    public function __construct(Conexao $conn, $baseUrl = 'https://api-sandbox.asaas.com/v3') {
+    public function __construct(Conexao $conn, $baseUrl = 'https://api.asaas.com/v3') {
         $this->apiKey = self::ASAAS_TOKEN;
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->conn = $conn->conectar();
@@ -23,37 +23,49 @@ class AssasService {
      * Versão otimizada com cache e tratamento de erros
      */
     public function buscarOuCriarCliente($dadosAtleta) {
-        // Validação básica
-        if (empty($dadosAtleta['cpf']) || empty($dadosAtleta['email'])) {
-            throw new InvalidArgumentException("Dados incompletos para cadastro");
-        }
-
-        $cpfLimpo = $this->clearNumber($dadosAtleta['cpf']);
-
-        try {
-            // 1. Tenta buscar cliente existente
-            $busca = $this->buscarClientePorCpfCnpj($cpfLimpo);
-
-            if ($busca['success']) {
-                return $busca['id']; // Retorna ID existente
+        // Validação reforçada
+        $required = ['id', 'nome', 'cpf', 'email', 'fone'];
+        foreach ($required as $field) {
+            if (empty($dadosAtleta[$field])) {
+                error_log("Campo obrigatório faltando: $field");
+                throw new InvalidArgumentException("O campo $field é obrigatório");
             }
-
-            // 2. Cria novo cliente com estrutura completa
-            $novoCliente = $this->criarCliente([
+        }
+    
+        $cpfLimpo = $this->clearNumber($dadosAtleta['cpf']);
+        if (strlen($cpfLimpo) !== 11) {
+            throw new InvalidArgumentException("CPF inválido");
+        }
+    
+        try {
+            error_log("Buscando cliente por CPF: $cpfLimpo");
+            $busca = $this->buscarClientePorCpfCnpj($cpfLimpo);
+            
+            if ($busca['success']) {
+                return $busca['id'];
+            }
+    
+            error_log("Criando novo cliente...");
+            $payload = [
                 'name' => $dadosAtleta['nome'],
                 'cpfCnpj' => $cpfLimpo,
                 'email' => $dadosAtleta['email'],
                 'phone' => $this->clearNumber($dadosAtleta['fone']),
-                'company' => $dadosAtleta['academia'] ?? 'Não informado',
                 'externalReference' => 'ATL_' . $dadosAtleta['id'],
                 'notificationDisabled' => true
-            ]);
-
+            ];
+            
+            if (!empty($dadosAtleta['academia'])) {
+                $payload['company'] = $dadosAtleta['academia'];
+            }
+    
+            error_log("Payload para criação: " . print_r($payload, true));
+            $novoCliente = $this->criarCliente($payload);
+            
             return $novoCliente['id'];
-
         } catch (Exception $e) {
-            error_log("Erro ao processar cliente: " . $e->getMessage());
-            throw new Exception("Falha no cadastro do cliente. Por favor, verifique os dados e tente novamente");
+            error_log("Erro na API Asaas: " . $e->getMessage());
+            throw new Exception("Falha no cadastro. Tente novamente mais tarde");
         }
     }
     /**
