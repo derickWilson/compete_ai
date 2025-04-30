@@ -59,17 +59,14 @@ try {
         $valor = $eventoDetails->preco_abs * $taxa;
     }
 
+    // 1. Valide TUDO primeiro (mesmo que "teoricamente" já esteja válido)
+    $requiredSession = ['id', 'nome', 'cpf', 'email', 'fone'];
+    foreach ($requiredSession as $field) {
+        if (empty($_SESSION[$field])) {
+            throw new Exception("Dados incompletos na sessão");
+        }
+    }
 
-    // 1. Inscreve no banco de dados local
-    $evserv->inscrever(
-        $_SESSION['id'],
-        $evento_id,
-        $modalidades['com'],
-        $modalidades['abs_com'],
-        $modalidades['sem'],
-        $modalidades['abs_sem'],
-        $modalidade_escolhida
-    );
     // Em inscreverAtleta.php, antes de criar $dadosAtleta
     $requiredSession = ['id', 'nome', 'cpf', 'email', 'fone'];
     foreach ($requiredSession as $field) {
@@ -91,7 +88,17 @@ try {
     // 2.1 Busca ou cria cliente
     $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
     file_put_contents('asaas_debug.log', "\nCustomer ID: $customerId", FILE_APPEND);
-
+    
+    // 1. Inscreve no banco de dados local
+    $evserv->inscrever(
+        $_SESSION['id'],
+        $evento_id,
+        $modalidades['com'],
+        $modalidades['abs_com'],
+        $modalidades['sem'],
+        $modalidades['abs_sem'],
+        $modalidade_escolhida
+    );
     // 2.2 Cria cobrança
     $descricao = "Inscrição: " . $eventoDetails->nome . " (" . $modalidade_escolhida . ")";
     $cobranca = $asaasService->criarCobranca([
