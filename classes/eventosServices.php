@@ -38,25 +38,26 @@ public function addEvento() {
     //editar evento
     public function editEvento() {
         $query = "UPDATE evento SET
-        nome = :nome,
-        imagen = :imagen_nova,
-        descricao = :descricao,
-        data_limite = :data_limite,
-        data_evento = :data_camp,
-        local_evento = :local_comp,
-        tipo_com = :tipoCom,
-        tipo_sem = :tipoSem,
-        preco = :preco,
-        preco_abs = :preco_abs,
-        preco_menor = :preco_menor,
-        doc = :doc
-        WHERE id = :id";
+            nome = :nome,
+            imagen = :imagen,
+            descricao = :descricao,
+            data_limite = :data_limite,
+            data_evento = :data_camp,
+            local_evento = :local_evento,
+            tipo_com = :tipoCom,
+            tipo_sem = :tipoSem,
+            preco = :preco,
+            preco_abs = :preco_abs,
+            preco_menor = :preco_menor,
+            doc = :doc
+            WHERE id = :id";
+    
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $this->evento->__get('id'));
         $stmt->bindValue(':nome', $this->evento->__get('nome'));
-        $stmt->bindValue(':imagen_nova', $this->evento->__get('img'));
+        $stmt->bindValue(':imagen', $this->evento->__get('img'));
         $stmt->bindValue(':data_camp', $this->evento->__get('data_camp'));
-        $stmt->bindValue(':local_comp', $this->evento->__get('local_camp'));
+        $stmt->bindValue(':local_evento', $this->evento->__get('local_camp'));
         $stmt->bindValue(':descricao', $this->evento->__get('descricao'));
         $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'));
         $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'));
@@ -65,13 +66,16 @@ public function addEvento() {
         $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
         $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
         $stmt->bindValue(':doc', $this->evento->__get('doc'));
+    
         try {
             $stmt->execute();
-            header("Location: /eventos.php?id=".$this->evento->__get('id'));
+            header("Location: /eventos.php?id=" . $this->evento->__get('id'));
+            exit();
         } catch (Exception $e) {
             echo 'Erro ao editar evento: ' . $e->getMessage();
         }
     }
+    
     //listar todos os eventos
     public function listAll(){
         //$query = "SELECT id, nome FROM evento WHERE data_evento >= CURRENT_DATE";

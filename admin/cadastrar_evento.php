@@ -17,7 +17,7 @@
         $preco_menor = cleanWords($_POST['preco_menor']);
         $preco_abs = cleanWords($_POST['preco_abs']);
         $caminhoParaSalvar = null;
-
+        $nomeArquivo = null;
         //tratar ementa
         $docPath = null;
 
@@ -65,21 +65,18 @@
             $evento->__set('nome', $nome);
             $evento->__set('data_camp', $data_camp);
             $evento->__set('local_camp', $local);
-            $evento->__set('img', $caminhoParaSalvar);
+            $evento->__set('img', $img_evento['name']);
             $evento->__set('descricao', $descricao);
             $evento->__set('data_limite', $data_limite);
             $evento->__set('tipoCom', $tipoCom);
             $evento->__set('tipoSem', $tipoSem);
-            $evento->__set('img', $img_evento['name']);
             $evento->__set('preco', $preco);
             $evento->__set('preco_menor', $preco_menor);
             $evento->__set('preco_abs', $preco_abs);
-            $evento->__set('doc', $nomeArquivo);
+            $evento->__set('doc',$nomeArquivo);
             $adEvento = new eventosService($conn,$evento);
 
-
             $adEvento->addEvento();
-
             header("Location: /eventos.php");
     }
 ?>

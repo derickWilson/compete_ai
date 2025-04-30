@@ -2,79 +2,140 @@
 session_start();
 require "../func/is_adm.php";
 is_adm();
+
 try {
     require_once "../classes/eventosServices.php";
     include "../func/clearWord.php";
 } catch (\Throwable $th) {
-    print('['. $th->getMessage() .']');
+    die('Erro: '. $th->getMessage());
 }
-    $conn = new Conexao();
-    $ev = new Evento();
-    $evserv = new eventosService($conn, $ev);
-if (isset($_GET['id'])) {
-    // Usado para listar os detalhes de um único evento
-    $eventoId = (int) cleanWords($_GET['id']);
-    $eventoDetails = $evserv->getById($eventoId);
-} 
+
+// Verificação segura do ID do evento
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    header("Location: /eventos.php");
+    exit();
+}
+
+$conn = new Conexao();
+$ev = new Evento();
+$evserv = new eventosService($conn, $ev);
+
+$eventoId = (int) cleanWords($_GET['id']);
+$eventoDetails = $evserv->getById($eventoId);
+
+if (!$eventoDetails) {
+    header("Location: /eventos.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/style.css">
-    <title>Editar evento</title>
+    <title>Editar evento - <?php echo htmlspecialchars($eventoDetails->nome); ?></title>
 </head>
 <body>
 <?php include "../menu/add_menu.php"; ?>
-    <div class="principal">
-        <form action="recadastrar_evento.php" method="POST" id="evento" enctype="multipart/form-data">
-            Imagen:<br>
-            <img src="/uploads/<?php echo $eventoDetails->imagen; ?>" alt="imagen" width="100%" height="500px">
-            Nova Imagen<br>
-            <input type="file" name="imagen_nova" id="imagen_nova"><br>
-            Nova Ementa<br>
-            <input type="file" name="nDoc"><br>            
-            Nome do evento <input type="text" id="nome_evento" name="nome_evento" 
-            value="<?php echo $eventoDetails->nome; ?>"><br>
+
+<div class="principal">
+    <h2>Editar Evento</h2>
+    
+    <form action="recadastrar_evento.php" method="POST" enctype="multipart/form-data">
+        <!-- Campo de imagem -->
+        <div>
+            <label>Imagem atual:</label><br>
+            <img src="/uploads/<?php echo htmlspecialchars($eventoDetails->imagen); ?>" 
+                 alt="Imagem do evento" width="300"><br>
+            <label>Nova Imagem:</label>
+            <input type="file" name="imagen_nova" accept="image/*">
+        </div>
+        
+        <!-- Campo de documento -->
+        <div>
+            <label>Documento atual:</label>
+            <?php if(!empty($eventoDetails->doc)): ?>
+                <a href="/docs/<?php echo htmlspecialchars($eventoDetails->doc); ?>" target="_blank">Visualizar</a>
+            <?php else: ?>
+                <span>Nenhum documento enviado</span>
+            <?php endif; ?>
             <br>
-            Data do Campeopnato <input type="date" id="data_camp" name="data_camp"
-            value="<?php echo $eventoDetails->data_limite; ?>"><br>
+            <label>Novo Documento (PDF):</label>
+            <input type="file" name="nDoc" accept=".pdf">
+        </div>
+        
+        <!-- Campos principais -->
+        <div>
+            <label>Nome do evento:</label>
+            <input type="text" name="nome_evento" required 
+                   value="<?php echo htmlspecialchars($eventoDetails->nome); ?>">
+        </div>
+        
+        <div>
+            <label>Data do Campeonato:</label>
+            <input type="date" name="data_camp" required 
+                   value="<?php echo htmlspecialchars($eventoDetails->data_evento); ?>">
+        </div>
+        
+        <div>
+            <label>Local:</label>
+            <input type="text" name="local_camp" required 
+                   value="<?php echo htmlspecialchars($eventoDetails->local_evento); ?>">
+        </div>
+        
+        <div>
+            <label>Descrição do evento:</label>
+            <textarea name="desc_Evento" required><?php 
+                echo htmlspecialchars(trim($eventoDetails->descricao)); 
+            ?></textarea>
+        </div>
+        
+        <div>
+            <label>Data limite para inscrições:</label>
+            <input type="date" name="data_limite" required 
+                   value="<?php echo htmlspecialchars($eventoDetails->data_limite); ?>">
+        </div>
+        
+        <!-- Modalidades -->
+        <div>
+            <label>Modalidades:</label><br>
+            <input type="checkbox" name="tipo_com" id="tipo_com" value="1"
+                <?php echo $eventoDetails->tipo_com == 1 ? "checked" : ""; ?>>
+            <label for="tipo_com">Com Kimono</label><br>
             
-            Local <input type="text" name="local_camp"
-            value="<?php echo $eventoDetails->local_evento; ?>"><br>
+            <input type="checkbox" name="tipo_sem" id="tipo_sem" value="1"
+                <?php echo $eventoDetails->tipo_sem == 1 ? "checked" : ""; ?>>
+            <label for="tipo_sem">Sem Kimono</label>
+        </div>
+        
+        <!-- Preços -->
+        <div>
+            <label>Preço geral (acima de 15 anos):</label>
+            <input type="number" name="preco" step="0.01" min="0" required
+                   value="<?php echo htmlspecialchars($eventoDetails->preco); ?>">
+        </div>
+        
+        <div>
+            <label>Preço Absoluto:</label>
+            <input type="number" name="preco_abs" step="0.01" min="0" required
+                   value="<?php echo htmlspecialchars($eventoDetails->preco_abs); ?>">
+        </div>
+        
+        <div>
+            <label>Preço para menores de 15 anos:</label>
+            <input type="number" name="preco_menor" step="0.01" min="0" required
+                   value="<?php echo htmlspecialchars($eventoDetails->preco_menor); ?>">
+        </div>
+        
+        <input type="hidden" name="id" value="<?php echo $eventoId; ?>">
+        
+        <div>
+            <input type="submit" value="Salvar Alterações">
+            <a href="/eventos.php?id=<?php echo $eventoId; ?>">Cancelar</a>
+        </div>
+    </form>
+</div>
 
-            <p>descrição do evento</p>
-            <textarea name="desc_Evento" placeholder="descreva o campeopnato">
-                <?php 
-                    echo $eventoDetails->descricao;
-                ?>
-            </textarea><br>
-
-            data limite <input type="date" id="data_limite" name="data_limite" 
-            value="<?php echo $eventoDetails->data_limite; ?>"><br>
-            Modalidade:
-            <br><input type="checkbox" name="tipo_com" id="tipo_com" value="com"
-            <?php echo $eventoDetails->tipo_com == 1 ? "checked":""; ?>>Com Kimono
-
-            <br><input type="checkbox" name="tipo_sem" id="tipo_sem" value="sem"
-            <?php echo $eventoDetails->tipo_sem == 1 ? "checked":""; ?>>Sem Kimono
-
-            <br>
-            Preco geral<input type="number" name="preco" id="preco" placeholder="Preço por Inscrição acima dos 15 anos"
-            value="<?php echo $eventoDetails->preco; ?>"><br>
-
-            Preco Absoluto<input type="number" name="preco_abs" id="preco_abs" placeholder="Preço por Inscrição no Absoluto"
-            value="<?php echo $eventoDetails->preco_abs; ?>"><br>
-
-            Preco para menores de 15<input type="number" name="preco_menor" id="preco_menor" placeholder="Preço por Inscrição abaixo dos 15 anos"
-            value="<?php echo $eventoDetails->preco_menor; ?>"><br>
-            <input type="hidden" name="id" value="<?php echo $eventoId; ?>">
-            <br><hr><br><input type="submit" value="editar evento">
-        </form>
-    </div>
-<?php
-include "/menu/footer.php";
-?>
+<?php include "/menu/footer.php"; ?>
 </body>
 </html>

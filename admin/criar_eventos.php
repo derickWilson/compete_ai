@@ -20,9 +20,9 @@ is_adm();
 
             Data do Campeopnato <input type="date" id="data_camp" name="data_camp"><br>
             
-            Local <input type="text" id="local_camp"><br>
+            Local <input type="text" id="local_camp" name="local_camp"><br>
 
-            Imagen do Evento<input type="file" name="img_evento" accept="image/*"><br>
+            Imagen do Evento  <input type="file" name="img_evento" accept="image/*"><br>
             Ementa<input type="file" name="doc" accept="application/pdf"><br>
             <p>descrição do evento</p>
             <textarea name="desc_Evento" placeholder="descreva o campeopnato">
