@@ -1,56 +1,92 @@
 <?php
 require_once __DIR__ . "/../func/database.php";
 
-/**
- * Classe responsável por integrar com a API do Asaas.
- */
 class AsaasService {
     private $apiKey;
     private $baseUrl;
     private $timeout = 30;
     private $conn;
-    private const ASAAS_TOKEN = '';
 
-    /**
-     * Construtor da classe.
-     *
-     * @param Conexao $conn Instância de conexão com o banco de dados.
-     * @param string $baseUrl URL base da API Asaas.
-     */
-    public function __construct(Conexao $conn, $baseUrl = 'https://api.asaas.com/v3') {
-        $this->apiKey = ASAAS_TOKEN;
+    // Constantes de status
+    const STATUS_PENDENTE = 'PENDING';
+    const STATUS_PAGO = 'RECEIVED';
+    const STATUS_CONFIRMADO = 'CONFIRMED';
+
+    // Token de acesso (substitua pelo seu token real)
+    private const ASAAS_TOKEN = 'aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjlhMDQ4ODc0LTJmMjMtNDIwMC1hY2JkLTAyMTViZDdiYmZkMzo6JGFhY2hfZjExMWYyNGYtNGU5NC00ZmZiLWFmNTEtMzk2N2NjZDQwMTk2';
+
+    public function __construct(Conexao $conn, $baseUrl = 'https://api-sandbox.asaas.com/v3') {
+        $this->apiKey = self::ASAAS_TOKEN;
         $this->baseUrl = rtrim($baseUrl, '/');
         $this->conn = $conn->conectar();
     }
-
     /**
-     * Cria um novo cliente no Asaas.
-     *
-     * @param array $dadosCliente Informações do cliente (name, cpfCnpj, email...).
-     * @return array Resposta da API.
+     * Versão otimizada com cache e tratamento de erros
+     */
+    public function buscarOuCriarCliente($dadosAtleta) {
+        // Validação básica
+        if (empty($dadosAtleta['cpf']) || empty($dadosAtleta['email'])) {
+            throw new InvalidArgumentException("Dados incompletos para cadastro");
+        }
+    
+        $cpfLimpo = $this->clearNumber($dadosAtleta['cpf']);
+        
+        try {
+            // 1. Tenta buscar cliente existente
+            $busca = $this->buscarClientePorCpfCnpj($cpfLimpo);
+            
+            if ($busca['success']) {
+                return $busca['data']['id']; // Retorna ID existente
+            }
+        
+            // 2. Cria novo cliente com estrutura completa
+            $novoCliente = $this->criarCliente([
+                'name' => $dadosAtleta['nome'],
+                'cpfCnpj' => $cpfLimpo,
+                'email' => $dadosAtleta['email'],
+                'phone' => $this->clearNumber($dadosAtleta['fone']),
+                'company' => $dadosAtleta['academia'] ?? 'Não informado',
+                'externalReference' => 'ATL_' . $dadosAtleta['id'],
+                'notificationDisabled' => true
+            ]);
+        
+            return $novoCliente['id'];
+            
+        } catch (Exception $e) {
+            error_log("Erro ao processar cliente: " . $e->getMessage());
+            throw new Exception("Falha no cadastro do cliente. Por favor, verifique os dados e tente novamente");
+        }
+    }
+    /**
+     * Cria um novo cliente no Asaas (versão simplificada)
      */
     public function criarCliente(array $dadosCliente) {
-        $required = ['name', 'cpfCnpj', 'email'];
-        $this->validateFields($dadosCliente, $required);
+        // Campos obrigatórios mínimos
+        $this->validateFields($dadosCliente, ['name', 'cpfCnpj']);
 
-        return $this->sendRequest('POST', '/customers', $dadosCliente);
+        // Padroniza os dados com valores default
+        $payload = [
+            'name' => $dadosCliente['name'],
+            'cpfCnpj' => $this->clearNumber($dadosCliente['cpfCnpj']),
+            'email' => $dadosCliente['email'] ?? '',
+            'phone' => $this->clearNumber($dadosCliente['phone'] ?? ''),
+            'mobilePhone' => $this->clearNumber($dadosCliente['mobilePhone'] ?? ''),
+            'company' => $dadosCliente['company'] ?? '',
+            'externalReference' => $dadosCliente['externalReference'] ?? ''
+        ];
+
+        return $this->sendRequest('POST', '/customers', $payload);
     }
 
     /**
-     * Busca um cliente pelo ID.
-     *
-     * @param string $clienteId ID do cliente no Asaas.
-     * @return array Resposta da API.
+     * Busca um cliente pelo ID
      */
     public function buscarCliente($clienteId) {
         return $this->sendRequest('GET', '/customers/' . $clienteId);
     }
 
     /**
-     * Busca cliente pelo CPF/CNPJ.
-     *
-     * @param string $cpfCnpj CPF ou CNPJ (será limpo).
-     * @return array Resultado da API.
+     * Busca cliente pelo CPF/CNPJ
      */
     public function buscarClientePorCpfCnpj($cpfCnpj) {
         $cpfLimpo = $this->clearNumber($cpfCnpj);
@@ -58,65 +94,27 @@ class AsaasService {
     }
 
     /**
-     * Cria uma nova cobrança para um cliente.
-     *
-     * @param array $dadosCobranca Informações da cobrança.
-     * @return array Resposta da API.
+     * Cria uma nova cobrança
      */
     public function criarCobranca(array $dadosCobranca) {
-        $required = ['customer', 'value', 'dueDate'];
-        $this->validateFields($dadosCobranca, $required);
+        $this->validateFields($dadosCobranca, ['customer', 'value', 'dueDate']);
+
+        // Formata os valores
+        $dadosCobranca['value'] = (float) $dadosCobranca['value'];
+        $dadosCobranca['dueDate'] = date('Y-m-d', strtotime($dadosCobranca['dueDate']));
 
         return $this->sendRequest('POST', '/payments', $dadosCobranca);
     }
 
     /**
-     * Busca uma cobrança pelo ID.
-     *
-     * @param string $cobrancaId ID da cobrança.
-     * @return array Dados da cobrança.
-     */
-    public function buscarCobranca($cobrancaId) {
-        return $this->sendRequest('GET', '/payments/' . $cobrancaId);
-    }
-
-    /**
-     * Lista cobranças com filtros opcionais.
-     *
-     * @param array $filtros Filtros da query (opcional).
-     * @return array Lista de cobranças.
-     */
-    public function listarCobrancas($filtros = []) {
-        $query = !empty($filtros) ? '?' . http_build_query($filtros) : '';
-        return $this->sendRequest('GET', '/payments' . $query);
-    }
-
-    /**
-     * Deleta uma cobrança no Asaas.
-     *
-     * @param string $cobrancaId ID da cobrança a ser excluída.
-     * @return array Resposta da API.
-     * @throws Exception Se a exclusão falhar.
-     */
-    public function deletarCobranca($cobrancaId) {
-        return $this->sendRequest('DELETE', '/payments/' . $cobrancaId);
-    }
-
-    /**
-     * Atualiza a inscrição do atleta com dados da cobrança.
-     *
-     * @param int $atletaId
-     * @param int $eventoId
-     * @param string $cobrancaId
-     * @param string $status
-     * @param float $valor
-     * @throws Exception Em caso de erro na atualização.
+     * Atualiza a inscrição com dados do pagamento
      */
     public function atualizarInscricaoComPagamento($atletaId, $eventoId, $cobrancaId, $status, $valor) {
         $query = "UPDATE inscricao SET 
                     id_cobranca_asaas = :cobranca_id,
                     status_pagamento = :status,
-                    valor_pago = :valor
+                    valor_pago = :valor,
+                    pago = :pago
                   WHERE id_atleta = :atleta_id AND id_evento = :evento_id";
 
         try {
@@ -124,6 +122,7 @@ class AsaasService {
             $stmt->bindValue(':cobranca_id', $cobrancaId);
             $stmt->bindValue(':status', $status);
             $stmt->bindValue(':valor', $valor);
+            $stmt->bindValue(':pago', ($status === self::STATUS_PAGO) ? 1 : 0);
             $stmt->bindValue(':atleta_id', $atletaId);
             $stmt->bindValue(':evento_id', $eventoId);
             $stmt->execute();
@@ -134,59 +133,52 @@ class AsaasService {
     }
 
     /**
-     * Tenta buscar um cliente existente ou cria um novo.
-     *
-     * @param array $dadosAtleta ['nome', 'cpf', 'email', 'fone', 'id']
-     * @return string ID do cliente no Asaas.
+     * Busca ou cria um cliente
      */
-    public function buscarOuCriarCliente($dadosAtleta) {
-        // Validação rigorosa
-        $cpfLimpo = $this->clearNumber($dadosAtleta['cpf']);
-        if (strlen($cpfLimpo) != 11 || !preg_match('/^\d{11}$/', $cpfLimpo)) {
-            throw new Exception("CPF inválido: deve conter 11 dígitos.");
-        }
-    
-        if (!filter_var($dadosAtleta['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new Exception("E-mail inválido: " . $dadosAtleta['email']);
-        }
-    
-        // Debug: log dos dados do cliente
-        error_log("Tentando criar/buscar cliente: " . print_r($dadosAtleta, true));
-    
-        $clientes = $this->buscarClientePorCpfCnpj($cpfLimpo);
-    
-        if (!empty($clientes['data'])) {
-            return $clientes['data'][0]['id']; // Retorna ID existente
-        }
-    
-        // Cria novo cliente com dados completos
-        $novoCliente = $this->criarCliente([
-            'name' => $dadosAtleta['nome'],
-            'cpfCnpj' => $cpfLimpo,
-            'email' => $dadosAtleta['email'],
-            'mobilePhone' => $this->clearNumber($dadosAtleta['fone']),
-            'externalReference' => 'ATL_' . $dadosAtleta['id']
-        ]);
-    
-        if (empty($novoCliente['id'])) {
-            throw new Exception("Falha ao criar cliente no Asaas: " . print_r($novoCliente, true));
-        }
-    
-        return $novoCliente['id'];
-    }
     /**
-     * Envia requisição HTTP para a API Asaas.
-     *
-     * @param string $method Método HTTP (GET, POST, DELETE, etc.)
-     * @param string $endpoint Caminho da API.
-     * @param array|null $data Dados a serem enviados (opcional).
-     * @return array Resposta da API decodificada.
-     * @throws Exception Se houver erro de conexão ou resposta inválida.
+     * Busca cliente por CPF/CNPJ com tratamento completo da resposta
+     */
+    public function buscarClientePorCpfCnpj($cpfCnpj) {
+        $cpfLimpo = $this->clearNumber($cpfCnpj);
+
+        if (strlen($cpfLimpo) !== 11 && strlen($cpfLimpo) !== 14) {
+            throw new InvalidArgumentException("Documento inválido. Use CPF (11 dígitos) ou CNPJ (14 dígitos)");
+        }
+
+        $resposta = $this->sendRequest('GET', '/customers?cpfCnpj=' . $cpfLimpo);
+
+        // Padroniza a resposta para sempre retornar a mesma estrutura
+        if (empty($resposta['data'])) {
+            return [
+                'success' => false,
+                'message' => 'Cliente não encontrado',
+                'data' => null
+            ];
+        }
+
+        // Mapeia os campos relevantes
+        $cliente = $resposta['data'][0];
+        return [
+            'success' => true,
+            'data' => [
+                'id' => $cliente['id'],
+                'nome' => $cliente['name'],
+                'email' => $cliente['email'],
+                'cpfCnpj' => $cliente['cpfCnpj'],
+                'telefone' => $cliente['phone'],
+                'academia' => $cliente['company'], // Campo específico do seu sistema
+                'referencia' => $cliente['externalReference'] // ID no seu BD
+            ]
+        ];
+    }
+
+    /**
+     * Método interno para enviar requisições
      */
     private function sendRequest($method, $endpoint, $data = null) {
         $url = $this->baseUrl . $endpoint;
-
         $curl = curl_init();
+
         $options = [
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
@@ -197,7 +189,7 @@ class AsaasService {
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER => [
                 "accept: application/json",
-                "access_token: " . $this->apiKey, // ✅ Formato correto
+                "access_token: " . $this->apiKey,
                 "content-type: application/json"
             ]
         ];
@@ -220,19 +212,15 @@ class AsaasService {
         $result = json_decode($response, true);
 
         if ($httpCode >= 400) {
-            $errorMsg = $result['errors'][0]['description'] ?? 'Erro desconhecido';
-            throw new Exception("Erro na API Asaas: " . $errorMsg, $httpCode);
+            $errorMsg = $result['errors'][0]['description'] ?? ($result['message'] ?? 'Erro desconhecido');
+            throw new Exception("Erro na API Asaas ($httpCode): " . $errorMsg);
         }
 
         return $result;
     }
 
     /**
-     * Valida campos obrigatórios para requisições.
-     *
-     * @param array $data Dados enviados.
-     * @param array $requiredFields Campos obrigatórios.
-     * @throws InvalidArgumentException Se algum campo estiver ausente.
+     * Valida campos obrigatórios
      */
     private function validateFields($data, $requiredFields) {
         foreach ($requiredFields as $field) {
@@ -243,20 +231,14 @@ class AsaasService {
     }
 
     /**
-     * Remove todos os caracteres não numéricos de uma string.
-     *
-     * @param string $str Entrada original.
-     * @return string Somente números.
+     * Limpa números (remove caracteres não numéricos)
      */
     public function clearNumber($str) {
         return preg_replace('/\D/', '', $str);
     }
 
     /**
-     * Traduz status da API Asaas para português.
-     *
-     * @param string $status Código do status.
-     * @return string Status traduzido.
+     * Traduz status para português
      */
     public function traduzirStatus($status) {
         $traducoes = [
@@ -269,10 +251,4 @@ class AsaasService {
 
         return $traducoes[$status] ?? $status;
     }
-
-    // Constantes de status da cobrança
-    const STATUS_PENDENTE = 'PENDING';
-    const STATUS_PAGO = 'RECEIVED';
-    const STATUS_CONFIRMADO = 'CONFIRMED';
 }
-?>

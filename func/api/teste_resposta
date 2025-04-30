@@ -1,0 +1,181 @@
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/customers",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => json_encode([
+    'name' => 'derick',#nomr
+    'cpfCnpj' => '50132790890',#cpf
+    'email' => 'q@1.com',#email
+    'phone' => '11992393070',#fone
+    'company' => 'wft'#academia
+    'externalReference' => '11'#id no site
+  ]),
+  CURLOPT_HTTPHEADER => [
+    "accept: application/json",
+    "access_token: $aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjlhMDQ4ODc0LTJmMjMtNDIwMC1hY2JkLTAyMTViZDdiYmZkMzo6JGFhY2hfZjExMWYyNGYtNGU5NC00ZmZiLWFmNTEtMzk2N2NjZDQwMTk2",
+    "content-type: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+resposta:
+{
+    "object": "customer",
+    "id": "cus_000006671245",
+    "dateCreated": "2025-04-30",
+    "name": "derick",
+    "email": "q@1.com",
+    "company": "wft",
+    "phone": "11992393070",
+    "mobilePhone": null,
+    "address": null,
+    "addressNumber": null,
+    "complement": null,
+    "province": null,
+    "postalCode": null,
+    "cpfCnpj": "50132790890",
+    "personType": "FISICA",
+    "deleted": false,
+    "additionalEmails": null,
+    "externalReference": "11",
+    "notificationDisabled": false,
+    "observations": null,
+    "municipalInscription": null,
+    "stateInscription": null,
+    "canDelete": true,
+    "cannotBeDeletedReason": null,
+    "canEdit": true,
+    "cannotEditReason": null,
+    "city": null,
+    "cityName": null,
+    "state": null,
+    "country": "Brasil"
+  }
+
+  **********LISTA CLIENTE***********
+  REQUISIÇÃO:
+  <?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/customers?cpfCnpj=50132790890",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "GET",
+  CURLOPT_HTTPHEADER => [
+    "accept: application/json",
+    "access_token: $aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjlhMDQ4ODc0LTJmMjMtNDIwMC1hY2JkLTAyMTViZDdiYmZkMzo6JGFhY2hfZjExMWYyNGYtNGU5NC00ZmZiLWFmNTEtMzk2N2NjZDQwMTk2"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+  RESPOSTA:
+  {
+    "object": "list",
+    "hasMore": false,
+    "totalCount": 1,
+    "limit": 10,
+    "offset": 0,
+    "data": [
+      {
+        "object": "customer",
+        "id": "cus_000006671245",
+        "dateCreated": "2025-04-30",
+        "name": "derick",
+        "email": "q@1.com",
+        "company": "wft",#ACADEMIA
+        "phone": "11992393070",
+        "mobilePhone": null,
+        "address": null,
+        "addressNumber": null,
+        "complement": null,
+        "province": null,
+        "postalCode": null,
+        "cpfCnpj": "50132790890",
+        "personType": "FISICA",
+        "deleted": false,
+        "additionalEmails": null,
+        "externalReference": "11",#id no bd
+        "notificationDisabled": false,
+        "observations": null,
+        "municipalInscription": null,
+        "stateInscription": null,
+        "canDelete": true,
+        "cannotBeDeletedReason": null,
+        "canEdit": true,
+        "cannotEditReason": null,
+        "city": null,
+        "cityName": null,
+        "state": null,
+        "country": "Brasil"
+      }
+    ]
+  }
+
+  ***************criar cobrança pix**************
+  <?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/payments",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "POST",
+  CURLOPT_POSTFIELDS => json_encode([
+    'billingType' => 'PIX',#tipo constante
+    'customer' => 'cus_000006671245',# id no assas
+    'dueDate' => '2025-10-07',#data de vencimento (data limite do capeonato)
+    'value' => 100,
+    'description' => 'campeonato tal'#campeonato
+  ]),
+  CURLOPT_HTTPHEADER => [
+    "accept: application/json",
+    "access_token: $aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjlhMDQ4ODc0LTJmMjMtNDIwMC1hY2JkLTAyMTViZDdiYmZkMzo6JGFhY2hfZjExMWYyNGYtNGU5NC00ZmZiLWFmNTEtMzk2N2NjZDQwMTk2",
+    "content-type: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}

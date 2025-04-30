@@ -1,18 +1,20 @@
 <?php
 session_start();
-// Ativar logs detalhados
+
+// Ativa logs detalhados para debug
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-file_put_contents('asaas_debug.log', "\n\n--- NOVA INSCRIÇÃO: " . date('Y-m-d H:i:s') . " ---", FILE_APPEND);
+file_put_contents('asaas_debug.log', "\n\n--- NOVA TENTATIVA DE INSCRIÇÃO ---\n", FILE_APPEND);
 
-// Verificação de autenticação
-if (!isset($_SESSION['logado'])) {
+// Verifica autenticação
+if (!isset($_SESSION['logado']) {
+    $_SESSION['erro'] = "Você precisa estar logado";
     header("Location: login.php");
     exit();
 }
 
-// Verificação de método POST
+// Verifica método POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     $_SESSION['erro'] = "Método inválido";
     header("Location: eventos.php");
@@ -30,9 +32,8 @@ try {
     $conn = new Conexao();
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
-    $asaasService = new AsaasService($conn);
 
-    // Valida ID do evento
+    // Valida e sanitiza ID do evento
     $evento_id = isset($_POST['evento_id']) ? (int) cleanWords($_POST['evento_id']) : 0;
     $eventoDetails = $evserv->getById($evento_id);
     
@@ -40,65 +41,71 @@ try {
         throw new Exception("Evento não encontrado");
     }
 
-    // Captura modalidades (com validação)
-    $mod_com = isset($_POST['com']) ? 1 : 0;
-    $mod_sem = isset($_POST['sem']) ? 1 : 0;
-    $mod_ab_com = isset($_POST['abs_com']) ? 1 : 0;
-    $mod_ab_sem = isset($_POST['abs_sem']) ? 1 : 0;
-    $modalidade_escolhida = isset($_POST['modalidade']) ? cleanWords($_POST['modalidade']) : null;
+    // Processa modalidades selecionadas
+    $modalidades = [
+        'com' => isset($_POST['com']) ? 1 : 0,
+        'sem' => isset($_POST['sem']) ? 1 : 0,
+        'abs_com' => isset($_POST['abs_com']) ? 1 : 0,
+        'abs_sem' => isset($_POST['abs_sem']) ? 1 : 0
+    ];
 
-    // Validação de modalidade
-    if (empty($modalidade_escolhida)) {
-        throw new Exception("Selecione uma modalidade");
+    // Valida pelo menos uma modalidade selecionada
+    if (!array_filter($modalidades)) {
+        throw new Exception("Selecione pelo menos uma modalidade");
     }
 
-    // Dados do atleta (da sessão)
-    $atleta_id = $_SESSION['id'];
-    $cpf = $_SESSION['cpf'];
-    $nome = $_SESSION['nome'];
-    $email = $_SESSION['email'];
-    $fone = $_SESSION['fone'];
+    // Valida modalidade escolhida
+    $modalidade_escolhida = isset($_POST['modalidade']) ? cleanWords($_POST['modalidade']) : null;
+    if (empty($modalidade_escolhida)) {
+        throw new Exception("Modalidade não selecionada");
+    }
 
-    // Calcula valor (com fallback)
+    // Calcula valor conforme regras de negócio
     $valor = ($_SESSION['idade'] > 15) ? $eventoDetails->preco : $eventoDetails->preco_menor;
-    $valor = ($mod_ab_com || $mod_ab_sem) && $eventoDetails->preco_abs > 0 
-             ? $eventoDetails->preco_abs 
-             : $valor;
+    if (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
+        $valor = $eventoDetails->preco_abs;
+    }
 
-    // DEBUG: Log dos dados críticos
-    file_put_contents('asaas_debug.log', "\nDADOS INSCRIÇÃO: " . json_encode([
-        'atleta_id' => $atleta_id,
+    // DEBUG: Log dos dados processados
+    file_put_contents('asaas_debug.log', "\nDADOS PROCESSADOS:\n" . print_r([
+        'atleta_id' => $_SESSION['id'],
         'evento_id' => $evento_id,
+        'modalidades' => $modalidades,
+        'modalidade_escolhida' => $modalidade_escolhida,
         'valor' => $valor,
-        'modalidade' => $modalidade_escolhida,
-        'cpf' => $cpf
-    ]), FILE_APPEND);
+        'idade' => $_SESSION['idade']
+    ], true), FILE_APPEND);
 
-    // 1. Inscreve no banco de dados local
+    // 1. Faz a inscrição no banco de dados
     $evserv->inscrever(
-        $atleta_id,
+        $_SESSION['id'],
         $evento_id,
-        $mod_com,
-        $mod_ab_com, // Atenção à ordem!
-        $mod_sem,
-        $mod_ab_sem,
+        $modalidades['com'],
+        $modalidades['abs_com'],
+        $modalidades['sem'],
+        $modalidades['abs_sem'],
         $modalidade_escolhida
     );
 
     // 2. Integração com Asaas
+    $asaasService = new AsaasService($conn);
+    
+    // 2.1. Prepara dados do atleta
+    // 2.2. Prepara dados do atleta incluindo a academia
     $dadosAtleta = [
-        'id' => $atleta_id,
-        'nome' => $nome,
-        'cpf' => $cpf,
-        'email' => $email,
-        'fone' => $fone
+        'id' => $_SESSION['id'],
+        'nome' => $_SESSION['nome'],
+        'cpf' => $_SESSION['cpf'],
+        'email' => $_SESSION['email'],
+        'fone' => $_SESSION['fone'],
+        'academia' => $_SESSION['academia'] // Adiciona a academia aqui
     ];
 
-    // 3. Busca ou cria cliente
+    // 2.2. Busca ou cria cliente no Asaas
     $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
     file_put_contents('asaas_debug.log', "\nCUSTOMER ID: " . $customerId, FILE_APPEND);
 
-    // 4. Cria cobrança
+    // 2.3. Cria a cobrança
     $descricao = "Inscrição: " . $eventoDetails->nome . " (" . $modalidade_escolhida . ")";
     $cobranca = $asaasService->criarCobranca([
         'customer' => $customerId,
@@ -106,39 +113,39 @@ try {
         'dueDate' => date('Y-m-d', strtotime('+3 days')),
         'description' => $descricao,
         'billingType' => 'PIX',
-        'externalReference' => 'EV_' . $evento_id . '_AT_' . $atleta_id
+        'externalReference' => 'EV_' . $evento_id . '_AT_' . $_SESSION['id']
     ]);
 
     // DEBUG: Log da resposta da API
-    file_put_contents('asaas_debug.log', "\nRESPOSTA ASAAS: " . print_r($cobranca, true), FILE_APPEND);
+    file_put_contents('asaas_debug.log', "\nRESPOSTA ASAAS:\n" . print_r($cobranca, true), FILE_APPEND);
 
-    // 5. Atualiza inscrição com dados do pagamento
+    // 2.4. Atualiza a inscrição com dados do pagamento
     $asaasService->atualizarInscricaoComPagamento(
-        $atleta_id,
+        $_SESSION['id'],
         $evento_id,
         $cobranca['id'],
         AsaasService::STATUS_PENDENTE,
         $valor
     );
 
-    // Sucesso - redireciona para comprovante
-    header("Location: comprovante.php?cobranca_id=" . $cobranca['id']);
+    // 3. Redireciona para comprovante
+    header("Location: comprovante.php?id=" . $cobranca['id']);
     exit();
 
 } catch (Exception $e) {
     // Log detalhado do erro
     file_put_contents('asaas_debug.log', 
-        "\nERRO: " . $e->getMessage() . 
-        "\nTRACE: " . $e->getTraceAsString(), 
+        "\nERRO:\n" . $e->getMessage() . 
+        "\nTRACE:\n" . $e->getTraceAsString(), 
         FILE_APPEND
     );
 
-    // Mensagem amigável
-    $erroMsg = "Erro no processamento: " . htmlspecialchars($e->getMessage());
+    // Mensagem amigável para o usuário
+    $erroMsg = "Erro no processamento: " . $e->getMessage();
     
-    // Se for erro de API, mostra detalhes apenas em desenvolvimento
-    if (strpos($e->getMessage(), "ASAAS:") !== false && $_SERVER['SERVER_NAME'] === 'localhost') {
-        $erroMsg .= "<pre>" . print_r($cobranca ?? [], true) . "</pre>";
+    // Se for ambiente de desenvolvimento, mostra detalhes
+    if ($_SERVER['SERVER_NAME'] === 'localhost') {
+        $erroMsg .= "\n\nDetalhes técnicos:\n" . $e->getTraceAsString();
     }
 
     $_SESSION['erro_inscricao'] = $erroMsg;
