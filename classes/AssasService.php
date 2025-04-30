@@ -176,15 +176,14 @@ class AssasService {
                     valor_pago = :valor,
                     pago = :pago
                   WHERE id_atleta = :atleta_id AND id_evento = :evento_id";
-
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':cobranca_id', $cobrancaId);
+        $stmt->bindValue(':status1', $status1);
+        $stmt->bindValue(':valor', $valor);
+        $stmt->bindValue(':pago', ($status1 === self::STATUS_PAGO) ? 1 : 0);
+        $stmt->bindValue(':atleta_id', $atletaId);
+        $stmt->bindValue(':evento_id', $eventoId);
         try {
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(':cobranca_id', $cobrancaId);
-            $stmt->bindValue(':status', $status1);
-            $stmt->bindValue(':valor', $valor);
-            $stmt->bindValue(':pago', ($status1 === self::STATUS_PAGO) ? 1 : 0);
-            $stmt->bindValue(':atleta_id', $atletaId);
-            $stmt->bindValue(':evento_id', $eventoId);
             $stmt->execute();
         } catch (Exception $e) {
             error_log("Erro ao atualizar inscrição: " . $e->getMessage());
@@ -192,9 +191,6 @@ class AssasService {
         }
     }
 
-    /**
-     * Busca ou cria um cliente
-     */
     /**
      * Busca cliente por CPF/CNPJ com tratamento completo da resposta
      */
