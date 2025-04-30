@@ -163,8 +163,8 @@
             echo "<a href='/admin/editar_evento.php?id=" . $eventoId . "'>Editar</a>";
         }
             } // Fim da condição de um único evento
-            ?>
-            </div>
+        ?>
+    </div>
 <?php
 include "menu/footer.php";
 ?>

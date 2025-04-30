@@ -169,10 +169,10 @@ class AssasService {
     /**
      * Atualiza a inscrição com dados do pagamento
      */
-    public function atualizarInscricaoComPagamento($atletaId, $eventoId, $cobrancaId, $status, $valor) {
+    public function atualizarInscricaoComPagamento($atletaId, $eventoId, $cobrancaId, $status1, $valor) {
         $query = "UPDATE inscricao SET 
                     id_cobranca_asaas = :cobranca_id,
-                    status_pagamento = :status,
+                    status_pagamento = :status1,
                     valor_pago = :valor,
                     pago = :pago
                   WHERE id_atleta = :atleta_id AND id_evento = :evento_id";
@@ -180,9 +180,9 @@ class AssasService {
         try {
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(':cobranca_id', $cobrancaId);
-            $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':status', $status1);
             $stmt->bindValue(':valor', $valor);
-            $stmt->bindValue(':pago', ($status === self::STATUS_PAGO) ? 1 : 0);
+            $stmt->bindValue(':pago', ($status1 === self::STATUS_PAGO) ? 1 : 0);
             $stmt->bindValue(':atleta_id', $atletaId);
             $stmt->bindValue(':evento_id', $eventoId);
             $stmt->execute();
