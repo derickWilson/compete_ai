@@ -11,7 +11,7 @@ if (!isset($_GET["id"])) {
 }
 
 require_once "classes/atletaService.php";
-require_once "classes/AsaasService.php";
+require_once "classes/AssasService.php";
 require_once "func/clearWord.php";
 require_once "func/database.php";
 
