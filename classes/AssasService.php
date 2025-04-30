@@ -183,7 +183,7 @@ class AsaasService {
             CURLOPT_CUSTOMREQUEST => $method,
             CURLOPT_HTTPHEADER => [
                 "accept: application/json",
-                "access_token: " . $this->apiKey,
+                "access_token: " . $this->apiKey, // ✅ Formato correto
                 "content-type: application/json"
             ]
         ];

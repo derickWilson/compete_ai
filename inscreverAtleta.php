@@ -59,8 +59,16 @@ if (($mod_ab_com || $mod_ab_sem) && $eventoDetails->preco_abs > 0) {
 
  /******************* */
     try {
-        $evserv->inscrever($atleta_id, $evento_id, $mod_com, $mod_sem, $mod_ab_com, $mod_ab_sem, $modalidade_escolhida);
-        
+// Ordem correta (conforme a declaração):
+    $evserv->inscrever(
+        $atleta_id, 
+        $evento_id, 
+        $mod_com, 
+        $mod_ab_com,  // 4º parâmetro = abs_com
+        $mod_sem,     // 5º parâmetro = sem
+        $mod_ab_sem, 
+        $modalidade_escolhida
+    );        
         // 8. Busca ou cria cliente no Asaas
         $asaasService = new AsaasService($conn);
         $dadosAtleta = [
@@ -92,7 +100,12 @@ if (($mod_ab_com || $mod_ab_sem) && $eventoDetails->preco_abs > 0) {
             $valor
         );
     } catch (Exception $e) {
-        echo '<p>Erro ao realizar a inscrição: ' . $e->getMessage() . '</p>';
+        error_log("ERRO ASAAS: " . $e->getMessage() . "\nDados enviados: " . json_encode([
+            'customer' => $customerId,
+            'value' => $valor,
+            'evento' => $evento_id
+        ]));
+        echo "<p class='error'>Erro: " . htmlspecialchars($e->getMessage()) . "</p>";
     }
 } else {
     echo "<p>Método de requisição inválido.</p>";
