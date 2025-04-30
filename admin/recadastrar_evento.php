@@ -96,7 +96,7 @@
         //$evento->__set('tipoAbSem', $tipoAbSem);
         $evento->__set('preco', $preco);
         $evento->__set('preco_menor', $preco_menor);
-        $evento->__set('preco_abs', $preco_menor);
+        $evento->__set('preco_abs', $preco_abs);
         $evento->__set('doc', $docDef);
         $adEvento->editEvento();
     }
