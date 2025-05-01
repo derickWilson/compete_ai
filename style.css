@@ -1,16 +1,9 @@
-/* style.css - Versão melhorada */
-
-/* Estilos Gerais */
 body {
-    background-color: rgba(0, 74, 173, 255);
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
+    background-color: rgba(0, 74, 173, 255); /* Substituído pelo novo valor */
 }
 
 div, h2, h3 {
-    background-color: #f4f9ff;
+    background-color: #f4f9ff; /* Claro para contraste com o fundo azul */
 }
 
 /* Cabeçalho */
@@ -21,23 +14,25 @@ header {
     box-sizing: border-box;
 }
 
-.center-content {
+/* Centraliza o título e logo */
+header .center-content {
     text-align: center;
 }
 
+/* Imagem de logo ajustada para responsividade */
 header img {
     width: 50%;
-    max-width: 400px;
-    height: auto;
+    max-width: 400px; /* Limita o tamanho máximo da imagem */
+    height: auto; /* Garante que a imagem não distorça */
     margin-top: 10px;
 }
 
 /* Navegação */
 header nav {
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-evenly; /* Distribui os links igualmente */
     align-items: center;
-    flex-wrap: wrap;
+    flex-wrap: wrap; /* Permite que os links se movam para a linha seguinte em telas pequenas */
     padding: 10px 0;
 }
 
@@ -48,7 +43,7 @@ header nav a {
     background-color: rgb(255, 255, 255);
     color: rgb(30, 60, 100);
     text-decoration: none;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.3s, color 0.3s; /* Transições suaves */
 }
 
 header nav a:hover {
@@ -56,210 +51,355 @@ header nav a:hover {
     color: rgb(255, 255, 255);
 }
 
-/* Estilos para Eventos */
+/* Estilo do título centralizado */
+.blue {
+    font-size: 35px;
+    color: white;
+    background-color: rgb(30, 60, 100);
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    /* Ajusta o tamanho dos links em telas menores */
+    header nav a {
+        font-size: 14px; 
+        padding: 8px 15px; 
+    }
+
+    /* Ajusta o tamanho da imagem em telas menores */
+    header img {
+        width: 80%; /* Aumenta a largura da imagem em telas menores */
+    }
+}
+
+.link {
+    background-color: white;
+    border-radius: 2px;
+    color: black;
+}
+
+header img {
+    margin-top: 10px;
+    width: 50% auto;
+    height: 200px;
+}
+
 .campeonato {
-    display: flex;
-    align-items: center;
-    padding: 15px;
-    margin: 20px 0;
+    height: 130px;
+    padding-right: 10px;
+    margin-bottom: 5px;
+    margin-top: 20px;
     background-color: whitesmoke;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease;
-    height: auto;
-}
-
-.campeonato:hover {
-    transform: translateY(-3px);
-}
-
-.campeonato-img-container {
-    flex: 0 0 200px;
-    height: 120px;
-    overflow: hidden;
-    border-radius: 6px;
-    margin-right: 20px;
-}
-
-.mini-banner {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
-
-.campeonato:hover .mini-banner {
-    transform: scale(1.05);
-}
-
-.campeonato-content {
-    flex: 1;
 }
 
 .campeonato h2 {
-    margin: 0 0 10px 0;
-    color: rgb(30, 60, 100);
-    font-size: 1.4em;
-    background-color: transparent;
+    margin-left: 16%;
+    background-color: whitesmoke;
 }
 
 .campeonato a {
-    color: rgb(47, 90, 231);
+    color: rgb(47, 90, 231); /* Azul para links */
     text-decoration: none;
 }
 
 .campeonato a:hover {
     color: rgb(245, 0, 0);
-    background-color: transparent;
+    background-color: rgb(0, 0, 0); 
 }
 
-/* Banner Principal */
-.banner {
+.campeonato-amostra {
+    height: 130px;
+    width: 300px;
+    float: left;
+    margin: 5px;
+    font-size: 15px;
+}
+
+.campeonato-amostra h4 {
+    margin-top: 0px;
+}
+
+.campeonato-amostra .mini-banner {
     width: 100%;
-    max-height: 400px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin: 20px 0;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    height: 60px;
 }
 
-/* Conteúdo Principal */
-.principal {
-    margin-top: 16px;
-    padding: 15px;
-    background-color: #f4f9ff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Formulários */
-.principal form * {
-    margin: 10px 0;
-    padding: 8px 15px;
-}
-
-.principal form input[type=text],
-.principal form input[type=email],
-.principal form input[type=password] {
-    width: 50%;
-    border-radius: 15px;
-    border: 1px solid #ccc;
-    padding: 10px;
-}
-
-.principal form input[type=tel],
-.principal form select {
-    width: 20%;
-    border-radius: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-}
-
-/* Rodapé */
-footer {
-    height: auto;
-    padding: 20px;
-    color: white;
-    background-color: rgb(30, 60, 100);
-    text-align: center;
-    margin-top: 30px;
-}
-
-footer a {
-    color: white;
+.campeonato-amostra a {
+    color: rgb(47, 90, 231);
     text-decoration: none;
 }
 
-/* Responsividade */
-@media (max-width: 768px) {
-    .campeonato {
-        flex-direction: column;
-    }
-    
-    .campeonato-img-container {
-        width: 100%;
-        height: 180px;
-        margin-right: 0;
-        margin-bottom: 15px;
-    }
-    
-    .campeonato h2 {
-        text-align: center;
-    }
-    
-    .banner {
-        max-height: 300px;
-    }
-    
-    header nav a {
-        font-size: 14px;
-        padding: 8px 15px;
-        margin: 5px 0;
-    }
-    
-    .principal form input[type=text],
-    .principal form input[type=email],
-    .principal form input[type=password] {
-        width: 80%;
-    }
-    
-    .principal form input[type=tel],
-    .principal form select {
-        width: 50%;
-    }
+.campeonato-amostra a:hover {
+    color: rgb(245, 0, 0);
+    background-color: rgb(0, 0, 0);
 }
 
-@media (max-width: 480px) {
-    .campeonato-img-container {
-        height: 150px;
-    }
-    
-    .banner {
-        max-height: 200px;
-    }
-    
-    header img {
-        width: 80%;
-    }
-}
-
-/* Classes utilitárias */
-.link {
-    background-color: white;
-    border-radius: 2px;
-    color: black;
-    padding: 5px 10px;
-    text-decoration: none;
-    display: inline-block;
-    margin: 5px 0;
-}
-
-.danger {
-    background-color: rgb(245, 0, 0);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
-    font-size: 16px;
-    text-decoration: none;
-    display: inline-block;
-    transition: background-color 0.3s;
-}
-
-.danger:hover {
-    background-color: rgb(220, 0, 0);
+.perfil {
+    height: 250px;
+    width: 250px;
+    border-radius: 100%;
 }
 
 .clear {
     clear: both;
 }
 
-/* Tabela de Pesos */
-object {
+.principal {
+    margin-top: 16px;
+    padding-left: 15px;
+    padding-bottom: 10px;
+}
+
+.principal form * {
+    margin-top: 16px;
+    padding-left: 15px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
+.principal form textarea {
+    height: 300px;
+    width: 80%;
+}
+
+.principal form input[type=text] {
+    width: 50%;
+    border-radius: 15px;
+}
+
+.principal form input[type=text]:focus {
+    width: 50%;
+    border: solid rgb(30, 60, 100) 2px; /* Azul escuro para borda de foco */
+}
+
+.principal form input[type=email] {
+    width: 50%;
+    border-radius: 15px;
+}
+
+.principal form input[type=email]:focus {
+    width: 50%;
+    border: solid rgb(30, 60, 100) 2px;
+}
+
+.principal form input[type=password] {
+    width: 50%;
+    border-radius: 15px;
+}
+
+.principal form input[type=password]:focus {
+    width: 50%;
+    border: solid rgb(30, 60, 100) 2px;
+}
+
+.principal form input[type=tel] {
+    width: 20%;
+    border-radius: 15px;
+}
+
+.principal form input[type=tel]:focus {
+    width: 20%;
+    border: solid rgb(30, 60, 100) 2px;
+}
+
+.principal form select {
+    width: 20%;
+    border-radius: 15px;
+}
+
+.banner {
+    max-width: 100%;       /* Nunca maior que o contêiner */
+    height: auto;          /* Mantém a proporção */
+    display: block;
+    margin: 0 auto;        /* Centraliza a imagem */
+    border-radius: 10px;   /* Opcional: cantos arredondados */
+    object-fit: contain;   /* Garante que a imagem não distorça */
+}
+
+.imagem-container {
     width: 100%;
     max-width: 600px;
-    height: 500px;
-    margin: 20px auto;
-    display: block;
-    border: 1px solid #ddd;
+    aspect-ratio: 277 / 363;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.imagem-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* ou 'cover' para preencher totalmente o espaço */
+}
+
+
+.mini-banner {
+    width: 15%;
+    height: 100%;
+    float: left;
+}
+/* Contêiner flexível para os patrocinadores */
+.patrocinio-container {
+    display: flex;
+    justify-content: space-between; /* Distribui o espaço uniformemente entre as imagens */
+    gap: 20px; /* Adiciona um espaçamento de 20px entre as imagens */
+    flex-wrap: wrap; /* Permite que as imagens quebrem para a linha seguinte caso não caibam em uma única linha */
+    padding: 10px;
+}
+
+/* Cada patrocinador */
+.patrocinador {
+    margin-left: 0; /* Remover o margin-left antigo */
+    flex: 1; /* Faz com que as imagens se ajustem automaticamente */
+    max-width: 340px; /* Limita a largura máxima das imagens */
+    height: auto;
+}
+
+footer {
+    height: 120px;
+    position: static;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: white;
+    background-color: rgb(30, 60, 100); /* Azul escuro para o rodapé */
+    text-align: center;
+}
+footer a{
+    color: white;
+    text-decoration: none;
+}
+
+footer a:hover{
+    color: white;
+    text-decoration: none;
+}
+
+.aviso {
+    color: #f39c12; /* Cor de texto laranja para destacar */
+    font-size: 14px; /* Um tamanho de fonte legível */
+    font-weight: bold; /* Deixar em negrito */
+    background-color: #fff3cd; /* Fundo amarelo claro */
+    padding: 10px; /* Espaçamento interno */
+    border: 1px solid #f8d7da; /* Borda vermelha clara */
+    border-radius: 5px; /* Bordas arredondadas */
+    display: inline-block; /* Faz com que a mensagem se comporte como um bloco */
+    margin-top: 10px; /* Um pouco de espaço acima */
+}
+.danger {
+    background-color: rgb(245, 0, 0); /* Vermelho vibrante */
+    color: white; /* Texto branco para contraste */
+    padding: 10px 20px; /* Espaçamento interno do botão */
+    border-radius: 5px; /* Bordas arredondadas */
+    font-size: 16px; /* Tamanho da fonte */
+    text-decoration: none; /* Remover o sublinhado de links */
+    display: inline-block; /* Exibir como bloco para permitir o padding */
+    text-align: center; /* Alinhar o texto ao centro */
+    cursor: pointer; /* Mostrar que é clicável */
+}
+
+.danger:hover {
+    background-color: rgb(220, 0, 0); /* Cor de fundo levemente mais escura ao passar o mouse */
+    text-decoration: none; /* Garantir que o sublinhado não apareça ao passar o mouse */
+}
+
+.botao-acao {
+    background-color: #3498db; /* Azul amigável */
+    color: white;
+    padding: 10px 20px;
     border-radius: 8px;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+}
+
+.botao-acao:hover {
+    background-color: #2980b9; /* Azul um pouco mais escuro no hover */
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.galeria-carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 700px;
+    position: relative;
+}
+
+.galeria-wrapper {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    height: 400px;
+}
+
+.galeria-slide {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: opacity 0.5s ease-in-out;
+    height: 100%;
+}
+
+.galeria-slide img {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.galeria-slide p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.galeria-slide.ativo {
+    display: flex;
+}
+
+.carousel-btn {
+    background-color: #1e3c64;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.carousel-btn:hover {
+    background-color: #355d99;
+}
+
+.aviso {
+    font-size: 14px; /* Tamanho padrão para mensagens */
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 10px;
+    display: inline-block;
+}
+
+.aviso.success {
+    background-color: #d4edda; /* Verde claro */
+    color: #155724; /* Verde escuro */
+    border: 1px solid #c3e6cb; /* Borda verde clara */
+}
+
+.aviso.error {
+    background-color: #f8d7da; /* Vermelho claro */
+    color: #721c24; /* Vermelho escuro */
+    border: 1px solid #f5c6cb; /* Borda vermelha clara */
+}
+
+.aviso.info {
+    background-color: #d1ecf1; /* Azul claro */
+    color: #0c5460; /* Azul escuro */
+    border: 1px solid #bee5eb; /* Borda azul clara */
 }

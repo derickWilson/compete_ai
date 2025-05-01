@@ -9,7 +9,7 @@
     try {
         require_once "classes/eventosServices.php";
         include "func/clearWord.php";
-        require_once "config_taxa.php";
+        include "config_taxa.php";
     } catch (\Throwable $th) {
         print('['. $th->getMessage() .']');
     }
@@ -62,12 +62,16 @@
             ?>
             <div class='principal'>
                 <h1><?php echo htmlspecialchars($eventoDetails->nome); ?></h1>
-                    <img class='banner' src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento">
+                    <div class="imagem-container">
+                        <img src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento">
+                    </div>
+                    
                     <p>Descrição: <?php echo htmlspecialchars($eventoDetails->descricao); ?></p>
                     <p>Data do Campeonato: <?php echo htmlspecialchars($eventoDetails->data_evento); ?></p>
                     <p>Local do Campeonato: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
                     <p>Preço
-                    <?php 
+                    <?php
+                    $taxa = 1;
                     if(!isset($_SESSION["idade"])){
                         $precoComTaxa = $eventoDetails->preco * $taxa;
                         $precoMenorComTaxa = $eventoDetails->preco_menor * $taxa;
@@ -151,10 +155,12 @@
                 }
                 ?>
         <br><center>Tabela de Pesos</center>
-        <center>
-        <object data="tabela_de_pesos.pdf" type="application/pdf" width="60%" height="300px"></object>
-        </center>
-        <br><a class="link" href="index.php">voltar</a>||
+        <div class="pdf-container">
+            <object data="tabela_de_pesos.pdf" type="application/pdf" width="100%" height="100%">
+                <p>Seu navegador não suporta PDFs. <a href="tabela_de_pesos.pdf">Baixe o arquivo</a>.</p>
+            </object>
+        </div>
+        <br><a href="eventos.php" class="link">Voltar</a>||
         <?php
         if(isset($_SESSION['admin']) && $_SESSION["admin"] == 1) {
             echo "<a href='/admin/editar_evento.php?id=" . $eventoId . "'>Editar</a>";
