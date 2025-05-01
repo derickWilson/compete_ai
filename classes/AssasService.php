@@ -257,6 +257,49 @@ class AssasService {
         }
     }
     
+    public function verificarStatusCobranca($cobrancaId) {
+        try {
+            // Validação do ID da cobrança
+            if (empty($cobrancaId)) {
+                throw new InvalidArgumentException("ID da cobrança não pode ser vazio");
+            }
+    
+            // Faz a requisição à API Asaas
+            $response = $this->sendRequest('GET', '/payments/' . $cobrancaId);
+    
+            // Mapeamento de status para português
+            $statusMap = [
+                'PENDING' => 'PENDENTE',
+                'RECEIVED' => 'PAGO',
+                'CONFIRMED' => 'CONFIRMADO',
+                'OVERDUE' => 'VENCIDO',
+                'REFUNDED' => 'REEMBOLSADO',
+                'RECEIVED_IN_CASH' => 'RECEBIDO EM DINHEIRO',
+                'REFUND_REQUESTED' => 'SOLICITADO REEMBOLSO',
+                'CHARGEBACK_REQUESTED' => 'SOLICITADO ESTORNO',
+                'CHARGEBACK_DISPUTE' => 'EM DISPUTA',
+                'AWAITING_CHARGEBACK_REVERSAL' => 'AGUARDANDO REVERSÃO',
+                'DUNNING_REQUESTED' => 'EM COBRANÇA',
+                'DUNNING_RECEIVED' => 'COBRANÇA RECEBIDA',
+                'AWAITING_RISK_ANALYSIS' => 'AGUARDANDO ANÁLISE'
+            ];
+    
+            // Verifica se o status existe no mapeamento
+            $status = $response['status'] ?? 'UNKNOWN';
+            $statusTraduzido = $statusMap[$status] ?? $status;
+    
+            return [
+                'status' => $status,
+                'traduzido' => $statusTraduzido,
+                'detalhes' => $response
+            ];
+    
+        } catch (Exception $e) {
+            error_log("Erro ao verificar status da cobrança: " . $e->getMessage());
+            throw new Exception("Não foi possível verificar o status da cobrança: " . $e->getMessage());
+        }
+    }
+
     private function sendRequest($method, $endpoint, $data = null) {
         $url = $this->baseUrl . $endpoint;
         $curl = curl_init();

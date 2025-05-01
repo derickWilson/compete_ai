@@ -9,10 +9,14 @@ if (!isset($_SESSION["logado"])) {
     exit();
 }
 
-// Obtém ID da cobrança
+// Obtém ID da cobrança e modo de visualização
 $cobrancaId = $_GET['cobranca_id'] ?? null;
+$modoVisualizacao = isset($_GET['view']);
+
 if (empty($cobrancaId)) {
-    die("ID da cobrança não informado");
+    $_SESSION['erro'] = "ID da cobrança não informado";
+    header("Location: eventos_cadastrados.php");
+    exit();
 }
 
 try {
@@ -21,12 +25,6 @@ try {
     
     // 1. Verifica status atual
     $status = $asaasService->verificarStatusCobranca($cobrancaId);
-    
-    // Se já estiver pago, redireciona para o comprovante
-    if (in_array($status['status'], ['RECEIVED', 'CONFIRMED'])) {
-        header("Location: comprovante.php?id=" . $cobrancaId);
-        exit();
-    }
     
     // 2. Busca dados completos da cobrança
     $cobranca = $asaasService->buscarCobrancaCompleta($cobrancaId);
@@ -37,17 +35,30 @@ try {
     
     $dadosCobranca = $cobranca['payment'];
     
+    // Se já estiver pago e não for modo visualização, redireciona para o comprovante
+    if (!$modoVisualizacao && in_array($status['status'], ['RECEIVED', 'CONFIRMED'])) {
+        header("Location: comprovante.php?id=" . $cobrancaId);
+        exit();
+    }
+    
 } catch (Exception $e) {
-    die("Erro ao processar pagamento: " . $e->getMessage());
+    $_SESSION['erro'] = "Erro ao processar pagamento: " . $e->getMessage();
+    header("Location: eventos_cadastrados.php");
+    exit();
 }
+
+// Determina o título da página
+$tituloPagina = $modoVisualizacao ? "Detalhes do Pagamento" : "Pagamento via PIX";
 ?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagamento - <?= htmlspecialchars($dadosCobranca['description']) ?></title>
+    <title><?= $tituloPagina ?> - <?= htmlspecialchars($dadosCobranca['description']) ?></title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Estilos mantidos do arquivo original */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -62,72 +73,29 @@ try {
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        h1 {
-            color: #333;
-            text-align: center;
+        /* ... (outros estilos permanecem iguais) ... */
+        
+        /* Novo estilo para modo visualização */
+        .view-mode .pix-container {
+            opacity: 0.7;
         }
-        .payment-info {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f9f9f9;
-            border-radius: 5px;
-        }
-        .pix-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .pix-qrcode {
-            max-width: 300px;
-            margin: 0 auto;
-        }
-        .pix-code {
-            background: #f0f0f0;
-            padding: 10px;
-            border-radius: 5px;
-            word-break: break-all;
-            margin: 15px 0;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            margin: 5px;
-        }
-        .btn-copy {
-            background: #2ecc71;
-        }
-        .btn-print {
-            background: #e67e22;
-        }
-        .btn-back {
-            background: #95a5a6;
-        }
-        .expiration {
-            color: #e74c3c;
-            font-weight: bold;
-        }
-        .status-badge {
-            padding: 5px 10px;
-            border-radius: 20px;
-            color: white;
-            font-weight: bold;
-            display: inline-block;
-        }
-        .status-pending {
-            background: #f39c12;
+        .view-mode .btn-pagar {
+            display: none;
         }
     </style>
 </head>
-<body>
+<body class="<?= $modoVisualizacao ? 'view-mode' : '' ?>">
     <div class="container">
-        <h1>Pagamento via PIX</h1>
+        <h1><?= $tituloPagina ?></h1>
         
         <div class="payment-info">
             <h2><?= htmlspecialchars($dadosCobranca['description']) ?></h2>
             <p><strong>Valor:</strong> R$ <?= number_format($dadosCobranca['value'], 2, ',', '.') ?></p>
-            <p><strong>Status:</strong> <span class="status-badge status-pending"><?= $status['traduzido'] ?></span></p>
+            <p><strong>Status:</strong> 
+                <span class="status-badge status-<?= strtolower($status['traduzido']) ?>">
+                    <?= $status['traduzido'] ?>
+                </span>
+            </p>
             <p><strong>Vencimento:</strong> <?= date('d/m/Y', strtotime($dadosCobranca['dueDate'])) ?></p>
         </div>
         
@@ -145,16 +113,31 @@ try {
                 <p id="pix-code"><?= $dadosCobranca['pix']['payload'] ?></p>
             </div>
             
-            <button onclick="copyPixCode()" class="btn btn-copy">Copiar Código</button>
-            <button onclick="window.print()" class="btn btn-print">Imprimir</button>
-            <a href="comprovante.php?id=<?= $cobrancaId ?>" class="btn btn-comprovante">Ver Comprovante</a>
-            <a href="eventos_cadastrados.php" class="btn btn-back">Voltar</a>
+            <?php if (!$modoVisualizacao): ?>
+                <button onclick="copyPixCode()" class="btn btn-copy">
+                    <i class="fas fa-copy"></i> Copiar Código
+                </button>
+            <?php endif; ?>
+            
+            <button onclick="window.print()" class="btn btn-print">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            
+            <a href="comprovante.php?id=<?= $cobrancaId ?>" class="btn btn-comprovante">
+                <i class="fas fa-receipt"></i> Comprovante
+            </a>
+            
+            <a href="eventos_cadastrados.php" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
         </div>
         <?php else: ?>
         <div class="payment-info">
             <p>Não foi possível gerar o PIX para esta cobrança.</p>
             <p>Por favor, tente novamente mais tarde ou entre em contato com o suporte.</p>
-            <a href="eventos_cadastrados.php" class="btn btn-back">Voltar</a>
+            <a href="eventos_cadastrados.php" class="btn btn-back">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
         </div>
         <?php endif; ?>
     </div>
@@ -167,7 +150,8 @@ try {
                 .catch(err => console.error('Erro ao copiar: ', err));
         }
         
-        // Atualiza o status a cada 30 segundos
+        <?php if (!$modoVisualizacao): ?>
+        // Atualiza o status a cada 30 segundos apenas no modo de pagamento
         setInterval(() => {
             fetch(`atualiza_status.php?cobranca_id=<?= $cobrancaId ?>`)
                 .then(response => response.json())
@@ -177,6 +161,7 @@ try {
                     }
                 });
         }, 30000);
+        <?php endif; ?>
     </script>
 </body>
 </html>

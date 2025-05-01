@@ -5,11 +5,13 @@ require_once "func/database.php";
 
 header('Content-Type: application/json');
 
+// Verifica autenticação
 if (!isset($_SESSION["logado"])) {
     echo json_encode(['error' => 'Não autorizado']);
     exit();
 }
 
+// Obtém ID da cobrança
 $cobrancaId = $_GET['cobranca_id'] ?? null;
 if (empty($cobrancaId)) {
     echo json_encode(['error' => 'ID da cobrança não informado']);
