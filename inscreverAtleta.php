@@ -2,7 +2,7 @@
 session_start();
 
 // Configuração de logs
-ini_set('display_errors', 0); // Desative em produção
+ini_set('display_errors', 0);
 file_put_contents('asaas_debug.log', "\n\n" . date('Y-m-d H:i:s') . " - Início da inscrição", FILE_APPEND);
 
 // Verificações iniciais
@@ -18,14 +18,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-// Inclui dependências
 require_once "classes/eventosServices.php";
 require_once "classes/AssasService.php";
 require_once "func/clearWord.php";
 require_once "func/database.php";
 
 try {
-    // Inicializa serviços
     $conn = new Conexao();
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
@@ -47,11 +45,9 @@ try {
         'abs_sem' => isset($_POST['abs_sem']) ? 1 : 0
     ];
 
-    // Validação de modalidade selecionada
     $modalidade_escolhida = cleanWords($_POST['modalidade']);
 
-    // Cálculo do valor
-    // Cálculo do valor com a taxa de 1,98%
+    // Cálculo do valor com taxa
     $taxa = 1.0198;
     $valor = ($_SESSION['idade'] > 15) ? $eventoDetails->preco * $taxa : $eventoDetails->preco_menor * $taxa;
     
@@ -59,38 +55,16 @@ try {
         $valor = $eventoDetails->preco_abs * $taxa;
     }
 
-    // 1. Valide TUDO primeiro (mesmo que "teoricamente" já esteja válido)
+    // Validação dos dados da sessão
     $requiredSession = ['id', 'nome', 'cpf', 'email', 'fone'];
     foreach ($requiredSession as $field) {
         if (empty($_SESSION[$field])) {
-            throw new Exception("Dados incompletos na sessão");
+            throw new Exception("Dados incompletos na sessão - Campo $field faltando");
         }
     }
 
-    // Em inscreverAtleta.php, antes de criar $dadosAtleta
-    $requiredSession = ['id', 'nome', 'cpf', 'email', 'fone'];
-    foreach ($requiredSession as $field) {
-        if (empty($_SESSION[$field])) {
-            error_log("Campo $field faltando na sessão");
-            throw new Exception("Dados incompletos na sessão");
-        }
-    }
-    // 2. Integração com Asaas
-    $dadosAtleta = [
-        'id' => $_SESSION['id'],
-        'nome' => $_SESSION['nome'],
-        'cpf' => $_SESSION['cpf'],
-        'email' => $_SESSION['email'],
-        'fone' => $_SESSION['fone'],
-        'academia' => $_SESSION['academia'] // Adiciona a academia
-    ];
-
-    // 2.1 Busca ou cria cliente
-    $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
-    file_put_contents('asaas_debug.log', "\nCustomer ID: $customerId", FILE_APPEND);
-    
     // 1. Inscreve no banco de dados local
-    $evserv->inscrever(
+    $inscricaoSucesso = $evserv->inscrever(
         $_SESSION['id'],
         $evento_id,
         $modalidades['com'],
@@ -99,38 +73,61 @@ try {
         $modalidades['abs_sem'],
         $modalidade_escolhida
     );
-    // 2.2 Cria cobrança
+    
+    if ($inscricaoSucesso === false) {
+        throw new Exception("Falha ao registrar inscrição no banco local");
+    }
+
+    // 2. Integração com Asaas
+    $dadosAtleta = [
+        'id' => $_SESSION['id'],
+        'nome' => $_SESSION['nome'],
+        'cpf' => $_SESSION['cpf'],
+        'email' => $_SESSION['email'],
+        'fone' => $_SESSION['fone'],
+        'academia' => $_SESSION['academia'] ?? null
+    ];
+
+    $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
+    file_put_contents('asaas_debug.log', "\nCustomer ID: $customerId", FILE_APPEND);
+
     $descricao = "Inscrição: " . $eventoDetails->nome . " (" . $modalidade_escolhida . ")";
     $cobranca = $asaasService->criarCobranca([
         'customer' => $customerId,
         'value' => $valor,
-        'dueDate' => $eventoDetails->data_limite, // Usa a data limite do evento
+        'dueDate' => $eventoDetails->data_limite,
         'description' => $descricao,
-        'externalReference' => 'EV_' . $evento_id . '_AT_' . $_SESSION['id']
+        'externalReference' => 'EV_' . $evento_id . '_AT_' . $_SESSION['id'],
+        'billingType' => 'PIX'
     ]);
 
-    // 2.3 Atualiza inscrição com dados do pagamento
-    $asaasService->atualizarInscricaoComPagamento(
+    // 3. Atualiza inscrição com dados do pagamento
+    $valorNumerico = (float) number_format($valor, 2, '.', '');
+    $atualizacao = $asaasService->atualizarInscricaoComPagamento(
         $_SESSION['id'],
         $evento_id,
         $cobranca['payment']['id'],
         AssasService::STATUS_PENDENTE,
-        $valor
+        $valorNumerico
     );
 
-    // Redireciona para os eventos
+    if (!$atualizacao) {
+        throw new Exception("Falha ao atualizar dados de pagamento");
+    }
+
     header("Location: eventos_cadastrados.php");
     exit();
 
 } catch (Exception $e) {
-    // Log detalhado do erro
-    file_put_contents('asaas_debug.log', 
-        "\nERRO: " . $e->getMessage() . 
-        "\nTRACE: " . $e->getTraceAsString(), 
+    file_put_contents('asaas_error.log', 
+        "\nERRO: " . date('Y-m-d H:i:s') .
+        "\nMensagem: " . $e->getMessage() .
+        "\nArquivo: " . $e->getFile() .
+        "\nLinha: " . $e->getLine() .
+        "\nTrace: " . $e->getTraceAsString() . "\n",
         FILE_APPEND
     );
 
-    // Mensagem amigável
     $_SESSION['erro_inscricao'] = "Erro na inscrição: " . $e->getMessage();
     header("Location: evento_detalhes.php?id=" . $evento_id);
     exit();

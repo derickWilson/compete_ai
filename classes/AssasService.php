@@ -212,25 +212,48 @@ class AssasService {
     }
     
     public function atualizarInscricaoComPagamento($atletaId, $eventoId, $cobrancaId, $status, $valor) {
-        $query = "UPDATE inscricao SET 
-                    id_cobranca_asaas = :cobranca_id,
-                    status_pagamento = :status,
-                    valor_pago = :valor
-                  WHERE id_atleta = :atleta_id AND id_evento = :evento_id";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(':cobranca_id', $cobrancaId);
-        $stmt->bindValue(':status', $status);
-        $stmt->bindValue(':valor', $valor);
-        $stmt->bindValue(':atleta_id', $atletaId);
-        $stmt->bindValue(':evento_id', $eventoId);
-        
         try {
-            $stmt->execute();
+            // Converte o valor para garantir formato numérico
+            $valorNumerico = (float) number_format($valor, 2, '.', '');
+            
+            $query = "UPDATE inscricao SET 
+                        id_cobranca_asaas = :cobranca_id,
+                        valor_pago = :valor,
+                        status_pagamento = :status
+                      WHERE id_atleta = :atleta_id AND id_evento = :evento_id";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':cobranca_id', $cobrancaId, PDO::PARAM_STR);
+            $stmt->bindValue(':valor', $valorNumerico, PDO::PARAM_STR);
+            $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+            $stmt->bindValue(':atleta_id', $atletaId, PDO::PARAM_INT);
+            $stmt->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
+            
+            if (!$stmt->execute()) {
+                $errorInfo = $stmt->errorInfo();
+                throw new Exception("Erro ao atualizar inscrição: " . $errorInfo[2]);
+            }
+            
+            // Verificação para confirmar que os dados foram atualizados
+            $verifica = $this->conn->prepare(
+                "SELECT valor_pago FROM inscricao 
+                 WHERE id_atleta = :atleta_id AND id_evento = :evento_id"
+            );
+            $verifica->bindValue(':atleta_id', $atletaId, PDO::PARAM_INT);
+            $verifica->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
+            $verifica->execute();
+            
+            $resultado = $verifica->fetch(PDO::FETCH_ASSOC);
+            
+            if ($resultado['valor_pago'] === null) {
+                throw new Exception("O valor pago não foi armazenado corretamente");
+            }
+            
             return true;
+            
         } catch (Exception $e) {
-            error_log("Erro ao atualizar inscrição: " . $e->getMessage());
-            throw new Exception("Falha ao atualizar inscrição com dados de pagamento: " . $e->getMessage());
+            error_log("ERRO ATUALIZAÇÃO: " . $e->getMessage());
+            throw $e;
         }
     }
     
