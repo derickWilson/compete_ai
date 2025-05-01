@@ -316,3 +316,94 @@ RESPOSTA:
 {
   "status": "RECEIVED"
 }
+
+*************atualizar cobrança*******
+REQUISIÇÃO:
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, [
+  CURLOPT_URL => "https://api-sandbox.asaas.com/v3/payments/pay_b6bib9x9v8jdgmmf",
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => "",
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 30,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => "PUT",
+  CURLOPT_POSTFIELDS => json_encode([
+    'billingType' => 'PIX',
+    'value' => 100,
+    'dueDate' => '2025-05-10'
+  ]),
+  CURLOPT_HTTPHEADER => [
+    "accept: application/json",
+    "access_token: $aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjlhMDQ4ODc0LTJmMjMtNDIwMC1hY2JkLTAyMTViZDdiYmZkMzo6JGFhY2hfZjExMWYyNGYtNGU5NC00ZmZiLWFmNTEtMzk2N2NjZDQwMTk2",
+    "content-type: application/json"
+  ],
+]);
+
+$response = curl_exec($curl);
+$err = curl_error($curl);
+
+curl_close($curl);
+
+if ($err) {
+  echo "cURL Error #:" . $err;
+} else {
+  echo $response;
+}
+
+RESPOSTA:
+{
+  "object": "payment",
+  "id": "pay_b6bib9x9v8jdgmmf",
+  "dateCreated": "2025-05-01",
+  "customer": "cus_000006671245",
+  "checkoutSession": null,
+  "paymentLink": null,
+  "value": 100,
+  "netValue": 99.01,
+  "originalValue": null,
+  "interestValue": null,
+  "description": "Inscrição: CAMPEONATO PAULISTA (galo)",
+  "billingType": "PIX",
+  "pixTransaction": null,
+  "status": "PENDING",
+  "dueDate": "2025-05-10",
+  "originalDueDate": "2025-08-11",
+  "paymentDate": null,
+  "clientPaymentDate": null,
+  "installmentNumber": null,
+  "invoiceUrl": "https://sandbox.asaas.com/i/b6bib9x9v8jdgmmf",
+  "invoiceNumber": "08841012",
+  "externalReference": "EV_9_AT_100",
+  "deleted": false,
+  "anticipated": false,
+  "anticipable": false,
+  "creditDate": null,
+  "estimatedCreditDate": null,
+  "transactionReceiptUrl": null,
+  "nossoNumero": null,
+  "bankSlipUrl": null,
+  "lastInvoiceViewedDate": null,
+  "lastBankSlipViewedDate": null,
+  "discount": {
+    "value": 0,
+    "limitDate": null,
+    "dueDateLimitDays": 0,
+    "type": "FIXED"
+  },
+  "fine": {
+    "value": 0,
+    "type": "FIXED"
+  },
+  "interest": {
+    "value": 0,
+    "type": "PERCENTAGE"
+  },
+  "postalService": false,
+  "custody": null,
+  "escrow": null,
+  "refunds": null
+}
