@@ -9,6 +9,7 @@
     try {
         require_once "classes/eventosServices.php";
         include "func/clearWord.php";
+        require_once "config_taxa.php";
     } catch (\Throwable $th) {
         print('['. $th->getMessage() .']');
     }
@@ -66,10 +67,7 @@
                     <p>Data do Campeonato: <?php echo htmlspecialchars($eventoDetails->data_evento); ?></p>
                     <p>Local do Campeonato: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
                     <p>Preço
-                    <?php
-                    // Calcular a taxa de 1,98%
-                    $taxa = 1.0198;
-                                
+                    <?php 
                     if(!isset($_SESSION["idade"])){
                         $precoComTaxa = $eventoDetails->preco * $taxa;
                         $precoMenorComTaxa = $eventoDetails->preco_menor * $taxa;

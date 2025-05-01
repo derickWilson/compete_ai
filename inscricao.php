@@ -12,6 +12,7 @@ if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
 try {
     require_once "classes/atletaService.php";
     include "func/clearWord.php";
+    require_once "config_taxa.php";
 } catch (\Throwable $th) {
     print('['. $th->getMessage() .']');
 }
@@ -19,9 +20,6 @@ try {
 $conn = new Conexao();
 $at = new Atleta();
 $atserv = new atletaService($conn, $at);
-
-// Definindo taxa de 1.98%
-$taxa = 1.0198;
 
 if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento

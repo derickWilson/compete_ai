@@ -21,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 require_once "classes/eventosServices.php";
 require_once "classes/AssasService.php";
 require_once "func/clearWord.php";
+require_once "config_taxa.php";
 require_once "func/database.php";
 
 try {
@@ -48,7 +49,6 @@ try {
     $modalidade_escolhida = cleanWords($_POST['modalidade']);
 
     // Cálculo do valor com taxa
-    $taxa = 1.0198;
     $valor = ($_SESSION['idade'] > 15) ? $eventoDetails->preco * $taxa : $eventoDetails->preco_menor * $taxa;
     
     if (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
