@@ -300,6 +300,38 @@ class AssasService {
         }
     }
 
+    public function buscarCobrancaCompleta($cobrancaId) {
+        try {
+            $response = $this->sendRequest('GET', '/payments/' . $cobrancaId);
+            
+            // Se for PIX, busca informações adicionais
+            if ($response['billingType'] === 'PIX' && $response['status'] === 'PENDING') {
+                $pixInfo = $this->buscarQrCodePix($cobrancaId);
+                $response['pix'] = $pixInfo;
+            }
+            
+            return [
+                'success' => true,
+                'payment' => $response
+            ];
+            
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
+        }
+    }
+    
+    public function buscarQrCodePix($cobrancaId) {
+        $response = $this->sendRequest('GET', '/payments/' . $cobrancaId . '/pixQrCode');
+        return [
+            'encodedImage' => $response['encodedImage'],
+            'payload' => $response['payload'],
+            'expirationDate' => $response['expirationDate']
+        ];
+    }
+
     private function sendRequest($method, $endpoint, $data = null) {
         $url = $this->baseUrl . $endpoint;
         $curl = curl_init();

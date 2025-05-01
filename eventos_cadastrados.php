@@ -9,9 +9,9 @@ require_once "classes/atletaService.php";
 require_once "classes/AssasService.php";
 require_once "func/database.php";
 
-// Configuração para exibir erros (apenas para desenvolvimento)
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+// Inicializa variáveis
+$inscritos = [];
+$erro = null;
 
 try {
     $conn = new Conexao();
@@ -19,9 +19,13 @@ try {
     $atletaService = new atletaService($conn, $atleta);
     $asaasService = new AssasService($conn);
     
-    $inscritos = $atletaService->listarCampeonatos($_SESSION["id"]);
+    // Garante que $inscritos será sempre um array
+    $resultado = $atletaService->listarCampeonatos($_SESSION["id"]);
+    $inscritos = is_array($resultado) ? $resultado : [];
 } catch (Exception $e) {
-    $_SESSION['erro'] = "Erro ao obter inscrições: " . $e->getMessage();
+    $erro = "Erro ao obter inscrições: " . $e->getMessage();
+    error_log($erro);
+    $_SESSION['erro'] = $erro;
     header("Location: index.php");
     exit();
 }
@@ -226,19 +230,23 @@ try {
     
     <?php if (isset($_SESSION['sucesso'])): ?>
         <div class="alert alert-success">
-            <?= $_SESSION['sucesso']; unset($_SESSION['sucesso']); ?>
+            <i class="fas fa-check-circle"></i> <?= $_SESSION['sucesso']; unset($_SESSION['sucesso']); ?>
         </div>
     <?php endif; ?>
     
     <?php if (isset($_SESSION['erro'])): ?>
         <div class="alert alert-error">
-            <?= $_SESSION['erro']; unset($_SESSION['erro']); ?>
+            <i class="fas fa-exclamation-circle"></i> <?= $_SESSION['erro']; unset($_SESSION['erro']); ?>
+        </div>
+    <?php elseif ($erro): ?>
+        <div class="alert alert-error">
+            <i class="fas fa-exclamation-circle"></i> <?= $erro ?>
         </div>
     <?php endif; ?>
     
     <?php if (empty($inscritos)): ?>
         <div class="alert alert-info">
-            Você não está inscrito em nenhum campeonato no momento.
+            <i class="fas fa-info-circle"></i> Você não está inscrito em nenhum campeonato no momento.
         </div>
     <?php else: ?>
         <div class="table-responsive">
@@ -260,11 +268,12 @@ try {
                 </thead>
                 <tbody>
                     <?php foreach ($inscritos as $inscrito): 
+                        if (!is_object($inscrito)) continue;
+                        
                         $statusPagamento = $inscrito->status_pagamento ?? 'PENDENTE';
                         $cobrancaId = $inscrito->id_cobranca_asaas ?? null;
                         $valorPago = isset($inscrito->valor_pago) ? 'R$ ' . number_format($inscrito->valor_pago, 2, ',', '.') : '--';
                         
-                        // Verificar status atualizado se existir cobrança
                         if ($cobrancaId) {
                             try {
                                 $statusInfo = $asaasService->verificarStatusCobranca($cobrancaId);
@@ -275,80 +284,65 @@ try {
                             }
                         }
                         
-                        // Determinar classe e ícone do status
-                        $statusClass = 'status-' . strtolower($statusPagamento);
+                        $statusClass = 'status-' . strtolower(str_replace(' ', '-', $statusPagamento));
                         $statusIcon = '';
                         
                         switch (strtoupper($statusPagamento)) {
                             case 'PAGO':
                             case 'RECEIVED':
                                 $statusClass = 'status-pago';
-                                $statusIcon = '<i class="fas fa-check-circle"></i>';
+                                $statusIcon = 'fa-check-circle';
                                 break;
                             case 'CONFIRMADO':
                             case 'CONFIRMED':
                                 $statusClass = 'status-confirmado';
-                                $statusIcon = '<i class="fas fa-check-double"></i>';
+                                $statusIcon = 'fa-check-double';
                                 break;
                             case 'PENDENTE':
                             case 'PENDING':
                                 $statusClass = 'status-pendente';
-                                $statusIcon = '<i class="fas fa-clock"></i>';
+                                $statusIcon = 'fa-clock';
                                 break;
                             case 'VENCIDO':
                             case 'OVERDUE':
                                 $statusClass = 'status-vencido';
-                                $statusIcon = '<i class="fas fa-exclamation-circle"></i>';
+                                $statusIcon = 'fa-exclamation-circle';
                                 break;
                             case 'ERRO':
                                 $statusClass = 'status-erro';
-                                $statusIcon = '<i class="fas fa-times-circle"></i>';
+                                $statusIcon = 'fa-times-circle';
                                 break;
                             default:
                                 $statusClass = 'status-pendente';
-                                $statusIcon = '<i class="fas fa-question-circle"></i>';
+                                $statusIcon = 'fa-question-circle';
                         }
                     ?>
                     <tr>
-                        <td><?= $_SESSION["id"] . $inscrito->idC ?></td>
+                        <td><?= $_SESSION["id"] . ($inscrito->idC ?? '') ?></td>
                         <td>
-                            <a href="eventos.php?id=<?= (int)$inscrito->idC ?>">
-                                <?= htmlspecialchars($inscrito->campeonato) ?>
+                            <a href="eventos.php?id=<?= (int)($inscrito->idC ?? 0) ?>">
+                                <?= htmlspecialchars($inscrito->campeonato ?? '') ?>
                             </a>
                         </td>
-                        <td><?= htmlspecialchars($inscrito->lugar) ?></td>
-                        <td><?= date('d/m/Y', strtotime($inscrito->dia)) ?></td>
-                        <td><?= htmlspecialchars($inscrito->modalidade) ?></td>
-                        <td class="text-center"><?= $inscrito->mcom ? "X" : "" ?></td>
-                        <td class="text-center"><?= $inscrito->msem ? "X" : "" ?></td>
-                        <td class="text-center"><?= $inscrito->macom ? "X" : "" ?></td>
-                        <td class="text-center"><?= $inscrito->masem ? "X" : "" ?></td>
+                        <td><?= htmlspecialchars($inscrito->lugar ?? '') ?></td>
+                        <td><?= isset($inscrito->dia) ? date('d/m/Y', strtotime($inscrito->dia)) : '' ?></td>
+                        <td><?= htmlspecialchars($inscrito->modalidade ?? '') ?></td>
+                        <td class="text-center"><?= !empty($inscrito->mcom) ? "X" : "" ?></td>
+                        <td class="text-center"><?= !empty($inscrito->msem) ? "X" : "" ?></td>
+                        <td class="text-center"><?= !empty($inscrito->macom) ? "X" : "" ?></td>
+                        <td class="text-center"><?= !empty($inscrito->masem) ? "X" : "" ?></td>
                         <td>
                             <span class="status <?= $statusClass ?>">
-                                <?= $statusIcon ?> <?= $statusPagamento ?>
+                                <i class="fas <?= $statusIcon ?>"></i> <?= $statusPagamento ?>
                             </span>
                             <span class="valor-pago"><?= $valorPago ?></span>
                         </td>
                         <td class="acoes-cell">
-                            <?php if (!in_array(strtoupper($statusPagamento), ['PAGO', 'RECEIVED', 'CONFIRMADO', 'CONFIRMED'])): ?>
-                                <?php if ($cobrancaId): ?>
-                                    <a href="pagamento.php?cobranca_id=<?= $cobrancaId ?>" class="btn btn-pagar">
-                                        <i class="fas fa-money-bill-wave"></i> Pagar
-                                    </a>
-                                    <a href="visualizar_cobranca.php?cobranca_id=<?= $cobrancaId ?>" class="btn btn-visualizar" title="Ver cobrança">
-                                        <i class="fas fa-eye"></i> Detalhes
-                                    </a>
-                                <?php else: ?>
-                                    <a href="gerar_cobranca.php?evento_id=<?= $inscrito->idC ?>&atleta_id=<?= $_SESSION["id"] ?>" class="btn btn-gerar">
-                                        <i class="fas fa-file-invoice-dollar"></i> Gerar Cobrança
-                                    </a>
-                                <?php endif; ?>
-                            <?php elseif ($cobrancaId): ?>
-                                <a href="visualizar_cobranca.php?cobranca_id=<?= $cobrancaId ?>" class="btn btn-visualizar" title="Ver recibo">
-                                    <i class="fas fa-receipt"></i> Recibo
-                                </a>
-                            <?php endif; ?>
-                            
+                            <a href="pagamento.php?evento_id=<?php echo htmlspecialchars($inscrito->assas) ;?>" 
+                               class="btn <?= $cobrancaId ? 'btn-visualizar' : 'btn-pagar' ?>">
+                                <i class="fas <?= $cobrancaId ? 'fa-eye' : 'fa-money-bill-wave' ?>"></i>
+                                <?= $cobrancaId ? 'Ver Pagamento' : 'Pagar' ?>
+                            </a>
                             <a href="inscricao.php?inscricao=<?= $inscrito->idC ?>" class="btn btn-editar" title="Editar inscrição">
                                 <i class="fas fa-edit"></i> Editar
                             </a>

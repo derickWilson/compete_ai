@@ -199,23 +199,45 @@
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['count'] > 0;
         }
-        public function listarCampeonatos($id_atleta){
-            $query = 'SELECT e.id as idC, e.nome as campeonato, e.local_evento as lugar, e.data_evento as dia,
-            i.mod_com as mcom, i.mod_sem as msem, i.mod_ab_com as macom, i.mod_ab_sem as masem, i.modalidade,
-            i.id_cobranca_asaas, i.valor_pago, i.status_pagamento
-            FROM inscricao i
-            JOIN evento e ON e.id = i.id_evento
-            WHERE i.id_atleta = :idAtleta';
-            
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindValue(":idAtleta", $id_atleta);
-            try{
-                $stmt->execute();
-            }catch(Exception $e){
-                echo "erro [".$e->getMessage()."]";
+        public function listarCampeonatos($id_atleta) {
+            // Validação básica do ID
+            if (!is_numeric($id_atleta) || $id_atleta <= 0) {
+                throw new InvalidArgumentException("ID do atleta inválido");
             }
-            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-            return $result;
+        
+            $query = 'SELECT 
+                        e.id as idC, 
+                        e.nome as campeonato, 
+                        e.local_evento as lugar, 
+                        e.data_evento as dia,
+                        i.mod_com as mcom, 
+                        i.mod_sem as msem, 
+                        i.mod_ab_com as macom, 
+                        i.mod_ab_sem as masem, 
+                        i.modalidade,
+                        i.id_cobranca_asaas as assas,  // Aqui está o alias
+                        i.valor_pago, 
+                        i.status_pagamento
+                    FROM inscricao i
+                    JOIN evento e ON e.id = i.id_evento
+                    WHERE i.id_atleta = :idAtleta';
+        
+            try {
+                $stmt = $this->conn->prepare($query);
+                $stmt->bindValue(":idAtleta", $id_atleta, PDO::PARAM_INT);
+                $stmt->execute();
+                
+                $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+                
+                // Debug: Verifique a estrutura dos objetos retornados
+                // error_log(print_r($result, true));
+                
+                return $result;
+                
+            } catch (PDOException $e) {
+                error_log("Erro ao listar campeonatos: " . $e->getMessage());
+                throw new Exception("Erro ao buscar inscrições. Por favor, tente novamente.");
+            }
         }
         public function updateAtleta(){
             $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, faixa = :faixa, peso = :peso, diploma = :diploma
