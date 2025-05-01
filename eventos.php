@@ -105,23 +105,22 @@
                                 <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
                                 <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->preco); ?>">
                                 <?php
-                                // Caso o tipo de campeonato seja com quimono
-                                if ($eventoDetails->tipo_com == 1) {
-                                    echo '<input type="checkbox" name="com"> Com Quimono ';
-                                    
-                                    if($_SESSION["idade"]> 15){
-                                        echo '<input type="checkbox" name="abs_com"> Absoluto Com Quimono ';
-                                    }
-                                }
+                            // Caso o tipo de campeonato seja com quimono
+                            if ($eventoDetails->tipo_com == 1) {
+                                echo '<input type="checkbox" name="com" checked onclick="return false;" style="pointer-events: none;"> Com Quimono ';
 
-                                // Caso o tipo de campeonato seja sem quimono
-                                if ($eventoDetails->tipo_sem == 1) {
-                                    echo '<input type="checkbox" name="sem"> Sem Quimono ';
-                                    if($_SESSION["idade"]> 15){
-                                        echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
-                                    }
+                                if($_SESSION["idade"] > 15){
+                                    echo '<input type="checkbox" name="abs_com"> Absoluto Com Quimono ';
                                 }
-                                ?>
+                            }
+
+                            // Caso o tipo de campeonato seja sem quimono
+                            if ($eventoDetails->tipo_sem == 1) {
+                                echo '<input type="checkbox" name="sem"> Sem Quimono ';
+                                if($_SESSION["idade"] > 15){
+                                    echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
+                                }
+                            }?>
                                 <br>modalidade<select name="modalidade">
                                 <option value="galo">Galo</option>
                                 <option value="pluma">Pluma</option>

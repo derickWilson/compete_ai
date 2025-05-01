@@ -72,7 +72,9 @@ CREATE TABLE IF NOT EXISTS evento(
         mod_ab_com TINYINT,
         mod_ab_sem TINYINT,
         modalidade VARCHAR(18),
-        pago TINYINT(1) default 0,
+        id_cobranca_asaas VARCHAR(50) NULL,
+        status_pagamento VARCHAR(20) DEFAULT 'PENDING',
+        valor_pago FLOAT(5,2) NULL,
         PRIMARY KEY (id_atleta, id_evento),
         FOREIGN KEY (id_atleta) REFERENCES atleta(id),
         FOREIGN KEY (id_evento) REFERENCES evento(id)
@@ -84,8 +86,3 @@ CREATE TABLE IF NOT EXISTS galeria (
     imagem VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
-
--- Tabela inscricao
-ALTER TABLE inscricao ADD COLUMN id_cobranca_asaas VARCHAR(50) NULL,
-ALTER TABLE inscricao ADD COLUMN status_pagamento VARCHAR(20) DEFAULT 'PENDING',
-ALTER TABLE inscricao ADD COLUMN valor_pago FLOAT(5,2) NULL,

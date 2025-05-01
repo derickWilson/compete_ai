@@ -1,11 +1,13 @@
 <?php
 // Incluindo arquivos necessários
-session_start();/*
+session_start();
+/*
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);*/
-if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]){
+if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
     header("Location: index.php");
+    exit();
 }
 try {
     require_once "classes/atletaService.php";
@@ -13,16 +15,34 @@ try {
 } catch (\Throwable $th) {
     print('['. $th->getMessage() .']');
 }
-    $conn = new Conexao();
-    $at = new Atleta();
-    $atserv = new atletaService($conn, $at);
+
+$conn = new Conexao();
+$at = new Atleta();
+$atserv = new atletaService($conn, $at);
+
+// Definindo taxa de 1.98%
+$taxa = 1.0198;
+
 if (isset($_GET["inscricao"])) {
     // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET["inscricao"]);
-    $inscricao = $atserv->getInscricao($eventoId,$_SESSION["id"]);    
+    $inscricao = $atserv->getInscricao($eventoId, $_SESSION["id"]);
+    
+    // Verifica se a inscrição foi encontrada
+    if (!$inscricao) {
+        $_SESSION['erro'] = "Inscrição não encontrada";
+        header("Location: eventos_cadastrados.php");
+        exit();
+    }
+    
+    // Aplicando a taxa aos preços
+    $inscricao->preco = number_format($inscricao->preco * $taxa, 2, ',', '.');
+    $inscricao->preco_menor = number_format($inscricao->preco_menor * $taxa, 2, ',', '.');
+    $inscricao->preco_abs = number_format($inscricao->preco_abs * $taxa, 2, ',', '.');
 } else {
-    echo "selecione um campeonato";
+    $_SESSION['erro'] = "Selecione um campeonato";
     header("Location: eventos_cadastrados.php");
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -43,12 +63,13 @@ if (isset($_GET["inscricao"])) {
     <p>Preço
         <?php
         if($_SESSION["idade"] > 15){
-            echo $inscricao->preco." R$";
-            echo "<br>Preco Absoluto ".$inscricao->preco_abs." R$";
+            echo $inscricao->preco." R$ (inclui taxa de 1,98%)";
+            echo "<br>Preço Absoluto ".$inscricao->preco_abs." R$ (inclui taxa de 1,98%)";
         }else{
-            echo $inscricao->preco_menor." R$";
+            echo $inscricao->preco_menor." R$ (inclui taxa de 1,98%)";
         }
-         ?></p>
+        ?>
+    </p>
 <form action="editar_inscricao.php" method="POST">
        <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($inscricao->id); ?>">
        <?php

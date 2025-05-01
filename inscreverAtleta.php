@@ -92,15 +92,14 @@ try {
     file_put_contents('asaas_debug.log', "\nCustomer ID: $customerId", FILE_APPEND);
 
     $descricao = "Inscrição: " . $eventoDetails->nome . " (" . $modalidade_escolhida . ")";
-    $cobranca = $asaasService->criarCobranca([
-        'customer' => $customerId,
-        'value' => $valor,
-        'dueDate' => $eventoDetails->data_limite,
-        'description' => $descricao,
-        'externalReference' => 'EV_' . $evento_id . '_AT_' . $_SESSION['id'],
-        'billingType' => 'PIX'
-    ]);
-
+        $cobranca = $asaasService->criarCobranca([
+            'customer' => $customerId,
+            'value' => $valor,
+            'dueDate' => $eventoDetails->data_limite,
+            'description' => $descricao,
+            'externalReference' => 'EV_' . $evento_id . '_AT_' . $_SESSION['id'],
+            'billingType' => 'PIX'
+        ]);
     // 3. Atualiza inscrição com dados do pagamento
     $valorNumerico = (float) number_format($valor, 2, '.', '');
     $atualizacao = $asaasService->atualizarInscricaoComPagamento(
