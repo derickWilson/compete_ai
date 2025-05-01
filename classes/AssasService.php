@@ -12,8 +12,8 @@ class AssasService {
     const STATUS_CONFIRMADO = 'CONFIRMED';
 
     // Token
-//    private const ASAAS_TOKEN = '$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjlhMDQ4ODc0LTJmMjMtNDIwMC1hY2JkLTAyMTViZDdiYmZkMzo6JGFhY2hfZjExMWYyNGYtNGU5NC00ZmZiLWFmNTEtMzk2N2NjZDQwMTk2';
-    private const ASAAS_TOKEN = '$aact_prod_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OmRkN2RjYmEwLTFlMGEtNDdlMS04ODJlLTMyYjg0NmUyYTE4Nzo6JGFhY2hfMGQ1YWVlMTItZjcwZi00OGQ5LTk1NTUtOTJjZjYzNzk0NjE4';
+//    private const ASAAS_TOKEN = '';
+    private const ASAAS_TOKEN = '$';
 
     public function __construct(Conexao $conn, $baseUrl = 'https://api.asaas.com/v3') {
         $this->apiKey = self::ASAAS_TOKEN;
@@ -330,6 +330,25 @@ class AssasService {
             'payload' => $response['payload'],
             'expirationDate' => $response['expirationDate']
         ];
+    }
+
+    public function deletarCobranca($cobrancaId) {
+        try {
+            $response = $this->sendRequest('DELETE', '/payments/' . $cobrancaId);
+            
+            return [
+                'deleted' => true,
+                'response' => $response
+            ];
+        } catch (Exception $e) {
+            if (strpos($e->getMessage(), '404') !== false) {
+                // Cobrança já não existe
+                return ['deleted' => true];
+            }
+            
+            error_log("Erro ao deletar cobrança $cobrancaId: " . $e->getMessage());
+            throw new Exception("Não foi possível deletar a cobrança: " . $e->getMessage());
+        }
     }
 
     private function sendRequest($method, $endpoint, $data = null) {

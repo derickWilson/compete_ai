@@ -6,6 +6,7 @@ if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
 }
 
 if (!isset($_GET["id"])) {
+    $_SESSION['erro'] = "ID do evento não informado";
     header("Location: eventos_cadastrados.php");
     exit();
 }
@@ -19,31 +20,55 @@ try {
     $conn = new Conexao();
     $at = new Atleta();
     $atserv = new atletaService($conn, $at);
-    $asaas = new AsaasService($conn);
+    $asaasService = new AssasService($conn);
 } catch (\Throwable $th) {
-    die('Erro ao iniciar serviços: ' . $th->getMessage());
+    $_SESSION['erro'] = "Erro ao iniciar serviços: " . $th->getMessage();
+    header("Location: eventos_cadastrados.php");
+    exit();
 }
 
 // Pega dados do atleta e evento
-$evento = cleanWords($_GET["id"]);
-$atleta = $_SESSION["id"];
+$eventoId = (int) cleanWords($_GET["id"]);
+$atletaId = $_SESSION["id"];
 
-// Busca cobrança vinculada à inscrição
-$inscricao = $atserv->getInscricao($evento, $atleta);
-
-if ($inscricao && !empty($inscricao->id_cobranca_asaas)) {
-    try {
-        $asaas->deletarCobranca($inscricao->id_cobranca_asaas);
-    } catch (Exception $e) {
-        error_log("Erro ao deletar cobrança no Asaas: " . $e->getMessage());
-        // Você pode exibir um alerta ao usuário, se necessário.
+// Busca dados da inscrição
+try {
+    $inscricao = $atserv->getInscricao($eventoId, $atletaId);
+    
+    if (!$inscricao) {
+        $_SESSION['erro'] = "Inscrição não encontrada";
+        header("Location: eventos_cadastrados.php");
+        exit();
     }
+
+    // Se existir cobrança no Asaas, tenta deletar
+    if (!empty($inscricao->id_cobranca_asaas)) {
+        try {
+            // Verifica status da cobrança antes de deletar
+            $statusCobranca = $asaasService->verificarStatusCobranca($inscricao->id_cobranca_asaas);
+            
+            // Só deleta se o status for PENDING ou OVERDUE
+            if (in_array($statusCobranca['status'], ['PENDING', 'OVERDUE'])) {
+                $response = $asaasService->deletarCobranca($inscricao->id_cobranca_asaas);
+                
+                if (!$response['deleted']) {
+                    error_log("Falha ao deletar cobrança no Asaas. ID: " . $inscricao->id_cobranca_asaas);
+                }
+            } else {
+                error_log("Cobrança não pode ser deletada - Status: " . $statusCobranca['status']);
+            }
+        } catch (Exception $e) {
+            error_log("Erro ao deletar cobrança no Asaas: " . $e->getMessage());
+            // Continua o processo mesmo se falhar em deletar a cobrança
+        }
+    }
+
+    // Exclui inscrição do banco de dados
+    $atserv->excluirInscricao($eventoId, $atletaId);
+} catch (Exception $e) {
+    $_SESSION['erro'] = "Erro ao processar solicitação: " . $e->getMessage();
 }
 
-// Exclui inscrição do banco de dados
-$atserv->excluirInscricao($evento, $atleta);
-
-// Redireciona
 header("Location: eventos_cadastrados.php");
 exit();
 ?>
