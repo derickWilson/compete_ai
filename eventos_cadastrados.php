@@ -338,7 +338,7 @@ try {
                             <span class="valor-pago"><?= $valorPago ?></span>
                         </td>
                         <td class="acoes-cell">
-                            <a href="pagamento.php?evento_id=<?php echo htmlspecialchars($inscrito->assas) ;?>" 
+                            <a href="pagamento.php?cobranca_id=<?php echo htmlspecialchars($inscrito->assas) ;?>" 
                                class="btn <?= $cobrancaId ? 'btn-visualizar' : 'btn-pagar' ?>">
                                 <i class="fas <?= $cobrancaId ? 'fa-eye' : 'fa-money-bill-wave' ?>"></i>
                                 <?= $cobrancaId ? 'Ver Pagamento' : 'Pagar' ?>
