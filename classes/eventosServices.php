@@ -126,45 +126,50 @@ public function addEvento() {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }   
     //inscrever um atleta em um evento
-    public function inscrever($id_atleta, $id_evento, $mod_com, $mod_abs_com, $mod_sem, $mod_abs_sem, $modalidade) {
-    try {
-        $query = "INSERT INTO inscricao (
-                    id_atleta, 
-                    id_evento, 
-                    mod_com, 
-                    mod_sem, 
-                    mod_ab_com, 
-                    mod_ab_sem, 
-                    modalidade
-                  ) VALUES (
-                    :id_atleta, 
-                    :id_evento, 
-                    :mod_com, 
-                    :mod_sem, 
-                    :mod_ab_com, 
-                    :mod_ab_sem, 
-                    :modalidade
-                  )";
-        
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(':id_atleta', $id_atleta, PDO::PARAM_INT);
-        $stmt->bindValue(':id_evento', $id_evento, PDO::PARAM_INT);
-        $stmt->bindValue(':mod_com', $mod_com, PDO::PARAM_INT);
-        $stmt->bindValue(':mod_sem', $mod_sem, PDO::PARAM_INT);
-        $stmt->bindValue(':mod_ab_com', $mod_abs_com, PDO::PARAM_INT);
-        $stmt->bindValue(':mod_ab_sem', $mod_abs_sem, PDO::PARAM_INT);
-        $stmt->bindValue(':modalidade', $modalidade, PDO::PARAM_STR);
-        
-        $result = $stmt->execute();
-        
-        // Retorna true se bem-sucedido, false se falhar
-        return $result;
-        
-    } catch (PDOException $e) {
-        error_log("Erro ao inscrever atleta: " . $e->getMessage());
-        return false;
+    public function inscrever($id_atleta, $id_evento, $mod_com, $mod_abs_com, $mod_sem, $mod_abs_sem, $modalidade, $aceite_regulamento, $aceite_responsabilidade) {
+        try {
+            $query = "INSERT INTO inscricao (
+                        id_atleta, 
+                        id_evento, 
+                        mod_com, 
+                        mod_sem, 
+                        mod_ab_com, 
+                        mod_ab_sem, 
+                        modalidade,
+                        aceite_regulamento,
+                        aceite_responsabilidade
+                      ) VALUES (
+                        :id_atleta, 
+                        :id_evento, 
+                        :mod_com, 
+                        :mod_sem, 
+                        :mod_ab_com, 
+                        :mod_ab_sem, 
+                        :modalidade,
+                        :aceite_regulamento,
+                        :aceite_responsabilidade
+                      )";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':id_atleta', $id_atleta, PDO::PARAM_INT);
+            $stmt->bindValue(':id_evento', $id_evento, PDO::PARAM_INT);
+            $stmt->bindValue(':mod_com', $mod_com, PDO::PARAM_INT);
+            $stmt->bindValue(':mod_sem', $mod_sem, PDO::PARAM_INT);
+            $stmt->bindValue(':mod_ab_com', $mod_abs_com, PDO::PARAM_INT);
+            $stmt->bindValue(':mod_ab_sem', $mod_abs_sem, PDO::PARAM_INT);
+            $stmt->bindValue(':modalidade', $modalidade, PDO::PARAM_STR);
+            $stmt->bindValue(':aceite_regulamento', $aceite_regulamento, PDO::PARAM_BOOL);
+            $stmt->bindValue(':aceite_responsabilidade', $aceite_responsabilidade, PDO::PARAM_BOOL);
+            
+            $result = $stmt->execute();
+            
+            return $result;
+            
+        } catch (PDOException $e) {
+            error_log("Erro ao inscrever atleta: " . $e->getMessage());
+            return false;
+        }
     }
-}
     //ver se um atleta ja esta inscrito em um evento
     public function isInscrito($idAtleta, $idEvento){
         $query = "SELECT COUNT(*) as numero FROM inscricao i WHERE i.id_atleta = :idAtlera AND i.id_evento = :idEvento";

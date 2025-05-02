@@ -109,18 +109,18 @@
                                 <?php
                             // Caso o tipo de campeonato seja com quimono
                             if ($eventoDetails->tipo_com == 1) {
-                                echo '<input type="checkbox" name="com" checked onclick="return false;" style="pointer-events: none;"> Com Quimono ';
+                                echo '<input type="checkbox" name="com" checked onclick="return false;" style="pointer-events: none;"> Categoria ';
 
                                 if($_SESSION["idade"] > 15){
-                                    echo '<input type="checkbox" name="abs_com"> Absoluto Com Quimono ';
+                                    echo '<input type="checkbox" name="abs_com"> Categoria + Absoluto';
                                 }
                             }
 
                             // Caso o tipo de campeonato seja sem quimono
                             if ($eventoDetails->tipo_sem == 1) {
-                                echo '<input type="checkbox" name="sem"> Sem Quimono ';
+                                echo '<input type="checkbox" name="sem"> Categoria Sem Quimono ';
                                 if($_SESSION["idade"] > 15){
-                                    echo '<input type="checkbox" name="abs_sem"> Absoluto Sem Quimono ';
+                                    echo '<input type="checkbox" name="abs_sem"> Categoria Sem Quimono + Absoluto';
                                 }
                             }?>
                                 <br>modalidade<select name="modalidade">
@@ -136,7 +136,18 @@
                                 <?php if($_SESSION["idade"] > 15) echo "<option value='super-pesadissimo'>Super-Pesadíssimo</option>";?>
                                 </select>
 
-                                <input type="submit" value="Inscrever-se">
+                    <!-- Dentro do formulário de inscrição, antes do botão submit -->
+                    <div class="termos">
+                        <input type="checkbox" name="aceite_regulamento" id="aceite_regulamento" required>
+                        <label for="aceite_regulamento">Afirmo que li e aceito o regulamento do campeonato conforme exibido na página do campeonato</label>
+                                            
+                        <br>
+                                            
+                        <input type="checkbox" name="aceite_responsabilidade" id="aceite_responsabilidade" required>
+                        <label for="aceite_responsabilidade">Declaro que estou de acordo com os termos de responsabilidade da competição</label>
+                    </div>
+                                            
+                    <input type="submit" value="Inscrever-se">
                             </form>
                     <?php
                     }else{

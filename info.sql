@@ -86,3 +86,6 @@ CREATE TABLE IF NOT EXISTS galeria (
     imagem VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
+
+ALTER TABLE inscricao ADD COLUMN aceite_regulamento BOOLEAN DEFAULT FALSE;
+ALTER TABLE inscricao ADD COLUMN aceite_responsabilidade BOOLEAN DEFAULT FALSE;

@@ -64,6 +64,16 @@ try {
     }
 
     // 1. Inscreve no banco de dados local
+    // Após processar as modalidades, adicione:
+    $aceite_regulamento = isset($_POST['aceite_regulamento']) ? 1 : 0;
+    $aceite_responsabilidade = isset($_POST['aceite_responsabilidade']) ? 1 : 0;
+    
+    // Verifique se ambos os termos foram aceitos
+    if (!$aceite_regulamento || !$aceite_responsabilidade) {
+        throw new Exception("Você deve aceitar todos os termos para se inscrever");
+    }
+    
+    // Modifique a chamada de inscrever
     $inscricaoSucesso = $evserv->inscrever(
         $_SESSION['id'],
         $evento_id,
@@ -71,7 +81,9 @@ try {
         $modalidades['abs_com'],
         $modalidades['sem'],
         $modalidades['abs_sem'],
-        $modalidade_escolhida
+        $modalidade_escolhida,
+        $aceite_regulamento,
+        $aceite_responsabilidade
     );
     
     if ($inscricaoSucesso === false) {
