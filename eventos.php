@@ -95,7 +95,7 @@
                     ?></p>
 
                         <?php if (!empty($eventoDetails->doc)) { ?>
-                            <p><a href="<?php echo '/doc/' . htmlspecialchars($eventoDetails->doc); ?>" download>Baixe o Edital do Evento</a></p>
+                            <p><a href="<?php echo '/docs/' . htmlspecialchars($eventoDetails->doc); ?>" download>Baixe o Edital do Evento</a></p>
                         <?php } else { ?>
                             <p><em>Edital não disponível para este evento.</em></p>
                         <?php } ?>
@@ -123,7 +123,7 @@
                                     echo '<input type="checkbox" name="abs_sem"> Categoria Sem Quimono + Absoluto';
                                 }
                             }?>
-                                <br>modalidade<select name="modalidade">
+                                <br>Categoria<select name="modalidade">
                                 <option value="galo">Galo</option>
                                 <option value="pluma">Pluma</option>
                                 <option value="pena">Pena</option>
