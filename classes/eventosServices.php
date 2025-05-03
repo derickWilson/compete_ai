@@ -202,6 +202,48 @@ public function addEvento() {
             return false;
         }
     }
+    // Limpar evento vencidos
+    /**
+     * Limpa eventos que já passaram mais de 7 dias da data limite
+     * @return array Retorna estatísticas da operação (eventos deletados, arquivos deletados, etc.)
+     * @throws Exception Em caso de erro grave
+     */
+    public function limparEventosExpirados() {
+        // Primeiro obtemos os eventos que devem ser deletados
+        $query = "SELECT id FROM evento WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)";
+        $stmt = $this->conn->prepare($query);
+        
+        try {
+            $stmt->execute();
+            $eventosParaDeletar = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            $resultados = [
+                'total_eventos' => count($eventosParaDeletar),
+                'eventos_deletados' => 0,
+                'erros' => []
+            ];
+            
+            // Para cada evento, chamamos o método de deleção existente
+            foreach ($eventosParaDeletar as $idEvento) {
+                try {
+                    $this->deletarEvento($idEvento);
+                    $resultados['eventos_deletados']++;
+                } catch (Exception $e) {
+                    $resultados['erros'][] = [
+                        'id_evento' => $idEvento,
+                        'erro' => $e->getMessage()
+                    ];
+                    error_log("Erro ao deletar evento ID {$idEvento}: " . $e->getMessage());
+                }
+            }
+            
+            return $resultados;
+            
+        } catch (Exception $e) {
+            error_log('Erro ao buscar eventos expirados: ' . $e->getMessage());
+            throw new Exception("Erro ao buscar eventos para limpeza");
+        }
+    }
     //ver se um atleta ja esta inscrito em um evento
     public function isInscrito($idAtleta, $idEvento){
         $query = "SELECT COUNT(*) as numero FROM inscricao i WHERE i.id_atleta = :idAtlera AND i.id_evento = :idEvento";
