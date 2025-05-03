@@ -218,80 +218,87 @@ public function addEvento() {
         $num = $stmt->fetch(PDO::FETCH_OBJ);
         return $num->numero == 0;
     }
-    //montar chapa, não funciona
-    public function montarChapa($id,$infantil,$infantojuvenil, $masters,$pPesado,$medio){
-        $todos = $this->getInscritos($id);
-        $faixas = ["Branca", "Azul","Roxa","Preta", "Coral", "Vermelha", "Preta e Vermelha", "Preta e Branca"];
-
-        foreach($faixas as $cor){
-            $listaIdade = [
-                "infantil"=>array(),
-                "juvenil"=>array(),
-                "adulto"=>array(),
-                "master"=>array()
-            ];
-            foreach($todos as $inscrito){
-                //loop para separar por idade
-                if($inscrito->faixa == $cor){
-                    $idade = calcularIdade($inscrito->data_nascimento);
-                    switch($idade){
-                        case $idade < $infantil:
-                            array_push($listaIdade["infantil"], $inscrito);
-                            break;
-                
-                        case $idade >= $infantil && $idade < $infantojuvenil:
-                            array_push($listaIdade["juvenil"], $inscrito);
-                            break;
-                        case $idade >= $infantojuvenil && $idade < $masters:
-                            array_push($listaIdade["adulto"], $inscrito);
-                            break;
-                        case $idade >= $masters:
-                            array_push($listaIdade["master"], $inscrito);
-                            break;
-                    }
+        
+        //**************DELEÇÂO DE EVENTO */
+        /**
+     * Deleta um evento e seus arquivos associados
+     * @param int $idEvento ID do evento a ser deletado
+     * @return bool True se a exclusão foi bem-sucedida, false caso contrário
+     * @throws Exception Em caso de erro grave
+     */
+    public function deletarEvento($idEvento) {
+        // Primeiro obtemos os dados do evento para deletar os arquivos
+        $evento = $this->getById($idEvento);
+        
+        if (!$evento) {
+            throw new Exception("Evento não encontrado");
+        }
+        
+        // Inicia transação para garantir atomicidade
+        $this->conn->beginTransaction();
+        
+        try {
+            // 1. Deletar arquivos associados
+            $this->deletarArquivosEvento($evento);
+            
+            // 2. Deletar todas as inscrições relacionadas ao evento
+            $this->deletarInscricoesEvento($idEvento);
+            
+            // 3. Deletar o evento do banco de dados
+            $query = "DELETE FROM evento WHERE id = :id";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':id', $idEvento, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            // Confirma a transação
+            $this->conn->commit();
+            
+            return true;
+            
+        } catch (Exception $e) {
+            // Reverte em caso de erro
+            $this->conn->rollBack();
+            error_log("Erro ao deletar evento ID {$idEvento}: " . $e->getMessage());
+            throw new Exception("Erro ao deletar evento");
+        }
+    }
+    
+    /**
+     * Método auxiliar para deletar arquivos associados ao evento
+     * @param object $evento Objeto evento com propriedades imagen e doc
+     */
+    private function deletarArquivosEvento($evento) {
+        try {
+            // Deletar imagem se existir
+            if (!empty($evento->imagen)) {
+                $imagemPath = __DIR__ . '/../../uploads/' . $evento->imagen;
+                if (file_exists($imagemPath)) {
+                    unlink($imagemPath);
                 }
             }
-        //separar por peso	
-            $listaPeso = [
-                "leve" => array(),
-                "medio" => array(),
-                "pesado" => array()
-            ];
-            foreach($listaIdade as $key => $value){
-                $faixaEtaria = $listaIdade[$key];
-                //faixa pega somente uma faixa etaria
-                //agora percorrer cada um e dividir por peso
-                echo "<h2>classificação : ".$key."<br></h2>";
-                foreach($value as $inscrito){
-                    // separar por peso
-                    if($inscrito->peso < $medio){
-                        array_push($listaPeso["leve"],$inscrito);
-                    }
-                    if($inscrito->peso >= $medio && $inscrito->peso < $pPesado){
-                        array_push($listaPeso["medio"],$inscrito);
-                    }
-                    if($inscrito->peso >= $pPesado){
-                        array_push($listaPeso["pesado"],$inscrito);
-                    }
+            
+            // Deletar documento se existir
+            if (!empty($evento->doc)) {
+                $docPath = __DIR__ . '/../../docs/' . $evento->doc;
+                if (file_exists($docPath)) {
+                    unlink($docPath);
                 }
-                //criar as chapas com os lista peso aqui
-                echo "<h2>faixa " . $cor . "</h2>";
-                foreach($listaPeso as $key => $inscrito){
-                    echo "<h3>peso ".$key."</h3><br>";
-                    shuffle($inscrito);
-                
-                    for($i = 0; $i < count($inscrito); $i++){
-                        echo "<ul>";
-                        echo "<li>".$inscrito->nome."</li>";
-                        if(($i+1) % 2 == 0){
-                            echo "<br>";
-                        }
-                    
-                        echo "</ul>";
-                    }
-                }
-            }   
+            }
+        } catch (Exception $e) {
+            error_log("Erro ao deletar arquivos do evento ID {$evento->id}: " . $e->getMessage());
+            // Não interrompe o fluxo principal se falhar ao deletar arquivos
         }
+    }
+    
+    /**
+     * Deleta todas as inscrições relacionadas ao evento
+     * @param int $idEvento ID do evento
+     */
+    private function deletarInscricoesEvento($idEvento) {
+        $query = "DELETE FROM inscricao WHERE id_evento = :id_evento";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':id_evento', $idEvento, PDO::PARAM_INT);
+        $stmt->execute();
     }
 } 
 ?>

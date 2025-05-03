@@ -135,7 +135,8 @@ unset($_SESSION['mensagem']);
         
         <div class="form-actions">
             <button type="submit">Salvar Alterações</button>
-            <a href="/eventos.php?id=<?= $eventoId ?>" class="btn-cancel">Cancelar</a>
+            <a href="/eventos.php?id=<?= $eventoId ?>" class="btn-cancel">Cancelar</a>|
+            <a class ="danger" href="/admin/excluir_evento.php?id=<?= $eventoId ?>">EXCLUIR EVENTO</a><br>
         </div>
     </form>
 </div>
