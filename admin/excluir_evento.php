@@ -35,30 +35,7 @@ try {
         header("Location: /eventos.php");
         exit();
     }
-    
-    // Deletar arquivos associados primeiro
-    if (!empty($eventoDetails->imagen)) {
-        $imagemPath = "../uploads/" . $eventoDetails->imagen;
-        if (file_exists($imagemPath)) {
-            unlink($imagemPath);
-        }
-    }
-    
-    if (!empty($eventoDetails->doc)) {
-        $docPath = "../docs/" . $eventoDetails->doc;
-        if (file_exists($docPath)) {
-            unlink($docPath);
-        }
-    }
-    
-    // Deletar do banco de dados
-    $query = "DELETE FROM evento WHERE id = :id";
-    $stmt = $conn->conectar()->prepare($query);
-    $stmt->bindValue(':id', $eventoId, PDO::PARAM_INT);
-    $stmt->execute();
-    
-    $_SESSION['mensagem'] = "Evento excluído com sucesso!";
-    
+    $evserv->deletarEvento($eventoId);    
 } catch (Exception $e) {
     error_log('Erro ao deletar evento: ' . $e->getMessage());
     $_SESSION['mensagem'] = "Erro ao excluir o evento. Por favor, tente novamente.";
