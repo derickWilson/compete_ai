@@ -10,6 +10,8 @@ class AssasService {
     const STATUS_PENDENTE = 'PENDING';
     const STATUS_PAGO = 'RECEIVED';
     const STATUS_CONFIRMADO = 'CONFIRMED';
+    const STATUS_GRATUITO = 'GRATUITO';
+
 
     // Token
     private const ASAAS_TOKEN = '';

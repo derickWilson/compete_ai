@@ -23,7 +23,7 @@ require_once "classes/AssasService.php";
 require_once "func/clearWord.php";
 require_once "config_taxa.php";
 require_once "func/database.php";
-
+$taxa = 1;
 try {
     $conn = new Conexao();
     $pdo = $conn->conectar();
@@ -53,11 +53,17 @@ try {
 
     $modalidade_escolhida = cleanWords($_POST['modalidade']);
 
-    // Cálculo do valor com taxa
-    $valor = ($_SESSION['idade'] > 15) ? $eventoDetails->preco * $taxa : $eventoDetails->preco_menor * $taxa;
-    
-    if (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
-        $valor = $eventoDetails->preco_abs * $taxa;
+    // Verifica se o evento é gratuito (preço zero em todas as modalidades)
+    $eventoGratuito = ($eventoDetails->preco == 0 && $eventoDetails->preco_menor == 0 && $eventoDetails->preco_abs == 0);
+
+    // Cálculo do valor com taxa (apenas para eventos pagos)
+    $valor = 0;
+    if (!$eventoGratuito) {
+        $valor = ($_SESSION['idade'] > 15) ? $eventoDetails->preco * $taxa : $eventoDetails->preco_menor * $taxa;
+        
+        if (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
+            $valor = $eventoDetails->preco_abs * $taxa;
+        }
     }
 
     // Validação dos dados da sessão
@@ -93,69 +99,88 @@ try {
         throw new Exception("Falha ao registrar inscrição no banco local");
     }
 
-    // 2. Integração com Asaas
-    $dadosAtleta = [
-        'id' => $_SESSION['id'],
-        'nome' => $_SESSION['nome'],
-        'cpf' => $_SESSION['cpf'],
-        'email' => $_SESSION['email'],
-        'fone' => $_SESSION['fone'],
-        'academia' => $_SESSION['academia'] ?? null
-    ];
-
-    try {
-        $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
-        file_put_contents('asaas_debug.log', "\nCustomer ID: $customerId", FILE_APPEND);
-
-        $descricao = "Inscrição: " . $eventoDetails->nome . " (" . $modalidade_escolhida . ")";
-        $cobranca = $asaasService->criarCobranca([
-            'customer' => $customerId,
-            'value' => $valor,
-            'dueDate' => $eventoDetails->data_limite,
-            'description' => $descricao,
-            'externalReference' => 'EV_' . $evento_id . '_AT_' . $_SESSION['id'],
-            'billingType' => 'PIX'
-        ]);
-
-        // 3. Atualiza inscrição com dados do pagamento
-        $valorNumerico = (float) number_format($valor, 2, '.', '');
+    // 2. Processamento diferente para eventos gratuitos
+    if ($eventoGratuito) {
+        // Para eventos gratuitos, marca como CONFIRMADO sem criar cobrança
         $atualizacao = $asaasService->atualizarInscricaoComPagamento(
             $_SESSION['id'],
             $evento_id,
-            $cobranca['payment']['id'],
-            AssasService::STATUS_PENDENTE,
-            $valorNumerico
+            null, // Sem ID de cobrança
+            AssasService::STATUS_GRATUITO, // Status GRATUITO para gratuitos
+            0 // Valor zero
         );
 
         if (!$atualizacao) {
-            throw new Exception("Falha ao atualizar dados de pagamento");
+            throw new Exception("Falha ao atualizar inscrição gratuita");
         }
 
-        // Se tudo ocorreu bem, confirma a transação
-        $pdo->commit();
+        file_put_contents('asaas_debug.log', 
+            "\nInscrição gratuita confirmada - Evento: $evento_id, Atleta: ".$_SESSION['id'],
+            FILE_APPEND
+        );
+    } else {
+        // Para eventos pagos, fluxo normal com Asaas
+        $dadosAtleta = [
+            'id' => $_SESSION['id'],
+            'nome' => $_SESSION['nome'],
+            'cpf' => $_SESSION['cpf'],
+            'email' => $_SESSION['email'],
+            'fone' => $_SESSION['fone'],
+            'academia' => $_SESSION['academia'] ?? null
+        ];
 
-        header("Location: eventos_cadastrados.php");
-        exit();
-
-    } catch (Exception $e) {
-        // Em caso de erro, desfaz a transação (remove a inscrição)
-        $pdo->rollBack();
-        
-        // Remove a inscrição manualmente se o rollback não foi suficiente
         try {
-            $atletaService = new atletaService($conn, new Atleta());
-            $atletaService->excluirInscricao($evento_id, $_SESSION['id']);
-        } catch (Exception $ex) {
-            // Log adicional se falhar ao remover a inscrição
-            file_put_contents('asaas_error.log', 
-                "\nERRO AO REMOVER INSCRIÇÃO: " . date('Y-m-d H:i:s') .
-                "\nMensagem: " . $ex->getMessage() . "\n",
-                FILE_APPEND
+            $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
+            file_put_contents('asaas_debug.log', "\nCustomer ID: $customerId", FILE_APPEND);
+
+            $descricao = "Inscrição: " . $eventoDetails->nome . " (" . $modalidade_escolhida . ")";
+            $cobranca = $asaasService->criarCobranca([
+                'customer' => $customerId,
+                'value' => $valor,
+                'dueDate' => $eventoDetails->data_limite,
+                'description' => $descricao,
+                'externalReference' => 'EV_' . $evento_id . '_AT_' . $_SESSION['id'],
+                'billingType' => 'PIX'
+            ]);
+
+            // Atualiza inscrição com dados do pagamento
+            $valorNumerico = (float) number_format($valor, 2, '.', '');
+            $atualizacao = $asaasService->atualizarInscricaoComPagamento(
+                $_SESSION['id'],
+                $evento_id,
+                $cobranca['payment']['id'],
+                AssasService::STATUS_PENDENTE,
+                $valorNumerico
             );
+
+            if (!$atualizacao) {
+                throw new Exception("Falha ao atualizar dados de pagamento");
+            }
+        } catch (Exception $e) {
+            // Em caso de erro, desfaz a transação (remove a inscrição)
+            $pdo->rollBack();
+            
+            // Remove a inscrição manualmente se o rollback não foi suficiente
+            try {
+                $atletaService = new atletaService($conn, new Atleta());
+                $atletaService->excluirInscricao($evento_id, $_SESSION['id']);
+            } catch (Exception $ex) {
+                file_put_contents('asaas_error.log', 
+                    "\nERRO AO REMOVER INSCRIÇÃO: " . date('Y-m-d H:i:s') .
+                    "\nMensagem: " . $ex->getMessage() . "\n",
+                    FILE_APPEND
+                );
+            }
+            
+            throw $e;
         }
-        
-        throw $e; // Relança a exceção para o bloco catch externo
     }
+
+    // Se tudo ocorreu bem, confirma a transação
+    $pdo->commit();
+
+    header("Location: eventos_cadastrados.php");
+    exit();
 
 } catch (Exception $e) {
     file_put_contents('asaas_error.log', 
