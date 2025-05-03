@@ -37,44 +37,46 @@ public function addEvento() {
 }
     //editar evento
     public function editEvento() {
-    $query = "UPDATE evento SET
-        nome = :nome,
-        imagen = :imagen,
-        descricao = :descricao,
-        data_limite = :data_limite,
-        data_evento = :data_camp,
-        local_evento = :local_evento,
-        tipo_com = :tipoCom,
-        tipo_sem = :tipoSem,
-        preco = :preco,
-        preco_abs = :preco_abs,
-        preco_menor = :preco_menor,
-        doc = :doc
-        WHERE id = :id";
-
-    $stmt = $this->conn->prepare($query);
-    $stmt->bindValue(':id', $this->evento->__get('id'));
-    $stmt->bindValue(':nome', $this->evento->__get('nome'));
-    $stmt->bindValue(':imagen', $this->evento->__get('img'));
-    $stmt->bindValue(':data_camp', $this->evento->__get('data_camp'));
-    $stmt->bindValue(':local_evento', $this->evento->__get('local_camp'));
-    $stmt->bindValue(':descricao', $this->evento->__get('descricao'));
-    $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'));
-    $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'));
-    $stmt->bindValue(':tipoSem', $this->evento->__get('tipoSem'));
-    $stmt->bindValue(':preco', $this->evento->__get('preco'));
-    $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
-    $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
-    $stmt->bindValue(':doc', $this->evento->__get('doc'));
-
-    try {
-            $stmt->execute();
-            header("Location: /eventos.php?id=" . $this->evento->__get('id'));
-            exit();
+        $query = "UPDATE evento SET
+            nome = :nome,
+            imagen = :imagen,
+            descricao = :descricao,
+            data_limite = :data_limite,
+            data_evento = :data_evento,
+            local_evento = :local_evento,
+            tipo_com = :tipoCom,
+            tipo_sem = :tipoSem,
+            preco = :preco,
+            preco_abs = :preco_abs,
+            preco_menor = :preco_menor,
+            doc = :doc
+            WHERE id = :id";
+    
+        $stmt = $this->conn->prepare($query);
+        
+        // Mapeamento correto dos campos
+        $stmt->bindValue(':id', $this->evento->__get('id'), PDO::PARAM_INT);
+        $stmt->bindValue(':nome', $this->evento->__get('nome'), PDO::PARAM_STR);
+        $stmt->bindValue(':imagen', $this->evento->__get('img'), PDO::PARAM_STR);
+        $stmt->bindValue(':data_evento', $this->evento->__get('data_camp'), PDO::PARAM_STR);
+        $stmt->bindValue(':local_evento', $this->evento->__get('local_camp'), PDO::PARAM_STR);
+        $stmt->bindValue(':descricao', $this->evento->__get('descricao'), PDO::PARAM_STR);
+        $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'), PDO::PARAM_STR);
+        $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'), PDO::PARAM_INT);
+        $stmt->bindValue(':tipoSem', $this->evento->__get('tipoSem'), PDO::PARAM_INT);
+        $stmt->bindValue(':preco', $this->evento->__get('preco'));
+        $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
+        $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
+        $stmt->bindValue(':doc', $this->evento->__get('doc'), PDO::PARAM_STR);
+    
+        try {
+            $result = $stmt->execute();
+            return $result; // Retorna true/false para o chamador decidir o redirecionamento
         } catch (Exception $e) {
-            echo 'Erro ao editar evento: ' . $e->getMessage();
+            error_log('Erro ao editar evento: ' . $e->getMessage());
+            throw new Exception("Erro ao atualizar o evento no banco de dados");
         }
-    }
+}
 
     //listar todos os eventos
     public function listAll(){
@@ -89,20 +91,50 @@ public function addEvento() {
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function getById($id){
-        //$query = "SELECT id, nome, descricao, data_limite, tipo_com, tipo_sem, preco
-        // FROM evento as e 
-        // WHERE e.data_limite <= CURRENT_DATE() AND id = :id";
-        $query = "SELECT id, nome, descricao, data_evento, data_limite, local_evento, tipo_com, tipo_sem, preco, imagen, preco_menor, preco_abs
-                    FROM evento as e WHERE id = :id";
+    public function getById($id) {
+        $query = "SELECT 
+                    id, 
+                    nome, 
+                    descricao, 
+                    data_evento, 
+                    data_limite, 
+                    local_evento, 
+                    tipo_com, 
+                    tipo_sem, 
+                    preco, 
+                    preco_menor, 
+                    preco_abs, 
+                    imagen, 
+                    doc
+                  FROM evento 
+                  WHERE id = :id";
+        
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        
         try {
             $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            // Garantir que todas as propriedades necessárias existam
+            $propriedadesNecessarias = [
+                'id', 'nome', 'descricao', 'data_evento', 'data_limite',
+                'local_evento', 'tipo_com', 'tipo_sem', 'preco',
+                'preco_menor', 'preco_abs', 'imagen', 'doc'
+            ];
+            
+            foreach ($propriedadesNecessarias as $prop) {
+                if (!property_exists($result, $prop)) {
+                    $result->$prop = null;
+                }
+            }
+            
+            return $result;
+            
         } catch (Exception $e) {
-            echo 'Erro ao listar evento: ' . $e->getMessage();
+            error_log('Erro ao buscar evento por ID: ' . $e->getMessage());
+            throw new Exception("Erro ao buscar informações do evento");
         }
-        return $stmt->fetch(PDO::FETCH_OBJ);
     }
     //pegar todos os inscritos de um evento
     public function getInscritos($id){

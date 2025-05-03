@@ -7,7 +7,8 @@ try {
     require_once "../classes/eventosServices.php";
     include "../func/clearWord.php";
 } catch (\Throwable $th) {
-    die('Erro: '. $th->getMessage());
+    error_log('Erro ao carregar dependências: '. $th->getMessage());
+    die('Erro ao carregar a página. Por favor, tente novamente.');
 }
 
 // Verificação segura do ID do evento
@@ -23,17 +24,30 @@ $evserv = new eventosService($conn, $ev);
 $eventoId = (int) cleanWords($_GET['id']);
 $eventoDetails = $evserv->getById($eventoId);
 
-if (!$eventoDetails) {
+if (!$eventoDetails || !isset($eventoDetails->id)) {
     header("Location: /eventos.php");
     exit();
 }
+
+// Garante que todas as propriedades esperadas existam
+$propriedadesObrigatorias = ['nome', 'descricao', 'data_limite', 'data_evento', 'local_evento', 
+                           'tipo_com', 'tipo_sem', 'imagen', 'preco', 'preco_menor', 'preco_abs', 'doc'];
+foreach ($propriedadesObrigatorias as $prop) {
+    if (!property_exists($eventoDetails, $prop)) {
+        $eventoDetails->$prop = null;
+    }
+}
+
+// Mensagens da sessão
+$mensagem = $_SESSION['mensagem'] ?? '';
+unset($_SESSION['mensagem']);
 ?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar evento - <?php echo htmlspecialchars($eventoDetails->nome); ?></title>
+    <title>Editar evento - <?= htmlspecialchars($eventoDetails->nome) ?></title>
 </head>
 <body>
 <?php include "../menu/add_menu.php"; ?>
@@ -41,101 +55,90 @@ if (!$eventoDetails) {
 <div class="principal">
     <h2>Editar Evento</h2>
     
+    <?php if ($mensagem): ?>
+        <div class="mensagem"><?= htmlspecialchars($mensagem) ?></div>
+    <?php endif; ?>
+
     <form action="recadastrar_evento.php" method="POST" enctype="multipart/form-data">
-        <!-- Campo de imagem -->
-        <div>
-            <label>Imagem atual:</label><br>
-            <img src="/uploads/<?php echo htmlspecialchars($eventoDetails->imagen); ?>" 
-                 alt="Imagem do evento" width="300"><br>
-            <label>Nova Imagem:</label>
-            <input type="file" name="imagen_nova" accept="image/*">
-        </div>
+        <input type="hidden" name="id" value="<?= $eventoId ?>">
         
-        <!-- Campo de documento -->
-        <div>
-            <label>Documento atual:</label>
-            <?php if(!empty($eventoDetails->doc)): ?>
-                <a href="/docs/<?php echo htmlspecialchars($eventoDetails->doc); ?>" target="_blank">Visualizar</a>
-            <?php else: ?>
-                <span>Nenhum documento enviado</span>
+        <!-- Seção de Imagem -->
+        <div class="form-section">
+            <h3>Imagem do Evento</h3>
+            <?php if ($eventoDetails->imagen): ?>
+                <img src="/uploads/<?= htmlspecialchars($eventoDetails->imagen) ?>" width="300" alt="Imagem atual"><br>
             <?php endif; ?>
-            <br>
-            <label>Novo Documento (PDF):</label>
+            <input type="file" name="imagen_nova" accept="image/jpeg,image/png">
+            <small>Formatos aceitos: JPEG, PNG (Máx. 5MB)</small>
+        </div>
+        
+        <!-- Seção de Documento -->
+        <div class="form-section">
+            <h3>Documento de Ementa</h3>
+            <?php if ($eventoDetails->doc): ?>
+                <a href="/docs/<?= htmlspecialchars($eventoDetails->doc) ?>" target="_blank">Visualizar PDF atual</a><br>
+            <?php endif; ?>
             <input type="file" name="nDoc" accept=".pdf">
+            <small>Apenas PDF (Máx. 5MB)</small>
         </div>
         
-        <!-- Campos principais -->
-        <div>
-            <label>Nome do evento:</label>
-            <input type="text" name="nome_evento" required 
-                   value="<?php echo htmlspecialchars($eventoDetails->nome); ?>">
-        </div>
-        
-        <div>
-            <label>Data do Campeonato:</label>
-            <input type="date" name="data_camp" required 
-                   value="<?php echo htmlspecialchars($eventoDetails->data_evento); ?>">
-        </div>
-        
-        <div>
-            <label>Local:</label>
-            <input type="text" name="local_camp" required 
-                   value="<?php echo htmlspecialchars($eventoDetails->local_evento); ?>">
-        </div>
-        
-        <div>
-            <label>Descrição do evento:</label>
-            <textarea name="desc_Evento" required><?php 
-                echo htmlspecialchars(trim($eventoDetails->descricao)); 
-            ?></textarea>
-        </div>
-        
-        <div>
-            <label>Data limite para inscrições:</label>
-            <input type="date" name="data_limite" required 
-                   value="<?php echo htmlspecialchars($eventoDetails->data_limite); ?>">
-        </div>
-        
-        <!-- Modalidades -->
-        <div>
-            <label>Modalidades:</label><br>
-            <input type="checkbox" name="tipo_com" id="tipo_com" value="1"
-                <?php echo $eventoDetails->tipo_com == 1 ? "checked" : ""; ?>>
-            <label for="tipo_com">Com Kimono</label><br>
+        <!-- Informações Básicas -->
+        <div class="form-section">
+            <h3>Informações do Evento</h3>
             
-            <input type="checkbox" name="tipo_sem" id="tipo_sem" value="1"
-                <?php echo $eventoDetails->tipo_sem == 1 ? "checked" : ""; ?>>
-            <label for="tipo_sem">Sem Kimono</label>
+            <label>Nome do evento:*</label>
+            <input type="text" name="nome_evento" required value="<?= htmlspecialchars($eventoDetails->nome) ?>">
+            
+            <label>Data do Evento:*</label>
+            <input type="date" name="data_camp" required value="<?= htmlspecialchars($eventoDetails->data_evento) ?>">
+            
+            <label>Local:*</label>
+            <input type="text" name="local_camp" required value="<?= htmlspecialchars($eventoDetails->local_evento) ?>">
+            
+            <label>Descrição:*</label>
+            <textarea name="desc_Evento" required><?= htmlspecialchars($eventoDetails->descricao) ?></textarea>
         </div>
         
-        <!-- Preços -->
-        <div>
-            <label>Preço geral (acima de 15 anos):</label>
-            <input type="number" name="preco" step="0.01" min="0" required
-                   value="<?php echo htmlspecialchars($eventoDetails->preco); ?>">
+        <!-- Configurações -->
+        <div class="form-section">
+            <h3>Configurações</h3>
+            
+            <label>Data limite para inscrições:*</label>
+            <input type="date" name="data_limite" required value="<?= htmlspecialchars($eventoDetails->data_limite) ?>">
+            
+            <label>Modalidades:*</label>
+            <div class="checkbox-group">
+                <input type="checkbox" name="tipo_com" id="tipo_com" value="1" <?= $eventoDetails->tipo_com ? 'checked' : '' ?>>
+                <label for="tipo_com">Com Kimono</label>
+                
+                <input type="checkbox" name="tipo_sem" id="tipo_sem" value="1" <?= $eventoDetails->tipo_sem ? 'checked' : '' ?>>
+                <label for="tipo_sem">Sem Kimono</label>
+            </div>
         </div>
         
-        <div>
-            <label>Preço Absoluto:</label>
-            <input type="number" name="preco_abs" step="0.01" min="0" required
-                   value="<?php echo htmlspecialchars($eventoDetails->preco_abs); ?>">
+        <!-- Valores -->
+        <div class="form-section">
+            <h3>Valores</h3>
+            
+            <label>Preço geral (R$):*</label>
+            <input type="number" name="preco" step="0.01" min="0" required 
+                   value="<?= number_format($eventoDetails->preco, 2, '.', '') ?>">
+            
+            <label>Preço Absoluto (R$):*</label>
+            <input type="number" name="preco_abs" step="0.01" min="0" required 
+                   value="<?= number_format($eventoDetails->preco_abs, 2, '.', '') ?>">
+            
+            <label>Preço para menores de 15 anos (R$):*</label>
+            <input type="number" name="preco_menor" step="0.01" min="0" required 
+                   value="<?= number_format($eventoDetails->preco_menor, 2, '.', '') ?>">
         </div>
         
-        <div>
-            <label>Preço para menores de 15 anos:</label>
-            <input type="number" name="preco_menor" step="0.01" min="0" required
-                   value="<?php echo htmlspecialchars($eventoDetails->preco_menor); ?>">
-        </div>
-        
-        <input type="hidden" name="id" value="<?php echo $eventoId; ?>">
-        
-        <div>
-            <input type="submit" value="Salvar Alterações">
-            <a href="/eventos.php?id=<?php echo $eventoId; ?>">Cancelar</a>
+        <div class="form-actions">
+            <button type="submit">Salvar Alterações</button>
+            <a href="/eventos.php?id=<?= $eventoId ?>" class="btn-cancel">Cancelar</a>
         </div>
     </form>
 </div>
-
-<?php include "/menu/footer.php"; ?>
+<?php include "../menu/footer.php"; ?>
 </body>
 </html>
