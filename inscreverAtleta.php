@@ -26,6 +26,11 @@ require_once "func/database.php";
 
 try {
     $conn = new Conexao();
+    $pdo = $conn->conectar();
+    
+    // Inicia transação
+    $pdo->beginTransaction();
+    
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
     $asaasService = new AssasService($conn);
@@ -63,17 +68,15 @@ try {
         }
     }
 
-    // 1. Inscreve no banco de dados local
-    // Após processar as modalidades, adicione:
+    // Verifica termos aceitos
     $aceite_regulamento = isset($_POST['aceite_regulamento']) ? 1 : 0;
     $aceite_responsabilidade = isset($_POST['aceite_responsabilidade']) ? 1 : 0;
     
-    // Verifique se ambos os termos foram aceitos
     if (!$aceite_regulamento || !$aceite_responsabilidade) {
         throw new Exception("Você deve aceitar todos os termos para se inscrever");
     }
     
-    // Modifique a chamada de inscrever
+    // 1. Inscreve no banco de dados local
     $inscricaoSucesso = $evserv->inscrever(
         $_SESSION['id'],
         $evento_id,
@@ -100,10 +103,11 @@ try {
         'academia' => $_SESSION['academia'] ?? null
     ];
 
-    $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
-    file_put_contents('asaas_debug.log', "\nCustomer ID: $customerId", FILE_APPEND);
+    try {
+        $customerId = $asaasService->buscarOuCriarCliente($dadosAtleta);
+        file_put_contents('asaas_debug.log', "\nCustomer ID: $customerId", FILE_APPEND);
 
-    $descricao = "Inscrição: " . $eventoDetails->nome . " (" . $modalidade_escolhida . ")";
+        $descricao = "Inscrição: " . $eventoDetails->nome . " (" . $modalidade_escolhida . ")";
         $cobranca = $asaasService->criarCobranca([
             'customer' => $customerId,
             'value' => $valor,
@@ -112,22 +116,46 @@ try {
             'externalReference' => 'EV_' . $evento_id . '_AT_' . $_SESSION['id'],
             'billingType' => 'PIX'
         ]);
-    // 3. Atualiza inscrição com dados do pagamento
-    $valorNumerico = (float) number_format($valor, 2, '.', '');
-    $atualizacao = $asaasService->atualizarInscricaoComPagamento(
-        $_SESSION['id'],
-        $evento_id,
-        $cobranca['payment']['id'],
-        AssasService::STATUS_PENDENTE,
-        $valorNumerico
-    );
 
-    if (!$atualizacao) {
-        throw new Exception("Falha ao atualizar dados de pagamento");
+        // 3. Atualiza inscrição com dados do pagamento
+        $valorNumerico = (float) number_format($valor, 2, '.', '');
+        $atualizacao = $asaasService->atualizarInscricaoComPagamento(
+            $_SESSION['id'],
+            $evento_id,
+            $cobranca['payment']['id'],
+            AssasService::STATUS_PENDENTE,
+            $valorNumerico
+        );
+
+        if (!$atualizacao) {
+            throw new Exception("Falha ao atualizar dados de pagamento");
+        }
+
+        // Se tudo ocorreu bem, confirma a transação
+        $pdo->commit();
+
+        header("Location: eventos_cadastrados.php");
+        exit();
+
+    } catch (Exception $e) {
+        // Em caso de erro, desfaz a transação (remove a inscrição)
+        $pdo->rollBack();
+        
+        // Remove a inscrição manualmente se o rollback não foi suficiente
+        try {
+            $atletaService = new atletaService($conn, new Atleta());
+            $atletaService->excluirInscricao($evento_id, $_SESSION['id']);
+        } catch (Exception $ex) {
+            // Log adicional se falhar ao remover a inscrição
+            file_put_contents('asaas_error.log', 
+                "\nERRO AO REMOVER INSCRIÇÃO: " . date('Y-m-d H:i:s') .
+                "\nMensagem: " . $ex->getMessage() . "\n",
+                FILE_APPEND
+            );
+        }
+        
+        throw $e; // Relança a exceção para o bloco catch externo
     }
-
-    header("Location: eventos_cadastrados.php");
-    exit();
 
 } catch (Exception $e) {
     file_put_contents('asaas_error.log', 
