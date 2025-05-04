@@ -43,6 +43,29 @@ foreach ($propriedadesNecessarias as $prop) {
     }
 }
 
+// Upload do novo documento (PDF)
+if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
+    $extensao = strtolower(pathinfo($_FILES['nDoc']['name'], PATHINFO_EXTENSION));
+    
+    if ($extensao === 'pdf') {
+        $nomeArquivo = uniqid('doc_') . ".pdf";
+        $caminhoDestino = "../docs/" . $nomeArquivo;
+
+        if (move_uploaded_file($_FILES['nDoc']['tmp_name'], $caminhoDestino)) {
+            $dadosEvento['doc'] = $nomeArquivo;
+        } else {
+            $_SESSION['mensagem'] = "Falha ao salvar o novo documento.";
+            header("Location: /admin/editar_evento.php?id=" . $id);
+            exit();
+        }
+    } else {
+        $_SESSION['mensagem'] = "O documento deve ser um PDF.";
+        header("Location: /admin/editar_evento.php?id=" . $id);
+        exit();
+    }
+}
+
+
 // Processar dados do formulário com valores padrão
 $dadosEvento = [
     'nome' => isset($_POST['nome_evento']) ? cleanWords($_POST['nome_evento']) : ($eventoAntigo->nome ?? ''),
