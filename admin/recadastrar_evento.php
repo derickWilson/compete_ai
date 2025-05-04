@@ -32,69 +32,131 @@ if (!$eventoAntigo || !isset($eventoAntigo->id)) {
     exit();
 }
 
-// Garantir que todas as propriedades necessárias existam
-$propriedadesNecessarias = ['imagen', 'doc', 'nome', 'local_evento', 'data_evento', 
-                          'descricao', 'data_limite', 'tipo_com', 'tipo_sem', 
-                          'preco', 'preco_menor', 'preco_abs'];
+// Inicializa array com os dados atuais do evento
+$dadosEvento = [
+    'id' => $id,
+    'nome' => $eventoAntigo->nome ?? '',
+    'local_camp' => $eventoAntigo->local_evento ?? '',
+    'data_camp' => $eventoAntigo->data_evento ?? '',
+    'descricao' => $eventoAntigo->descricao ?? '',
+    'data_limite' => $eventoAntigo->data_limite ?? '',
+    'tipoCom' => $eventoAntigo->tipo_com ?? 0,
+    'tipoSem' => $eventoAntigo->tipo_sem ?? 0,
+    'preco' => $eventoAntigo->preco ?? 0,
+    'preco_menor' => $eventoAntigo->preco_menor ?? 0,
+    'preco_abs' => $eventoAntigo->preco_abs ?? 0,
+    'img' => $eventoAntigo->imagen ?? null,
+    'doc' => $eventoAntigo->doc ?? null
+];
 
-foreach ($propriedadesNecessarias as $prop) {
-    if (!property_exists($eventoAntigo, $prop)) {
-        $eventoAntigo->$prop = null;
-    }
-}
-
-// Upload do novo documento (PDF)
-if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
-    $extensao = strtolower(pathinfo($_FILES['nDoc']['name'], PATHINFO_EXTENSION));
+// Processar upload da nova imagem
+if (isset($_FILES['imagen_nova']) && $_FILES['imagen_nova']['error'] === UPLOAD_ERR_OK) {
+    $imagen = $_FILES['imagen_nova'];
+    $extensao = strtolower(pathinfo($imagen['name'], PATHINFO_EXTENSION));
     
-    if ($extensao === 'pdf') {
-        $nomeArquivo = uniqid('doc_') . ".pdf";
-        $caminhoDestino = "../docs/" . $nomeArquivo;
-
-        if (move_uploaded_file($_FILES['nDoc']['tmp_name'], $caminhoDestino)) {
-            $dadosEvento['doc'] = $nomeArquivo;
+    // Verificar se é uma imagem válida
+    if (in_array($extensao, ['jpg', 'jpeg', 'png'])) {
+        $novoNome = 'img_' . time() . '.' . $extensao;
+        $caminhoDestino = "../uploads/" . $novoNome;
+        
+        // Excluir imagem antiga se existir
+        if (!empty($dadosEvento['img']) && file_exists("../uploads/" . $dadosEvento['img'])) {
+            unlink("../uploads/" . $dadosEvento['img']);
+        }
+        
+        if (move_uploaded_file($imagen['tmp_name'], $caminhoDestino)) {
+            $dadosEvento['img'] = $novoNome;
         } else {
-            $_SESSION['mensagem'] = "Falha ao salvar o novo documento.";
+            $_SESSION['mensagem'] = "Erro ao salvar a nova imagem.";
             header("Location: /admin/editar_evento.php?id=" . $id);
             exit();
         }
     } else {
-        $_SESSION['mensagem'] = "O documento deve ser um PDF.";
+        $_SESSION['mensagem'] = "Formato de imagem inválido. Use JPG, JPEG ou PNG.";
         header("Location: /admin/editar_evento.php?id=" . $id);
         exit();
     }
 }
 
+// Processar upload do novo documento
+if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
+    $extensao = strtolower(pathinfo($_FILES['nDoc']['name'], PATHINFO_EXTENSION));
+    
+    if ($extensao === 'pdf') {
+        $novoNome = 'doc_' . time() . '.pdf';
+        $caminhoDestino = "../docs/" . $novoNome;
+        
+        // Excluir documento antigo se existir
+        if (!empty($dadosEvento['doc']) && file_exists("../docs/" . $dadosEvento['doc'])) {
+            unlink("../docs/" . $dadosEvento['doc']);
+        }
+        
+        if (move_uploaded_file($_FILES['nDoc']['tmp_name'], $caminhoDestino)) {
+            $dadosEvento['doc'] = $novoNome;
+        } else {
+            $_SESSION['mensagem'] = "Erro ao salvar o novo documento.";
+            header("Location: /admin/editar_evento.php?id=" . $id);
+            exit();
+        }
+    } else {
+        $_SESSION['mensagem'] = "O documento deve ser um arquivo PDF.";
+        header("Location: /admin/editar_evento.php?id=" . $id);
+        exit();
+    }
+}
 
-// Processar dados do formulário com valores padrão
-$dadosEvento = [
-    'nome' => isset($_POST['nome_evento']) ? cleanWords($_POST['nome_evento']) : ($eventoAntigo->nome ?? ''),
-    'local_camp' => isset($_POST['local_camp']) ? cleanWords($_POST['local_camp']) : ($eventoAntigo->local_evento ?? ''),
-    'data_camp' => isset($_POST['data_camp']) ? cleanWords($_POST['data_camp']) : ($eventoAntigo->data_evento ?? ''),
-    'descricao' => isset($_POST['desc_Evento']) ? cleanWords($_POST['desc_Evento']) : ($eventoAntigo->descricao ?? ''),
-    'data_limite' => isset($_POST['data_limite']) ? cleanWords($_POST['data_limite']) : ($eventoAntigo->data_limite ?? ''),
-    'tipoCom' => isset($_POST['tipo_com']) ? 1 : ($eventoAntigo->tipo_com ?? 0),
-    'tipoSem' => isset($_POST['tipo_sem']) ? 1 : ($eventoAntigo->tipo_sem ?? 0),
-    'preco' => isset($_POST['preco']) ? (float) str_replace(',', '.', cleanWords($_POST['preco'])) : ($eventoAntigo->preco ?? 0),
-    'preco_menor' => isset($_POST['preco_menor']) ? (float) str_replace(',', '.', cleanWords($_POST['preco_menor'])) : ($eventoAntigo->preco_menor ?? 0),
-    'preco_abs' => isset($_POST['preco_abs']) ? (float) str_replace(',', '.', cleanWords($_POST['preco_abs'])) : ($eventoAntigo->preco_abs ?? 0),
-    'img' => $eventoAntigo->imagen ?? null,
-    'doc' => $eventoAntigo->doc ?? null
-];
+// Atualizar apenas os campos que foram enviados no formulário
+if (isset($_POST['nome_evento']) && !empty($_POST['nome_evento'])) {
+    $dadosEvento['nome'] = cleanWords($_POST['nome_evento']);
+}
 
-// Processar uploads (código mantido igual à versão anterior)
-// ... [código de upload de imagens e documentos] ...
+if (isset($_POST['local_camp']) && !empty($_POST['local_camp'])) {
+    $dadosEvento['local_camp'] = cleanWords($_POST['local_camp']);
+}
+
+if (isset($_POST['data_camp']) && !empty($_POST['data_camp'])) {
+    $dadosEvento['data_camp'] = cleanWords($_POST['data_camp']);
+}
+
+if (isset($_POST['desc_Evento']) && !empty($_POST['desc_Evento'])) {
+    $dadosEvento['descricao'] = cleanWords($_POST['desc_Evento']);
+}
+
+if (isset($_POST['data_limite']) && !empty($_POST['data_limite'])) {
+    $dadosEvento['data_limite'] = cleanWords($_POST['data_limite']);
+}
+
+// Checkboxes - se não enviados, mantém o valor atual
+$dadosEvento['tipoCom'] = isset($_POST['tipo_com']) ? 1 : $dadosEvento['tipoCom'];
+$dadosEvento['tipoSem'] = isset($_POST['tipo_sem']) ? 1 : $dadosEvento['tipoSem'];
+
+// Valores monetários - só atualiza se enviados
+if (isset($_POST['preco']) && is_numeric($_POST['preco'])) {
+    $dadosEvento['preco'] = (float) str_replace(',', '.', cleanWords($_POST['preco']));
+}
+
+if (isset($_POST['preco_menor']) && is_numeric($_POST['preco_menor'])) {
+    $dadosEvento['preco_menor'] = (float) str_replace(',', '.', cleanWords($_POST['preco_menor']));
+}
+
+if (isset($_POST['preco_abs']) && is_numeric($_POST['preco_abs'])) {
+    $dadosEvento['preco_abs'] = (float) str_replace(',', '.', cleanWords($_POST['preco_abs']));
+}
 
 // Atualizar evento
 try {
     foreach ($dadosEvento as $key => $value) {
         $evento->__set($key, $value);
     }
-    $evento->__set('id', $id);
     
-    $eventoService->editEvento();
-    $_SESSION['mensagem'] = "Evento atualizado com sucesso!";
-    header("Location: /eventos.php?id=" . $id);
+    $resultado = $eventoService->editEvento();
+    
+    if ($resultado) {
+        $_SESSION['mensagem'] = "Evento atualizado com sucesso!";
+        header("Location: /eventos.php?id=" . $id);
+    } else {
+        throw new Exception("Falha ao atualizar evento no banco de dados");
+    }
     exit();
 } catch (Exception $e) {
     error_log("Erro ao atualizar evento: " . $e->getMessage());
