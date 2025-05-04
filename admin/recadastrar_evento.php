@@ -1,6 +1,6 @@
 <?php
 session_start();
-require "../func/is_adm.php";
+require __DIR__ . "/../func/is_adm.php";
 is_adm();
 
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
@@ -9,8 +9,8 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
     exit();
 }
 
-require_once "../classes/eventosServices.php";
-include "../func/clearWord.php";
+require_once __DIR__ . "/../classes/eventosServices.php";
+include __DIR__ . "/../func/clearWord.php";
 
 // Verificação do ID do evento
 if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
@@ -54,14 +54,12 @@ if (isset($_FILES['imagen_nova']) && $_FILES['imagen_nova']['error'] === UPLOAD_
     $imagen = $_FILES['imagen_nova'];
     $extensao = strtolower(pathinfo($imagen['name'], PATHINFO_EXTENSION));
     
-    // Verificar se é uma imagem válida
     if (in_array($extensao, ['jpg', 'jpeg', 'png'])) {
         $novoNome = 'img_' . time() . '.' . $extensao;
-        $caminhoDestino = "../uploads/" . $novoNome;
+        $caminhoDestino = __DIR__ . "/../uploads/" . $novoNome;
         
-        // Excluir imagem antiga se existir
-        if (!empty($dadosEvento['img']) && file_exists("../uploads/" . $dadosEvento['img'])) {
-            unlink("../uploads/" . $dadosEvento['img']);
+        if (!empty($dadosEvento['img']) && file_exists(__DIR__ . "/../uploads/" . $dadosEvento['img'])) {
+            unlink(__DIR__ . "/../uploads/" . $dadosEvento['img']);
         }
         
         if (move_uploaded_file($imagen['tmp_name'], $caminhoDestino)) {
@@ -78,20 +76,26 @@ if (isset($_FILES['imagen_nova']) && $_FILES['imagen_nova']['error'] === UPLOAD_
     }
 }
 
-// Processar upload do novo documento
+// Processar upload do novo documento (EDITAL) - CORREÇÃO PRINCIPAL
 if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
-    $extensao = strtolower(pathinfo($_FILES['nDoc']['name'], PATHINFO_EXTENSION));
+    $doc = $_FILES['nDoc'];
+    $extensao = strtolower(pathinfo($doc['name'], PATHINFO_EXTENSION));
     
     if ($extensao === 'pdf') {
         $novoNome = 'doc_' . time() . '.pdf';
-        $caminhoDestino = "../docs/" . $novoNome;
+        $caminhoDestino = __DIR__ . "/../docs/" . $novoNome;
         
-        // Excluir documento antigo se existir
-        if (!empty($dadosEvento['doc']) && file_exists("../docs/" . $dadosEvento['doc'])) {
-            unlink("../docs/" . $dadosEvento['doc']);
+        // Verificar e criar diretório docs se não existir
+        if (!file_exists(__DIR__ . "/../docs")) {
+            mkdir(__DIR__ . "/../docs", 0755, true);
         }
         
-        if (move_uploaded_file($_FILES['nDoc']['tmp_name'], $caminhoDestino)) {
+        // Excluir documento antigo se existir
+        if (!empty($dadosEvento['doc']) && file_exists(__DIR__ . "/../docs/" . $dadosEvento['doc'])) {
+            unlink(__DIR__ . "/../docs/" . $dadosEvento['doc']);
+        }
+        
+        if (move_uploaded_file($doc['tmp_name'], $caminhoDestino)) {
             $dadosEvento['doc'] = $novoNome;
         } else {
             $_SESSION['mensagem'] = "Erro ao salvar o novo documento.";
@@ -99,13 +103,13 @@ if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
             exit();
         }
     } else {
-        $_SESSION['mensagem'] = "O documento deve ser um arquivo PDF.";
+        $_SESSION['mensagem'] = "O edital deve ser um arquivo PDF.";
         header("Location: /admin/editar_evento.php?id=" . $id);
         exit();
     }
 }
 
-// Atualizar apenas os campos que foram enviados no formulário
+// Atualizar campos do formulário
 if (isset($_POST['nome_evento']) && !empty($_POST['nome_evento'])) {
     $dadosEvento['nome'] = cleanWords($_POST['nome_evento']);
 }
@@ -126,11 +130,9 @@ if (isset($_POST['data_limite']) && !empty($_POST['data_limite'])) {
     $dadosEvento['data_limite'] = cleanWords($_POST['data_limite']);
 }
 
-// Checkboxes - se não enviados, mantém o valor atual
 $dadosEvento['tipoCom'] = isset($_POST['tipo_com']) ? 1 : $dadosEvento['tipoCom'];
 $dadosEvento['tipoSem'] = isset($_POST['tipo_sem']) ? 1 : $dadosEvento['tipoSem'];
 
-// Valores monetários - só atualiza se enviados
 if (isset($_POST['preco']) && is_numeric($_POST['preco'])) {
     $dadosEvento['preco'] = (float) str_replace(',', '.', cleanWords($_POST['preco']));
 }
