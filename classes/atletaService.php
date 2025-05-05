@@ -109,56 +109,56 @@
         }
     //logar atleta
     public function logar() {
-        $query = "SELECT id, nome, cpf, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado, responsavel, diploma
-                FROM atleta
-                WHERE email = :email";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":email", $this->atleta->__get("email"));
-        try {
-            $stmt->execute(); // Tenta executar a consulta
-            $atleta = $stmt->fetch(PDO::FETCH_OBJ);
-            if ($atleta) {
-                if(!password_verify($this->atleta->__get("senha"), $atleta->senha)){
-                    //echo "senha cripto : " . $senhaCriptografada. "<br>";
-                    //echo "senha outra : " . $atleta->senha . "<br>";
-                    //erro 3 senha inválida
-                    header('Location: login.php?erro=3');
-                    exit();
-                }
-                if($atleta->validado){
-                    // Define as variáveis da sessão
-                    $_SESSION["logado"] = true;
-                    $_SESSION["id"] = $atleta->id;
-                    $_SESSION["nome"] = $atleta->nome;
-                    $_SESSION["email"] = $atleta->email;
-                    $_SESSION["foto"] = $atleta->foto;
-                    $_SESSION["idade"] = calcularIdade($atleta->data_nascimento);
-                    $_SESSION["data_nascimento"] = $atleta->data_nascimento;
-                    $_SESSION["fone"] = $atleta->fone;
-                    $_SESSION["academia"] = $this->getAcad($atleta->academia);
-                    $_SESSION["faixa"] = $atleta->faixa;
-                    $_SESSION["peso"] = $atleta->peso;
-                    $_SESSION["diploma"] = $atleta->diploma;
-                    $_SESSION["cpf"] = $atleta->cpf;
-                    $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
-                    $_SESSION["responsavel"] = $atleta->responsavel == 0 ? 0 : 1;
-                    $_SESSION["validado"] = true;
-                    header("Location: pagina_pessoal.php");
-                    exit();
+            $query = "SELECT id, nome, cpf, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado, responsavel, diploma
+                    FROM atleta
+                    WHERE email = :email";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(":email", $this->atleta->__get("email"));
+            try {
+                $stmt->execute(); // Tenta executar a consulta
+                $atleta = $stmt->fetch(PDO::FETCH_OBJ);
+                if ($atleta) {
+                    if(!password_verify($this->atleta->__get("senha"), $atleta->senha)){
+                        //echo "senha cripto : " . $senhaCriptografada. "<br>";
+                        //echo "senha outra : " . $atleta->senha . "<br>";
+                        //erro 3 senha inválida
+                        header('Location: login.php?erro=3');
+                        exit();
+                    }
+                    if($atleta->validado){
+                        // Define as variáveis da sessão
+                        $_SESSION["logado"] = true;
+                        $_SESSION["id"] = $atleta->id;
+                        $_SESSION["nome"] = $atleta->nome;
+                        $_SESSION["email"] = $atleta->email;
+                        $_SESSION["foto"] = $atleta->foto;
+                        $_SESSION["idade"] = calcularIdade($atleta->data_nascimento);
+                        $_SESSION["data_nascimento"] = $atleta->data_nascimento;
+                        $_SESSION["fone"] = $atleta->fone;
+                        $_SESSION["academia"] = $this->getAcad($atleta->academia);
+                        $_SESSION["faixa"] = $atleta->faixa;
+                        $_SESSION["peso"] = $atleta->peso;
+                        $_SESSION["diploma"] = $atleta->diploma;
+                        $_SESSION["cpf"] = $atleta->cpf;
+                        $_SESSION["admin"] = $atleta->adm == 0 ? 0 : 1;
+                        $_SESSION["responsavel"] = $atleta->responsavel == 0 ? 0 : 1;
+                        $_SESSION["validado"] = true;
+                        header("Location: pagina_pessoal.php");
+                        exit();
+                    } else {
+                        //erro dois conta não validada
+                        header('Location: index.php?message=1');
+                        exit();
+                    }
                 } else {
-                    //erro dois conta não validada
-                    header('Location: index.php?message=1');
+                    header('Location: login.php?erro=1');
                     exit();
                 }
-            } else {
-                header('Location: login.php?erro=1');
-                exit();
+            } catch (PDOException $e) {
+                // Captura qualquer erro gerado pela execução da consulta
+                echo "Erro ao tentar logar: " . $e->getMessage();
             }
-        } catch (PDOException $e) {
-            // Captura qualquer erro gerado pela execução da consulta
-            echo "Erro ao tentar logar: " . $e->getMessage();
         }
-    }
         //retornar um atleta especifico
         public function getById($id){
             $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto, a.academia as acadid,
@@ -244,8 +244,7 @@
         }
         //função para pegar inscricao
         public function getInscricao($evento, $atleta){
-            $query = "SELECT 
-                        e.nome AS nome, e.id, e.preco, e.preco_menor, e.preco_abs, 
+            $query = "SELECT e.nome AS nome, e.id, e.preco, e.preco_menor, e.preco_abs, 
                         e.tipo_com, e.tipo_sem, 
                         i.mod_com, i.mod_ab_com, i.mod_sem, i.mod_ab_sem, i.modalidade,
                         i.id_cobranca_asaas
@@ -265,7 +264,7 @@
                 error_log("Erro ao buscar inscrição: " . $e->getMessage());
                 return null;
             }
-        }        
+        }   
         //editar inscrição
         public function editarInscricao($evento, $idAtleta, $com, $abCom, $sem, $abSem, $moda){
             $query= "UPDATE inscricao
@@ -287,8 +286,7 @@
                 echo "erro ao editar inscricao [ ".$e->getMessage()." ]";
             }
         }
-
-        /**
+    /**
      * Atualiza o valor pago em uma inscrição
      * @param int $eventoId ID do evento
      * @param int $atletaId ID do atleta
