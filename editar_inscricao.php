@@ -132,7 +132,7 @@ try {
 /**
  * Calcula o valor da inscrição baseado nas modalidades selecionadas
  */
-private function calcularValorInscricao($evento, $idadeAtleta, $com, $abCom, $sem, $abSem) {
+function calcularValorInscricao($evento, $idadeAtleta, $com, $abCom, $sem, $abSem) {
     $valor = 0;
     $eAdulto = $idadeAtleta > 15;
 
