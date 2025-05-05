@@ -76,17 +76,17 @@ if (isset($_GET["inscricao"])) {
        <?php
        // Caso o tipo de campeonato seja com quimono
        if ($inscricao->tipo_com == 1) {
-           echo '<input type="checkbox" name="com" '.($inscricao->mod_com == 1 ? 'checked' : '') .'> Com Quimono ';
+           echo '<input type="checkbox" name="com" '.($inscricao->mod_com == 1 ? 'checked' : '') .'> Categoria ';
            
            if($_SESSION["idade"]> 15){
-               echo '<input type="checkbox" name="abs_com"'.($inscricao->mod_ab_com == 1 ? 'checked' : '') .'> Absoluto Com Quimono ';
+               echo '<input type="checkbox" name="abs_com"'.($inscricao->mod_ab_com == 1 ? 'checked' : '') .'> Categoria + Absoluto ';
            }
        }
        if ($inscricao->tipo_sem == 1) {
-        echo '<input type="checkbox" name="sem"'.($inscricao->mod_sem == 1 ? 'checked' : '') .'> Com Quimono ';
+        echo '<input type="checkbox" name="sem"'.($inscricao->mod_sem == 1 ? 'checked' : '') .'> Categoria sem Quimono ';
         
         if($_SESSION["idade"]> 15){
-            echo '<input type="checkbox" name="abs_sem"'.($inscricao->mod_ab_sem == 1 ? 'checked' : '') .'> Absoluto Com Quimono ';
+            echo '<input type="checkbox" name="abs_sem"'.($inscricao->mod_ab_sem == 1 ? 'checked' : '') .'> Categoria sem Quimono + Absoluto sem Quimono ';
         }
     }
        ?>
@@ -101,7 +101,9 @@ if (isset($_GET["inscricao"])) {
         <option value="pesado" <?php echo $inscricao->modalidade == "pesado" ? "selected" : ""; ?>>Pesado</option>
         <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>Super-Pesado</option>
         <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>Pesadíssimo</option>
-        <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
+        <?php if ($_SESSION["idade"] > 15): ?>
+            <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
+        <?php endif; ?>
     </select>
        <br><input type="submit" value="editar">
        <?php if ($eventoGratuito): ?>
@@ -110,7 +112,7 @@ if (isset($_GET["inscricao"])) {
 </form>
     <br><center>Tabela de Pesos</center>
     <center>
-    <object data="tabela_de_pesosw.pdf" type="application/pdf" width="50%"></object>
+    <object data="tabela_de_pesos.pdf" type="application/pdf" width="50%"></object>
     </center>
     <br><a class="link" href="eventos_cadastrados.php">voltar</a>
 </div>

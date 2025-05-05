@@ -288,6 +288,40 @@
             }
         }
 
+        /**
+     * Atualiza o valor pago em uma inscrição
+     * @param int $eventoId ID do evento
+     * @param int $atletaId ID do atleta
+     * @param float $novoValor Novo valor da inscrição
+     * @return bool True se a atualização foi bem-sucedida
+     * @throws Exception Em caso de erro na execução
+     */
+    public function atualizarValorInscricao($eventoId, $atletaId, $novoValor) {
+        try {
+            $query = "UPDATE inscricao SET 
+                        valor_pago = :valor,
+                        status_pagamento = 'PENDING'
+                      WHERE id_atleta = :atletaId 
+                      AND id_evento = :eventoId";
+            
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':valor', $novoValor, PDO::PARAM_STR);
+            $stmt->bindValue(':atletaId', $atletaId, PDO::PARAM_INT);
+            $stmt->bindValue(':eventoId', $eventoId, PDO::PARAM_INT);
+            
+            if (!$stmt->execute()) {
+                $errorInfo = $stmt->errorInfo();
+                throw new Exception("Erro ao atualizar valor: " . $errorInfo[2]);
+            }
+            
+            return true;
+            
+        } catch (Exception $e) {
+            error_log("ERRO atualizarValorInscricao: " . $e->getMessage());
+            throw new Exception("Não foi possível atualizar o valor da inscrição");
+        }
+    }
+
         //Deletar atleta
         public function excluirAtleta($id){
             $dados = $this->getById($id);
