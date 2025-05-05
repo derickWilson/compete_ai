@@ -62,6 +62,8 @@ CREATE TABLE IF NOT EXISTS evento(
         id_cobranca_asaas VARCHAR(50) NULL,
         status_pagamento VARCHAR(20) DEFAULT 'PENDING',
         valor_pago FLOAT(5,2) NULL,
+        aceite_regulamento BOOLEAN DEFAULT FALSE,
+        aceite_responsabilidade BOOLEAN DEFAULT FALSE,
         PRIMARY KEY (id_atleta, id_evento),
         FOREIGN KEY (id_atleta) REFERENCES atleta(id),
         FOREIGN KEY (id_evento) REFERENCES evento(id)
@@ -73,6 +75,3 @@ CREATE TABLE IF NOT EXISTS galeria (
     imagem VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
-
-ALTER TABLE inscricao ADD COLUMN aceite_regulamento BOOLEAN DEFAULT FALSE;
-ALTER TABLE inscricao ADD COLUMN aceite_responsabilidade BOOLEAN DEFAULT FALSE;
