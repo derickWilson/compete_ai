@@ -353,7 +353,71 @@ class AssasService {
             throw new Exception("Não foi possível deletar a cobrança: " . $e->getMessage());
         }
     }
-
+/**
+ * Edita uma cobrança existente no Asaas
+ * 
+ * @param string $cobrancaId ID da cobrança no Asaas (ex: "pay_b6bib9x9v8jdgmmf")
+ * @param array $dadosAtualizados Array com os campos a serem atualizados:
+ *   - 'value' => (float) Novo valor da cobrança
+ *   - 'dueDate' => (string) Nova data de vencimento (formato YYYY-MM-DD)
+ *   - 'description' => (string) Nova descrição (opcional)
+ * @return array Retorna a resposta da API com os dados atualizados
+ * @throws Exception Em caso de erro na requisição
+ */
+public function editarCobranca($cobrancaId, $dadosAtualizados) {
+    try {
+        // Validação dos parâmetros
+        if (empty($cobrancaId)) {
+            throw new InvalidArgumentException("ID da cobrança não pode ser vazio");
+        }
+        
+        if (!isset($dadosAtualizados['value']) && !isset($dadosAtualizados['dueDate'])) {
+            throw new InvalidArgumentException("Pelo menos um dos campos (value ou dueDate) deve ser fornecido");
+        }
+        
+        // Preparar payload com apenas os campos fornecidos
+        $payload = [
+            'billingType' => 'PIX' // Mantém sempre PIX conforme exemplos
+        ];
+        
+        if (isset($dadosAtualizados['value'])) {
+            $payload['value'] = (float) $dadosAtualizados['value'];
+        }
+        
+        if (isset($dadosAtualizados['dueDate'])) {
+            $payload['dueDate'] = $dadosAtualizados['dueDate'];
+        }
+        
+        if (isset($dadosAtualizados['description'])) {
+            $payload['description'] = substr($dadosAtualizados['description'], 0, 255);
+        }
+        
+        // Fazer a requisição PUT para atualizar a cobrança
+        $response = $this->sendRequest('PUT', '/payments/' . $cobrancaId, $payload);
+        
+        // Retornar dados formatados
+        return [
+            'success' => true,
+            'payment' => [
+                'id' => $response['id'],
+                'status' => $response['status'],
+                'value' => $response['value'],
+                'dueDate' => $response['dueDate'],
+                'description' => $response['description'] ?? null,
+                'invoiceUrl' => $response['invoiceUrl']
+            ]
+        ];
+        
+    } catch (Exception $e) {
+        error_log("Erro ao editar cobrança: " . $e->getMessage());
+        
+        return [
+            'success' => false,
+            'message' => $e->getMessage(),
+            'code' => $e->getCode()
+        ];
+    }
+}
     private function sendRequest($method, $endpoint, $data = null) {
         $url = $this->baseUrl . $endpoint;
         $curl = curl_init();
