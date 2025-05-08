@@ -6,7 +6,7 @@ is_adm();
 require_once "../classes/eventosServices.php";
 require_once "../classes/AssasService.php";
 include "../func/clearWord.php";
-include __DIR__ . "/../func/calcularIdade.php";
+require_once __DIR__ . "/../func/calcularIdade.php";
 require_once __DIR__ . '/../vendor/autoload.php'; // Para o TCPDF
 
 $conn = new Conexao();
@@ -116,7 +116,7 @@ if ($evento->tipo_com == 1) {
             // Filtrar atletas para esta categoria
             $atletas_categoria = array_filter($inscritosValidos, function($atleta) use ($idades, $faixa, $categoria) {
                 $idade = calcularIdade($atleta->data_nascimento);
-                $faixaMatch = (strtolower(trim($atleta->faixa)) === strtolower(trim($faixa));
+                $faixaMatch = (strtolower(trim($atleta->faixa)) === strtolower(trim($faixa)));
                 $idadeMatch = ($idade >= $idades[0] && $idade <= $idades[1]);
                 $modalidadeMatch = ($atleta->mod_com == 1 || $atleta->mod_ab_com == 1);
                 
@@ -171,4 +171,4 @@ if ($gerarPDF) {
     fclose($output);
 }
 exit;
->?
+?>

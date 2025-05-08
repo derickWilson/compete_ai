@@ -4,7 +4,7 @@
     try {
         require_once __DIR__ . "/../func/database.php";  // Caminho absoluto para database.php
         require_once __DIR__ . "/../classes/atletaClass.php";  // Caminho absoluto para atletaClass.php
-        include __DIR__ . "/../func/calcularIdade.php";
+        require_once __DIR__ . "/../func/calcularIdade.php";
     } catch (\Throwable $th) {
         print("[". $th->getMessage() ."]");
     }

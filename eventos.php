@@ -6,7 +6,7 @@ try {
     require_once "classes/eventosServices.php";
     require_once "classes/AssasService.php";
     include "func/clearWord.php";
-    include "func/calcularIdade.php";
+    require_once "func/calcularIdade.php";
     include "config_taxa.php";
 } catch (\Throwable $th) {
     print('['. $th->getMessage() .']');

@@ -6,7 +6,7 @@ if (!isset($_SESSION["logado"])) {
     header("Location: index.php");
     exit();
 }
-include "func/calcularIdade.php";
+require_once "func/calcularIdade.php";
 // Acessa as variáveis de sessão
 $id = $_SESSION["id"] ?? 'Não disponível';
 $foto = $_SESSION["foto"] ?? 'Não disponível';

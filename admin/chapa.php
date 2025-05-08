@@ -6,7 +6,7 @@ is_adm();
 require_once "../classes/eventosServices.php";
 require_once "../classes/AssasService.php";
 include "../func/clearWord.php";
-include __DIR__ . "/../func/calcularIdade.php"; // Inclui a função de cálculo de idade
+require_once __DIR__ . "/../func/calcularIdade.php"; // Inclui a função de cálculo de idade
 
 $conn = new Conexao();
 $ev = new Evento();
