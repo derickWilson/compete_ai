@@ -22,6 +22,7 @@ if (isset($_SESSION["logado"])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cadastro</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/estilos/icone.jpeg">
 </head>
 <body>
     <?php
@@ -50,7 +51,10 @@ if (isset($_SESSION["logado"])){
         ?>
         senha  <input type="password" name="senha" id="senha" required><br>
         Data de Nascimento  <input type="date" name="data_nascimento" id="data_nasc" required><br>
-        Fone  <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
+        Telefone<br>
+        <input type="text" name="ddd" value="+55">
+        <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="DDD + número (ex: 11987654321)" required>
+        <br>
         Academia/Equipe  
             <select name="academia" id="academia">
                 <option value="">--selecione sua academia--</option>

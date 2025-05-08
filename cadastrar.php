@@ -65,7 +65,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
-        $atletas->__set("fone", cleanWords($_POST["fone"]));
+        
+        $telefone_completo = cleanWords($_POST["ddd"]) . cleanWords($_POST["fone"]);
+        $atletas->__set("fone", $telefone_completo);
+
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
         $atletas->__set("peso", cleanWords($_POST["peso"]));
         $atletas->__set("diploma",$novoNome);
@@ -126,7 +129,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("foto", $novoNomeFoto);
-        $atletas->__set("fone", cleanWords($_POST["fone"]));
+        
+        $telefone_completo = cleanWords($_POST["ddd"]) . cleanWords($_POST["fone"]);
+        $atletas->__set("fone", $telefone_completo);
+        
         $atletas->__set("academia", cleanWords($_POST["academia"]));
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
         $atletas->__set("peso", $_POST["peso"]);

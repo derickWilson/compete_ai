@@ -75,3 +75,5 @@ CREATE TABLE IF NOT EXISTS galeria (
     imagem VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
+
+ALTER TABLE atleta MODIFY fone VARCHAR(20)

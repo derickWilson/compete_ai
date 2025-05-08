@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Filiar Academia</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/estilos/icone.jpeg">
 </head>
 <body>
     <?php
@@ -68,7 +69,10 @@
         ?>
         senha  <input type="password" name="senha" id="senha" required><br>
         Data de Nascimento  <input type="date" name="data_nascimento" id="data_nasc" required><br>
-        Fone  <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="0000000000" required><br>
+        Telefone<br>
+        <input type="text" name="ddd" value="+55">
+        <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="DDD + número (ex: 11987654321)" required>
+        <br>
         Faixa do Responsavel <select id="faixas" name="faixa" required>
             <option value="">Graduação</option>
             <option value="Branca">Branca</option>
