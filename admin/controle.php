@@ -9,7 +9,18 @@ $atleta = new Atleta();
 $attServ = new atletaService($conn, $atleta);
 if (isset($_GET["user"])) {
     $usuario = $attServ->getById(cleanWords($_GET["user"]));
-    $foneLimpo = preg_replace('/\D/', '', $usuario->fone); // Remove tudo que não for número
+    $telefoneFormatado = $usuario->fone;
+    if (!empty($telefoneFormatado)) {
+        // Remove todos os caracteres não numéricos
+        $telefoneLimpo = preg_replace('/[^0-9]/', '', $telefoneFormatado);
+        
+        // Se não começa com código de país (assumindo que números brasileiros tem 10-11 dígitos)
+        if (!preg_match('/^\+/', $telefoneFormatado) && strlen($telefoneLimpo) >= 10) {
+            $telefoneFormatado = '+55' . $telefoneLimpo;
+        }
+    }
+    // Remove tudo que não for número para o WhatsApp
+    $foneLimpo = preg_replace('/[^0-9]/', '', $telefoneFormatado); 
 } else {
     echo "Selecione um usuário";
     exit();
