@@ -1,3 +1,26 @@
+<?php
+// Deve ser a PRIMEIRA linha do arquivo, sem espaços antes!
+declare(strict_types=1);
+// Iniciar buffer de saída
+ob_start();
+// Iniciar sessão ANTES de qualquer saída
+session_start();
+if (isset($_SESSION["logado"])) {
+    header("Location: index.php");
+    exit();
+} else {
+    require_once "classes/atletaService.php";
+    try {
+        // Obtenha os inscritos 
+        $conn = new Conexao();
+        $atleta = new Atleta();
+        $ev = new atletaService($conn, $atleta);
+        $academias = $ev->getAcademias();
+    } catch (Exception $e) {
+        die("Erro ao obter inscritos: " . $e->getMessage());
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="pt">
 
@@ -11,14 +34,6 @@
 
 <body>
     <?php
-    // Deve ser a PRIMEIRA linha do arquivo, sem espaços antes!
-    declare(strict_types=1);
-
-    // Iniciar buffer de saída
-    ob_start();
-
-    // Iniciar sessão ANTES de qualquer saída
-    session_start();
     include "menu/add_menu.php";
     ?>
     <div class="principal">
@@ -108,4 +123,5 @@
     ob_end_flush();
     ?>
 </body>
+
 </html>

@@ -211,22 +211,38 @@ class atletaService
     }
     public function listarCampeonatos($id_atleta)
     {
-        $query = 'SELECT e.id as idC, e.nome as campeonato, e.local_evento as lugar, e.data_evento as dia,
-            i.mod_com as mcom, i.mod_sem as msem, i.mod_ab_com as macom, i.mod_ab_sem as masem, i.modalidade,
-            i.id_cobranca_asaas as assas, i.valor_pago, i.status_pagamento
-            FROM inscricao i
-            JOIN evento e ON e.id = i.id_evento
-            WHERE i.id_atleta = :idAtleta';
+        $query = 'SELECT 
+                    e.id as idC, 
+                    e.nome as campeonato, 
+                    e.local_evento as lugar, 
+                    e.data_evento as dia,
+                    i.mod_com as mcom, 
+                    i.mod_sem as msem, 
+                    i.mod_ab_com as macom, 
+                    i.mod_ab_sem as masem, 
+                    i.modalidade,
+                    i.id_cobranca_asaas as assas, 
+                    i.valor_pago, 
+                    i.status_pagamento,
+                    e.data_limite as data_limite
+                  FROM inscricao i
+                  JOIN evento e ON e.id = i.id_evento
+                  WHERE i.id_atleta = :idAtleta
+                  ORDER BY e.data_evento DESC, e.nome ASC';
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":idAtleta", $id_atleta);
+        $stmt->bindValue(":idAtleta", $id_atleta, PDO::PARAM_INT);
+
         try {
             $stmt->execute();
-        } catch (Exception $e) {
-            echo "erro [" . $e->getMessage() . "]";
+            $result = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            return $result ?: []; // Garante retorno de array vazio se não houver resultados
+
+        } catch (PDOException $e) {
+            error_log("Erro ao listar campeonatos para atleta {$id_atleta}: " . $e->getMessage());
+            return []; // Retorna array vazio em caso de erro
         }
-        $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-        return $result;
     }
     public function updateAtleta()
     {
@@ -358,7 +374,8 @@ class atletaService
                     $lista = $stmt->fetchAll(PDO::FETCH_OBJ);
                     // Deletar cada atleta da academia
                     $idsAtletas = array_map(function ($ar) {
-                        return $ar->id; }, $lista);
+                        return $ar->id;
+                    }, $lista);
                     if (count($idsAtletas) > 0) {
                         $idsStr = implode(",", $idsAtletas);
                         $queryDeleteAtletas = "DELETE FROM atleta WHERE id IN ($idsStr)";
