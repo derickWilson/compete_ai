@@ -52,7 +52,7 @@ if (isset($_SESSION["logado"])){
         senha  <input type="password" name="senha" id="senha" required><br>
         Data de Nascimento  <input type="date" name="data_nascimento" id="data_nasc" required><br>
         Telefone<br>
-        <input type="text" name="ddd" value="+55">
+        <input type="text" name="ddd" value="+55" style="width: 50px;">
         <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="DDD + número (ex: 11987654321)" required>
         <br>
         Academia/Equipe  
