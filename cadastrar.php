@@ -3,61 +3,56 @@
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require_once "classes/atletaService.php";
     include "func/clearWord.php";
+    
+    // Inicializa variáveis para evitar undefined
+    $novoNome = '';
+    $novoNomeFoto = '';
+    $ddd = $_POST['ddd'] ?? ''; // Valor padrão se não existir
+    
     $con = new Conexao();
     $atletas = new Atleta();
     $attServ = new atletaService($con, $atletas);
-    if($_POST["tipo"] == "A"){
-        //cadastrar academia
-        //cadastrar academia primeiro
-        //filiar academia
+
+    // Função auxiliar para processar uploads
+    function processarUpload($arquivo, $pastaDestino, $prefixoNome) {
+        if (isset($arquivo) && $arquivo['error'] === UPLOAD_ERR_OK) {
+            $extensao = pathinfo($arquivo['name'], PATHINFO_EXTENSION);
+            $novoNome = $prefixoNome . time() . '.' . $extensao;
+            $caminhoCompleto = $pastaDestino . $novoNome;
+            
+            if ($arquivo['size'] > 0 && move_uploaded_file($arquivo['tmp_name'], $caminhoCompleto)) {
+                return $novoNome;
+            }
+        }
+        return false;
+    }
+
+    if($_POST["tipo"] == "A") {
+        // Cadastrar academia e responsável
         try {
-            //filiar academia
-            if($attServ->existAcad(cleanWords($_POST["academia"]))){
-                $attServ->Filiar(cleanWords($_POST["academia"]),cleanWords($_POST["cep"]),cleanWords($_POST["cidade"]),cleanWords($_POST["estado"]));
+            if($attServ->existAcad(cleanWords($_POST["academia"]))) {
+                $attServ->Filiar(
+                    cleanWords($_POST["academia"]),
+                    cleanWords($_POST["cep"]),
+                    cleanWords($_POST["cidade"]),
+                    cleanWords($_POST["estado"])
+                );
             }
         } catch (Exception $e) {
-            echo "Erro ao filiar academia: " . $e->getMessage();
+            die("Erro ao filiar academia: " . $e->getMessage());
         }
-        //pegar o id da academia registrada
-        $idAcademia = $attServ->getIdAcad(cleanWords($_POST["academia"]));
-        //Verifica se o diploma foi enviado corretamente
-        if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
-            $diploma = $_FILES['diploma'];
-            $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
-            $novoNome = 'diploma_' . time() . '.' . $extensao;
-            $caminhoParaSalvar = 'diplomas/' . $novoNome;
-            if ($diploma['size'] > 0) {
-                if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
-                } else {
-                    echo ' Erro ao mover arquivo. Verifique as permiss玫es do diret贸rio.';
-                    header("Location: cadastro_academia.php");
-                    exit();
-                }
-            } else {
-                echo 'Arquivo vazio ou erro no upload';
-                header("Location: cadastro_academia.php");
-                exit();
-            }
+
+        // Processar uploads
+        $novoNome = processarUpload($_FILES['diploma'] ?? null, 'diplomas/', 'diploma_');
+        $novoNomeFoto = processarUpload($_FILES['foto'] ?? null, 'fotos/', 'foto_');
+
+        if (!$novoNome || !$novoNomeFoto) {
+            die("Erro no upload de arquivos. Verifique se selecionou ambos os arquivos.");
         }
-        //tratar foto enviada
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $foto = $_FILES['foto'];
-            $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
-            $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
-            $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
-            if ($foto['size'] > 0) {
-                if (move_uploaded_file($foto['tmp_name'], $caminhoParaSalvarFoto)) {
-                } else {
-                    echo ' Erro ao mover arquivo. Verifique as permiss玫es do diret贸rio.';
-                    header("Location: cadastro_academia.php");
-                    exit();
-                }
-            } else {
-                echo 'Arquivo vazio ou erro no upload';
-                header("Location: cadastro_academia.php");
-                exit();
-            }
-        }
+
+        // Configurar dados do atleta (responsável)
+        $telefone_completo = cleanWords($ddd) . cleanWords($_POST["fone"]);
+
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
         $atletas->__set("cpf", cleanWords($_POST["cpf"]));
@@ -65,63 +60,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
-        
-        $telefone_completo = cleanWords($_POST["ddd"]) . cleanWords($_POST["fone"]);
         $atletas->__set("fone", $telefone_completo);
-
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
         $atletas->__set("peso", cleanWords($_POST["peso"]));
-        $atletas->__set("diploma",$novoNome);
-        if($attServ->emailExists($atletas->__get("email"))){
+        $atletas->__set("diploma", $novoNome);
+
+        if($attServ->emailExists($atletas->__get("email"))) {
             header("Location: cadastro.php?erro=1");
             exit();
         }
+
         try {
+            $idAcademia = $attServ->getIdAcad(cleanWords($_POST["academia"]));
             $attServ->addAcademiaResponsavel($idAcademia["id"]);
         } catch (Exception $e) {
-            echo "Erro ao filiar academia: " . $e->getMessage();
+            die("Erro ao cadastrar responsável: " . $e->getMessage());
+        }
+    }
+    elseif($_POST["tipo"] == "AT") {
+        // Cadastrar atleta normal
+        $novoNomeFoto = processarUpload($_FILES['foto'] ?? null, 'fotos/', 'foto_');
+        $novoNome = processarUpload($_FILES['diploma'] ?? null, 'diplomas/', 'diploma_');
+
+        if (!$novoNomeFoto) {
+            die("Erro no upload da foto. É obrigatório enviar uma foto.");
         }
 
-    }//fim do cadastro de academia
-    //cadastro do atleta
-    if($_POST["tipo"] == "AT"){
-        //cadastrar atleta
-        //tratar foto enviada
-        if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
-            $foto = $_FILES['foto'];
-            $extensaoFoto = pathinfo($foto['name'], PATHINFO_EXTENSION);
-            $novoNomeFoto = 'foto_' . time() . '.' . $extensaoFoto;
-            $caminhoParaSalvarFoto = 'fotos/' . $novoNomeFoto;
-            if ($foto['size'] > 0) {
-                if (move_uploaded_file($foto['tmp_name'], $caminhoParaSalvarFoto)) {
-                } else {
-                    echo ' Erro ao mover arquivo. Verifique as permiss玫es do diret贸rio.';
-                    header("Location: cadastro_academia.php");
-                    exit();
-                }
-            } else {
-                echo 'Arquivo vazio ou erro no upload';
-                header("Location: cadastro_academia.php");
-                exit();
-            }
-        }
-        //tratar diploma
-        if (isset($_FILES['diploma']) && $_FILES['diploma']['error'] === UPLOAD_ERR_OK) {
-            $diploma = $_FILES['diploma'];
-            $extensao = pathinfo($diploma['name'], PATHINFO_EXTENSION);
-            $novoNome = 'diploma_' . time() . '.' . $extensao;
-            $caminhoParaSalvar = 'diplomas/' . $novoNome;
-            if ($diploma['size'] > 0) {
-                if (move_uploaded_file($diploma['tmp_name'], $caminhoParaSalvar)) {
-                } else {
-                    echo ' Erro ao mover arquivo. Verifique as permissoes do diretorio.';
-                    header("Location: cadastro.php");
-                    exit();
-                }
-            } else {
-                echo 'Arquivo vazio ou erro no upload';
-            }
-        }
+        $telefone_completo = cleanWords($ddd) . cleanWords($_POST["fone"]);
+
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("cpf", cleanWords($_POST["cpf"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
@@ -129,26 +95,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("foto", $novoNomeFoto);
-        
-        $telefone_completo = cleanWords($_POST["ddd"]) . cleanWords($_POST["fone"]);
         $atletas->__set("fone", $telefone_completo);
-        
         $atletas->__set("academia", cleanWords($_POST["academia"]));
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
         $atletas->__set("peso", $_POST["peso"]);
-        $atletas->__set("diploma",$novoNome);
-    
-        $attServ = new atletaService($con, $atletas);
-        if($attServ->emailExists($_POST["email"])){
+        $atletas->__set("diploma", $novoNome); // Pode ser vazio se não foi enviado
+
+        if($attServ->emailExists($_POST["email"])) {
             header("Location: cadastro.php?erro=1");
             exit();
         }
+
         try {
             $attServ->addAtleta();
         } catch (Exception $e) {
-            echo "Erro ao adicionar atleta: " . $e->getMessage();
+            die("Erro ao adicionar atleta: " . $e->getMessage());
         }
-    
     }
 }
 ?>
