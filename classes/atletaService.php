@@ -235,13 +235,23 @@ class atletaService
 
         try {
             $stmt->execute();
+
+            // // Debug: Verificar se retornou resultados
+            // $rowCount = $stmt->rowCount();
+            // error_log("Total de registros encontrados: " . $rowCount);
+
             $result = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-            return $result ?: []; // Garante retorno de array vazio se não houver resultados
+            // // Debug: Verificar estrutura dos dados
+            // if (!empty($result)) {
+            //     error_log("Primeiro registro: " . print_r($result[0], true));
+            // }
+
+            return $result ?: []; // Retorna array vazio se não houver resultados
 
         } catch (PDOException $e) {
             error_log("Erro ao listar campeonatos para atleta {$id_atleta}: " . $e->getMessage());
-            return []; // Retorna array vazio em caso de erro
+            throw new Exception("Não foi possível carregar suas inscrições. Por favor, tente novamente mais tarde.");
         }
     }
     public function updateAtleta()

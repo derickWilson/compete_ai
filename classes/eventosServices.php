@@ -246,19 +246,21 @@ public function addEvento() {
     }
     //ver se um atleta ja esta inscrito em um evento
     public function isInscrito($idAtleta, $idEvento){
-        $query = "SELECT COUNT(*) as numero FROM inscricao i WHERE i.id_atleta = :idAtlera AND i.id_evento = :idEvento";
+        $query = "SELECT COUNT(*) as total FROM inscricao 
+                  WHERE id_atleta = :idAtleta AND id_evento = :idEvento";
         $stmt = $this->conn->prepare($query);
         
-        $stmt->bindValue(':idAtlera', $idAtleta);
-        $stmt->bindValue(':idEvento', $idEvento);
-
+        $stmt->bindValue(':idAtleta', $idAtleta, PDO::PARAM_INT);
+        $stmt->bindValue(':idEvento', $idEvento, PDO::PARAM_INT);
+    
         try {
             $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            return ($result->total > 0); // Retorna TRUE se já estiver inscrito
         } catch (Exception $e) {
-            echo 'Erro ao listar atleta: ' . $e->getMessage();
+            error_log('Erro ao verificar inscrição: ' . $e->getMessage());
+            return false; // Em caso de erro, assume que não está inscrito
         }
-        $num = $stmt->fetch(PDO::FETCH_OBJ);
-        return $num->numero == 0;
     }
         
         //**************DELEÇÂO DE EVENTO */
