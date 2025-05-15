@@ -1,23 +1,22 @@
 <?php
-// Deve ser a PRIMEIRA linha do arquivo, sem espaços ou BOM!
 declare(strict_types=1);
 
-// Buffer de saída para evitar envio prematuro de headers
+// Output buffering to prevent premature headers
 ob_start();
 
-// Iniciar sessão ANTES de qualquer possível saída
+// Start session before any output
 session_start();
 
-// Configuração de logs - após iniciar sessão
+// Error handling configuration
 ini_set('display_errors', 0);
 file_put_contents('asaas_debug.log', "\n\n" . date('Y-m-d H:i:s') . " - Início da inscrição", FILE_APPEND);
 
-// Verificar se headers já foram enviados
+// Check if headers were already sent
 if (headers_sent($filename, $linenum)) {
     die("Erro crítico: Headers já enviados em $filename na linha $linenum");
 }
 
-// Verificações iniciais
+// Authentication check
 if (!isset($_SESSION['logado'])) {
     $_SESSION['erro'] = "Acesso não autorizado";
     header("Location: login.php");
@@ -25,6 +24,7 @@ if (!isset($_SESSION['logado'])) {
     exit();
 }
 
+// Method validation
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     $_SESSION['erro'] = "Método inválido";
     header("Location: eventos.php");
@@ -32,31 +32,29 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-// Incluir arquivos necessários - usar require_once
+// Include required files
 require_once __DIR__ . "/classes/eventosServices.php";
 require_once __DIR__ . "/classes/AssasService.php";
 require_once __DIR__ . "/func/clearWord.php";
 require_once __DIR__ . "/config_taxa.php";
 require_once __DIR__ . "/func/database.php";
 
-// Verificar novamente se headers foram enviados após includes
+// Double check headers after includes
 if (headers_sent()) {
     die("Erro crítico: Headers enviados após includes");
 }
 
-$taxa = 1;
+// Initialize services
 try {
     $conn = new Conexao();
     $pdo = $conn->conectar();
-
-    // Inicia transação
     $pdo->beginTransaction();
 
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
     $asaasService = new AssasService($conn);
 
-    // Validação do evento
+    // Validate event
     $evento_id = (int) cleanWords($_POST['evento_id']);
     $eventoDetails = $evserv->getById($evento_id);
 
@@ -64,7 +62,7 @@ try {
         throw new Exception("Evento não encontrado");
     }
 
-    // Processa modalidades
+    // Process modalities
     $modalidades = [
         'com' => isset($_POST['com']) ? 1 : 0,
         'sem' => isset($_POST['sem']) ? 1 : 0,
@@ -74,20 +72,27 @@ try {
 
     $modalidade_escolhida = cleanWords($_POST['modalidade']);
 
-    // Verifica se o evento é gratuito (preço zero em todas as modalidades)
+    // Check if event is free
     $eventoGratuito = ($eventoDetails->preco == 0 && $eventoDetails->preco_menor == 0 && $eventoDetails->preco_abs == 0);
 
-    // Cálculo do valor com taxa (apenas para eventos pagos)
+    // Calculate price with tax (only for paid events)
     $valor = 0;
     if (!$eventoGratuito) {
-        $valor = ($_SESSION['idade'] > 15) ? $eventoDetails->preco * $taxa : $eventoDetails->preco_menor * $taxa;
-
-        if (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
+        // Regular event pricing
+        if ($modalidades['com'] || $modalidades['sem']) {
+            $valor = ($_SESSION['idade'] > 15)
+                ? $eventoDetails->preco * $taxa
+                : $eventoDetails->preco_menor * $taxa;
+        }
+        // Absolute event pricing
+        elseif (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
             $valor = $eventoDetails->preco_abs * $taxa;
+        } else {
+            throw new Exception("Modalidade inválida selecionada");
         }
     }
 
-    // Validação dos dados da sessão
+    // Validate session data
     $requiredSession = ['id', 'nome', 'cpf', 'email', 'fone'];
     foreach ($requiredSession as $field) {
         if (empty($_SESSION[$field])) {
@@ -95,7 +100,7 @@ try {
         }
     }
 
-    // Verifica termos aceitos
+    // Check terms acceptance
     $aceite_regulamento = isset($_POST['aceite_regulamento']) ? 1 : 0;
     $aceite_responsabilidade = isset($_POST['aceite_responsabilidade']) ? 1 : 0;
 
@@ -103,7 +108,7 @@ try {
         throw new Exception("Você deve aceitar todos os termos para se inscrever");
     }
 
-    // 1. Inscreve no banco de dados local
+    // Register local subscription
     $inscricaoSucesso = $evserv->inscrever(
         $_SESSION['id'],
         $evento_id,
@@ -120,15 +125,14 @@ try {
         throw new Exception("Falha ao registrar inscrição no banco local");
     }
 
-    // 2. Processamento diferente para eventos gratuitos
+    // Handle free events differently
     if ($eventoGratuito) {
-        // Para eventos gratuitos, marca como CONFIRMADO sem criar cobrança
         $atualizacao = $asaasService->atualizarInscricaoComPagamento(
             $_SESSION['id'],
             $evento_id,
-            null, // Sem ID de cobrança
-            AssasService::STATUS_GRATUITO, // Status GRATUITO para gratuitos
-            0 // Valor zero
+            null,
+            AssasService::STATUS_GRATUITO,
+            0
         );
 
         if (!$atualizacao) {
@@ -141,7 +145,7 @@ try {
             FILE_APPEND
         );
     } else {
-        // Para eventos pagos, fluxo normal com Asaas
+        // Paid event flow with Asaas
         $dadosAtleta = [
             'id' => $_SESSION['id'],
             'nome' => $_SESSION['nome'],
@@ -165,7 +169,6 @@ try {
                 'billingType' => 'PIX'
             ]);
 
-            // Atualiza inscrição com dados do pagamento
             $valorNumerico = (float) number_format($valor, 2, '.', '');
             $atualizacao = $asaasService->atualizarInscricaoComPagamento(
                 $_SESSION['id'],
@@ -179,10 +182,8 @@ try {
                 throw new Exception("Falha ao atualizar dados de pagamento");
             }
         } catch (Exception $e) {
-            // Em caso de erro, desfaz a transação (remove a inscrição)
             $pdo->rollBack();
 
-            // Remove a inscrição manualmente se o rollback não foi suficiente
             try {
                 $atletaService = new atletaService($conn, new Atleta());
                 $atletaService->excluirInscricao($evento_id, $_SESSION['id']);
@@ -199,9 +200,7 @@ try {
         }
     }
 
-    // Se tudo ocorreu bem, confirma a transação
     $pdo->commit();
-
     ob_clean();
     header("Location: eventos_cadastrados.php");
     ob_end_flush();
