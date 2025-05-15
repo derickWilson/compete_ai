@@ -49,7 +49,8 @@ public function addEvento() {
             preco = :preco,
             preco_abs = :preco_abs,
             preco_menor = :preco_menor,
-            doc = :doc
+            doc = :doc,
+            normal = :normal
             WHERE id = :id";
     
         $stmt = $this->conn->prepare($query);
@@ -68,6 +69,7 @@ public function addEvento() {
         $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
         $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
         $stmt->bindValue(':doc', $this->evento->__get('doc'), PDO::PARAM_STR);
+        $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
     
         try {
             $result = $stmt->execute();
@@ -105,7 +107,8 @@ public function addEvento() {
                     preco_menor, 
                     preco_abs, 
                     imagen, 
-                    doc
+                    doc,
+                    normal
                   FROM evento 
                   WHERE id = :id";
         

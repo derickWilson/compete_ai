@@ -46,7 +46,8 @@ $dadosEvento = [
     'preco_menor' => $eventoAntigo->preco_menor ?? 0,
     'preco_abs' => $eventoAntigo->preco_abs ?? 0,
     'img' => $eventoAntigo->imagen ?? null,
-    'doc' => $eventoAntigo->doc ?? null
+    'doc' => $eventoAntigo->doc ?? null,
+    'normal' => $eventoAntigo->preco_abs ?? 0
 ];
 
 // Processar upload da nova imagem
