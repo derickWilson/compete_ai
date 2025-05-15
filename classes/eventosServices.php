@@ -14,8 +14,8 @@ class eventosService{
 
 //adicionar um evento novo
 public function addEvento() {
-    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc)
-    VALUES(:nome, :descricao, :data_limite, :data_camp, :local_comp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc)";
+    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc, normal, normal_preco)
+    VALUES(:nome, :descricao, :data_limite, :data_camp, :local_comp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc, :normal, :normal_preco)";
     $stmt = $this->conn->prepare($query);
     $stmt->bindValue(':nome', $this->evento->__get('nome'));
     $stmt->bindValue(':data_camp', $this->evento->__get('data_camp'));
@@ -29,6 +29,9 @@ public function addEvento() {
     $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
     $stmt->bindValue(':img', $this->evento->__get('img'));
     $stmt->bindValue(':doc', $this->evento->__get('doc'));
+    $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
+    $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
+
     try {
         $stmt->execute();
     } catch (Exception $e) {
@@ -71,6 +74,7 @@ public function addEvento() {
         $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
         $stmt->bindValue(':doc', $this->evento->__get('doc'), PDO::PARAM_STR);
         $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
+        $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
     
         try {
             $result = $stmt->execute();
