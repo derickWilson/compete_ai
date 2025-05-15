@@ -42,7 +42,9 @@ $propriedadesObrigatorias = [
     'preco',
     'preco_menor',
     'preco_abs',
-    'doc'
+    'doc',
+    'normal',
+    'normal_preco'
 ];
 foreach ($propriedadesObrigatorias as $prop) {
     if (!property_exists($eventoDetails, $prop)) {

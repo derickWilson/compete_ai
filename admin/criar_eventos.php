@@ -60,7 +60,7 @@
         });
     </script>
 
-    <?php include "/menu/footer.php"; ?>
+    <?php include "../menu/footer.php"; ?>
 </body>
 
 </html>
