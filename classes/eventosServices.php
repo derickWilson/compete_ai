@@ -50,7 +50,8 @@ public function addEvento() {
             preco_abs = :preco_abs,
             preco_menor = :preco_menor,
             doc = :doc,
-            normal = :normal
+            normal = :normal,
+            normal_preco = :normal_preco
             WHERE id = :id";
     
         $stmt = $this->conn->prepare($query);
@@ -108,7 +109,8 @@ public function addEvento() {
                     preco_abs, 
                     imagen, 
                     doc,
-                    normal
+                    normal,
+                    normal_preco
                   FROM evento 
                   WHERE id = :id";
         

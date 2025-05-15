@@ -15,8 +15,8 @@ class Evento {
     private $preco_menor;
     private $preco_abs;
     private $doc;
-
     private $normal;
+    private $normal_preco;
 
     // Método mágico __get para getters
     public function __get($atributo) {

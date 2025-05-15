@@ -47,7 +47,8 @@ $dadosEvento = [
     'preco_abs' => $eventoAntigo->preco_abs ?? 0,
     'img' => $eventoAntigo->imagen ?? null,
     'doc' => $eventoAntigo->doc ?? null,
-    'normal' => $eventoAntigo->preco_abs ?? 0
+    'normal' => $eventoAntigo->normal ?? 0,
+    'normal_preco' => $eventoAntigo->normal_preco ?? 0
 ];
 
 // Processar upload da nova imagem
@@ -77,7 +78,7 @@ if (isset($_FILES['imagen_nova']) && $_FILES['imagen_nova']['error'] === UPLOAD_
     }
 }
 
-// Processar upload do novo documento (EDITAL) - CORREÇÃO PRINCIPAL
+// Processar upload do novo documento (EDITAL)
 if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
     $doc = $_FILES['nDoc'];
     $extensao = strtolower(pathinfo($doc['name'], PATHINFO_EXTENSION));
@@ -86,12 +87,10 @@ if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
         $novoNome = 'doc_' . time() . '.pdf';
         $caminhoDestino = __DIR__ . "/../docs/" . $novoNome;
         
-        // Verificar e criar diretório docs se não existir
         if (!file_exists(__DIR__ . "/../docs")) {
             mkdir(__DIR__ . "/../docs", 0755, true);
         }
         
-        // Excluir documento antigo se existir
         if (!empty($dadosEvento['doc']) && file_exists(__DIR__ . "/../docs/" . $dadosEvento['doc'])) {
             unlink(__DIR__ . "/../docs/" . $dadosEvento['doc']);
         }
@@ -131,8 +130,9 @@ if (isset($_POST['data_limite']) && !empty($_POST['data_limite'])) {
     $dadosEvento['data_limite'] = cleanWords($_POST['data_limite']);
 }
 
-$dadosEvento['tipoCom'] = isset($_POST['tipo_com']) ? 1 : $dadosEvento['tipoCom'];
-$dadosEvento['tipoSem'] = isset($_POST['tipo_sem']) ? 1 : $dadosEvento['tipoSem'];
+$dadosEvento['tipoCom'] = isset($_POST['tipo_com']) ? 1 : 0;
+$dadosEvento['tipoSem'] = isset($_POST['tipo_sem']) ? 1 : 0;
+$dadosEvento['normal'] = isset($_POST['normal']) ? 1 : 0;
 
 if (isset($_POST['preco']) && is_numeric($_POST['preco'])) {
     $dadosEvento['preco'] = (float) str_replace(',', '.', cleanWords($_POST['preco']));
@@ -144,6 +144,10 @@ if (isset($_POST['preco_menor']) && is_numeric($_POST['preco_menor'])) {
 
 if (isset($_POST['preco_abs']) && is_numeric($_POST['preco_abs'])) {
     $dadosEvento['preco_abs'] = (float) str_replace(',', '.', cleanWords($_POST['preco_abs']));
+}
+
+if (isset($_POST['normal_preco']) && is_numeric($_POST['normal_preco'])) {
+    $dadosEvento['normal_preco'] = (float) str_replace(',', '.', cleanWords($_POST['normal_preco']));
 }
 
 // Atualizar evento
@@ -167,4 +171,3 @@ try {
     header("Location: /admin/editar_evento.php?id=" . $id);
     exit();
 }
-?>

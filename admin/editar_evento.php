@@ -151,6 +151,10 @@ unset($_SESSION['mensagem']);
                     <label>Preço para menores de 15 anos (R$):*</label>
                     <input type="number" name="preco_menor" step="0.01" min="0" required
                         value="<?= number_format($eventoDetails->preco_menor, 2, '.', '') ?>">
+                    <label>Preço para Evento Normal (R$):</label>
+                    <input type="number" name="normal_preco" step="0.01" min="0"
+                        value="<?= number_format($eventoDetails->normal_preco ?? 0, 2, '.', '') ?>"
+                        <?= $eventoDetails->normal ? '' : 'disabled' ?>>
                 </div>
 
                 <div class="form-actions">
