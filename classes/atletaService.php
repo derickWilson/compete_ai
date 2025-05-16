@@ -407,7 +407,7 @@ class atletaService
                         // Remover diploma e foto de todos os atletas
                         foreach ($lista as $ar) {
                             $atletaData = $this->getById($ar->id);
-                            unlink("diploma/" . $atletaData->diploma);
+                            unlink("diplomas/" . $atletaData->diploma);
                             unlink("fotos/" . $atletaData->foto);
                         }
                     }
