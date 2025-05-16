@@ -371,9 +371,21 @@ class atletaService
         try {
             $stmt->execute();
             //remover diploma e foto
-            unlink("diploma/" . $dados->diploma);
-            unlink("fotos/" . $dados->foto);
 
+            $diplomaPath = __DIR__ . '/../diplomas/' . $dados->diploma;
+            $fotoPath = __DIR__ . '/../fotos/' . $dados->foto;
+
+            if (file_exists($diplomaPath)) {
+                unlink($diplomaPath);
+            } else {
+                error_log("Arquivo de diploma não encontrado: " . $diplomaPath);
+            }
+
+            if (file_exists($fotoPath)) {
+                unlink($fotoPath);
+            } else {
+                error_log("Arquivo de foto não encontrado: " . $fotoPath);
+            }
             if ($dados->responsavel) {
                 //deletar todos os atletas
                 $quary = "SELECT id FROM atleta WHERE academia = :acad";
