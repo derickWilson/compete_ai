@@ -18,7 +18,7 @@ try {
     require_once "classes/eventosServices.php";
     require_once "classes/AssasService.php";
     include "func/clearWord.php";
-    require_once "config_taxa.php";
+    require_once __DIR__ . '/config_taxa.php';
 } catch (\Throwable $th) {
     $_SESSION['erro'] = "Erro ao carregar recursos do sistema";
     header("Location: eventos_cadastrados.php");
@@ -46,8 +46,6 @@ $abCom = isset($_POST["abs_com"]) ? 1 : 0;
 $sem = isset($_POST["sem"]) ? 1 : 0;
 $abSem = isset($_POST["abs_sem"]) ? 1 : 0;
 $modalidade = cleanWords($_POST["modalidade"]);
-$taxa = 1; // Taxa padrão (pode ser substituída por config_taxa.php)
-
 try {
     // Obtém dados atuais
     $dadosEvento = $eventoServ->getById($eventoId);
@@ -62,7 +60,7 @@ try {
 
     // Calcula novo valor
     $novoValor = calcularValorInscricao($dadosEvento, $_SESSION["idade"], $com, $abCom, $sem, $abSem);
-    $novoValorComTaxa = $novoValor * $taxa;
+    $novoValorComTaxa = $novoValor * TAXA;
     
     // 1. Atualiza modalidades no banco de dados
     $atserv->editarInscricao($eventoId, $idAtleta, $com, $abCom, $sem, $abSem, $modalidade);

@@ -9,7 +9,7 @@ try {
     require_once "classes/AssasService.php";
     include "func/clearWord.php";
     require_once "func/calcularIdade.php";
-    include "config_taxa.php";
+    require_once __DIR__ . '/config_taxa.php';
 } catch (\Throwable $th) {
     print ('[' . $th->getMessage() . ']');
 }
@@ -125,27 +125,25 @@ if (isset($_GET['id'])) {
                 <!-- Seção de preços -->
                 <div class="precos-container">
                     <h3>Valores</h3>
-                    <?php
-                    $taxa = 1; // Mantém a taxa de conversão se existir
-            
+                    <?php            
                     if ($eventoDetails->normal) {
                         // Exibição para Evento Normal
-                        $precoNormal = $eventoDetails->normal_preco * $taxa;
+                        $precoNormal = $eventoDetails->normal_preco * TAXA;
                         echo "<p>Preço único: <strong>" . number_format($precoNormal, 2, ',', '.') . " R$</strong></p>";
                     } else {
                         // Exibição para Evento com Classificação
                         if (!isset($_SESSION["idade"])) {
                             // Usuário não logado - mostra todos os preços
-                            echo "<p>Preço geral: <strong>" . number_format($eventoDetails->preco * $taxa, 2, ',', '.') . " R$</strong> (maiores de 15 anos)</p>";
+                            echo "<p>Preço geral: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong> (maiores de 15 anos)</p>";
                             echo "<p>Preço para menores: <strong>" . number_format($eventoDetails->preco_menor * $taxa, 2, ',', '.') . " R$</strong> (menores de 15 anos)</p>";
                             echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * $taxa, 2, ',', '.') . " R$</strong></p>";
                         } else {
                             // Usuário logado - mostra preço conforme idade
                             if ($_SESSION["idade"] > 15) {
-                                echo "<p>Preço: <strong>" . number_format($eventoDetails->preco * $taxa, 2, ',', '.') . " R$</strong></p>";
-                                echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * $taxa, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Preço: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
                             } else {
-                                echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_menor * $taxa, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
                             }
                         }
                     }

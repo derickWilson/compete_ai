@@ -42,8 +42,6 @@ require_once __DIR__ . "/func/database.php";
 if (headers_sent()) {
     die("Erro crítico: Headers enviados após includes");
 }
-
-$taxa = 1;
 try {
     $conn = new Conexao();
     $pdo = $conn->conectar();
@@ -94,15 +92,15 @@ try {
     if (!$eventoGratuito) {
         if ($eventoDetails->normal) {
             // Preço fixo para eventos normais
-            $valor = $eventoDetails->normal_preco * $taxa;
+            $valor = $eventoDetails->normal_preco * TAXA;
         } else {
             // Lógica tradicional para eventos com/sem kimono
             $valor = ($_SESSION['idade'] > 15)
-                ? $eventoDetails->preco * $taxa
-                : $eventoDetails->preco_menor * $taxa;
+                ? $eventoDetails->preco * TAXA
+                : $eventoDetails->preco_menor * TAXA;
 
             if (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
-                $valor = $eventoDetails->preco_abs * $taxa;
+                $valor = $eventoDetails->preco_abs * TAXA;
             }
         }
     }
