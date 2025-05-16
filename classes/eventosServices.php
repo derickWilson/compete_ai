@@ -19,7 +19,7 @@ public function addEvento() {
     $stmt = $this->conn->prepare($query);
     $stmt->bindValue(':nome', $this->evento->__get('nome'));
     $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'));
-    $stmt->bindValue(':local_comp', $this->evento->__get('local'));
+    $stmt->bindValue(':local_comp', $this->evento->__get('local_camp'));
     $stmt->bindValue(':descricao', $this->evento->__get('descricao'));
     $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'));
     $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'));

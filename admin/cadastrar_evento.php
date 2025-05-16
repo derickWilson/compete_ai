@@ -9,7 +9,7 @@
         // Captura dos dados básicos
         $nome = cleanWords($_POST['nome_evento']);
         $local = cleanWords($_POST['local_camp']);
-        $data_camp = cleanWords($_POST['data_camp']);
+        $data_evento = cleanWords($_POST['data_evento']);
         $descricao = cleanWords($_POST['desc_Evento']);
         $data_limite = cleanWords($_POST['data_limite']);
 
@@ -76,7 +76,7 @@
         $conn = new Conexao();
 
         $evento->__set('nome', $nome);
-        $evento->__set('data_camp', $data_camp);
+        $evento->__set('data_evento', $data_evento);
         $evento->__set('local_camp', $local);
         $evento->__set('img', $imgNome);
         $evento->__set('descricao', $descricao);
