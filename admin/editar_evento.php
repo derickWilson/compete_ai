@@ -137,32 +137,32 @@ unset($_SESSION['mensagem']);
                     <input type="checkbox" name="normal" id="normal" value="1" <?= $eventoDetails->normal ? 'checked' : '' ?>>
                     <label for="normal">Evento Normal (sem classificação)</label>
                 </div>
+            </div>
+            <!-- Valores -->
+            <div class="form-section">
+                <h3>Valores</h3>
 
-                <!-- Valores -->
-                <div class="form-section">
-                    <h3>Valores</h3>
+                <label>Preço geral (R$):*</label>
+                <input type="number" name="preco" step="0.01" min="0" required
+                    value="<?= number_format($eventoDetails->preco, 2, '.', '') ?>">
 
-                    <label>Preço geral (R$):*</label>
-                    <input type="number" name="preco" step="0.01" min="0" required
-                        value="<?= number_format($eventoDetails->preco, 2, '.', '') ?>">
+                <label>Preço Absoluto (R$):*</label>
+                <input type="number" name="preco_abs" step="0.01" min="0" required
+                    value="<?= number_format($eventoDetails->preco_abs, 2, '.', '') ?>">
 
-                    <label>Preço Absoluto (R$):*</label>
-                    <input type="number" name="preco_abs" step="0.01" min="0" required
-                        value="<?= number_format($eventoDetails->preco_abs, 2, '.', '') ?>">
+                <label>Preço para menores de 15 anos (R$):*</label>
+                <input type="number" name="preco_menor" step="0.01" min="0" required
+                    value="<?= number_format($eventoDetails->preco_menor, 2, '.', '') ?>">
+                <label>Preço para Evento Normal (R$):</label>
+                <input type="number" name="normal_preco" step="0.01" min="0"
+                    value="<?= number_format($eventoDetails->normal_preco ?? 0, 2, '.', '') ?>">
+            </div>
 
-                    <label>Preço para menores de 15 anos (R$):*</label>
-                    <input type="number" name="preco_menor" step="0.01" min="0" required
-                        value="<?= number_format($eventoDetails->preco_menor, 2, '.', '') ?>">
-                    <label>Preço para Evento Normal (R$):</label>
-                    <input type="number" name="normal_preco" step="0.01" min="0"
-                        value="<?= number_format($eventoDetails->normal_preco ?? 0, 2, '.', '') ?>">
-                </div>
-
-                <div class="form-actions">
-                    <button type="submit">Salvar Alterações</button>
-                    <a href="/eventos.php?id=<?= $eventoId ?>" class="btn-cancel">Cancelar</a>|
-                    <a class="danger" href="/admin/excluir_evento.php?id=<?= $eventoId ?>">EXCLUIR EVENTO</a><br>
-                </div>
+            <div class="form-actions">
+                <button type="submit">Salvar Alterações</button>
+                <a href="/eventos.php?id=<?= $eventoId ?>" class="btn-cancel">Cancelar</a>|
+                <a class="danger" href="/admin/excluir_evento.php?id=<?= $eventoId ?>">EXCLUIR EVENTO</a><br>
+            </div>
         </form>
     </div>
     <?php include "../menu/footer.php"; ?>
