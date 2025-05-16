@@ -125,7 +125,7 @@ if (isset($_GET['id'])) {
                 <!-- Seção de preços -->
                 <div class="precos-container">
                     <h3>Valores</h3>
-                    <?php            
+                    <?php
                     if ($eventoDetails->normal) {
                         // Exibição para Evento Normal
                         $precoNormal = $eventoDetails->normal_preco * TAXA;
@@ -232,11 +232,17 @@ if (isset($_GET['id'])) {
                 <?php } ?>
 
                 <!-- Visualizador de PDF -->
-                <div class="pdf-container">
-                    <object data="tabela_de_pesos.pdf" type="application/pdf" width="100%" height="100%">
-                        <p>Seu navegador não suporta PDFs. <a href="tabela_de_pesos.pdf">Baixe o arquivo</a>.</p>
-                    </object>
-                </div>
+                <?php
+                if (!$eventoDetails->normal) {
+                    ?>
+                    <div class="pdf-container">
+                        <object data="tabela_de_pesos.pdf" type="application/pdf" width="100%" height="100%">
+                            <p>Seu navegador não suporta PDFs. <a href="tabela_de_pesos.pdf">Baixe o arquivo</a>.</p>
+                            i/object>
+                    </div>
+                <?php
+                }
+                ?>
 
                 <br>
                 <a href="eventos.php" class="link">Voltar</a>
