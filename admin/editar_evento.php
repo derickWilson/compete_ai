@@ -107,7 +107,7 @@ unset($_SESSION['mensagem']);
                 <input type="text" name="nome_evento" required value="<?= htmlspecialchars($eventoDetails->nome) ?>">
 
                 <label>Data do Evento:*</label>
-                <input type="date" name="data_camp" required
+                <input type="date" name="data_evento" required
                     value="<?= htmlspecialchars($eventoDetails->data_evento) ?>">
 
                 <label>Local:*</label>
@@ -155,8 +155,7 @@ unset($_SESSION['mensagem']);
                         value="<?= number_format($eventoDetails->preco_menor, 2, '.', '') ?>">
                     <label>Preço para Evento Normal (R$):</label>
                     <input type="number" name="normal_preco" step="0.01" min="0"
-                        value="<?= number_format($eventoDetails->normal_preco ?? 0, 2, '.', '') ?>"
-                        <?= $eventoDetails->normal ? '' : 'disabled' ?>>
+                        value="<?= number_format($eventoDetails->normal_preco ?? 0, 2, '.', '') ?>">
                 </div>
 
                 <div class="form-actions">

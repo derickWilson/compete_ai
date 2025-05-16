@@ -2,7 +2,7 @@
 class Evento {
     private $id;
     private $nome;
-    private $data_camp;
+    private $data_evento;
     private $local_camp;
     private $img;
     private $descricao;

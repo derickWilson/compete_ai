@@ -37,9 +37,9 @@ $dadosEvento = [
     'id' => $id,
     'nome' => $eventoAntigo->nome ?? '',
     'local_camp' => $eventoAntigo->local_evento ?? '',
-    'data_camp' => $eventoAntigo->data_evento ?? '',
+    'data_evento' => $eventoAntigo->data_evento ?? '',
     'descricao' => $eventoAntigo->descricao ?? '',
-    'data_limite' => $eventoAntigo->data_limite ?? '',
+    'data_limite' => $eventoAntigo->data_limite,
     'tipoCom' => $eventoAntigo->tipo_com ?? 0,
     'tipoSem' => $eventoAntigo->tipo_sem ?? 0,
     'preco' => $eventoAntigo->preco ?? 0,
@@ -118,8 +118,8 @@ if (isset($_POST['local_camp']) && !empty($_POST['local_camp'])) {
     $dadosEvento['local_camp'] = cleanWords($_POST['local_camp']);
 }
 
-if (isset($_POST['data_camp']) && !empty($_POST['data_camp'])) {
-    $dadosEvento['data_camp'] = cleanWords($_POST['data_camp']);
+if (isset($_POST['data_evento']) && !empty($_POST['data_evento'])) {
+    $dadosEvento['data_evento'] = cleanWords($_POST['data_evento']);
 }
 
 if (isset($_POST['desc_Evento']) && !empty($_POST['desc_Evento'])) {
@@ -171,3 +171,4 @@ try {
     header("Location: /admin/editar_evento.php?id=" . $id);
     exit();
 }
+?>

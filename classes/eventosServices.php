@@ -15,10 +15,10 @@ class eventosService{
 //adicionar um evento novo
 public function addEvento() {
     $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc, normal, normal_preco)
-    VALUES(:nome, :descricao, :data_limite, :data_camp, :local_comp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc, :normal, :normal_preco)";
+    VALUES(:nome, :descricao, :data_limite, :data_evento, :local_comp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc, :normal, :normal_preco)";
     $stmt = $this->conn->prepare($query);
     $stmt->bindValue(':nome', $this->evento->__get('nome'));
-    $stmt->bindValue(':data_camp', $this->evento->__get('data_camp'));
+    $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'));
     $stmt->bindValue(':local_comp', $this->evento->__get('local'));
     $stmt->bindValue(':descricao', $this->evento->__get('descricao'));
     $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'));
@@ -63,7 +63,7 @@ public function addEvento() {
         $stmt->bindValue(':id', $this->evento->__get('id'), PDO::PARAM_INT);
         $stmt->bindValue(':nome', $this->evento->__get('nome'), PDO::PARAM_STR);
         $stmt->bindValue(':imagen', $this->evento->__get('img'), PDO::PARAM_STR);
-        $stmt->bindValue(':data_evento', $this->evento->__get('data_camp'), PDO::PARAM_STR);
+        $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'), PDO::PARAM_STR);
         $stmt->bindValue(':local_evento', $this->evento->__get('local_camp'), PDO::PARAM_STR);
         $stmt->bindValue(':descricao', $this->evento->__get('descricao'), PDO::PARAM_STR);
         $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'), PDO::PARAM_STR);
@@ -88,7 +88,7 @@ public function addEvento() {
     //listar todos os eventos
     public function listAll(){
         //$query = "SELECT id, nome FROM evento WHERE data_evento >= CURRENT_DATE";
-        $query = "SELECT id, nome, imagen FROM evento WHERE data_limite >= CURRENT_DATE";
+        $query = "SELECT id, nome, imagen FROM evento WHERE data_evento >= CURRENT_DATE";
         $stmt = $this->conn->prepare($query);
         try {
             $stmt->execute();

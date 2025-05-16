@@ -123,41 +123,34 @@ if (isset($_GET['id'])) {
                 <p>Local: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
 
                 <!-- Seção de preços -->
-                <p>Preço:
+                <div class="precos-container">
+                    <h3>Valores</h3>
                     <?php
-                    $taxa = 1;
-                    if (!isset($_SESSION["idade"])) {
-                        if ($eventoDetails->normal) {
-                            $precoNormalComTaxa = $eventoDetails->normal_preco * $taxa;
-                            echo number_format($precoNormalComTaxa, 2, ',', '.') . " R$";
-                        } else {
-                            $precoComTaxa = $eventoDetails->preco * $taxa;
-                            $precoMenorComTaxa = $eventoDetails->preco_menor * $taxa;
-                            $precoAbsComTaxa = $eventoDetails->preco_abs * $taxa;
-
-                            echo number_format($precoComTaxa, 2, ',', '.') . " R$ (maiores de 15 anos)<br>";
-                            echo number_format($precoMenorComTaxa, 2, ',', '.') . " R$ (menores de 15 anos)<br>";
-                            echo number_format($precoAbsComTaxa, 2, ',', '.') . " R$ (Absoluto)";
-                        }
+                    $taxa = 1; // Mantém a taxa de conversão se existir
+            
+                    if ($eventoDetails->normal) {
+                        // Exibição para Evento Normal
+                        $precoNormal = $eventoDetails->normal_preco * $taxa;
+                        echo "<p>Preço único: <strong>" . number_format($precoNormal, 2, ',', '.') . " R$</strong></p>";
                     } else {
-                        if ($eventoDetails->normal) {
-                            $precoNormalComTaxa = $eventoDetails->normal_preco * $taxa;
-                            echo number_format($precoNormalComTaxa, 2, ',', '.') . " R$";
+                        // Exibição para Evento com Classificação
+                        if (!isset($_SESSION["idade"])) {
+                            // Usuário não logado - mostra todos os preços
+                            echo "<p>Preço geral: <strong>" . number_format($eventoDetails->preco * $taxa, 2, ',', '.') . " R$</strong> (maiores de 15 anos)</p>";
+                            echo "<p>Preço para menores: <strong>" . number_format($eventoDetails->preco_menor * $taxa, 2, ',', '.') . " R$</strong> (menores de 15 anos)</p>";
+                            echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * $taxa, 2, ',', '.') . " R$</strong></p>";
                         } else {
+                            // Usuário logado - mostra preço conforme idade
                             if ($_SESSION["idade"] > 15) {
-                                $precoComTaxa = $eventoDetails->preco * $taxa;
-                                $precoAbsComTaxa = $eventoDetails->preco_abs * $taxa;
-
-                                echo number_format($precoComTaxa, 2, ',', '.') . " R$";
-                                echo "<br>Absoluto: " . number_format($precoAbsComTaxa, 2, ',', '.') . " R$";
+                                echo "<p>Preço: <strong>" . number_format($eventoDetails->preco * $taxa, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * $taxa, 2, ',', '.') . " R$</strong></p>";
                             } else {
-                                $precoMenorComTaxa = $eventoDetails->preco_menor * $taxa;
-                                echo number_format($precoMenorComTaxa, 2, ',', '.') . " R$";
+                                echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_menor * $taxa, 2, ',', '.') . " R$</strong></p>";
                             }
                         }
                     }
                     ?>
-                </p>
+                </div>
 
                 <!-- Link para download do edital -->
                 <?php if (!empty($eventoDetails->doc)) { ?>
