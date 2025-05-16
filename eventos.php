@@ -120,7 +120,7 @@ if (isset($_GET['id'])) {
                 <!-- Informações básicas do evento -->
                 <p>Descrição: <?php echo htmlspecialchars($eventoDetails->descricao); ?></p>
                 <p>Data: <?php echo htmlspecialchars($eventoDetails->data_evento); ?></p>
-                <p>Local: <?php echo htmlspecialchars($eventoDetails->local_evento); ?></p>
+                <p>Local: <?php echo htmlspecialchars($eventoDetails->local_camp); ?></p>
 
                 <!-- Seção de preços -->
                 <div class="precos-container">

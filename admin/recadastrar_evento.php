@@ -36,7 +36,7 @@ if (!$eventoAntigo || !isset($eventoAntigo->id)) {
 $dadosEvento = [
     'id' => $id,
     'nome' => $eventoAntigo->nome ?? '',
-    'local_evento' => $eventoAntigo->local_evento ?? '',
+    'local_camp' => $eventoAntigo->local_camp ?? '',
     'data_evento' => $eventoAntigo->data_evento ?? '',
     'descricao' => $eventoAntigo->descricao ?? '',
     'data_limite' => $eventoAntigo->data_limite,

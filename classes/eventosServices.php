@@ -14,12 +14,12 @@ class eventosService{
 
 //adicionar um evento novo
 public function addEvento() {
-    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc, normal, normal_preco)
-    VALUES(:nome, :descricao, :data_limite, :data_evento, :local_comp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc, :normal, :normal_preco)";
+    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_camp, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc, normal, normal_preco)
+    VALUES(:nome, :descricao, :data_limite, :data_evento, :local_camp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc, :normal, :normal_preco)";
     $stmt = $this->conn->prepare($query);
     $stmt->bindValue(':nome', $this->evento->__get('nome'));
     $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'));
-    $stmt->bindValue(':local_comp', $this->evento->__get('local_camp'));
+    $stmt->bindValue(':local_camp', $this->evento->__get('local_camp'));
     $stmt->bindValue(':descricao', $this->evento->__get('descricao'));
     $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'));
     $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'));
@@ -105,7 +105,7 @@ public function addEvento() {
                     descricao, 
                     data_evento, 
                     data_limite, 
-                    local_evento, 
+                    local_camp, 
                     tipo_com, 
                     tipo_sem, 
                     preco, 
@@ -123,23 +123,8 @@ public function addEvento() {
         
         try {
             $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_OBJ);
-            
-            // Garantir que todas as propriedades necessárias existam
-            $propriedadesNecessarias = [
-                'id', 'nome', 'descricao', 'data_evento', 'data_limite',
-                'local_evento', 'tipo_com', 'tipo_sem', 'preco',
-                'preco_menor', 'preco_abs', 'imagen', 'doc'
-            ];
-            
-            foreach ($propriedadesNecessarias as $prop) {
-                if (!property_exists($result, $prop)) {
-                    $result->$prop = null;
-                }
-            }
-            
+            $result = $stmt->fetch(PDO::FETCH_OBJ);            
             return $result;
-            
         } catch (Exception $e) {
             error_log('Erro ao buscar evento por ID: ' . $e->getMessage());
             throw new Exception("Erro ao buscar informações do evento");

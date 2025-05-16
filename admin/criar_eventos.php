@@ -27,9 +27,9 @@
             Data limite <input type="date" id="data_limite" name="data_limite" required><br>
 
             Modalidade:
-            <br><input type="checkbox" name="tipo_com" id="tipo_com" value="1"> Com Kimono
-            <br><input type="checkbox" name="tipo_sem" id="tipo_sem" value="1"> Sem Kimono
-            <br><input type="checkbox" name="normal" id="normal" value="1"> Evento Normal
+            <br><input type="checkbox" name="tipo_com" id="tipo_com"> Com Kimono
+            <br><input type="checkbox" name="tipo_sem" id="tipo_sem"> Sem Kimono
+            <br><input type="checkbox" name="normal" id="normal"> Evento Normal
             <br>
 
             Preço para maiores de 15
@@ -44,22 +44,11 @@
 
             Preço para Evento Normal
             <input type="number" name="normal_preco" id="normal_preco" placeholder="Preço para Evento Normal"
-                step="0.01" min="0" disabled>
-
+                step="0.01" min="0">
             <br>
             <hr><br><input type="submit" value="Cadastrar evento">
         </form>
     </div>
-
-    <script>
-        // Habilita/desabilita o campo normal_preco conforme o checkbox
-        document.getElementById('normal').addEventListener('change', function () {
-            const normalPrecoInput = document.getElementById('normal_preco');
-            normalPrecoInput.disabled = !this.checked;
-            normalPrecoInput.required = this.checked;
-        });
-    </script>
-
     <?php include "../menu/footer.php"; ?>
 </body>
 

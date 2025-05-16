@@ -35,7 +35,7 @@ $propriedadesObrigatorias = [
     'descricao',
     'data_limite',
     'data_evento',
-    'local_evento',
+    'local_camp',
     'tipo_com',
     'tipo_sem',
     'imagen',
@@ -112,7 +112,7 @@ unset($_SESSION['mensagem']);
 
                 <label>Local:*</label>
                 <input type="text" name="local_camp" required
-                    value="<?= htmlspecialchars($eventoDetails->local_evento) ?>">
+                    value="<?= htmlspecialchars($eventoDetails->local_camp) ?>">
 
                 <label>Descrição:*</label>
                 <textarea name="desc_Evento" required><?= htmlspecialchars($eventoDetails->descricao) ?></textarea>
