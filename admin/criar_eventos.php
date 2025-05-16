@@ -17,7 +17,7 @@
 
             Data do Campeonato <input type="date" id="data_camp" name="data_camp" required><br>
 
-            Local <input type="text" id="local_camp" name="local_camp" required><br>
+            Local <input type="text" id="data_evento" name="data_evento" required><br>
 
             Imagem do Evento <input type="file" name="img_evento" accept="image/*"><br>
             Ementa <input type="file" name="doc" accept="application/pdf"><br>
