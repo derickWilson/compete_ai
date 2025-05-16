@@ -16,7 +16,7 @@ try {
     $atletaId = $_SESSION['id'];
 
     $conn = new Conexao();
-    $asaasService = new AsaasService($conn);
+    $asaasService = new AssasService($conn);
     $atletaService = new atletaService($conn, new Atleta());
 
     // Busca dados da inscrição
@@ -27,7 +27,7 @@ try {
 
     // Se já tem cobrança criada, redireciona para o link de pagamento
     if (!empty($inscricao->id_cobranca_asaas)) {
-        $cobranca = $asaasService->buscarCobranca($inscricao->id_cobranca_asaas);
+        $cobranca = $asaasService->buscarCobrancaCompleta($inscricao->id_cobranca_asaas);
         if ($cobranca && isset($cobranca['invoiceUrl'])) {
             header("Location: " . $cobranca['invoiceUrl']);
             exit();
