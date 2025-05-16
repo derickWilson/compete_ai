@@ -15,7 +15,7 @@
             Nome do evento <input type="text" id="nome_evento" name="nome_evento" required><br>
             <br>
 
-            Data do Campeonato <input type="date" id="data_evento" name="data_camp" required><br>
+            Data do Campeonato <input type="date" id="data_camp" name="data_camp" required><br>
 
             Local <input type="text" id="local_camp" name="local_camp" required><br>
 

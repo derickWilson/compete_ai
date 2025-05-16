@@ -14,7 +14,7 @@ class eventosService{
 
 //adicionar um evento novo
 public function addEvento() {
-    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_camp, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc, normal, normal_preco)
+    $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc, normal, normal_preco)
     VALUES(:nome, :descricao, :data_limite, :data_evento, :local_camp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc, :normal, :normal_preco)";
     $stmt = $this->conn->prepare($query);
     $stmt->bindValue(':nome', $this->evento->__get('nome'));
@@ -34,6 +34,8 @@ public function addEvento() {
 
     try {
         $stmt->execute();
+        header("Location: /eventos.php");
+        exit();
     } catch (Exception $e) {
         echo 'Erro ao adicionar evento: ' . $e->getMessage();
     }
@@ -105,7 +107,7 @@ public function addEvento() {
                     descricao, 
                     data_evento, 
                     data_limite, 
-                    local_camp, 
+                    local_evento AS local_camp, 
                     tipo_com, 
                     tipo_sem, 
                     preco, 
