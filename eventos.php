@@ -135,8 +135,8 @@ if (isset($_GET['id'])) {
                         if (!isset($_SESSION["idade"])) {
                             // Usuário não logado - mostra todos os preços
                             echo "<p>Preço geral: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong> (maiores de 15 anos)</p>";
-                            echo "<p>Preço para menores: <strong>" . number_format($eventoDetails->preco_menor * $taxa, 2, ',', '.') . " R$</strong> (menores de 15 anos)</p>";
-                            echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * $taxa, 2, ',', '.') . " R$</strong></p>";
+                            echo "<p>Preço para menores: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong> (menores de 15 anos)</p>";
+                            echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
                         } else {
                             // Usuário logado - mostra preço conforme idade
                             if ($_SESSION["idade"] > 15) {
