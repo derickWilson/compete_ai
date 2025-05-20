@@ -13,6 +13,8 @@ require_once __DIR__ . "/../classes/eventosServices.php";
 require_once __DIR__ . "/../classes/AssasService.php";
 require_once __DIR__ . "/../func/clearWord.php";
 require_once __DIR__ . "/../func/calcularIdade.php";
+require_once __DIR__ . "/config_taxa.php";
+
 
 // Verificação do ID do evento
 if (!isset($_POST['id']) || !is_numeric($_POST['id'])) {
@@ -213,24 +215,33 @@ try {
 }
 
 /**
- * Calcula o novo valor da inscrição com base na modalidade
+ * Calcula o novo valor da inscrição com base na modalidade (agora seguindo a lógica do inscreverAtleta.php)
  */
 function calcularNovoValor($inscricao, $dadosEvento) {
-    if ($inscricao->modalidade === 'NORMAL') {
-        return $dadosEvento['normal_preco'];
+    // Se for evento normal
+    if ($dadosEvento['normal']) {
+        return $dadosEvento['normal_preco'] * TAXA;
     }
     
     $idade = calcularIdade($inscricao->data_nascimento);
-    $menorIdade = ($idade < 18);
+    $menorIdade = ($idade <= 15); // Ajustado para <= 15 como no inscreverAtleta
     
-    if ($inscricao->mod_com || $inscricao->mod_sem) {
-        return $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
-    }
-    
+    // Absoluto tem prioridade
     if ($inscricao->mod_ab_com || $inscricao->mod_ab_sem) {
-        return $dadosEvento['preco_abs'];
+        return $dadosEvento['preco_abs'] * TAXA;
     }
     
-    return $inscricao->valor_pago;
+    // Modalidades normais (com ou sem kimono)
+    $precoBase = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
+    
+    // Se marcou ambas modalidades (com e sem kimono), cobra apenas uma vez
+    if (($inscricao->mod_com && $inscricao->mod_sem) || 
+        $inscricao->mod_com || 
+        $inscricao->mod_sem) {
+        return $precoBase * TAXA;
+    }
+    
+    // Se nenhuma modalidade foi selecionada (não deveria acontecer)
+    return $inscricao->valor_pago; // Mantém o valor original como fallback
 }
 ?>
