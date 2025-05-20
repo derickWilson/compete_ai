@@ -198,6 +198,23 @@ public function addEvento() {
             return false;
         }
     }
+    public function atualizarValorInscricao($idAtleta, $idEvento, $valor) {
+    $query = "UPDATE inscricao SET 
+                valor_pago = :valor 
+              WHERE id_atleta = :id_atleta AND id_evento = :id_evento";
+    
+    $stmt = $this->conn->prepare($query);
+    $stmt->bindValue(':valor', $valor, PDO::PARAM_STR);
+    $stmt->bindValue(':id_atleta', $idAtleta, PDO::PARAM_INT);
+    $stmt->bindValue(':id_evento', $idEvento, PDO::PARAM_INT);
+    
+    try {
+        return $stmt->execute();
+    } catch (Exception $e) {
+        error_log("Erro ao atualizar valor da inscrição: " . $e->getMessage());
+        return false;
+    }
+}
     // Limpar evento vencidos
     /**
      * Limpa eventos que já passaram mais de 7 dias da data limite
