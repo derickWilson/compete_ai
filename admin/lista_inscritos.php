@@ -10,6 +10,8 @@ require_once __DIR__ . "/../func/clearWord.php";
 require_once __DIR__ . "/../func/database.php";
 
 if (!isset($_GET['id'])) {
+    $_SESSION['erro'] = "ID do evento não especificado";
+    header("Location: eventos.php");
     exit();
 }
 
@@ -20,14 +22,70 @@ try {
     $ev = new eventosService($conn, $evento);
     $asaasService = new AssasService($conn);
     
-    // Atualizar status de pagamentos pendentes
+    // 1. PROCESSAR AÇÕES ADMINISTRATIVAS (MARCAR COMO PAGO/ISENTO)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+        $idAtleta = (int) cleanWords($_POST['id_atleta']);
+        $action = cleanWords($_POST['action']);
+        
+        try {
+            if ($action === 'marcar_pago') {
+                $valor = (float) str_replace(',', '.', cleanWords($_POST['valor']));
+                
+                $asaasService->atualizarInscricaoComPagamento(
+                    $idAtleta,
+                    $idEvento,
+                    null, // Sem ID de cobrança Asaas (pagamento manual)
+                    AssasService::STATUS_PAGO,
+                    $valor
+                );
+                $_SESSION['mensagem'] = "Inscrição marcada como paga com sucesso!";
+                
+            } elseif ($action === 'marcar_isento') {
+                // Buscar dados da inscrição para ver se tem cobrança no Asaas
+                $inscricoes = $ev->getInscritos($idEvento);
+                $inscricao = null;
+                foreach ($inscricoes as $i) {
+                    if ($i->id == $idAtleta) {
+                        $inscricao = $i;
+                        break;
+                    }
+                }
+                
+                // Se existir cobrança no Asaas, deletar
+                if ($inscricao && $inscricao->id_cobranca_asaas) {
+                    $resultado = $asaasService->deletarCobranca($inscricao->id_cobranca_asaas);
+                    if (!$resultado['success']) {
+                        error_log("Falha ao deletar cobrança: " . ($resultado['message'] ?? ''));
+                        // Continua mesmo se falhar em deletar a cobrança
+                    }
+                }
+                
+                // Atualizar no banco de dados
+                $asaasService->atualizarInscricaoComPagamento(
+                    $idAtleta,
+                    $idEvento,
+                    null, // Remove referência à cobrança
+                    AssasService::STATUS_CONFIRMADO,
+                    0 // Valor zero para isenção
+                );
+                $_SESSION['mensagem'] = "Inscrição marcada como isenta com sucesso!";
+            }
+            
+        } catch (Exception $e) {
+            $_SESSION['erro'] = "Erro ao processar ação: " . $e->getMessage();
+        }
+        
+        header("Location: lista_inscritos.php?id=" . $idEvento);
+        exit();
+    }
+    
+    // 2. ATUALIZAR STATUS DE PAGAMENTOS PENDENTES
     $inscritos = $ev->getInscritos($idEvento);
     foreach ($inscritos as $inscrito) {
         if ($inscrito->id_cobranca_asaas && $inscrito->status_pagamento === 'PENDING') {
             try {
                 $statusInfo = $asaasService->verificarStatusCobranca($inscrito->id_cobranca_asaas);
                 
-                // Se o status mudou para PAGO ou CONFIRMADO, atualiza no banco
                 if (in_array($statusInfo['status'], ['RECEIVED', 'CONFIRMED'])) {
                     $asaasService->atualizarInscricaoComPagamento(
                         $inscrito->id,
@@ -36,8 +94,6 @@ try {
                         $statusInfo['status'],
                         $inscrito->valor_pago
                     );
-                    
-                    // Atualiza o objeto local para exibição imediata
                     $inscrito->status_pagamento = $statusInfo['status'];
                 }
             } catch (Exception $e) {
@@ -46,10 +102,13 @@ try {
         }
     }
     
-    // Recarrega a lista após possíveis atualizações
+    // Recarregar lista após atualizações
     $inscritos = $ev->getInscritos($idEvento);
+    
 } catch (Exception $e) {
-    die("Erro ao obter inscritos: " . $e->getMessage());
+    $_SESSION['erro'] = "Erro ao obter inscritos: " . $e->getMessage();
+    header("Location: eventos.php");
+    exit();
 }
 ?>
 <!DOCTYPE html>
@@ -60,115 +119,161 @@ try {
     <link rel="stylesheet" href="/style.css">
     <title>Lista de Inscritos</title>
     <style>
-        .status-pago {
-            color: green;
-            font-weight: bold;
+        .status-pago { color: green; font-weight: bold; }
+        .status-pendente { color: orange; font-weight: bold; }
+        .status-confirmado { color: blue; font-weight: bold; }
+        .status-isento { color: purple; font-weight: bold; }
+        .status-outros { color: #666; }
+        
+        .refresh-btn { 
+            margin: 10px 0; padding: 5px 10px; 
+            background-color: #4CAF50; color: white; 
+            border: none; border-radius: 4px; cursor: pointer; 
         }
-        .status-pendente {
-            color: orange;
-            font-weight: bold;
+        
+        .action-form { display: inline-block; margin: 2px; }
+        .action-btn { 
+            padding: 3px 6px; margin: 0 2px; 
+            cursor: pointer; border-radius: 3px;
+            border: 1px solid #ddd;
         }
-        .status-confirmado {
-            color: blue;
-            font-weight: bold;
-        }
-        .status-outros {
-            color: #666;
-        }
-        .refresh-btn {
-            margin: 10px 0;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
+        .pago-btn { background-color: #4CAF50; color: white; }
+        .isento-btn { background-color: #9C27B0; color: white; }
+        .valor-input { width: 70px; padding: 3px; text-align: right; }
+        
+        .mensagem {
+            padding: 10px; margin: 10px 0;
             border-radius: 4px;
-            cursor: pointer;
         }
+        .mensagem.sucesso { background-color: #dff0d8; color: #3c763d; }
+        .mensagem.erro { background-color: #f2dede; color: #a94442; }
     </style>
 </head>
 <body>
 <?php include "../menu/menu_admin.php"; ?>
+
+<?php if (isset($_SESSION['mensagem'])): ?>
+    <div class="mensagem sucesso"><?= $_SESSION['mensagem'] ?></div>
+    <?php unset($_SESSION['mensagem']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['erro'])): ?>
+    <div class="mensagem erro"><?= $_SESSION['erro'] ?></div>
+    <?php unset($_SESSION['erro']); ?>
+<?php endif; ?>
+
 <h1>Inscritos no Evento</h1>
-<?php if ($inscritos && !empty($inscritos)) { ?>
-    <h3>Inscritos no Evento <?php echo htmlspecialchars($inscritos[0]->evento); ?></h3>
+
+<?php if ($inscritos && !empty($inscritos)): ?>
+    <h3>Evento: <?= htmlspecialchars($inscritos[0]->evento) ?></h3>
     
     <button onclick="location.reload()" class="refresh-btn">
         Atualizar Status de Pagamentos
     </button>
     
-    <table border="1">
-        <tr>
-            <th>Inscrição</th>
-            <th>Nome do Atleta</th>
-            <th>Idade</th>
-            <th>Faixa</th>
-            <th>Peso</th>
-            <th>Modalidade</th>
-            <th>Academia</th>
-            <th>Modo Com</th>
-            <th>Modo Sem</th>
-            <th>Abst. Com</th>
-            <th>Abst. Sem</th>
-            <th>Status Pagamento</th>
-            <th>Ações</th>
-        </tr>
-        <?php foreach ($inscritos as $inscrito) { 
-            $statusClass = 'status-outros';
-            $statusText = $inscrito->status_pagamento;
-            
-            if ($inscrito->status_pagamento === 'RECEIVED') {
-                $statusClass = 'status-pago';
-                $statusText = 'Pago';
-            } elseif ($inscrito->status_pagamento === 'PENDING') {
-                $statusClass = 'status-pendente';
-                $statusText = 'Pendente';
-            } elseif ($inscrito->status_pagamento === 'CONFIRMED') {
-                $statusClass = 'status-confirmado';
-                $statusText = 'Confirmado';
-            }
-        ?>
-        <tr>
-            <td><?= $inscrito->id.$inscrito->ide ?></td>
-            <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
-            <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
-            <td><?= htmlspecialchars($inscrito->faixa) ?></td>
-            <td><?= htmlspecialchars($inscrito->peso) ?></td>
-            <td><?= htmlspecialchars($inscrito->modalidade) ?></td>
-            <td><?= htmlspecialchars($inscrito->academia) ?></td>
-            <td><?= $inscrito->mod_com ? "Sim" : "Não" ?></td>
-            <td><?= $inscrito->mod_sem ? "Sim" : "Não" ?></td>
-            <td><?= $inscrito->mod_ab_com ? "Sim" : "Não" ?></td>
-            <td><?= $inscrito->mod_ab_sem ? "Sim" : "Não" ?></td>
-            <td class="<?= $statusClass ?>">
-                <?= $statusText ?>
-                <?php if (in_array($inscrito->status_pagamento, ['RECEIVED', 'CONFIRMED'])): ?>
-                    <br>(R$ <?= number_format($inscrito->valor_pago, 2, ',', '.') ?>)
-                <?php endif; ?>
-            </td>
-            <td>
-                <?php if ($inscrito->id_cobranca_asaas): ?>
-                    <a href="pagamento.php?cobranca_id=<?= urlencode($inscrito->id_cobranca_asaas) ?>&view=1" 
-                       title="Ver detalhes do pagamento">
-                        Detalhes
-                    </a>
-                <?php endif; ?>
-            </td>
-        </tr>
-        <?php } ?>
+    <table border="1" cellpadding="5" cellspacing="0" width="100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Atleta</th>
+                <th>Idade</th>
+                <th>Modalidade</th>
+                <th>Academia</th>
+                <th>Status</th>
+                <th>Valor</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($inscritos as $inscrito): 
+                $statusClass = 'status-outros';
+                $statusText = $inscrito->status_pagamento;
+                
+                switch ($inscrito->status_pagamento) {
+                    case 'RECEIVED':
+                        $statusClass = 'status-pago';
+                        $statusText = 'Pago';
+                        break;
+                    case 'PENDING':
+                        $statusClass = 'status-pendente';
+                        $statusText = 'Pendente';
+                        break;
+                    case 'CONFIRMED':
+                        $statusClass = 'status-confirmado';
+                        $statusText = 'Confirmado';
+                        break;
+                    case 'GRATUITO':
+                        $statusClass = 'status-isento';
+                        $statusText = 'Isento';
+                        break;
+                }
+                
+                $valorExibicao = ($inscrito->valor_pago > 0) 
+                    ? 'R$ ' . number_format($inscrito->valor_pago, 2, ',', '.')
+                    : '-';
+            ?>
+            <tr>
+                <td><?= $inscrito->id ?></td>
+                <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
+                <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
+                <td><?= htmlspecialchars($inscrito->modalidade) ?></td>
+                <td><?= htmlspecialchars($inscrito->academia) ?></td>
+                <td class="<?= $statusClass ?>"><?= $statusText ?></td>
+                <td><?= $valorExibicao ?></td>
+                <td>
+                    <?php if ($inscrito->id_cobranca_asaas): ?>
+                        <a href="pagamento.php?cobranca_id=<?= urlencode($inscrito->id_cobranca_asaas) ?>&view=1" 
+                           title="Ver detalhes do pagamento">
+                            Detalhes
+                        </a>
+                    <?php endif; ?>
+                    
+                    <?php if ($inscrito->status_pagamento === 'PENDING'): ?>
+                        <form class="action-form" method="POST" 
+                              onsubmit="return confirm('Confirmar marcação como PAGO?')">
+                            <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
+                            <input type="hidden" name="action" value="marcar_pago">
+                            <input type="number" name="valor" class="valor-input" 
+                                   step="0.01" min="0" 
+                                   value="<?= number_format($inscrito->valor_pago ?? 0, 2, '.', '') ?>" 
+                                   required>
+                            <button type="submit" class="action-btn pago-btn" title="Marcar como pago">
+                                Pago
+                            </button>
+                        </form>
+                        
+                        <form class="action-form" method="POST" 
+                              onsubmit="return confirm('Confirmar isenção? A cobrança será cancelada.')">
+                            <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
+                            <input type="hidden" name="action" value="marcar_isento">
+                            <button type="submit" class="action-btn isento-btn" title="Marcar como isento">
+                                Isento
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
     </table>
-    <form action="baixar.php" method="GET">
-        <input type="hidden" name="id" value="<?php echo htmlspecialchars($_GET['id'], ENT_QUOTES, 'UTF-8'); ?>">
-        <input type="submit" value="Baixar Planilha">
-    </form>
-    <br><a href="/compete_ai/eventos.php">Voltar</a>
-<?php } else {
-    echo "<p>Nenhum inscrito encontrado para este campeonato.</p>";
-} 
-?>
+    
+    <div style="margin-top: 20px;">
+        <form action="baixar.php" method="GET" style="display: inline-block;">
+            <input type="hidden" name="id" value="<?= htmlspecialchars($idEvento) ?>">
+            <input type="submit" value="Baixar Planilha">
+        </form>
+        
+        <a href="eventos.php" style="margin-left: 15px;">Voltar para Eventos</a>
+    </div>
+<?php else: ?>
+    <p>Nenhum inscrito encontrado para este evento.</p>
+    <a href="eventos.php">Voltar para Eventos</a>
+<?php endif; ?>
+
 <?php include "/menu/footer.php"; ?>
 
 <script>
-// Atualiza automaticamente a página a cada 2 minutos para verificar status de pagamentos
+// Atualiza automaticamente a página a cada 2 minutos
 setTimeout(function(){
     location.reload();
 }, 120000);
