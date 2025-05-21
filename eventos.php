@@ -70,7 +70,7 @@ if (isset($_GET['id'])) {
 </head>
 
 <body>
-    <?php include_once "menu/add_menu.php"; ?>
+    <?php include "menu/add_menu.php"; ?>
 
     <?php if ($tudo) { ?>
         <!-- Lista todos os eventos -->

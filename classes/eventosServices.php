@@ -121,7 +121,7 @@ class eventosService
                     preco_abs, 
                     imagen, 
                     doc,
-                    normal,
+                    normal AS normal,
                     normal_preco
                   FROM evento 
                   WHERE id = :id";

@@ -13,7 +13,7 @@ require_once __DIR__ . "/../classes/eventosServices.php";
 require_once __DIR__ . "/../classes/AssasService.php";
 require_once __DIR__ . "/../func/clearWord.php";
 require_once __DIR__ . "/../func/calcularIdade.php";
-require_once __DIR__ . "/config_taxa.php";
+require_once __DIR__ . "/../config_taxa.php";
 
 
 // Verificação do ID do evento
