@@ -11,6 +11,7 @@ class AssasService {
     const STATUS_PAGO = 'RECEIVED';
     const STATUS_CONFIRMADO = 'CONFIRMED';
     const STATUS_GRATUITO = 'GRATUITO';
+    const STATUS_ISENTO = 'ISENTO';
 
 
     // Token
