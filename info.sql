@@ -47,6 +47,8 @@ CREATE TABLE IF NOT EXISTS evento(
     preco_menor FLOAT(5,2),
     preco_abs FLOAT(5,2),
     doc VARCHAR (20),
+    normal BOOLEAN DEFAULT 0,
+    normal_preco FLOAT(5,2) DEFAULT 0.00,
     PRIMARY KEY (id)
 );
 
@@ -75,7 +77,3 @@ CREATE TABLE IF NOT EXISTS galeria (
     imagem VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
-
-ALTER TABLE evento ADD COLUMN normal BOOLEAN DEFAULT 0;
-ALTER TABLE evento ADD COLUMN normal_preco FLOAT(5,2) DEFAULT 0.00;
-ALTER TABLE atleta MODIFY fone VARCHAR(20)
