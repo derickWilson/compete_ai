@@ -21,7 +21,7 @@ if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
             <?php endif; ?>
             
             <label for="usuario">Email</label>
-            <input type="email" name="usuario" id="usuario" required>
+            <input type="email" name="usuario" id="usuario" required><br>
             
             <label for="senha">Senha</label>
             <input type="password" name="senha" id="senha" required>
