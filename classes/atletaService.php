@@ -166,6 +166,87 @@ class atletaService
             echo "Erro ao tentar logar: " . $e->getMessage();
         }
     }
+    //***********TROCAR SENHA */
+    /**
+     * Gera código de recuperação e armazena em sessão
+     */
+    public function gerarCodigoRecuperacao($email)
+    {
+        if (!$this->emailExists($email)) {
+            throw new Exception("Email não encontrado em nosso sistema");
+        }
+
+        $codigo = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        $_SESSION['recuperacao_senha'] = [
+            'email' => $email,
+            'codigo' => $codigo,
+            'expiracao' => time() + 1800, // 30 minutos
+            'tentativas' => 0
+        ];
+
+        return $codigo;
+    }
+
+    /**
+     * Verifica o código de recuperação
+     */
+    public function verificarCodigoRecuperacao($codigo)
+    {
+        if (!isset($_SESSION['recuperacao_senha'])) {
+            throw new Exception("Nenhuma solicitação de recuperação ativa");
+        }
+
+        $dados = $_SESSION['recuperacao_senha'];
+
+        if (time() > $dados['expiracao']) {
+            unset($_SESSION['recuperacao_senha']);
+            throw new Exception("Código expirado. Solicite um novo.");
+        }
+
+        if ($dados['tentativas'] >= 3) {
+            unset($_SESSION['recuperacao_senha']);
+            throw new Exception("Muitas tentativas inválidas. Solicite um novo código.");
+        }
+
+        $_SESSION['recuperacao_senha']['tentativas']++;
+
+        if ($codigo !== $dados['codigo']) {
+            throw new Exception("Código inválido");
+        }
+
+        $_SESSION['recuperacao_senha']['codigo_verificado'] = true;
+        return true;
+    }
+
+    /**
+     * Redefine a senha após verificação
+     */
+    public function redefinirSenha($novaSenha)
+    {
+        if (
+            !isset($_SESSION['recuperacao_senha']) ||
+            !$_SESSION['recuperacao_senha']['codigo_verificado']
+        ) {
+            throw new Exception("Verificação do código necessária");
+        }
+
+        $email = $_SESSION['recuperacao_senha']['email'];
+        $senhaHash = password_hash($novaSenha, PASSWORD_BCRYPT);
+
+        $query = "UPDATE atleta SET senha = :senha WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(":senha", $senhaHash);
+        $stmt->bindValue(":email", $email);
+
+        if (!$stmt->execute()) {
+            throw new Exception("Erro ao atualizar senha no banco de dados");
+        }
+
+        unset($_SESSION['recuperacao_senha']);
+        return true;
+    }
+
     //retornar um atleta especifico
     public function getById($id)
     {
