@@ -9,7 +9,7 @@ require_once "classes/atletaService.php";
 require_once "func/clearWord.php";
 function enviarEmailRecuperacao($destinatario, $codigo)
 {
-    $assunto = "Recuperação de Senha - Seu Site";
+    $assunto = "Recuperação de Senha FPJJI";
     $mensagem = "
     <html>
     <head>

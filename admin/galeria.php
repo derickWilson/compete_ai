@@ -34,7 +34,7 @@ try {
 <div class="principal">
     <?php if (!empty($lista)) { 
         foreach ($lista as $foto) { ?>
-            <div class="campeonato-amostra">
+            <br><div class="campeonato-amostra">
                 <img src="../galeria/<?php echo htmlspecialchars($foto->imagem); ?>" alt="Imagem" class="mini-banner">
                 <h4><?php echo htmlspecialchars($foto->legenda); ?></h4>
                 <a href="editar_galeria.php?id=<?php echo $foto->id; ?>">Editar</a> |
