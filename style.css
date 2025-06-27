@@ -415,3 +415,12 @@ footer a:hover{
     font-size: 14px;
     font-weight: bold;
 }
+
+.cpf-invalido {
+    border: 2px solid #f8d7da !important;
+    background-color: #fff9fa;
+}
+
+.cpf-valido {
+    border: 2px solid #d4edda !important;
+}

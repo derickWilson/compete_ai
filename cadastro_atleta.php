@@ -13,14 +13,14 @@ if (isset($_SESSION["logado"])) {
         $ev = new atletaService($conn, $atleta);
         $academias = $ev->getAcademias();
     } catch (Exception $e) {
-        die('<div class="erro">Erro ao carregar academias: '.$e->getMessage().'</div>');
+        die('<div class="erro">Erro ao carregar academias: ' . $e->getMessage() . '</div>');
     }
 }
 
 // Handle error messages
 $erro_message = '';
 if (isset($_GET['erro'])) {
-    switch($_GET['erro']) {
+    switch ($_GET['erro']) {
         case 1:
             $erro_message = 'Este e-mail já está cadastrado. Por favor, utilize outro e-mail ou faça login.';
             break;
@@ -30,6 +30,9 @@ if (isset($_GET['erro'])) {
         case 3:
             $erro_message = 'Por favor, selecione uma academia válida.';
             break;
+        case 6:
+            $erro_message = $_SESSION['erro_cadastro'] ?? 'CPF inválido. Por favor, verifique o número digitado.';
+            break;
         default:
             $erro_message = 'Ocorreu um erro durante o cadastro. Por favor, tente novamente.';
     }
@@ -37,6 +40,7 @@ if (isset($_GET['erro'])) {
 ?>
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,9 +48,10 @@ if (isset($_GET['erro'])) {
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/estilos/icone.jpeg">
 </head>
+
 <body>
     <?php include "menu/add_menu.php"; ?>
-    
+
     <div class="principal">
         <?php if (!empty($erro_message)): ?>
             <div class="erro"><?= $erro_message ?></div>
@@ -66,42 +71,44 @@ if (isset($_GET['erro'])) {
                 <option value="Masculino">Masculino</option>
                 <option value="Feminino">Feminino</option>
             </select><br>
-            
+
             Email <input name="email" type="email" placeholder="exemplo@email.com" required><br>
             Senha <input type="password" name="senha" id="senha" required><br>
             <span class="aviso">Mínimo 8 caracteres, incluindo letras e números</span><br>
-            
+
             Data de Nascimento <input type="date" name="data_nascimento" id="data_nasc" required><br>
             Telefone<br>
             <input type="text" name="ddd" value="+55" style="width: 50px;">
             <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="(00) 00000-0000" required><br>
-            
-            Academia/Equipe  
+
+            Academia/Equipe
             <select name="academia" id="academia" required>
                 <option value="">-- Selecione sua academia --</option>
-                <?php foreach($academias as $academia): ?>
+                <?php foreach ($academias as $academia): ?>
                     <option value="<?= $academia->id ?>"><?= htmlspecialchars($academia->nome) ?></option>
                 <?php endforeach; ?>
             </select><br>
-            <span class="aviso">Caso sua academia não apareça, espere sua validação ou entre em contato conosco.</span><br>
+            <span class="aviso">Caso sua academia não apareça, espere sua validação ou entre em contato
+                conosco.</span><br>
 
-            Faixa 
+            Faixa
             <select id="faixas" name="faixa" required>
                 <option value="">Selecione sua graduação</option>
                 <!-- Faixa options remain the same -->
             </select><br>
-            
+
             Foto Diploma ou Foto do RG<br>
             <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png,.pdf"><br>
             <span class="aviso">Envie uma foto ou scan do seu diploma ou RG (PDF, JPG, PNG)</span><br>
-            
+
             Peso <input type="number" name="peso" min="10" step="0.05" required> kg<br>
             <input type="hidden" name="tipo" value="AT">
             <input type="submit" value="Cadastrar" class="botao-acao"><br>
-        </form> 
+        </form>
         <a class="link" href="index.php">Voltar</a>
     </div>
-    
+
     <?php include "menu/footer.php"; ?>
 </body>
+
 </html>

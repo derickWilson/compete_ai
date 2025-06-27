@@ -7,50 +7,60 @@ ob_start();
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require_once "classes/atletaService.php";
     include "func/clearWord.php";
-    
+    include "func/validacoes.php";
+
     // Inicializa variáveis
     $novoNome = '';
     $novoNomeFoto = '';
     $ddd = $_POST['ddd'] ?? '+55';
-    
+
     $con = new Conexao();
     $atletas = new Atleta();
     $attServ = new atletaService($con, $atletas);
 
+    $cpf = cleanWords($_POST["cpf"]);
+
     // Função auxiliar para processar uploads com mensagens de erro detalhadas
-    function processarUpload($arquivo, $pastaDestino, $prefixoNome, $maxSizeMB = 2) {
+    function processarUpload($arquivo, $pastaDestino, $prefixoNome, $maxSizeMB = 2)
+    {
         if (!isset($arquivo) || $arquivo['error'] !== UPLOAD_ERR_OK) {
             return [false, 'Nenhum arquivo enviado ou erro no upload.'];
         }
-        
+
         // Verificar tamanho do arquivo
         $maxSizeBytes = $maxSizeMB * 1024 * 1024;
         if ($arquivo['size'] > $maxSizeBytes) {
             return [false, "O arquivo excede o tamanho máximo de {$maxSizeMB}MB."];
         }
-        
+
         // Verificar extensão
         $extensoesPermitidas = ['jpg', 'jpeg', 'png', 'pdf'];
         $extensao = strtolower(pathinfo($arquivo['name'], PATHINFO_EXTENSION));
-        
+
         if (!in_array($extensao, $extensoesPermitidas)) {
             return [false, "Formato de arquivo não suportado. Use: " . implode(', ', $extensoesPermitidas)];
         }
-        
+
         // Gerar nome único
         $novoNome = $prefixoNome . time() . '.' . $extensao;
         $caminhoCompleto = $pastaDestino . $novoNome;
-        
+
         if (move_uploaded_file($arquivo['tmp_name'], $caminhoCompleto)) {
             return [true, $novoNome];
         }
-        
+
         return [false, 'Falha ao mover o arquivo para o servidor.'];
     }
 
     try {
         if ($_POST["tipo"] == "A") {
             // Cadastrar academia e responsável
+            if (!validarCPF($cpf)) {
+                $_SESSION['erro_cadastro'] = 'CPF inválido. Por favor, verifique o número digitado.';
+                header("Location: cadastro_academia.php?erro=6");
+                exit();
+            }
+
             if ($attServ->existAcad(cleanWords($_POST["academia"]))) {
                 $attServ->Filiar(
                     cleanWords($_POST["academia"]),
@@ -65,8 +75,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             [$diplomaSuccess, $novoNome] = processarUpload($_FILES['diploma'] ?? null, 'diplomas/', 'diploma_');
 
             if (!$fotoSuccess || !$diplomaSuccess) {
-                $errorMsg = ($fotoSuccess ? '' : $novoNomeFoto . '<br>') . 
-                           ($diplomaSuccess ? '' : $novoNome);
+                $errorMsg = ($fotoSuccess ? '' : $novoNomeFoto . '<br>') .
+                    ($diplomaSuccess ? '' : $novoNome);
                 $_SESSION['erro_cadastro'] = $errorMsg;
                 header("Location: cadastro_academia.php?erro=2");
                 exit();
@@ -94,15 +104,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             $idAcademia = $attServ->getIdAcad(cleanWords($_POST["academia"]));
             $attServ->addAcademiaResponsavel($idAcademia["id"]);
-            
+
             $_SESSION['cadastro_sucesso'] = true;
             header("Location: cadastro_sucesso.php?tipo=A");
             exit();
-        }
-        elseif ($_POST["tipo"] == "AT") {
+        } elseif ($_POST["tipo"] == "AT") {
             // Cadastrar atleta normal
+            $cpf = cleanWords($_POST["cpf"]);
+            if (!validarCPF($cpf)) {
+                $_SESSION['erro_cadastro'] = 'CPF inválido. Por favor, verifique o número digitado.';
+                header("Location: cadastro_atleta.php?erro=6");
+                exit();
+            }
             [$fotoSuccess, $novoNomeFoto] = processarUpload($_FILES['foto'] ?? null, 'fotos/', 'foto_');
-            
+            // Validação do CPF
+
             if (!$fotoSuccess) {
                 $_SESSION['erro_cadastro'] = $novoNomeFoto;
                 header("Location: cadastro_atleta.php?erro=2");
@@ -146,7 +162,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
 
             $attServ->addAtleta();
-            
+
             $_SESSION['cadastro_sucesso'] = true;
             header("Location: cadastro_sucesso.php?tipo=AT");
             exit();
