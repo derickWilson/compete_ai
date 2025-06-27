@@ -18,7 +18,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $atletas = new Atleta();
     $attServ = new atletaService($con, $atletas);
 
-    $cpf = cleanWords($_POST["cpf"]);
 
     // Função auxiliar para processar uploads com mensagens de erro detalhadas
     function processarUpload($arquivo, $pastaDestino, $prefixoNome, $maxSizeMB = 2)
