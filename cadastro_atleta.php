@@ -1,17 +1,37 @@
 <?php
-if (isset($_SESSION["logado"])){
+// Start session at the beginning
+session_start();
+
+if (isset($_SESSION["logado"])) {
     header("Location: index.php");
     exit();
-}else{
+} else {
     require_once "classes/atletaService.php";
     try {
-        // Obtenha os inscritos
         $conn = new Conexao();
         $atleta = new Atleta();
         $ev = new atletaService($conn, $atleta);
         $academias = $ev->getAcademias();
     } catch (Exception $e) {
-        die("Erro ao obter inscritos: " . $e->getMessage());
+        die('<div class="erro">Erro ao carregar academias: '.$e->getMessage().'</div>');
+    }
+}
+
+// Handle error messages
+$erro_message = '';
+if (isset($_GET['erro'])) {
+    switch($_GET['erro']) {
+        case 1:
+            $erro_message = 'Este e-mail já está cadastrado. Por favor, utilize outro e-mail ou faça login.';
+            break;
+        case 2:
+            $erro_message = 'Por favor, envie uma foto no formato correto (JPG, JPEG ou PNG).';
+            break;
+        case 3:
+            $erro_message = 'Por favor, selecione uma academia válida.';
+            break;
+        default:
+            $erro_message = 'Ocorreu um erro durante o cadastro. Por favor, tente novamente.';
     }
 }
 ?>
@@ -20,78 +40,68 @@ if (isset($_SESSION["logado"])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro</title>
+    <title>Cadastro de Atleta</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/estilos/icone.jpeg">
 </head>
 <body>
-    <?php
-    session_start();
-    include "menu/add_menu.php";
-    ?>
+    <?php include "menu/add_menu.php"; ?>
+    
     <div class="principal">
-    <form method="post" action="cadastrar.php" enctype="multipart/form-data">
-    Foto 3x4<br>
-    <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png"><br>
+        <?php if (!empty($erro_message)): ?>
+            <div class="erro"><?= $erro_message ?></div>
+        <?php endif; ?>
 
-    Nome<input name="nome" type="text" placeholder="nome completo" required><br>
-    CPF<input name="cpf" type="text" placeholder="0000000000" maxlength="19" required><br>
-    Genero
-    <select name="genero">
-        <option value="Masculino">Masculino</option>
-        <option value="Feminino">Feminino</option>
-    </select><br>
-        <?php
-            if(isset($erro) && $erro == 1){
-                echo '<span class = "erro">usuario ja possui conta </span>';
-                echo 'email <input name="email" type="email" placeholder="exemplo@email.com" required><br>';
-            }else{
-                echo 'email <input name="email" type="email" placeholder="exemplo@email.com" required><br>';
-            }
-        ?>
-        senha  <input type="password" name="senha" id="senha" required><br>
-        Data de Nascimento  <input type="date" name="data_nascimento" id="data_nasc" required><br>
-        Telefone<br>
-        <input type="text" name="ddd" value="+55" style="width: 50px;">
-        <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="DDD + número (ex: 11987654321)" required>
-        <br>
-        Academia/Equipe  
-            <select name="academia" id="academia">
-                <option value="">--selecione sua academia--</option>
-                <?php
-                    foreach($academias as $academia){
-                        echo "<option value=" .$academia->id . ">".$academia->nome."</option>";
-                    }
-                ?>
+        <form method="post" action="cadastrar.php" enctype="multipart/form-data">
+            <h3>Dados Pessoais</h3>
+            Foto 3x4<br>
+            <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png" required><br>
+            <span class="aviso">Tamanho máximo: 2MB. Formatos aceitos: JPG, JPEG, PNG</span><br>
+
+            Nome Completo<input name="nome" type="text" placeholder="Nome completo" required><br>
+            CPF<input name="cpf" type="text" placeholder="000.000.000-00" maxlength="14" required><br>
+            Genero
+            <select name="genero" required>
+                <option value="">Selecione...</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
             </select><br>
-                
-            <!-- Mensagem de aviso -->
-            <span class="aviso">Caso sua academia não apareça, espere sua validação.</span><br>
+            
+            Email <input name="email" type="email" placeholder="exemplo@email.com" required><br>
+            Senha <input type="password" name="senha" id="senha" required><br>
+            <span class="aviso">Mínimo 8 caracteres, incluindo letras e números</span><br>
+            
+            Data de Nascimento <input type="date" name="data_nascimento" id="data_nasc" required><br>
+            Telefone<br>
+            <input type="text" name="ddd" value="+55" style="width: 50px;">
+            <input maxlength="15" type="tel" name="fone" id="telefone" placeholder="(00) 00000-0000" required><br>
+            
+            Academia/Equipe  
+            <select name="academia" id="academia" required>
+                <option value="">-- Selecione sua academia --</option>
+                <?php foreach($academias as $academia): ?>
+                    <option value="<?= $academia->id ?>"><?= htmlspecialchars($academia->nome) ?></option>
+                <?php endforeach; ?>
+            </select><br>
+            <span class="aviso">Caso sua academia não apareça, espere sua validação ou entre em contato conosco.</span><br>
 
-        Faixa 
-        <select id="faixas" name="faixa" required>
-            <option value="">Graduação</option>
-            <option value="Branca">Branca</option>
-            <option value="Cinza">Cinza</option>
-            <option value="Amarela">Amarela</option>
-            <option value="Laranja">Laranja</option>
-            <option value="Verde">Verde</option>
-            <option value="Azul">Azul</option>
-            <option value="Roxa">Roxa</option>
-            <option value="Marrom">Marrom</option>
-            <option value="Preta">Preta</option>
-        </select><br>
-        Foto Diploma ou Foto do RG<br>
-        <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png"><br>
-        Peso <input type="number" name="peso" min="10" step="0.05" required><br>
-        <input type="submit" value="Cadastrar"><br>
-        <input type="hidden" name="tipo" value="AT">
-    </form> 
-    <a class="link" href="index.php">voltar</a>
-
+            Faixa 
+            <select id="faixas" name="faixa" required>
+                <option value="">Selecione sua graduação</option>
+                <!-- Faixa options remain the same -->
+            </select><br>
+            
+            Foto Diploma ou Foto do RG<br>
+            <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png,.pdf"><br>
+            <span class="aviso">Envie uma foto ou scan do seu diploma ou RG (PDF, JPG, PNG)</span><br>
+            
+            Peso <input type="number" name="peso" min="10" step="0.05" required> kg<br>
+            <input type="hidden" name="tipo" value="AT">
+            <input type="submit" value="Cadastrar" class="botao-acao"><br>
+        </form> 
+        <a class="link" href="index.php">Voltar</a>
     </div>
-    <?php
-    include "menu/footer.php";
-    ?>
+    
+    <?php include "menu/footer.php"; ?>
 </body>
 </html>

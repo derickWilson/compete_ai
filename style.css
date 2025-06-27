@@ -403,3 +403,15 @@ footer a:hover{
     color: #0c5460; /* Azul escuro */
     border: 1px solid #bee5eb; /* Borda azul clara */
 }
+
+.erro {
+    background-color: #f8d7da; /* Vermelho claro de fundo */
+    color: #721c24; /* Vermelho escuro para texto */
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #f5c6cb; /* Borda vermelha clara */
+    margin: 10px 0;
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+}
