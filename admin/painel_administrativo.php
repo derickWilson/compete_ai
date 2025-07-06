@@ -49,7 +49,7 @@ try {
         </table>
     </div>
 <?php
-include "menu/footer.php";
+include "../menu/footer.php";
 ?>
 </body>
 </html>

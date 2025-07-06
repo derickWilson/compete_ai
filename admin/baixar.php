@@ -1,7 +1,7 @@
 <?php
 session_start();
 try {
-    require_once "../func/is_adm.php";
+    require_once __DIR__ . "/../func/is_adm.php";
 } catch (\Throwable $th) {
     echo $th->getMessage();
 }
@@ -22,7 +22,7 @@ if (isset($_GET["id"])) {
     $evserv = new eventosService($conn, $ev);
 
     // Obtém os inscritos do evento
-    $dados = $evserv->getInscritos($id);
+    $value = $evserv->getInscritos($id);
 
     // Cabeçalho do arquivo CSV
     $header = array(

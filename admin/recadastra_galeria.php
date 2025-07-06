@@ -2,8 +2,8 @@
 session_start();
 require "../func/is_adm.php";
 is_adm();
-require_once "../classes/galeriaClass.php";
-require_once "../classes/galeriaService.php";
+require_once __DIR__ . "/../classes/galeriaClass.php";
+require_once __DIR__ . "/../classes/galeriaService.php";
 
 try {
     $con = new Conexao();
