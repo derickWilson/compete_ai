@@ -1,14 +1,10 @@
 <?php
-// Incluindo arquivos necessários
 session_start();
-/*
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);*/
 if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
     header("Location: index.php");
     exit();
 }
+
 try {
     require_once "classes/atletaService.php";
     include "func/clearWord.php";
@@ -22,20 +18,16 @@ $at = new Atleta();
 $atserv = new atletaService($conn, $at);
 
 if (isset($_GET["inscricao"])) {
-    // Usado para listar os detalhes de um único evento
     $eventoId = (int) cleanWords($_GET["inscricao"]);
     $inscricao = $atserv->getInscricao($eventoId, $_SESSION["id"]);
 
-    // Verifica se a inscrição foi encontrada
     if (!$inscricao) {
         $_SESSION['erro'] = "Inscrição não encontrada";
         header("Location: eventos_cadastrados.php");
         exit();
     }
 
-    // Verifica se o evento é gratuito (preço zero em todas as modalidades)
     $eventoGratuito = ($inscricao->preco == 0 && $inscricao->preco_menor == 0 && $inscricao->preco_abs == 0);
-    // Aplicando aTAXA aos preços (apenas para exibição)
     $inscricao->preco = number_format($inscricao->preco * TAXA, 2, ',', '.');
     $inscricao->preco_menor = number_format($inscricao->preco_menor * TAXA, 2, ',', '.');
     $inscricao->preco_abs = number_format($inscricao->preco_abs * TAXA, 2, ',', '.');
@@ -47,7 +39,6 @@ if (isset($_GET["inscricao"])) {
 ?>
 <!DOCTYPE html>
 <html lang="pt">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -55,11 +46,8 @@ if (isset($_GET["inscricao"])) {
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/estilos/icone.jpeg">
 </head>
-
 <body>
-    <?php
-    include "menu/add_menu.php";
-    ?>
+    <?php include "menu/add_menu.php"; ?>
     <div class='principal'>
         <h3><?php echo htmlspecialchars($inscricao->nome); ?></h3>
         <p>Preço
@@ -75,7 +63,6 @@ if (isset($_GET["inscricao"])) {
         <form action="editar_inscricao.php" method="POST">
             <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($inscricao->id); ?>">
             <?php
-            // Caso o tipo de campeonato seja com quimono
             if ($inscricao->tipo_com == 1) {
                 echo '<input type="checkbox" name="com" ' . ($inscricao->mod_com == 1 ? 'checked' : '') . '> Categoria ';
 
@@ -98,21 +85,19 @@ if (isset($_GET["inscricao"])) {
                 <option value="pena" <?php echo $inscricao->modalidade == "pena" ? "selected" : ""; ?>>Pena</option>
                 <option value="leve" <?php echo $inscricao->modalidade == "leve" ? "selected" : ""; ?>>Leve</option>
                 <option value="medio" <?php echo $inscricao->modalidade == "medio" ? "selected" : ""; ?>>Médio</option>
-                <option value="meio-pesado" <?php echo $inscricao->modalidade == "meio-pesado" ? "selected" : ""; ?>>
-                    Meio-Pesado</option>
+                <option value="meio-pesado" <?php echo $inscricao->modalidade == "meio-pesado" ? "selected" : ""; ?>>Meio-Pesado</option>
                 <option value="pesado" <?php echo $inscricao->modalidade == "pesado" ? "selected" : ""; ?>>Pesado</option>
-                <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>
-                    Super-Pesado</option>
-                <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>
-                    Pesadíssimo</option>
+                <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>Super-Pesado</option>
+                <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>Pesadíssimo</option>
                 <?php if ($_SESSION["idade"] > 15): ?>
                     <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
                 <?php endif; ?>
             </select>
-            <br><input type="submit" value="editar">
-            <?php if ($eventoGratuito): ?>
-                |<a class="danger" href="exclui_inscricao.php?id=<?php echo $eventoId; ?>">Remover Inscrição</a>
-            <?php endif; ?>
+            <div class="form-actions">
+                <input type="submit" name="action" value="Salvar Alterações" class="botao-acao">
+                <input type="submit" name="action" value="Excluir Inscrição" class="danger" 
+                       onclick="return confirm('Tem certeza que deseja excluir esta inscrição?')">
+            </div>
         </form>
         <br>
         <center>Tabela de Pesos</center>
@@ -121,9 +106,6 @@ if (isset($_GET["inscricao"])) {
         </center>
         <br><a class="link" href="eventos_cadastrados.php">voltar</a>
     </div>
-    <?php
-    include "menu/footer.php";
-    ?>
+    <?php include "menu/footer.php"; ?>
 </body>
-
 </html>

@@ -1,26 +1,36 @@
 <?php
 /**
  * Arquivo: editar_inscricao.php
- * Descrição: Processa a edição de inscrição em eventos, verificando se houve mudança no valor
- *            antes de atualizar a cobrança no Asaas.
+ * Descrição: Processa edição e exclusão de inscrições com tratamento adequado de cobranças no Asaas
  */
+
+declare(strict_types=1);
 
 session_start();
 
-// Verifica login
+// Verificação de autenticação
 if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
     header("Location: index.php");
     exit();
 }
 
+// Carrega dependências
 try {
     require_once "classes/atletaService.php";
     require_once "classes/eventosServices.php";
     require_once "classes/AssasService.php";
-    include "func/clearWord.php";
+    require_once "func/clearWord.php";
     require_once __DIR__ . '/config_taxa.php';
-} catch (\Throwable $th) {
+} catch (Throwable $th) {
+    error_log("Erro ao carregar dependências: " . $th->getMessage());
     $_SESSION['erro'] = "Erro ao carregar recursos do sistema";
+    header("Location: eventos_cadastrados.php");
+    exit();
+}
+
+// Validação dos dados do formulário
+if (!isset($_POST["evento_id"]) || !isset($_POST["modalidade"])) {
+    $_SESSION['erro'] = "Dados incompletos para processamento";
     header("Location: eventos_cadastrados.php");
     exit();
 }
@@ -31,49 +41,90 @@ $atserv = new atletaService($conn, new Atleta());
 $eventoServ = new eventosService($conn, new Evento());
 $assasService = new AssasService($conn);
 
-// Valida dados do formulário
-if (!isset($_POST["evento_id"]) || !isset($_POST["modalidade"])) {
-    $_SESSION['erro'] = "Dados incompletos";
-    header("Location: eventos_cadastrados.php");
-    exit();
-}
-
 // Sanitiza inputs
 $eventoId = (int) cleanWords($_POST["evento_id"]);
 $idAtleta = $_SESSION["id"];
+$modalidade = cleanWords($_POST["modalidade"]);
 $com = isset($_POST["com"]) ? 1 : 0;
 $abCom = isset($_POST["abs_com"]) ? 1 : 0;
 $sem = isset($_POST["sem"]) ? 1 : 0;
 $abSem = isset($_POST["abs_sem"]) ? 1 : 0;
-$modalidade = cleanWords($_POST["modalidade"]);
+
 try {
     // Obtém dados atuais
     $dadosEvento = $eventoServ->getById($eventoId);
     $inscricao = $atserv->getInscricao($eventoId, $idAtleta);
     
     if (!$dadosEvento || !$inscricao) {
-        throw new Exception("Registro não encontrado");
+        throw new Exception("Registro não encontrado no sistema");
     }
 
+    // Verifica se é uma solicitação de exclusão
+    if (isset($_POST['action']) && $_POST['action'] === 'Excluir Inscrição') {
+        handleDeletion($assasService, $atserv, $inscricao, $eventoId, $idAtleta);
+    }
+
+    // Processamento normal de edição
+    handleUpdate($dadosEvento, $inscricao, $assasService, $atserv, $eventoId, $idAtleta, $com, $abCom, $sem, $abSem, $modalidade);
+
+} catch (Exception $e) {
+    error_log("Erro em editar_inscricao: " . $e->getMessage());
+    $_SESSION['erro'] = $e->getMessage();
+    header("Location: " . (isset($eventoId) ? "inscricao.php?inscricao=" . $eventoId : "eventos_cadastrados.php"));
+    exit();
+}
+
+/**
+ * Processa a exclusão de uma inscrição
+ */
+function handleDeletion(AssasService $assasService, atletaService $atserv, $inscricao, int $eventoId, int $idAtleta): void {
+    // Verifica status da cobrança se existir
+    if (!empty($inscricao->id_cobranca_asaas)) {
+        $status = $assasService->verificarStatusCobranca($inscricao->id_cobranca_asaas);
+        
+        // Bloqueia exclusão se pagamento já foi recebido
+        if ($status['status'] === 'RECEIVED') {
+            throw new Exception("Inscrição já paga não pode ser excluída");
+        }
+        
+        // Tenta cancelar a cobrança no Asaas
+        $resultado = $assasService->deletarCobranca($inscricao->id_cobranca_asaas);
+        if (!$resultado['deleted']) {
+            throw new Exception("Não foi possível cancelar a cobrança: " . ($resultado['message'] ?? ''));
+        }
+    }
+    
+    // Remove a inscrição do banco de dados
+    if (!$atserv->excluirInscricao($eventoId, $idAtleta)) {
+        throw new Exception("Falha ao remover inscrição do sistema");
+    }
+    
+    $_SESSION['sucesso'] = "Inscrição excluída com sucesso";
+    header("Location: eventos_cadastrados.php");
+    exit();
+}
+
+/**
+ * Processa atualização de uma inscrição
+ */
+function handleUpdate($dadosEvento, $inscricao, AssasService $assasService, atletaService $atserv, 
+                     int $eventoId, int $idAtleta, int $com, int $abCom, int $sem, int $abSem, string $modalidade): void {
     // Verifica se é evento gratuito
     $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && $dadosEvento->preco_abs == 0);
-
-    // Calcula novo valor
+    
+    // Calcula novo valor com taxa
     $novoValor = calcularValorInscricao($dadosEvento, $_SESSION["idade"], $com, $abCom, $sem, $abSem);
     $novoValorComTaxa = $novoValor * TAXA;
     
-    // 1. Atualiza modalidades no banco de dados
+    // Atualiza modalidades no banco de dados
     $atserv->editarInscricao($eventoId, $idAtleta, $com, $abCom, $sem, $abSem, $modalidade);
 
-    // 2. Para eventos pagos com cobrança existente
+    // Para eventos pagos com cobrança existente
     if (!$eventoGratuito && !empty($inscricao->id_cobranca_asaas)) {
-        
-        // Verifica se o valor mudou
         $valorAtual = (float) $inscricao->valor_pago;
         $valorMudou = abs($novoValorComTaxa - $valorAtual) > 0.01; // Considera diferenças > 1 centavo
         
         if ($valorMudou) {
-            // Atualiza cobrança no Asaas
             $resultado = $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
                 'value' => number_format($novoValorComTaxa, 2, '.', ''),
                 'dueDate' => $dadosEvento->data_limite,
@@ -81,7 +132,7 @@ try {
             ]);
             
             if (!$resultado['success']) {
-                throw new Exception("Erro ao atualizar cobrança");
+                throw new Exception("Erro ao atualizar cobrança: " . ($resultado['message'] ?? ''));
             }
             
             // Atualiza valor no banco de dados
@@ -92,24 +143,18 @@ try {
     $_SESSION['sucesso'] = "Inscrição atualizada" . ($valorMudou ?? false ? " (valor ajustado)" : "");
     header("Location: inscricao.php?inscricao=" . $eventoId);
     exit();
-
-} catch (Exception $e) {
-    error_log("Erro editar_inscricao: " . $e->getMessage());
-    $_SESSION['erro'] = $e->getMessage();
-    header("Location: " . (isset($eventoId) ? "inscricao.php?inscricao=" . $eventoId : "eventos_cadastrados.php"));
-    exit();
 }
 
 /**
- * Calcula valor da inscrição baseado nas modalidades
+ * Calcula valor da inscrição baseado nas modalidades selecionadas
  */
-function calcularValorInscricao($evento, $idade, $com, $abCom, $sem, $abSem) {
-    $valor = 0;
+function calcularValorInscricao($evento, int $idade, int $com, int $abCom, int $sem, int $abSem): float {
+    $valor = 0.0;
     $eAdulto = $idade > 15;
-    $valorBase = $eAdulto ? $evento->preco : $evento->preco_menor;
+    $valorBase = $eAdulto ? (float)$evento->preco : (float)$evento->preco_menor;
 
-    if ($com) $valor += $abCom ? $evento->preco_abs : $valorBase;
-    if ($sem) $valor += $abSem ? $evento->preco_abs : $valorBase;
+    if ($com) $valor += $abCom ? (float)$evento->preco_abs : $valorBase;
+    if ($sem) $valor += $abSem ? (float)$evento->preco_abs : $valorBase;
     
     return $valor;
 }
