@@ -187,32 +187,37 @@ if (isset($_GET['id'])) {
                             <?php } ?>
 
                             <br>
-                            <select name="modalidade" required>
-                                <option value="">Selecione a modalidade</option>
-                                <option value="galo">Galo</option>
-                                <option value="pluma">Pluma</option>
-                                <option value="pena">Pena</option>
-                                <option value="leve">Leve</option>
-                                <option value="medio">Médio</option>
-                                <option value="meio-pesado">Meio-Pesado</option>
-                                <option value="pesado">Pesado</option>
-                                <option value="super-pesado">Super-Pesado</option>
-                                <option value="pesadissimo">Pesadíssimo</option>
-                                <?php if ($_SESSION["idade"] > 15) { ?>
-                                    <option value="super-pesadissimo">Super-Pesadíssimo</option>
-                                <?php } ?>
-                            </select>
+                            <?php if (!$eventoDetails->normal) {//mostrar modalidade se o evento não é normal
+                                                    ?>
+                                <select name="modalidade" required>
+                                    <option value="">Selecione a modalidade</option>
+                                    <option value="galo">Galo</option>
+                                    <option value="pluma">Pluma</option>
+                                    <option value="pena">Pena</option>
+                                    <option value="leve">Leve</option>
+                                    <option value="medio">Médio</option>
+                                    <option value="meio-pesado">Meio-Pesado</option>
+                                    <option value="pesado">Pesado</option>
+                                    <option value="super-pesado">Super-Pesado</option>
+                                    <option value="pesadissimo">Pesadíssimo</option>
+                                    <?php if ($_SESSION["idade"] > 15) { ?>
+                                        <option value="super-pesadissimo">Super-Pesadíssimo</option>
+                                    <?php } ?>
+                                </select>
 
-                            <div class="termos">
-                                <input type="checkbox" name="aceite_regulamento" id="aceite_regulamento" required>
-                                <label for="aceite_regulamento">Li e aceito o regulamento</label>
+                                <div class="termos">
+                                    <input type="checkbox" name="aceite_regulamento" id="aceite_regulamento" required>
+                                    <label for="aceite_regulamento">Li e aceito o regulamento</label>
 
-                                <br>
+                                    <br>
 
-                                <input type="checkbox" name="aceite_responsabilidade" id="aceite_responsabilidade" required>
-                                <label for="aceite_responsabilidade">Aceito os termos de responsabilidade</label>
-                            </div>
+                                    <input type="checkbox" name="aceite_responsabilidade" id="aceite_responsabilidade" required>
+                                    <label for="aceite_responsabilidade">Aceito os termos de responsabilidade</label>
+                                </div>
 
+                                <?php
+                                                }//mostrar modalidade se o evento não é normal
+                                                ?>
                             <input type="submit" value="Inscrever-se">
                         </form>
                     <?php } else { ?>
@@ -240,7 +245,7 @@ if (isset($_GET['id'])) {
                             <p>Seu navegador não suporta PDFs. <a href="tabela_de_pesos.pdf">Baixe o arquivo</a>.</p>
                             i/object>
                     </div>
-                <?php
+                    <?php
                 }
                 ?>
 
