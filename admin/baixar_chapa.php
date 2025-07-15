@@ -7,67 +7,143 @@ require_once "../classes/eventosServices.php";
 require_once "../classes/AssasService.php";
 include "../func/clearWord.php";
 require_once __DIR__ . "/../func/calcularIdade.php";
-require_once __DIR__ . '/../vendor/autoload.php'; // Para o TCPDF
 
 $conn = new Conexao();
 $ev = new Evento();
 $eventoServ = new eventosService($conn, $ev);
 
 $eventoId = $_GET["id"] ?? null;
-
 if (!$eventoId) {
     die("ID do evento não fornecido.");
 }
 
 $evento = $eventoServ->getById($eventoId);
-$eventoGratuito = ($evento->preco == 0 && $evento->preco_menor == 0 && $evento->preco_abs == 0);
+if (!$evento) {
+    die("Evento não encontrado.");
+}
 
-// Verificar se foi solicitado gerar PDF
 $gerarPDF = isset($_GET['pdf']);
+$embaralhar = isset($_GET['embaralhar']);
 
+// Configurar PDF se necessário
 if ($gerarPDF) {
-    // Configurar PDF
+    require_once __DIR__ . '/../vendor/autoload.php';
     $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetCreator('Sistema de Eventos');
     $pdf->SetAuthor('Sistema de Eventos');
-    $pdf->SetTitle('Chapas do Evento - ' . $evento->nome);
+    $pdf->SetTitle('Chapas - ' . $evento->nome);
     $pdf->SetMargins(15, 15, 15);
+    $pdf->SetHeaderMargin(10);
+    $pdf->SetFooterMargin(10);
     $pdf->SetAutoPageBreak(TRUE, 15);
+    $pdf->AddPage();
 } else {
-    // Forçar download do CSV se não for PDF
+    // Configurar CSV
     header('Content-Type: text/csv; charset=UTF-8');
     header('Content-Disposition: attachment; filename="chapas_' . $eventoId . '.csv"');
     $output = fopen('php://output', 'w');
-    fputcsv($output, ['Tipo', 'Categoria', 'Modalidade', 'Faixa', 'Nome', 'Academia', 'Idade', 'Peso']);
+    fputcsv($output, ['Categoria', 'Faixa', 'Modalidade', 'Nome', 'Academia', 'Idade', 'Peso', 'Status Pagamento']);
 }
 
-// Obter todos os inscritos válidos
+// Obter inscritos válidos
 $inscritos = $eventoServ->getInscritos($eventoId);
-$inscritosValidos = [];
+$inscritosValidos = array_filter($inscritos, function($inscrito) use ($evento) {
+    $eventoGratuito = ($evento->preco == 0 && $evento->preco_menor == 0 && $evento->preco_abs == 0);
+    return $eventoGratuito || 
+           in_array($inscrito->status_pagamento, [
+               AssasService::STATUS_PAGO, 
+               AssasService::STATUS_CONFIRMADO,
+               AssasService::STATUS_GRATUITO
+           ]);
+});
 
-foreach ($inscritos as $inscrito) {
-    if ($eventoGratuito || 
-        $inscrito->status_pagamento === AssasService::STATUS_PAGO || 
-        $inscrito->status_pagamento === AssasService::STATUS_CONFIRMADO ||
-        $inscrito->status_pagamento === AssasService::STATUS_GRATUITO) {
-        $inscritosValidos[] = $inscrito;
+// Classificar inscritos por categoria, faixa e modalidade
+$chapeamento = [];
+foreach ($inscritosValidos as $inscrito) {
+    $idade = calcularIdade($inscrito->data_nascimento);
+    
+    // Determinar categoria por idade
+    $categoria = match(true) {
+        $idade >= 4 && $idade <= 5 => "PRE-MIRIM",
+        $idade >= 6 && $idade <= 7 => "MIRIM 1",
+        $idade >= 8 && $idade <= 9 => "MIRIM 2",
+        $idade >= 10 && $idade <= 11 => "INFANTIL 1",
+        $idade >= 12 && $idade <= 13 => "INFANTIL 2",
+        $idade >= 14 && $idade <= 15 => "INFANTO-JUVENIL",
+        $idade >= 16 && $idade <= 17 => "JUVENIL",
+        $idade >= 18 && $idade <= 29 => "ADULTO",
+        $idade >= 30 => "MASTER",
+        default => "OUTROS"
+    };
+    
+    // Determinar tipo de competição
+    $tipo = '';
+    if ($inscrito->mod_com == 1) $tipo = 'COM KIMONO';
+    if ($inscrito->mod_sem == 1) $tipo = 'SEM KIMONO';
+    if ($inscrito->mod_ab_com == 1) $tipo = 'COM KIMONO - ABSOLUTO';
+    if ($inscrito->mod_ab_sem == 1) $tipo = 'SEM KIMONO - ABSOLUTO';
+    
+    $chave = "$tipo|$categoria|{$inscrito->faixa}|{$inscrito->modalidade}";
+    
+    if (!isset($chapeamento[$chave])) {
+        $chapeamento[$chave] = [
+            'tipo' => $tipo,
+            'categoria' => $categoria,
+            'faixa' => $inscrito->faixa,
+            'modalidade' => $inscrito->modalidade,
+            'atletas' => []
+        ];
     }
+    
+    $chapeamento[$chave]['atletas'][] = $inscrito;
 }
 
-// Função para processar e exibir uma chapa
-function processarChapa($tipo, $categoria, $faixa, $modalidade, $atletas, $gerarPDF, $pdf, $output) {
-    if (empty($atletas)) return;
+// Ordenar chapas
+uksort($chapeamento, function($a, $b) {
+    $orderTipo = ['COM KIMONO' => 0, 'SEM KIMONO' => 1, 'COM KIMONO - ABSOLUTO' => 2, 'SEM KIMONO - ABSOLUTO' => 3];
+    $orderCategoria = [
+        "PRE-MIRIM" => 0, "MIRIM 1" => 1, "MIRIM 2" => 2,
+        "INFANTIL 1" => 3, "INFANTIL 2" => 4, "INFANTO-JUVENIL" => 5,
+        "JUVENIL" => 6, "ADULTO" => 7, "MASTER" => 8
+    ];
+    $orderFaixa = [
+        "Branca" => 0, "Cinza" => 1, "Amarela" => 2, "Laranja" => 3,
+        "Verde" => 4, "Azul" => 5, "Roxa" => 6, "Marrom" => 7,
+        "Preta" => 8, "Coral" => 9, "Vermelha e Branca" => 10, "Vermelha" => 11
+    ];
+    
+    list($tipoA, $catA, $faixaA, $modA) = explode('|', $a);
+    list($tipoB, $catB, $faixaB, $modB) = explode('|', $b);
+    
+    if ($orderTipo[$tipoA] !== $orderTipo[$tipoB]) {
+        return $orderTipo[$tipoA] - $orderTipo[$tipoB];
+    }
+    
+    if ($orderCategoria[$catA] !== $orderCategoria[$catB]) {
+        return $orderCategoria[$catA] - $orderCategoria[$catB];
+    }
+    
+    if ($orderFaixa[$faixaA] !== $orderFaixa[$faixaB]) {
+        return $orderFaixa[$faixaA] - $orderFaixa[$faixaB];
+    }
+    
+    return strcmp($modA, $modB);
+});
+
+// Gerar saída
+foreach ($chapeamento as $chapa) {
+    if ($embaralhar) {
+        shuffle($chapa['atletas']);
+    }
     
     if ($gerarPDF) {
-        $pdf->AddPage();
-        $html = '<h2>' . htmlspecialchars("$tipo - $categoria - $faixa - $modalidade") . '</h2>';
+        $html = '<h2>' . htmlspecialchars("{$chapa['tipo']} - {$chapa['categoria']} - {$chapa['faixa']} - " . ucfirst($chapa['modalidade'])) . '</h2>';
         $html .= '<table border="1" cellpadding="4">';
-        $html .= '<tr><th>Nome</th><th>Academia</th><th>Idade</th><th>Peso</th></tr>';
+        $html .= '<tr><th>#</th><th>Nome</th><th>Academia</th><th>Idade</th><th>Peso</th></tr>';
         
-        shuffle($atletas); // Embaralhar atletas
-        
-        foreach ($atletas as $atleta) {
+        foreach ($chapa['atletas'] as $i => $atleta) {
             $html .= '<tr>';
+            $html .= '<td>' . ($i + 1) . '</td>';
             $html .= '<td>' . htmlspecialchars($atleta->nome) . '</td>';
             $html .= '<td>' . htmlspecialchars($atleta->academia) . '</td>';
             $html .= '<td>' . calcularIdade($atleta->data_nascimento) . '</td>';
@@ -75,100 +151,41 @@ function processarChapa($tipo, $categoria, $faixa, $modalidade, $atletas, $gerar
             $html .= '</tr>';
         }
         
-        $html .= '</table>';
+        $html .= '</table><br>';
         $pdf->writeHTML($html, true, false, true, false, '');
     } else {
         // CSV
-        fputcsv($output, [$tipo, $categoria, $modalidade, $faixa, "", "", "", ""]);
+        fputcsv($output, [
+            $chapa['tipo'] . ' - ' . $chapa['categoria'],
+            $chapa['faixa'],
+            ucfirst($chapa['modalidade']),
+            '',
+            '',
+            '',
+            '',
+            ''
+        ]);
         
-        shuffle($atletas); // Embaralhar atletas
-        
-        foreach ($atletas as $atleta) {
+        foreach ($chapa['atletas'] as $atleta) {
             fputcsv($output, [
-                "",
-                "",
-                "",
-                "",
+                '',
+                '',
+                '',
                 $atleta->nome,
                 $atleta->academia,
                 calcularIdade($atleta->data_nascimento),
-                $atleta->peso
+                $atleta->peso,
+                $atleta->status_pagamento
             ]);
         }
         
-        fputcsv($output, ["", "", "", "", "", "", "", ""]); // Linha em branco
+        fputcsv($output, ['', '', '', '', '', '', '', '']); // Linha em branco
     }
-}
-
-// Processar eventos com kimono
-if ($evento->tipo_com == 1) {
-    $categorias_idade = [
-        "PRE-MIRIM" => [4,5], "MIRIM 1" => [6,7], "MIRIM 2" => [8,9],
-        "INFANTIL 1" => [10,11], "INFANTIL 2" => [12,13], 
-        "INFANTO-JUVENIL" => [14,15], "JUVENIL" => [16,17],
-        "ADULTO" => [18,29], "MASTER" => [30,100]
-    ];
-    
-    $faixas = ["Branca", "Cinza", "Amarela", "Laranja", "Verde", "Azul", "Roxa", "Marrom", "Preta"];
-    
-    foreach ($categorias_idade as $categoria => $idades) {
-        foreach ($faixas as $faixa) {
-            // Filtrar atletas para esta categoria
-            $atletas_categoria = array_filter($inscritosValidos, function($atleta) use ($idades, $faixa, $categoria) {
-                $idade = calcularIdade($atleta->data_nascimento);
-                $faixaMatch = (strtolower(trim($atleta->faixa)) === strtolower(trim($faixa)));
-                $idadeMatch = ($idade >= $idades[0] && $idade <= $idades[1]);
-                $modalidadeMatch = ($atleta->mod_com == 1 || $atleta->mod_ab_com == 1);
-                
-                return $faixaMatch && $idadeMatch && $modalidadeMatch;
-            });
-            
-            if (!empty($atletas_categoria)) {
-                // Separar absoluto e categoria normal
-                $atletas_normal = array_filter($atletas_categoria, fn($a) => $a->mod_com == 1);
-                $atletas_absoluto = array_filter($atletas_categoria, fn($a) => $a->mod_ab_com == 1);
-                
-                if (!empty($atletas_normal)) {
-                    processarChapa(
-                        'COM KIMONO', 
-                        $categoria, 
-                        $faixa, 
-                        $atleta->modalidade, // Assumindo que a modalidade está no objeto
-                        $atletas_normal,
-                        $gerarPDF,
-                        $pdf,
-                        $output
-                    );
-                }
-                
-                if (!empty($atletas_absoluto)) {
-                    processarChapa(
-                        'COM KIMONO - ABSOLUTO', 
-                        $categoria, 
-                        $faixa, 
-                        'ABSOLUTO',
-                        $atletas_absoluto,
-                        $gerarPDF,
-                        $pdf,
-                        $output
-                    );
-                }
-            }
-        }
-    }
-}
-
-// Processar eventos sem kimono (lógica similar)
-if ($evento->tipo_sem == 1) {
-    // Implementação similar à do com kimono, ajustando os filtros
 }
 
 if ($gerarPDF) {
-    // Gerar PDF
     $pdf->Output('chapas_' . $eventoId . '.pdf', 'D');
 } else {
-    // Fechar CSV
     fclose($output);
 }
 exit;
-?>
