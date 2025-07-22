@@ -20,6 +20,28 @@ $ev = new Evento();
 $evserv = new eventosService($conn, $ev);
 $tudo = true;
 
+if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1) {
+    // Verifica quando foi a última limpeza (evita executar em toda requisição)
+    $ultimaLimpeza = $_SESSION['ultima_limpeza_eventos'] ?? 0;
+    $intervaloLimpeza = 86400; // 24 horas em segundos
+    
+    if (time() - $ultimaLimpeza > $intervaloLimpeza) {
+        try {
+            // Executa a limpeza
+            $resultado = $evserv->verificarELimparEventosExpirados();
+            
+            // Armazena resultado na sessão para exibição
+            $_SESSION['limpeza_resultado'] = $resultado;
+            
+            // Atualiza o timestamp da última limpeza
+            $_SESSION['ultima_limpeza_eventos'] = time();
+            
+        } catch (Exception $e) {
+            error_log("Erro na limpeza automática: " . $e->getMessage());
+        }
+    }
+}
+
 // Verifica se foi solicitado um evento específico
 if (isset($_GET['id'])) {
     $eventoId = (int) cleanWords($_GET['id']);

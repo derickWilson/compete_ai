@@ -233,7 +233,8 @@ class eventosService
     public function limparEventosExpirados()
     {
         // Primeiro obtemos os eventos que devem ser deletados
-        $query = "SELECT id FROM evento WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)";
+// Altere para 1 dia ao invés de 7 dias, se quiser limpeza mais frequente
+        $query = "SELECT id FROM evento WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY)";
         $stmt = $this->conn->prepare($query);
 
         try {
@@ -265,6 +266,39 @@ class eventosService
         } catch (Exception $e) {
             error_log('Erro ao buscar eventos expirados: ' . $e->getMessage());
             throw new Exception("Erro ao buscar eventos para limpeza");
+        }
+    }
+    //ver e limpar eventos
+    public function verificarELimparEventosExpirados()
+    {
+        try {
+            $resultado = $this->limparEventosExpirados();
+
+            // Log detalhado
+            $logMessage = sprintf(
+                "[%s] Limpeza automática - Eventos: %d/%d removidos. Erros: %d",
+                date('Y-m-d H:i:s'),
+                $resultado['eventos_deletados'],
+                $resultado['total_eventos'],
+                count($resultado['erros'])
+            );
+
+            error_log($logMessage);
+
+            // Log de erros individuais
+            foreach ($resultado['erros'] as $erro) {
+                error_log(sprintf(
+                    "Erro ao remover evento %d: %s",
+                    $erro['id_evento'],
+                    $erro['erro']
+                ));
+            }
+
+            return $resultado;
+
+        } catch (Exception $e) {
+            error_log("Falha na limpeza automática: " . $e->getMessage());
+            throw $e;
         }
     }
     //ver se um atleta ja esta inscrito em um evento
