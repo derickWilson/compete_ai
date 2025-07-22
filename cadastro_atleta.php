@@ -94,8 +94,17 @@ if (isset($_GET['erro'])) {
             Faixa
             <select id="faixas" name="faixa" required>
                 <option value="">Selecione sua graduação</option>
-                <!-- Faixa options remain the same -->
+                <option value="Branca">Branca</option>
+                <option value="Cinza">Cinza</option>
+                <option value="Amarela">Amarela</option>
+                <option value="Laranja">Laranja</option>
+                <option value="Verde">Verde</option>
+                <option value="Azul">Azul</option>
+                <option value="Roxa">Roxa</option>
+                <option value="Marrom">Marrom</option>
+                <option value="Preta">Preta</option>
             </select><br>
+
 
             Foto Diploma ou Foto do RG<br>
             <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png,.pdf"><br>

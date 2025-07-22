@@ -22,35 +22,67 @@ class atletaService
     //adicionar academia e responsavel
     public function addAcademiaResponsavel($acad)
     {
-        $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
-                    VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
-        $stmt = $this->conn->prepare($query);
-        // Bind dos valores
-        $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);
-        $stmt->bindValue(":nome", ucwords($this->atleta->__get("nome")));
-        $stmt->bindValue(":cpf", $this->atleta->__get("cpf"));
-        $stmt->bindValue(":genero", $this->atleta->__get("genero"));
-        $stmt->bindValue(":foto", $this->atleta->__get("foto"));
-        $stmt->bindValue(":senha", $senhaCriptografada);
-        $stmt->bindValue(":email", strtolower($this->atleta->__get("email")));
-        $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
-        $stmt->bindValue(":fone", $this->atleta->__get("fone"));
-        $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
-        $stmt->bindValue(":peso", $this->atleta->__get("peso"));
-        $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
-        //vincular uma academia
-        //vincular academia ao responsavel
-        // Executar a query
         try {
+            $this->conn->beginTransaction();
+
+            $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
+                      VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
+            $stmt = $this->conn->prepare($query);
+            
+            $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);
+            $stmt->bindValue(":nome", ucwords($this->atleta->__get("nome")));
+            $stmt->bindValue(":cpf", $this->atleta->__get("cpf"));
+            $stmt->bindValue(":genero", $this->atleta->__get("genero"));
+            $stmt->bindValue(":foto", $this->atleta->__get("foto"));
+            $stmt->bindValue(":senha", $senhaCriptografada);
+            $stmt->bindValue(":email", strtolower($this->atleta->__get("email")));
+            $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
+            $stmt->bindValue(":fone", $this->atleta->__get("fone"));
+            $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
+            $stmt->bindValue(":peso", $this->atleta->__get("peso"));
+            $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
+
             $stmt->execute();
             $idResponsavel = $this->getResponsavel($this->atleta->__get("email"), $this->atleta->__get("nome"));
+            
+            if (!$idResponsavel) {
+                throw new Exception("Falha ao obter ID do responsável");
+            }
+
             $this->atribuirAcademia($acad, $idResponsavel["id"]);
-            //alert 1 :aguarde sua conta ser validada
+            $this->conn->commit();
+            
             header("Location: index.php?message=1");
+            exit();
+            
         } catch (Exception $e) {
-            echo "[ " . $e->getMessage() . "]";
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
+            
+            $this->limparCadastroFalho(
+                __DIR__ . '/../fotos/' . $this->atleta->__get("foto"),
+                __DIR__ . '/../diplomas/' . $this->atleta->__get("diploma")
+            );
+            
+            throw new Exception("Erro ao cadastrar academia: " . $e->getMessage());
         }
     }
+
+    //limpar cadastro falho
+    public function limparCadastroFalho($fotoPath = null, $diplomaPath = null) {
+        try {
+            if ($fotoPath && file_exists($fotoPath)) {
+                unlink($fotoPath);
+            }
+            if ($diplomaPath && file_exists($diplomaPath)) {
+                unlink($diplomaPath);
+            }
+        } catch (Exception $e) {
+            error_log("Erro ao limpar arquivos de cadastro falho: " . $e->getMessage());
+        }
+    }
+
     //adicionar atleta
     public function addAtleta()
     {
@@ -583,25 +615,28 @@ class atletaService
     //vincular uma academia a um responsavel e viceversa
     public function atribuirAcademia($acad, $professor)
     {
-        //vincula academia
-        $query = "UPDATE academia_filiada SET responsavel = :responsavel WHERE id = :academia";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue("responsavel", $professor);
-        $stmt->bindValue("academia", $acad);
         try {
+            $this->conn->beginTransaction();
+            
+            $query = "UPDATE academia_filiada SET responsavel = :responsavel WHERE id = :academia";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(":responsavel", $professor, PDO::PARAM_INT);
+            $stmt->bindValue(":academia", $acad, PDO::PARAM_INT);
             $stmt->execute();
-        } catch (Exception $e) {
-            echo "erro [" . $e->getMessage() . "]";
-        }
-        //vincular responsavel
-        $query = "UPDATE atleta SET academia = :academia WHERE id = :responsavel";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue("responsavel", $professor);
-        $stmt->bindValue("academia", $acad);
-        try {
+
+            $query = "UPDATE atleta SET academia = :academia WHERE id = :responsavel";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(":responsavel", $professor, PDO::PARAM_INT);
+            $stmt->bindValue(":academia", $acad, PDO::PARAM_INT);
             $stmt->execute();
+            
+            $this->conn->commit();
+            
         } catch (Exception $e) {
-            echo "erro de atribuição [" . $e->getMessage() . "]";
+            if ($this->conn->inTransaction()) {
+                $this->conn->rollBack();
+            }
+            throw new Exception("Erro de atribuição: " . $e->getMessage());
         }
     }
 
