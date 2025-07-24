@@ -61,7 +61,7 @@ if (isset($_GET['erro'])) {
             <h3>Dados Pessoais</h3>
             Foto 3x4<br>
             <input type="file" placeholder="FOTO" name="foto" id="foto" accept=".jpg,.jpeg,.png" required><br>
-            <span class="aviso">Tamanho máximo: 2MB. Formatos aceitos: JPG, JPEG, PNG</span><br>
+            <span class="aviso">Tamanho máximo: 12MB. Formatos aceitos: JPG, JPEG, PNG</span><br>
 
             Nome Completo<input name="nome" type="text" placeholder="Nome completo" required><br>
             CPF<input name="cpf" type="text" placeholder="000.000.000-00" maxlength="14" required><br>

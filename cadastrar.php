@@ -9,12 +9,12 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
     exit();
 }
 
-require_once "classes/atletaService.php";
+require_once __DIR__ . '/classes/atletaService.php';  // Caminho absoluto
 include "func/clearWord.php";
 include "func/validacoes.php";
 
 // Configurações
-const MAX_UPLOAD_SIZE_MB = 2;
+const MAX_UPLOAD_SIZE_MB = 12;
 const MAX_CADASTRO_TENTATIVAS = 3;
 const TEMPO_BLOQUEIO_MINUTOS = 60;
 
