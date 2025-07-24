@@ -24,18 +24,18 @@ if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1) {
     // Verifica quando foi a última limpeza (evita executar em toda requisição)
     $ultimaLimpeza = $_SESSION['ultima_limpeza_eventos'] ?? 0;
     $intervaloLimpeza = 86400; // 24 horas em segundos
-    
+
     if (time() - $ultimaLimpeza > $intervaloLimpeza) {
         try {
             // Executa a limpeza
             $resultado = $evserv->verificarELimparEventosExpirados();
-            
+
             // Armazena resultado na sessão para exibição
             $_SESSION['limpeza_resultado'] = $resultado;
-            
+
             // Atualiza o timestamp da última limpeza
             $_SESSION['ultima_limpeza_eventos'] = time();
-            
+
         } catch (Exception $e) {
             error_log("Erro na limpeza automática: " . $e->getMessage());
         }
@@ -46,6 +46,9 @@ if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1) {
 if (isset($_GET['id'])) {
     $eventoId = (int) cleanWords($_GET['id']);
     $eventoDetails = $evserv->getById($eventoId);
+    if (!$eventoDetails) {
+        die("Evento não encontrado ou erro na consulta");
+    }
     $tudo = false;
 } else {
     // Se não foi especificado um ID, lista todos os eventos
@@ -102,7 +105,7 @@ if (isset($_GET['id'])) {
                 <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'>
                     <h2>
                         <?php echo htmlspecialchars($valor->nome); ?>
-                        <?php if ($valor->normal) { ?>
+                        <?php if ($normal = $eventoDetails->normal ?? false) { ?>
                             <span class="badge-normal">(Evento Normal)</span>
                         <?php } ?>
                     </h2>

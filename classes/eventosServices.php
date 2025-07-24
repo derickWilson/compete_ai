@@ -132,6 +132,10 @@ class eventosService
         try {
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_OBJ);
+
+            if (!$result) {
+                throw new Exception("Evento não encontrado");
+            }
             return $result;
         } catch (Exception $e) {
             error_log('Erro ao buscar evento por ID: ' . $e->getMessage());
@@ -234,7 +238,12 @@ class eventosService
     {
         // Primeiro obtemos os eventos que devem ser deletados
 // Altere para 1 dia ao invés de 7 dias, se quiser limpeza mais frequente
-        $query = "SELECT id FROM evento WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 1 DAY)";
+        if (!$this->conn) {
+            throw new Exception("Conexão com o banco de dados não disponível");
+        }
+        $query = "SELECT id, nome, data_limite FROM evento 
+          WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+          AND data_limite IS NOT NULL";
         $stmt = $this->conn->prepare($query);
 
         try {
@@ -372,25 +381,21 @@ class eventosService
      */
     private function deletarArquivosEvento($evento)
     {
-        try {
-            // Deletar imagem se existir
-            if (!empty($evento->imagen)) {
-                $imagemPath = __DIR__ . '/../../uploads/' . $evento->imagen;
-                if (file_exists($imagemPath)) {
-                    unlink($imagemPath);
-                }
-            }
+        $diretorios = [
+            'imagens' => __DIR__ . '/../../uploads/',
+            'documentos' => __DIR__ . '/../../docs/'
+        ];
 
-            // Deletar documento se existir
-            if (!empty($evento->doc)) {
-                $docPath = __DIR__ . '/../../docs/' . $evento->doc;
-                if (file_exists($docPath)) {
-                    unlink($docPath);
+        foreach ($diretorios as $tipo => $caminho) {
+            $arquivo = $tipo === 'imagens' ? $evento->imagen : $evento->doc;
+            if (!empty($arquivo)) {
+                $caminhoCompleto = $caminho . $arquivo;
+                if (file_exists($caminhoCompleto)) {
+                    if (!unlink($caminhoCompleto)) {
+                        error_log("Falha ao deletar {$tipo} do evento ID {$evento->id}");
+                    }
                 }
             }
-        } catch (Exception $e) {
-            error_log("Erro ao deletar arquivos do evento ID {$evento->id}: " . $e->getMessage());
-            // Não interrompe o fluxo principal se falhar ao deletar arquivos
         }
     }
 
