@@ -31,6 +31,10 @@ if (isset($_GET['erro'])) {
         case 2:
             $erro_message = 'Por favor, envie ambos os arquivos (foto e diploma) no formato correto (JPG, JPEG ou PNG).';
             break;
+        case 5:
+            $erro_message = isset($_SESSION['erro_cadastro']) ? $_SESSION['erro_cadastro'] : 'Ocorreu um erro durante o cadastro.';
+            unset($_SESSION['erro_cadastro']);
+            break;
         case 6:
             $erro_message = $_SESSION['erro_cadastro'] ?? 'CPF inválido. Por favor, verifique o número digitado.';
             break;

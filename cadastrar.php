@@ -24,8 +24,10 @@ if (!isset($_SESSION['cadastro_tentativas'])) {
     $_SESSION['ultimo_cadastro'] = time();
 }
 
-if ($_SESSION['cadastro_tentativas'] > MAX_CADASTRO_TENTATIVAS && 
-    (time() - $_SESSION['ultimo_cadastro'] < TEMPO_BLOQUEIO_MINUTOS * 60)) {
+if (
+    $_SESSION['cadastro_tentativas'] > MAX_CADASTRO_TENTATIVAS &&
+    (time() - $_SESSION['ultimo_cadastro'] < TEMPO_BLOQUEIO_MINUTOS * 60)
+) {
     die("Muitas tentativas de cadastro. Por favor, tente novamente mais tarde.");
 }
 
@@ -49,7 +51,7 @@ function processarUpload(array $arquivo, string $pastaDestino, string $prefixoNo
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime = $finfo->file($arquivo['tmp_name']);
     $mimesPermitidos = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'application/pdf' => 'pdf'];
-    
+
     if (!array_key_exists($mime, $mimesPermitidos)) {
         return [false, "Tipo de arquivo não permitido."];
     }
@@ -105,15 +107,6 @@ function validarDadosBasicos(array $dados): void
     if (!filter_var($dados['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
         throw new Exception("E-mail inválido.");
     }
-
-    // Valida data de nascimento
-    $dataNasc = DateTime::createFromFormat('Y-m-d', $dados['data_nascimento'] ?? '');
-    $hoje = new DateTime();
-    $idade = $hoje->diff($dataNasc)->y;
-    
-    if ($dataNasc === false || $dataNasc > $hoje || ($dados['tipo'] === 'A' && $idade < 18)) {
-        throw new Exception("Data de nascimento inválida.");
-    }
 }
 
 try {
@@ -128,7 +121,7 @@ try {
     // Processamento específico para cada tipo de cadastro
     if ($_POST["tipo"] == "A") {
         // CADASTRO DE ACADEMIA E RESPONSÁVEL
-        
+
         // Processa uploads
         [$fotoSuccess, $novoNomeFoto] = processarUpload($_FILES['foto'], 'fotos/', 'foto_');
         [$diplomaSuccess, $novoNomeDiploma] = processarUpload($_FILES['diploma'], 'diplomas/', 'diploma_');
@@ -150,7 +143,7 @@ try {
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("fone", $telefone_completo);
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
-        $atletas->__set("peso", (float)$_POST["peso"]);
+        $atletas->__set("peso", (float) $_POST["peso"]);
         $atletas->__set("diploma", $novoNomeDiploma);
 
         // Verifica se e-mail já existe
@@ -160,7 +153,7 @@ try {
 
         // Cadastra academia se não existir
         $nomeAcademia = cleanWords($_POST["academia"]);
-        if ($attServ->existAcad($nomeAcademia)) {
+        if (!$attServ->existAcad($nomeAcademia)) {
             $attServ->Filiar(
                 $nomeAcademia,
                 preg_replace('/[^0-9]/', '', $_POST["cep"]),
@@ -168,7 +161,6 @@ try {
                 strtoupper(cleanWords($_POST["estado"]))
             );
         }
-
         // Obtém ID da academia e cadastra responsável
         $idAcademia = $attServ->getIdAcad($nomeAcademia);
         $attServ->addAcademiaResponsavel($idAcademia["id"]);
@@ -180,7 +172,7 @@ try {
 
     } elseif ($_POST["tipo"] == "AT") {
         // CADASTRO DE ATLETA NORMAL
-        
+
         // Processa upload da foto (obrigatória)
         [$fotoSuccess, $novoNomeFoto] = processarUpload($_FILES['foto'], 'fotos/', 'foto_');
         if (!$fotoSuccess) {
@@ -209,9 +201,9 @@ try {
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("fone", $telefone_completo);
-        $atletas->__set("academia", (int)$_POST["academia"]);
+        $atletas->__set("academia", (int) $_POST["academia"]);
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
-        $atletas->__set("peso", (float)$_POST["peso"]);
+        $atletas->__set("peso", (float) $_POST["peso"]);
         $atletas->__set("diploma", $novoNomeDiploma);
 
         // Verifica se e-mail já existe
@@ -238,11 +230,11 @@ try {
 } catch (Exception $e) {
     // Limpeza e tratamento de erros
     limparArquivosTemporarios($_FILES);
-    
+
     $_SESSION['erro_cadastro'] = $e->getMessage();
     $_SESSION['cadastro_tentativas']++;
     $_SESSION['ultimo_cadastro'] = time();
-    
+
     $paginaErro = ($_POST["tipo"] ?? '') == "A" ? "cadastro_academia.php" : "cadastro_atleta.php";
     header("Location: $paginaErro?erro=5");
     exit();

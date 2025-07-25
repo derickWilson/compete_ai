@@ -25,11 +25,16 @@ try {
 <body>
 <?php include "../menu/add_menu.php"; ?>
 
-<?php if (isset($_GET['message'])) { // Mensagem de erro ou sucesso ?>
-    <div class="aviso <?php echo htmlspecialchars($_GET['message_type']); ?>">
+<?php 
+// Mensagem de erro ou sucesso - CORREÇÃO AQUI
+if (isset($_GET['message'])) { 
+    $messageType = isset($_GET['message_type']) ? htmlspecialchars($_GET['message_type']) : 'info'; // Valor padrão 'info'
+?>
+    <div class="aviso <?php echo $messageType; ?>">
         <?php echo htmlspecialchars($_GET['message']); ?>
     </div>
 <?php } ?>
+
 <center><h3>Galeria de Fotos</h3></center>
 <div class="principal">
     <?php if (!empty($lista)) { 
