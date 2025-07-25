@@ -11,7 +11,7 @@ if ($_SERVER["REQUEST_METHOD"] != "POST") {
 
 require_once __DIR__ . '/classes/atletaService.php';  // Caminho absoluto
 include "func/clearWord.php";
-include "func/validacoes.php";
+require_once "func/validacoes.php";
 
 // Configurações
 const MAX_UPLOAD_SIZE_MB = 12;
