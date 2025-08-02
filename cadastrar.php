@@ -2,7 +2,7 @@
 declare(strict_types=1);
 session_start();
 ob_start();
-
+error_log("Iniciando processamento de cadastro. Tipo: " . ($_POST['tipo'] ?? 'N/A'));
 // Verifica se os dados foram enviados via POST
 if ($_SERVER["REQUEST_METHOD"] != "POST") {
     header("Location: index.php");
@@ -15,21 +15,6 @@ require_once "func/validacoes.php";
 
 // Configurações
 const MAX_UPLOAD_SIZE_MB = 12;
-const MAX_CADASTRO_TENTATIVAS = 3;
-const TEMPO_BLOQUEIO_MINUTOS = 60;
-
-// Controle de tentativas de cadastro
-if (!isset($_SESSION['cadastro_tentativas'])) {
-    $_SESSION['cadastro_tentativas'] = 0;
-    $_SESSION['ultimo_cadastro'] = time();
-}
-
-if (
-    $_SESSION['cadastro_tentativas'] > MAX_CADASTRO_TENTATIVAS &&
-    (time() - $_SESSION['ultimo_cadastro'] < TEMPO_BLOQUEIO_MINUTOS * 60)
-) {
-    die("Muitas tentativas de cadastro. Por favor, tente novamente mais tarde.");
-}
 
 /**
  * Processa upload de arquivos com validações de segurança
@@ -86,26 +71,25 @@ function limparArquivosTemporarios(array $arquivos): void
  * Valida dados básicos do formulário
  */
 function validarDadosBasicos(array $dados): void
-{
-    // Valida nome da academia (se for cadastro tipo A)
-    if (($dados['tipo'] ?? '') === 'A' && !preg_match('/^[a-zA-Z0-9\s\-]{3,100}$/', $dados['academia'] ?? '')) {
-        throw new Exception("Nome da academia inválido.");
+{   
+    //validar academia e cep se cadastro tipo A
+    if (($dados['tipo'] ?? '') === 'A') {
+        if (!preg_match('/^[a-zA-Z0-9\s\-]{3,100}$/', $dados['academia'] ?? '')) {
+            throw new Exception("Nome da academia inválido.");
+        }
+
+        // Valida CEP (apenas para cadastro tipo A)
+        $cep = preg_replace('/[^0-9]/', '', $dados['cep'] ?? '');
+        if (!preg_match('/^[0-9]{8}$/', $cep)) {
+            throw new Exception("CEP inválido.");
+        }
     }
 
-    // Valida CEP
-    $cep = preg_replace('/[^0-9]/', '', $dados['cep'] ?? '');
-    if (!preg_match('/^[0-9]{8}$/', $cep)) {
-        throw new Exception("CEP inválido.");
-    }
+
 
     // Valida CPF
     if (!validarCPF($dados['cpf'] ?? '')) {
         throw new Exception("CPF inválido.");
-    }
-
-    // Valida e-mail
-    if (!filter_var($dados['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
-        throw new Exception("E-mail inválido.");
     }
 }
 
@@ -179,8 +163,6 @@ try {
             limparArquivosTemporarios($_FILES);
             throw new Exception($novoNomeFoto);
         }
-
-        // Processa diploma (opcional)
         $novoNomeDiploma = '';
         if (!empty($_FILES['diploma']['name'])) {
             [$diplomaSuccess, $novoNomeDiploma] = processarUpload($_FILES['diploma'], 'diplomas/', 'diploma_');
@@ -230,11 +212,11 @@ try {
 } catch (Exception $e) {
     // Limpeza e tratamento de erros
     limparArquivosTemporarios($_FILES);
+    error_log("Erro no cadastro: " . $e->getMessage());
+    error_log("Dados recebidos: " . print_r($_POST, true));
+    error_log("Dados de arquivos: " . print_r($_FILES, true));
 
-    $_SESSION['erro_cadastro'] = $e->getMessage();
-    $_SESSION['cadastro_tentativas']++;
-    $_SESSION['ultimo_cadastro'] = time();
-
+    $_SESSION['erro_cadastro'] = $e->getMessage(); // Armazena a mensagem específica
     $paginaErro = ($_POST["tipo"] ?? '') == "A" ? "cadastro_academia.php" : "cadastro_atleta.php";
     header("Location: $paginaErro?erro=5");
     exit();

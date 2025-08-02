@@ -30,6 +30,10 @@ if (isset($_GET['erro'])) {
         case 3:
             $erro_message = 'Por favor, selecione uma academia válida.';
             break;
+        case 5:
+            $erro_message = $_SESSION['erro_cadastro'] ?? 'Ocorreu um erro durante o cadastro. Por favor, tente novamente.';
+            unset($_SESSION['erro_cadastro']); // Limpa após usar
+            break;
         case 6:
             $erro_message = $_SESSION['erro_cadastro'] ?? 'CPF inválido. Por favor, verifique o número digitado.';
             break;
@@ -107,7 +111,8 @@ if (isset($_GET['erro'])) {
 
 
             Foto Diploma ou Foto do RG<br>
-            <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png,.pdf"><br>
+            <input type="file" placeholder="DIPLOMA" name="diploma" id="diploma" accept=".jpg,.jpeg,.png,.pdf"
+                required><br>
             <span class="aviso">Envie uma foto ou scan do seu diploma ou RG (PDF, JPG, PNG)</span><br>
 
             Peso <input type="number" name="peso" min="10" step="0.05" required> kg<br>
