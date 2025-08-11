@@ -403,12 +403,67 @@ class eventosService
      * Deleta todas as inscrições relacionadas ao evento
      * @param int $idEvento ID do evento
      */
+    // Adicione no arquivo eventosServices.php, dentro da classe eventosService
+
+    /**
+     * Deleta todas as inscrições relacionadas ao evento e cobranças pendentes no Asaas
+     * @param int $idEvento ID do evento
+     */
     private function deletarInscricoesEvento($idEvento)
     {
-        $query = "DELETE FROM inscricao WHERE id_evento = :id_evento";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(':id_evento', $idEvento, PDO::PARAM_INT);
-        $stmt->execute();
+        require_once __DIR__ . "/../classes/atletaClass.php";
+        try {
+            // Primeiro obtemos todas as inscrições para verificar cobranças pendentes
+            $query = "SELECT id_atleta, id_evento, id_cobranca_asaas, status_pagamento 
+                  FROM inscricao 
+                  WHERE id_evento = :id_evento";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':id_evento', $idEvento, PDO::PARAM_INT);
+            $stmt->execute();
+            $inscricoes = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            // Inicializa o serviço Asaas
+            $conn = new Conexao();
+            $asaasService = new AssasService($conn);
+
+            foreach ($inscricoes as $inscricao) {
+                // Se houver cobrança e o status for PENDENTE, deleta no Asaas
+                if (!empty($inscricao->id_cobranca_asaas)) {
+                    try {
+                        // Verifica o status antes de deletar
+                        $status = $asaasService->verificarStatusCobranca($inscricao->id_cobranca_asaas);
+
+                        if ($status['status'] === AssasService::STATUS_PENDENTE) {
+                            $asaasService->deletarCobranca($inscricao->id_cobranca_asaas);
+                            file_put_contents(
+                                'asaas_debug.log',
+                                "\nCobrança deletada - ID: " . $inscricao->id_cobranca_asaas .
+                                " (Evento: $idEvento, Atleta: " . $inscricao->id_atleta . ")",
+                                FILE_APPEND
+                            );
+                        }
+                    } catch (Exception $e) {
+                        // Loga o erro mas continua o processo
+                        file_put_contents(
+                            'asaas_error.log',
+                            "\nERRO ao deletar cobrança - ID: " . $inscricao->id_cobranca_asaas .
+                            "\nMensagem: " . $e->getMessage(),
+                            FILE_APPEND
+                        );
+                    }
+                }
+            }
+
+            // Depois de processar as cobranças, deleta todas as inscrições
+            $deleteQuery = "DELETE FROM inscricao WHERE id_evento = :id_evento";
+            $deleteStmt = $this->conn->prepare($deleteQuery);
+            $deleteStmt->bindValue(':id_evento', $idEvento, PDO::PARAM_INT);
+            $deleteStmt->execute();
+
+        } catch (Exception $e) {
+            error_log("Erro ao deletar inscrições do evento ID {$idEvento}: " . $e->getMessage());
+            throw new Exception("Erro ao deletar inscrições do evento");
+        }
     }
 }
 ?>
