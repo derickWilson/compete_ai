@@ -70,9 +70,17 @@ function limparArquivosTemporarios(array $arquivos): void
 /**
  * Valida dados básicos do formulário
  */
+/**
+ * Valida dados básicos do formulário
+ */
 function validarDadosBasicos(array $dados): void
-{   
-    //validar academia e cep se cadastro tipo A
+{
+    // Valida CPF (para ambos os tipos)
+    if (!validarCPF($dados['cpf'] ?? '')) {
+        throw new Exception("CPF inválido.");
+    }
+
+    // Valida academia e CEP apenas se for cadastro tipo A
     if (($dados['tipo'] ?? '') === 'A') {
         if (!preg_match('/^[a-zA-Z0-9\s\-]{3,100}$/', $dados['academia'] ?? '')) {
             throw new Exception("Nome da academia inválido.");
@@ -83,13 +91,6 @@ function validarDadosBasicos(array $dados): void
         if (!preg_match('/^[0-9]{8}$/', $cep)) {
             throw new Exception("CEP inválido.");
         }
-    }
-
-
-
-    // Valida CPF
-    if (!validarCPF($dados['cpf'] ?? '')) {
-        throw new Exception("CPF inválido.");
     }
 }
 
