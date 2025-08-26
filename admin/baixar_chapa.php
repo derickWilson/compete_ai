@@ -25,36 +25,24 @@ if (!$evento) {
 $gerarPDF = isset($_GET['pdf']);
 $embaralhar = isset($_GET['embaralhar']);
 
-// Configurar PDF se necessário
-if ($gerarPDF) {
-    require_once __DIR__ . '/../vendor/autoload.php';
-    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-    $pdf->SetCreator('Sistema de Eventos');
-    $pdf->SetAuthor('Sistema de Eventos');
-    $pdf->SetTitle('Chapas - ' . $evento->nome);
-    $pdf->SetMargins(15, 15, 15);
-    $pdf->SetHeaderMargin(10);
-    $pdf->SetFooterMargin(10);
-    $pdf->SetAutoPageBreak(TRUE, 15);
-    $pdf->AddPage();
-} else {
-    // Configurar CSV
-    header('Content-Type: text/csv; charset=UTF-8');
-    header('Content-Disposition: attachment; filename="chapas_' . $eventoId . '.csv"');
-    $output = fopen('php://output', 'w');
-    fputcsv($output, ['Categoria', 'Faixa', 'Modalidade', 'Nome', 'Academia', 'Idade', 'Peso', 'Status Pagamento']);
-}
+// Configurar CSV
+header('Content-Type: text/csv; charset=UTF-8');
+header('Content-Disposition: attachment; filename="chapas_' . $eventoId . '.csv"');
+$output = fopen('php://output', 'w');
+fputcsv($output, ['Categoria', 'Faixa', 'Modalidade', 'Nome', 'Academia', 'Idade', 'Peso', 'Status Pagamento']);
 
-// Obter inscritos válidos
+// Obter inscritos válidos (MESMA lógica do lista_inscritos.php)
 $inscritos = $eventoServ->getInscritos($eventoId);
 $inscritosValidos = array_filter($inscritos, function($inscrito) use ($evento) {
-    $eventoGratuito = ($evento->preco == 0 && $evento->preco_menor == 0 && $evento->preco_abs == 0);
-    return $eventoGratuito || 
-           in_array($inscrito->status_pagamento, [
-               AssasService::STATUS_PAGO, 
-               AssasService::STATUS_CONFIRMADO,
-               AssasService::STATUS_GRATUITO
-           ]);
+    // Verifica se é evento gratuito
+    $eventoGratuito = $evento->normal ? ($evento->normal_preco == 0) : 
+        ($evento->preco == 0 && $evento->preco_menor == 0 && $evento->preco_abs == 0);
+    
+    // Se evento gratuito: todos são válidos
+    // Se evento pago: apenas pagos/confirmados/isentos
+    return $eventoGratuito || in_array($inscrito->status_pagamento, [
+        'RECEIVED', 'CONFIRMED', 'ISENTO', 'RECEIVED_IN_CASH'
+    ]);
 });
 
 // Classificar inscritos por categoria, faixa e modalidade
@@ -130,62 +118,50 @@ uksort($chapeamento, function($a, $b) {
     return strcmp($modA, $modB);
 });
 
-// Gerar saída
+// Gerar saída CSV
 foreach ($chapeamento as $chapa) {
     if ($embaralhar) {
         shuffle($chapa['atletas']);
     }
     
-    if ($gerarPDF) {
-        $html = '<h2>' . htmlspecialchars("{$chapa['tipo']} - {$chapa['categoria']} - {$chapa['faixa']} - " . ucfirst($chapa['modalidade'])) . '</h2>';
-        $html .= '<table border="1" cellpadding="4">';
-        $html .= '<tr><th>#</th><th>Nome</th><th>Academia</th><th>Idade</th><th>Peso</th></tr>';
+    // CSV - Cabeçalho da chapa
+    fputcsv($output, [
+        $chapa['tipo'] . ' - ' . $chapa['categoria'],
+        $chapa['faixa'],
+        ucfirst($chapa['modalidade']),
+        '',
+        '',
+        '',
+        '',
+        ''
+    ]);
+    
+    // CSV - Atletas
+    foreach ($chapa['atletas'] as $atleta) {
+        // Mapear status para texto amigável
+        $statusText = match($atleta->status_pagamento) {
+            'RECEIVED' => 'PAGO',
+            'CONFIRMED' => 'CONFIRMADO',
+            'ISENTO' => 'ISENTO',
+            'RECEIVED_IN_CASH' => 'PAGO (DINHEIRO)',
+            'PENDING' => 'PENDENTE',
+            default => $atleta->status_pagamento
+        };
         
-        foreach ($chapa['atletas'] as $i => $atleta) {
-            $html .= '<tr>';
-            $html .= '<td>' . ($i + 1) . '</td>';
-            $html .= '<td>' . htmlspecialchars($atleta->nome) . '</td>';
-            $html .= '<td>' . htmlspecialchars($atleta->academia) . '</td>';
-            $html .= '<td>' . calcularIdade($atleta->data_nascimento) . '</td>';
-            $html .= '<td>' . htmlspecialchars($atleta->peso) . ' kg</td>';
-            $html .= '</tr>';
-        }
-        
-        $html .= '</table><br>';
-        $pdf->writeHTML($html, true, false, true, false, '');
-    } else {
-        // CSV
         fputcsv($output, [
-            $chapa['tipo'] . ' - ' . $chapa['categoria'],
-            $chapa['faixa'],
-            ucfirst($chapa['modalidade']),
             '',
             '',
             '',
-            '',
-            ''
+            $atleta->nome,
+            $atleta->academia,
+            calcularIdade($atleta->data_nascimento),
+            $atleta->peso,
+            $statusText
         ]);
-        
-        foreach ($chapa['atletas'] as $atleta) {
-            fputcsv($output, [
-                '',
-                '',
-                '',
-                $atleta->nome,
-                $atleta->academia,
-                calcularIdade($atleta->data_nascimento),
-                $atleta->peso,
-                $atleta->status_pagamento
-            ]);
-        }
-        
-        fputcsv($output, ['', '', '', '', '', '', '', '']); // Linha em branco
     }
+    
+    fputcsv($output, ['', '', '', '', '', '', '', '']); // Linha em branco
 }
 
-if ($gerarPDF) {
-    $pdf->Output('chapas_' . $eventoId . '.pdf', 'D');
-} else {
-    fclose($output);
-}
+fclose($output);
 exit;

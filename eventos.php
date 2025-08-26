@@ -117,7 +117,6 @@ if (isset($_GET['id'])) {
                     <div class="chapa-options">
                         Gerar Chapas:
                         <a href='admin/baixar_chapa.php?id=<?php echo $valor->id ?>'>CSV</a> |
-                        <a href='admin/baixar_chapa.php?id=<?php echo $valor->id ?>&pdf=1'>PDF</a>
                     </div>
                 <?php } ?>
 
@@ -257,7 +256,6 @@ if (isset($_GET['id'])) {
                     <div class="chapa-options">
                         <h3>Opções de Administrador</h3>
                         <a href='admin/baixar_chapa.php?id=<?php echo $eventoId ?>'>Baixar Chapas (CSV)</a> |
-                        <a href='admin/baixar_chapa.php?id=<?php echo $eventoId ?>&pdf=1'>Baixar Chapas (PDF)</a>
                     </div>
                 <?php } ?>
 
