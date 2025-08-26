@@ -2,6 +2,11 @@
 declare(strict_types=1);
 session_start();
 ob_start();
+// Verificar se o campo 'tipo' existe no POST
+if (!isset($_POST['tipo'])) {
+    header("Location: index.php");
+    exit();
+}
 error_log("Iniciando processamento de cadastro. Tipo: " . ($_POST['tipo'] ?? 'N/A'));
 // Verifica se os dados foram enviados via POST
 if ($_SERVER["REQUEST_METHOD"] != "POST") {

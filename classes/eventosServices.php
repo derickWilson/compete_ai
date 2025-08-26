@@ -235,48 +235,48 @@ class eventosService
      * @throws Exception Em caso de erro grave
      */
     public function limparEventosExpirados()
-    {
-        // Primeiro obtemos os eventos que devem ser deletados
-// Altere para 1 dia ao invés de 7 dias, se quiser limpeza mais frequente
-        if (!$this->conn) {
-            throw new Exception("Conexão com o banco de dados não disponível");
-        }
-        $query = "SELECT id, nome, data_limite FROM evento 
+{
+    // Primeiro obtemos os eventos que devem ser deletados
+    // Altere para 1 dia ao invés de 7 dias, se quiser limpeza mais frequente
+    if (!$this->conn) {
+        throw new Exception("Conexão com o banco de dados não disponível");
+    }
+    $query = "SELECT id, nome, data_limite FROM evento 
           WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
           AND data_limite IS NOT NULL";
-        $stmt = $this->conn->prepare($query);
+    $stmt = $this->conn->prepare($query);
 
-        try {
-            $stmt->execute();
-            $eventosParaDeletar = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    try {
+        $stmt->execute();
+        $eventosParaDeletar = $stmt->fetchAll(PDO::FETCH_OBJ); // ← CORREÇÃO AQUI
 
-            $resultados = [
-                'total_eventos' => count($eventosParaDeletar),
-                'eventos_deletados' => 0,
-                'erros' => []
-            ];
+        $resultados = [
+            'total_eventos' => count($eventosParaDeletar),
+            'eventos_deletados' => 0,
+            'erros' => []
+        ];
 
-            // Para cada evento, chamamos o método de deleção existente
-            foreach ($eventosParaDeletar as $idEvento) {
-                try {
-                    $this->deletarEvento($idEvento);
-                    $resultados['eventos_deletados']++;
-                } catch (Exception $e) {
-                    $resultados['erros'][] = [
-                        'id_evento' => $idEvento,
-                        'erro' => $e->getMessage()
-                    ];
-                    error_log("Erro ao deletar evento ID {$idEvento}: " . $e->getMessage());
-                }
+        // Para cada evento, chamamos o método de deleção existente
+        foreach ($eventosParaDeletar as $evento) {
+            try {
+                $this->deletarEvento($evento->id);
+                $resultados['eventos_deletados']++;
+            } catch (Exception $e) {
+                $resultados['erros'][] = [
+                    'id_evento' => $evento->id,
+                    'erro' => $e->getMessage()
+                ];
+                error_log("Erro ao deletar evento ID {$evento->id}: " . $e->getMessage());
             }
-
-            return $resultados;
-
-        } catch (Exception $e) {
-            error_log('Erro ao buscar eventos expirados: ' . $e->getMessage());
-            throw new Exception("Erro ao buscar eventos para limpeza");
         }
+
+        return $resultados;
+
+    } catch (Exception $e) {
+        error_log('Erro ao buscar eventos expirados: ' . $e->getMessage());
+        throw new Exception("Erro ao buscar eventos para limpeza");
     }
+}
     //ver e limpar eventos
     public function verificarELimparEventosExpirados()
     {
