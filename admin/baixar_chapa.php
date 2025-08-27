@@ -92,7 +92,7 @@ uksort($chapeamento, function($a, $b) {
     $orderCategoria = [
         "PRE-MIRIM" => 0, "MIRIM 1" => 1, "MIRIM 2" => 2,
         "INFANTIL 1" => 3, "INFANTIL 2" => 4, "INFANTO-JUVENIL" => 5,
-        "JUVENIL" => 6, "ADULTO" => 7, "MASTER" => 8
+        "JUVENIL" => 6, "ADULTO" => 7, "MASTER" => 8, "OUTROS" => 9
     ];
     $orderFaixa = [
         "Branca" => 0, "Cinza" => 1, "Amarela" => 2, "Laranja" => 3,
@@ -100,19 +100,35 @@ uksort($chapeamento, function($a, $b) {
         "Preta" => 8, "Coral" => 9, "Vermelha e Branca" => 10, "Vermelha" => 11
     ];
     
-    list($tipoA, $catA, $faixaA, $modA) = explode('|', $a);
-    list($tipoB, $catB, $faixaB, $modB) = explode('|', $b);
+    $partesA = explode('|', $a);
+    $partesB = explode('|', $b);
     
-    if ($orderTipo[$tipoA] !== $orderTipo[$tipoB]) {
-        return $orderTipo[$tipoA] - $orderTipo[$tipoB];
+    // Verifica se o explode retornou todas as partes necessárias
+    if (count($partesA) < 4 || count($partesB) < 4) {
+        return 0; // Não ordena se não tiver todas as partes
     }
     
-    if ($orderCategoria[$catA] !== $orderCategoria[$catB]) {
-        return $orderCategoria[$catA] - $orderCategoria[$catB];
+    list($tipoA, $catA, $faixaA, $modA) = $partesA;
+    list($tipoB, $catB, $faixaB, $modB) = $partesB;
+    
+    // Usa valores padrão se não existir no array
+    $ordemTipoA = $orderTipo[$tipoA] ?? 999;
+    $ordemTipoB = $orderTipo[$tipoB] ?? 999;
+    $ordemCatA = $orderCategoria[$catA] ?? 999;
+    $ordemCatB = $orderCategoria[$catB] ?? 999;
+    $ordemFaixaA = $orderFaixa[$faixaA] ?? 999;
+    $ordemFaixaB = $orderFaixa[$faixaB] ?? 999;
+    
+    if ($ordemTipoA !== $ordemTipoB) {
+        return $ordemTipoA - $ordemTipoB;
     }
     
-    if ($orderFaixa[$faixaA] !== $orderFaixa[$faixaB]) {
-        return $orderFaixa[$faixaA] - $orderFaixa[$faixaB];
+    if ($ordemCatA !== $ordemCatB) {
+        return $ordemCatA - $ordemCatB;
+    }
+    
+    if ($ordemFaixaA !== $ordemFaixaB) {
+        return $ordemFaixaA - $ordemFaixaB;
     }
     
     return strcmp($modA, $modB);
@@ -152,7 +168,7 @@ foreach ($chapeamento as $chapa) {
             '',
             '',
             '',
-            $atleta->nome,
+            $atleta->inscrito,
             $atleta->academia,
             calcularIdade($atleta->data_nascimento),
             $atleta->peso,
@@ -165,3 +181,4 @@ foreach ($chapeamento as $chapa) {
 
 fclose($output);
 exit;
+?>
