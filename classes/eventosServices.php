@@ -248,8 +248,7 @@ class eventosService
 
     try {
         $stmt->execute();
-        $eventosParaDeletar = $stmt->fetchAll(PDO::FETCH_OBJ); // ← CORREÇÃO AQUI
-
+        $eventosParaDeletar = $stmt->fetchAll(PDO::FETCH_OBJ);
         $resultados = [
             'total_eventos' => count($eventosParaDeletar),
             'eventos_deletados' => 0,
@@ -412,6 +411,7 @@ class eventosService
     private function deletarInscricoesEvento($idEvento)
     {
         require_once __DIR__ . "/../classes/atletaClass.php";
+        require_once __DIR__ . "/../classes/AssasService.php";
         try {
             // Primeiro obtemos todas as inscrições para verificar cobranças pendentes
             $query = "SELECT id_atleta, id_evento, id_cobranca_asaas, status_pagamento 

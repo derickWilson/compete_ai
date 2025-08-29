@@ -607,17 +607,15 @@ class atletaService
     {
         $query = "SELECT id FROM atleta WHERE email = :email AND nome = :nome";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue("nome", $nome);
-        $stmt->bindValue("email", $email);
+        $stmt->bindValue(":nome", $nome);
+        $stmt->bindValue(":email", $email);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     //vincular uma academia a um responsavel e viceversa
     public function atribuirAcademia($acad, $professor)
     {
-        try {
-            $this->conn->beginTransaction();
-            
+        try {            
             $query = "UPDATE academia_filiada SET responsavel = :responsavel WHERE id = :academia";
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(":responsavel", $professor, PDO::PARAM_INT);
@@ -628,10 +626,7 @@ class atletaService
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(":responsavel", $professor, PDO::PARAM_INT);
             $stmt->bindValue(":academia", $acad, PDO::PARAM_INT);
-            $stmt->execute();
-            
-            $this->conn->commit();
-            
+            $stmt->execute();            
         } catch (Exception $e) {
             if ($this->conn->inTransaction()) {
                 $this->conn->rollBack();
@@ -645,7 +640,7 @@ class atletaService
     {
         $query = "SELECT nome FROM academia_filiada WHERE id = :id";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue("id", $id);
+        $stmt->bindValue(":id", $id);
         try {
             $stmt->execute();
         } catch (Exception $e) {

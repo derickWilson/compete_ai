@@ -153,13 +153,16 @@ try {
         }
         // Obtém ID da academia e cadastra responsável
         $idAcademia = $attServ->getIdAcad($nomeAcademia);
-        $attServ->addAcademiaResponsavel($idAcademia["id"]);
 
+        if (!$idAcademia || !is_array($idAcademia) || !isset($idAcademia["id"])) {
+            throw new Exception("Falha ao obter ID da academia");
+        }
+
+        $attServ->addAcademiaResponsavel($idAcademia["id"]);
         // Redireciona para página de sucesso
         $_SESSION['cadastro_sucesso'] = true;
         header("Location: cadastro_sucesso.php?tipo=A");
-        exit();
-
+        exit();        // Redireciona para página de sucesso
     } elseif ($_POST["tipo"] == "AT") {
         // CADASTRO DE ATLETA NORMAL
 
