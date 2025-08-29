@@ -181,6 +181,11 @@ try {
             }
         }
 
+        // Verifica se academia foi selecionada
+        if (empty($_POST["academia"]) || $_POST["academia"] == "") {
+            throw new Exception("Por favor, selecione uma academia válida.");
+        }
+
         // Prepara dados do atleta
         $telefone_completo = '+55' . preg_replace('/[^0-9]/', '', $_POST["fone"]);
 
@@ -192,7 +197,7 @@ try {
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("fone", $telefone_completo);
-        $atletas->__set("academia", (int) $_POST["academia"]);
+        $atletas->__set("academia", (int) $_POST["academia"]); // LINHA CORRIGIDA - Só converte se não for vazio
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
         $atletas->__set("peso", (float) $_POST["peso"]);
         $atletas->__set("diploma", $novoNomeDiploma);
@@ -226,8 +231,15 @@ try {
     error_log("Dados de arquivos: " . print_r($_FILES, true));
 
     $_SESSION['erro_cadastro'] = $e->getMessage(); // Armazena a mensagem específica
+
+    // Determina código de erro específico para academia não selecionada
+    $erroCode = 5;
+    if (strpos($e->getMessage(), 'selecione uma academia válida') !== false) {
+        $erroCode = 3;
+    }
+
     $paginaErro = ($_POST["tipo"] ?? '') == "A" ? "cadastro_academia.php" : "cadastro_atleta.php";
-    header("Location: $paginaErro?erro=5");
+    header("Location: $paginaErro?erro=$erroCode");
     exit();
 }
 ?>
