@@ -379,16 +379,17 @@ class atletaService
             throw new Exception("Não foi possível carregar suas inscrições. Por favor, tente novamente mais tarde.");
         }
     }
+
+    //editar atleta
     public function updateAtleta()
     {
-        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, peso = :peso, diploma = :diploma
-            WHERE id = :id";
+        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, peso = :peso, 
+                WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
         $stmt->bindValue(":foto", $this->atleta->__get("foto"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
-        $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
         $stmt->bindValue(":id", $this->atleta->__get("id"));
         try {
             $stmt->execute();
@@ -396,13 +397,38 @@ class atletaService
             $_SESSION["foto"] = $this->atleta->__get("foto");
             $_SESSION["fone"] = $this->atleta->__get("fone");
             $_SESSION["peso"] = $this->atleta->__get("peso");
-            $_SESSION["diploma"] = $this->atleta->__get("diploma");
             header("Location: /pagina_pessoal.php");
             exit();
         } catch (Exception $e) {
             print ("Erro ao editar: " . $e->getMessage());
         }
     }
+    //editar faixa
+    public function updateFaixa()
+    {
+        try {
+            $query = "UPDATE atleta SET faixa = :faixa, diploma = :diploma, validado = 0 
+                 WHERE id = :id";
+
+            $stmt = $this->conn->prepare($query);
+
+            $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
+            $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
+            $stmt->bindValue(":id", $this->atleta->__get("id"));
+
+            $stmt->execute();
+
+            // Destruir a sessão para deslogar o usuário
+            session_destroy();
+
+            return true;
+
+        } catch (Exception $e) {
+            error_log("Erro ao atualizar faixa: " . $e->getMessage());
+            return false;
+        }
+    }
+
     //função para pegar inscricao
     public function getInscricao($evento, $atleta)
     {

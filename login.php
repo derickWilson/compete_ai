@@ -1,5 +1,8 @@
 <?php
 session_start();
+if (isset($_GET['msg']) && $_GET['msg'] === 'faixa_updated') {
+    echo '<div class="sucesso">Solicitação de troca de faixa enviada com sucesso! Faça login novamente quando sua faixa for validada pelo administrador.</div>';
+}
 if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
 ?>
 <!DOCTYPE html>
