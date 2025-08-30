@@ -37,6 +37,7 @@ $atleta = $attServ->getById($_SESSION["id"]);
         
         Email: <input name="email" type="email" placeholder="exemplo@email.com" value="<?php echo htmlspecialchars($atleta->email); ?>"><br>
         Telefone: <input maxlength="12" type="tel" name="fone" id="fone" value="<?php echo htmlspecialchars($atleta->fone); ?>" placeholder="0000000000"><br>
+        Faixa: <?php echo $_SESSION["faixa"]; ?><br>
         <label for="diploma_novo">Diploma</label><br>
         <img src="/diplomas/<?php echo $_SESSION["diploma"]; ?>" name="diploma_novo" width="100px" height="100px">
         <input type="file" name="diploma_novo" id="diploma_novo" accept=".jpg,.jpeg,.png" ><br>

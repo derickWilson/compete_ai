@@ -381,12 +381,11 @@ class atletaService
     }
     public function updateAtleta()
     {
-        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, faixa = :faixa, peso = :peso, diploma = :diploma
+        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, peso = :peso, diploma = :diploma
             WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
-        $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
         $stmt->bindValue(":foto", $this->atleta->__get("foto"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
@@ -396,7 +395,6 @@ class atletaService
             $_SESSION["email"] = $this->atleta->__get("email");
             $_SESSION["foto"] = $this->atleta->__get("foto");
             $_SESSION["fone"] = $this->atleta->__get("fone");
-            $_SESSION["faixa"] = $this->atleta->__get("faixa");
             $_SESSION["peso"] = $this->atleta->__get("peso");
             $_SESSION["diploma"] = $this->atleta->__get("diploma");
             header("Location: /pagina_pessoal.php");

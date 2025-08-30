@@ -68,7 +68,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $at->__set("email", cleanWords($_POST["email"]));
     $at->__set("fone", cleanWords($_POST["fone"]));
     $at->__set("foto", $fotoNova);
-    $at->__set("faixa", cleanWords($_POST["faixa"]));
     $at->__set("peso", cleanWords($_POST["peso"]));
     $at->__set("diploma", $diplomaNovo);
     
