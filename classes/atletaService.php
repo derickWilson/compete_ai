@@ -28,7 +28,7 @@ class atletaService
             $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
                       VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
             $stmt = $this->conn->prepare($query);
-            
+
             $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);
             $stmt->bindValue(":nome", ucwords($this->atleta->__get("nome")));
             $stmt->bindValue(":cpf", $this->atleta->__get("cpf"));
@@ -44,33 +44,40 @@ class atletaService
 
             $stmt->execute();
             $idResponsavel = $this->getResponsavel($this->atleta->__get("email"), $this->atleta->__get("nome"));
-            
+
             if (!$idResponsavel) {
                 throw new Exception("Falha ao obter ID do responsável");
             }
 
             $this->atribuirAcademia($acad, $idResponsavel["id"]);
             $this->conn->commit();
-            
+
             header("Location: index.php?message=1");
             exit();
-            
+
         } catch (Exception $e) {
             if ($this->conn->inTransaction()) {
                 $this->conn->rollBack();
             }
-            
+
             $this->limparCadastroFalho(
                 __DIR__ . '/../fotos/' . $this->atleta->__get("foto"),
                 __DIR__ . '/../diplomas/' . $this->atleta->__get("diploma")
             );
-            
-            throw new Exception("Erro ao cadastrar academia: " . $e->getMessage());
+
+            // Mensagem mais amigável
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                throw new Exception("Este CPF ou e-mail já está cadastrado em nosso sistema.");
+            }
+
+            throw new Exception("Erro ao processar cadastro: " . $e->getMessage());
         }
     }
 
+
     //limpar cadastro falho
-    public function limparCadastroFalho($fotoPath = null, $diplomaPath = null) {
+    public function limparCadastroFalho($fotoPath = null, $diplomaPath = null)
+    {
         try {
             if ($fotoPath && file_exists($fotoPath)) {
                 unlink($fotoPath);
@@ -112,7 +119,12 @@ class atletaService
             //alert 1 :aguarde sua conta ser validada
             header("Location: index.php?message=1");
         } catch (Exception $e) {
-            echo "[ " . $e->getMessage() . "]";
+            // Mensagem mais amigável para duplicatas
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                throw new Exception("Este CPF ou e-mail já está cadastrado em nosso sistema.");
+            }
+
+            throw new Exception("Erro ao processar cadastro: " . $e->getMessage());
         }
     }
     //listar todos os atletas
@@ -615,7 +627,7 @@ class atletaService
     //vincular uma academia a um responsavel e viceversa
     public function atribuirAcademia($acad, $professor)
     {
-        try {            
+        try {
             $query = "UPDATE academia_filiada SET responsavel = :responsavel WHERE id = :academia";
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(":responsavel", $professor, PDO::PARAM_INT);
@@ -626,7 +638,7 @@ class atletaService
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(":responsavel", $professor, PDO::PARAM_INT);
             $stmt->bindValue(":academia", $acad, PDO::PARAM_INT);
-            $stmt->execute();            
+            $stmt->execute();
         } catch (Exception $e) {
             if ($this->conn->inTransaction()) {
                 $this->conn->rollBack();

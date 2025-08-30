@@ -19,31 +19,28 @@ if (isset($_SESSION["logado"])) {
 
 // Handle error messages
 $erro_message = '';
-if (isset($_GET['erro'])) {
-    // Handle error messages
-$erro_message = '';
+// Substitua o switch de mensagens de erro por:
 if (isset($_GET['erro'])) {
     switch ($_GET['erro']) {
         case 1:
             $erro_message = 'Este e-mail já está cadastrado. Por favor, utilize outro e-mail ou faça login.';
             break;
         case 2:
-            $erro_message = 'Por favor, envie uma foto no formato correto (JPG, JPEG ou PNG).';
+            $erro_message = 'Arquivo inválido. Por favor, envie uma foto nos formatos JPG, JPEG ou PNG. Tamanho máximo: 12MB.';
             break;
         case 3:
-            $erro_message = 'Por favor, selecione uma academia válida.';
+            $erro_message = 'Por favor, selecione uma academia válida da lista. Caso sua academia não apareça, aguarde a validação ou entre em contato conosco.';
             break;
         case 5:
-            $erro_message = $_SESSION['erro_cadastro'] ?? 'Ocorreu um erro durante o cadastro. Por favor, tente novamente.';
-            unset($_SESSION['erro_cadastro']); // Limpa após usar
+            $erro_message = isset($_SESSION['erro_cadastro']) ? $_SESSION['erro_cadastro'] : 'Ocorreu um erro durante o cadastro. Por favor, verifique todos os dados e tente novamente.';
+            unset($_SESSION['erro_cadastro']);
             break;
         case 6:
-            $erro_message = $_SESSION['erro_cadastro'] ?? 'CPF inválido. Por favor, verifique o número digitado.';
+            $erro_message = 'CPF inválido. Por favor, verifique o número digitado.';
             break;
         default:
             $erro_message = 'Ocorreu um erro durante o cadastro. Por favor, tente novamente.';
     }
-}   
 }
 ?>
 <!DOCTYPE html>

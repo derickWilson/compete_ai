@@ -28,6 +28,20 @@ function processarUpload(array $arquivo, string $pastaDestino, string $prefixoNo
 {
     // Verifica se houve erro no upload
     if (!isset($arquivo) || $arquivo['error'] !== UPLOAD_ERR_OK) {
+        switch ($arquivo['error']) {
+            case UPLOAD_ERR_INI_SIZE:
+            case UPLOAD_ERR_FORM_SIZE:
+                return [false, 'O arquivo é muito grande. Tamanho máximo: ' . MAX_UPLOAD_SIZE_MB . 'MB.'];
+            case UPLOAD_ERR_PARTIAL:
+                return [false, 'O upload do arquivo foi interrompido. Tente novamente.'];
+            case UPLOAD_ERR_NO_FILE:
+                return [false, 'Nenhum arquivo foi selecionado.'];
+            default:
+                return [false, 'Erro no upload do arquivo. Tente novamente.'];
+        }
+    }
+    // Verifica se houve erro no upload
+    if (!isset($arquivo) || $arquivo['error'] !== UPLOAD_ERR_OK) {
         return [false, 'Erro no upload do arquivo.'];
     }
 
@@ -82,19 +96,23 @@ function validarDadosBasicos(array $dados): void
 {
     // Valida CPF (para ambos os tipos)
     if (!validarCPF($dados['cpf'] ?? '')) {
-        throw new Exception("CPF inválido.");
+        throw new Exception("CPF inválido. Por favor, verifique o número digitado.");
     }
 
     // Valida academia e CEP apenas se for cadastro tipo A
     if (($dados['tipo'] ?? '') === 'A') {
+        if (empty($dados['academia'] ?? '')) {
+            throw new Exception("O nome da academia é obrigatório.");
+        }
+
         if (!preg_match('/^[a-zA-Z0-9\s\-]{3,100}$/', $dados['academia'] ?? '')) {
-            throw new Exception("Nome da academia inválido.");
+            throw new Exception("Nome da academia inválido. Use apenas letras, números e hífens.");
         }
 
         // Valida CEP (apenas para cadastro tipo A)
         $cep = preg_replace('/[^0-9]/', '', $dados['cep'] ?? '');
         if (!preg_match('/^[0-9]{8}$/', $cep)) {
-            throw new Exception("CEP inválido.");
+            throw new Exception("CEP inválido. Digite um CEP válido com 8 dígitos.");
         }
     }
 }
@@ -229,13 +247,29 @@ try {
     error_log("Erro no cadastro: " . $e->getMessage());
     error_log("Dados recebidos: " . print_r($_POST, true));
     error_log("Dados de arquivos: " . print_r($_FILES, true));
+    // Mensagens mais específicas
+    $mensagemErro = $e->getMessage();
 
-    $_SESSION['erro_cadastro'] = $e->getMessage(); // Armazena a mensagem específica
+    // Tratamento específico para erros de banco de dados
+    if (strpos($mensagemErro, 'Duplicate entry') !== false) {
+        $mensagemErro = "Este CPF ou e-mail já está cadastrado em nosso sistema.";
+    } elseif (strpos($mensagemErro, 'foreign key constraint') !== false) {
+        $mensagemErro = "Erro ao vincular academia. Por favor, tente novamente.";
+    }
 
-    // Determina código de erro específico para academia não selecionada
-    $erroCode = 5;
+    $_SESSION['erro_cadastro'] = $mensagemErro;
+
+    // Determina código de erro específico
+    $erroCode = 5; // Erro genérico
+
     if (strpos($e->getMessage(), 'selecione uma academia válida') !== false) {
         $erroCode = 3;
+    } elseif (strpos($e->getMessage(), 'CPF inválido') !== false) {
+        $erroCode = 6;
+    } elseif (strpos($e->getMessage(), 'e-mail já está cadastrado') !== false) {
+        $erroCode = 1;
+    } elseif (strpos($e->getMessage(), 'Tipo de arquivo não permitido') !== false) {
+        $erroCode = 2;
     }
 
     $paginaErro = ($_POST["tipo"] ?? '') == "A" ? "cadastro_academia.php" : "cadastro_atleta.php";
