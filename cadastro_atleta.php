@@ -20,6 +20,9 @@ if (isset($_SESSION["logado"])) {
 // Handle error messages
 $erro_message = '';
 if (isset($_GET['erro'])) {
+    // Handle error messages
+$erro_message = '';
+if (isset($_GET['erro'])) {
     switch ($_GET['erro']) {
         case 1:
             $erro_message = 'Este e-mail já está cadastrado. Por favor, utilize outro e-mail ou faça login.';
@@ -40,6 +43,7 @@ if (isset($_GET['erro'])) {
         default:
             $erro_message = 'Ocorreu um erro durante o cadastro. Por favor, tente novamente.';
     }
+}   
 }
 ?>
 <!DOCTYPE html>
