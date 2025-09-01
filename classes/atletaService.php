@@ -629,13 +629,34 @@ class atletaService
     {
         $query = "SELECT id FROM academia_filiada WHERE nome = :nome";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":nome", $nomeAcad);
+        $stmt->bindValue(":nome", trim($nomeAcad));
+
         try {
             $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Log para debugging mais detalhado
+            error_log("Busca academia: '" . trim($nomeAcad) . "' - Resultado: " . ($result ? print_r($result, true) : 'NÃO ENCONTRADO'));
+
+            if (!$result) {
+                // Tenta buscar com LIKE para casos de diferenças de case ou espaços
+                $queryLike = "SELECT id FROM academia_filiada WHERE nome LIKE :nome";
+                $stmtLike = $this->conn->prepare($queryLike);
+                $stmtLike->bindValue(":nome", '%' . trim($nomeAcad) . '%');
+                $stmtLike->execute();
+                $resultLike = $stmtLike->fetch(PDO::FETCH_ASSOC);
+
+                error_log("Busca com LIKE: " . ($resultLike ? print_r($resultLike, true) : 'NÃO ENCONTRADO'));
+
+                return $resultLike ?: false;
+            }
+
+            return $result;
+
         } catch (Exception $e) {
-            echo "erro [" . $e->getMessage() . "]";
+            error_log("Erro ao buscar ID da academia '" . $nomeAcad . "': " . $e->getMessage());
+            return false;
         }
-        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     //conseguir o id do responsavel

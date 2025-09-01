@@ -170,10 +170,25 @@ try {
             );
         }
         // Obtém ID da academia e cadastra responsável
+        // No bloco onde você obtém o ID da academia:
         $idAcademia = $attServ->getIdAcad($nomeAcademia);
 
-        if (!$idAcademia || !is_array($idAcademia) || !isset($idAcademia["id"])) {
-            throw new Exception("Falha ao obter ID da academia");
+        if (!$idAcademia || !isset($idAcademia["id"])) {
+            // Tenta criar a academia novamente se não foi encontrada
+            if (!$attServ->existAcad($nomeAcademia)) {
+                $attServ->Filiar(
+                    $nomeAcademia,
+                    preg_replace('/[^0-9]/', '', $_POST["cep"]),
+                    cleanWords($_POST["cidade"]),
+                    strtoupper(cleanWords($_POST["estado"]))
+                );
+                // Tenta buscar novamente
+                $idAcademia = $attServ->getIdAcad($nomeAcademia);
+            }
+
+            if (!$idAcademia || !isset($idAcademia["id"])) {
+                throw new Exception("Falha ao obter ID da academia. Nome: " . $nomeAcademia);
+            }
         }
 
         $attServ->addAcademiaResponsavel($idAcademia["id"]);
@@ -215,8 +230,11 @@ try {
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("fone", $telefone_completo);
-        $atletas->__set("academia", (int) $_POST["academia"]); // LINHA CORRIGIDA - Só converte se não for vazio
+
+        $academiaId = !empty($_POST["academia"]) ? (int) $_POST["academia"] : null;
+        $atletas->__set("academia", $academiaId);
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
+
         $atletas->__set("peso", (float) $_POST["peso"]);
         $atletas->__set("diploma", $novoNomeDiploma);
 

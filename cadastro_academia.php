@@ -2,9 +2,9 @@
 // Deve ser a PRIMEIRA linha do arquivo, sem espaços antes!
 declare(strict_types=1);
 // Iniciar buffer de saída
+session_start();
 ob_start();
 // Iniciar sessão ANTES de qualquer saída
-session_start();
 
 if (isset($_SESSION["logado"])) {
     header("Location: index.php");
