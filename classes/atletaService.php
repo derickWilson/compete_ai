@@ -629,20 +629,20 @@ class atletaService
     {
         $query = "SELECT id FROM academia_filiada WHERE nome = :nome";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":nome", trim($nomeAcad));
+        $stmt->bindValue(":nome", ucwords($nomeAcad));
 
         try {
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
             // Log para debugging mais detalhado
-            error_log("Busca academia: '" . trim($nomeAcad) . "' - Resultado: " . ($result ? print_r($result, true) : 'NÃO ENCONTRADO'));
+            error_log("Busca academia: '" . ucwords($nomeAcad) . "' - Resultado: " . ($result ? print_r($result, true) : 'NÃO ENCONTRADO'));
 
             if (!$result) {
                 // Tenta buscar com LIKE para casos de diferenças de case ou espaços
                 $queryLike = "SELECT id FROM academia_filiada WHERE nome LIKE :nome";
                 $stmtLike = $this->conn->prepare($queryLike);
-                $stmtLike->bindValue(":nome", '%' . trim($nomeAcad) . '%');
+                $stmtLike->bindValue(":nome", '%' . ucwords($nomeAcad) . '%');
                 $stmtLike->execute();
                 $resultLike = $stmtLike->fetch(PDO::FETCH_ASSOC);
 
