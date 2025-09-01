@@ -160,36 +160,53 @@ try {
         }
 
         // Cadastra academia se não existir
-        $nomeAcademia = cleanWords($_POST["academia"]);
+        //$nomeAcademia = cleanWords($_POST["academia"]);
+
+        // Cadastra academia se não existir
+        $nomeAcademia = $_POST["academia"]; // ← SEM cleanWords() para manter espaços
+
         if (!$attServ->existAcad($nomeAcademia)) {
-            $attServ->Filiar(
+            $idInserido = $attServ->Filiar(
                 $nomeAcademia,
-                preg_replace('/[^0-9]/', '', $_POST["cep"]),
-                cleanWords($_POST["cidade"]),
-                strtoupper(cleanWords($_POST["estado"]))
+                $_POST["cep"],
+                $_POST["cidade"], // ← SEM cleanWords()
+                $_POST["estado"]  // ← SEM cleanWords()
             );
+
+            // Já temos o ID, não precisa buscar
+            $idAcademia = ["id" => $idInserido];
+        } else {
+            // Se já existe, busca o ID
+            $idAcademia = $attServ->getIdAcad($nomeAcademia);
         }
+
+        // Verifica se conseguiu o ID
+        if (!$idAcademia || !isset($idAcademia["id"])) {
+            throw new Exception("Falha ao obter ID da academia. Nome: " . $nomeAcademia);
+        }
+
+        //$attServ->addAcademiaResponsavel($idAcademia["id"]);
         // Obtém ID da academia e cadastra responsável
         // No bloco onde você obtém o ID da academia:
-        $idAcademia = $attServ->getIdAcad($nomeAcademia);
+//        $idAcademia = $attServ->getIdAcad($nomeAcademia);
 
-        if (!$idAcademia || !isset($idAcademia["id"])) {
-            // Tenta criar a academia novamente se não foi encontrada
-            if (!$attServ->existAcad($nomeAcademia)) {
-                $attServ->Filiar(
-                    $nomeAcademia,
-                    preg_replace('/[^0-9]/', '', $_POST["cep"]),
-                    cleanWords($_POST["cidade"]),
-                    strtoupper(cleanWords($_POST["estado"]))
-                );
-                // Tenta buscar novamente
-                $idAcademia = $attServ->getIdAcad($nomeAcademia);
-            }
-
-            if (!$idAcademia || !isset($idAcademia["id"])) {
-                throw new Exception("Falha ao obter ID da academia. Nome: " . $nomeAcademia);
-            }
-        }
+        //if (!$idAcademia || !isset($idAcademia["id"])) {
+        //    // Tenta criar a academia novamente se não foi encontrada
+        //    if (!$attServ->existAcad($nomeAcademia)) {
+        //        $attServ->Filiar(
+        //            $nomeAcademia,
+        //            preg_replace('/[^0-9]/', '', $_POST["cep"]),
+        //            cleanWords($_POST["cidade"]),
+        //            strtoupper(cleanWords($_POST["estado"]))
+        //        );
+        //        // Tenta buscar novamente
+        //        $idAcademia = $attServ->getIdAcad($nomeAcademia);
+        //    }
+//
+        //    if (!$idAcademia || !isset($idAcademia["id"])) {
+        //        throw new Exception("Falha ao obter ID da academia. Nome: " . $nomeAcademia);
+        //    }
+        //}
 
         $attServ->addAcademiaResponsavel($idAcademia["id"]);
         // Redireciona para página de sucesso

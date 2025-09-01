@@ -597,17 +597,25 @@ class atletaService
     //funçoes de afiliação de academia
     public function Filiar($nome, $cep, $cidade, $estado)
     {
-        // Insere a academia e retorna o ID da academia inserida
-        $query = "INSERT INTO academia_filiada (nome, cep, cidade, estado) VALUES (:nome, :cep, :cidade, :estado)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":nome", ucwords($nome));
-        $stmt->bindValue(":cep", $cep);
-        $stmt->bindValue(":cidade", ucwords($cidade));
-        $stmt->bindValue(":estado", $estado);
         try {
-            $stmt->execute();
+            $query = "INSERT INTO academia_filiada (nome, cep, cidade, estado) VALUES (:nome, :cep, :cidade, :estado)";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(":nome", ucwords($nome));
+            $stmt->bindValue(":cep", preg_replace('/[^0-9]/', '', $cep));
+            $stmt->bindValue(":cidade", ucwords($cidade));
+            $stmt->bindValue(":estado", strtoupper($estado));
+
+            if (!$stmt->execute()) {
+                throw new Exception("Falha ao executar INSERT da academia");
+            }
+
+            // Retorna o ID da academia inserida
+            return $this->conn->lastInsertId();
+
         } catch (Exception $e) {
-            echo "erro [" . $e->getMessage() . "]";
+            error_log("ERRO no Filiar(): " . $e->getMessage());
+            error_log("Dados: nome=$nome, cep=$cep, cidade=$cidade, estado=$estado");
+            throw new Exception("Erro ao cadastrar academia: " . $e->getMessage());
         }
     }
     //ver se academia existe
@@ -615,43 +623,52 @@ class atletaService
     {
         $query = "SELECT COUNT(*) as num FROM academia_filiada WHERE nome = :nome";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":nome", $nome);
+        $stmt->bindValue(":nome", ucwords($nome));
+
         try {
             $stmt->execute();
             $resp = $stmt->fetch(PDO::FETCH_OBJ);
-            return $resp->num == 0;
+
+            // DEBUG
+            error_log("existAcad('$nome'): " . $resp->num . " registros encontrados");
+
+            return $resp->num == 0; // Retorna true se NÃO existir
+
         } catch (Exception $e) {
-            echo "erro [" . $e->getMessage() . "]";
+            error_log("Erro em existAcad: " . $e->getMessage());
+            return true; // Assume que não existe em caso de erro
         }
     }
     //funçao para consegui id da academia
     public function getIdAcad($nomeAcad)
     {
+        $nomeFormatado = ucwords($nomeAcad);
+
+        // Primeira tentativa: busca exata
         $query = "SELECT id FROM academia_filiada WHERE nome = :nome";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":nome", ucwords($nomeAcad));
+        $stmt->bindValue(":nome", $nomeFormatado);
 
         try {
             $stmt->execute();
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Log para debugging mais detalhado
-            error_log("Busca academia: '" . ucwords($nomeAcad) . "' - Resultado: " . ($result ? print_r($result, true) : 'NÃO ENCONTRADO'));
+            error_log("Busca academia: '" . $nomeFormatado . "' - Resultado: " . ($result ? $result['id'] : 'NÃO ENCONTRADO'));
 
-            if (!$result) {
-                // Tenta buscar com LIKE para casos de diferenças de case ou espaços
-                $queryLike = "SELECT id FROM academia_filiada WHERE nome LIKE :nome";
-                $stmtLike = $this->conn->prepare($queryLike);
-                $stmtLike->bindValue(":nome", '%' . ucwords($nomeAcad) . '%');
-                $stmtLike->execute();
-                $resultLike = $stmtLike->fetch(PDO::FETCH_ASSOC);
-
-                error_log("Busca com LIKE: " . ($resultLike ? print_r($resultLike, true) : 'NÃO ENCONTRADO'));
-
-                return $resultLike ?: false;
+            if ($result) {
+                return $result; // ← MANTÉM como array, não apenas o ID
             }
 
-            return $result;
+            // Segunda tentativa: busca com LIKE para casos de diferenças
+            $queryLike = "SELECT id FROM academia_filiada WHERE nome LIKE :nome";
+            $stmtLike = $this->conn->prepare($queryLike);
+            $stmtLike->bindValue(":nome", "%" . $nomeFormatado . "%");
+            $stmtLike->execute();
+            $resultLike = $stmtLike->fetch(PDO::FETCH_ASSOC);
+
+            error_log("Busca com LIKE: " . ($resultLike ? $resultLike['id'] : 'NÃO ENCONTRADO'));
+
+            return $resultLike ?: false; // ← Retorna array ou false
 
         } catch (Exception $e) {
             error_log("Erro ao buscar ID da academia '" . $nomeAcad . "': " . $e->getMessage());
