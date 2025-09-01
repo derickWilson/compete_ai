@@ -632,7 +632,7 @@ class atletaService
             // DEBUG
             error_log("existAcad('$nome'): " . $resp->num . " registros encontrados");
 
-            return $resp->num == 0; // Retorna true se NÃO existir
+            return $resp->num > 0; // Retorna true se NÃO existir
 
         } catch (Exception $e) {
             error_log("Erro em existAcad: " . $e->getMessage());

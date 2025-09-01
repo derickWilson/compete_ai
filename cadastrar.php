@@ -1,7 +1,8 @@
 <?php
 declare(strict_types=1);
-session_start();
 ob_start();
+
+session_start();
 // Verificar se o campo 'tipo' existe no POST
 if (!isset($_POST['tipo'])) {
     header("Location: index.php");
