@@ -15,7 +15,6 @@ Sistema completo para gestão de competições de Jiu-Jitsu com cadastro de acad
 - [📦 Estrutura](#-estrutura-do-projeto)
 - [🗄️ Banco de Dados](#-estrutura-do-banco-de-dados)
 - [🔐 Segurança](#-segurança)
-- [⚙️ Instalação](#-instalação-e-configuração)
 - [📱 Uso](#-como-utilizar)
 - [🤝 Contribuição](#-contribuição)
 - [📄 Licença](#-licença)
