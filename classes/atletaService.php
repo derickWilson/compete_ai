@@ -132,7 +132,8 @@ class atletaService
     {
         $query = "SELECT a.id, a.nome, a.faixa, f.nome as academia, a.validado 
             FROM atleta AS a 
-            JOIN academia_filiada as f ON f.id = a.academia";
+            JOIN academia_filiada as f ON f.id = a.academia
+            ORDER BY f.nome, a.nome";
         $stmt = $this->conn->prepare($query);
         try {
             $stmt->execute();

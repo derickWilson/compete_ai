@@ -609,12 +609,243 @@ footer a:hover {
     }
 }
 
-/* ===== REMOVER ESTILOS ANTIGOS (não utilizados) ===== */
-/* 
-.campeonato,
-.campeonato-amostra,
-.mini-banner,
-.link {
-  Estilos removidos para evitar conflitos
+/* ===== ESTILOS PARA A PÁGINA DE ATLETAS (MOBILE FIRST) ===== */
+.principal {
+    padding: 15px;
+    margin: 15px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-*/
+
+.titulo-pagina {
+    text-align: center;
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary-light);
+}
+
+/* Cards para lista de atletas (mobile) */
+.lista-atletas {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card-atleta {
+    background: var(--light);
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid var(--primary);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-atleta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.info-atleta {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.label {
+    font-weight: 600;
+    color: var(--primary-dark);
+    min-width: 80px;
+}
+
+.valor {
+    color: var(--dark);
+    text-align: right;
+    flex: 1;
+    margin-left: 10px;
+}
+
+.status-validado {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-sim {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-nao {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.btn-ver-mais {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: var(--primary);
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 12px;
+    transition: background 0.2s ease;
+}
+
+.btn-ver-mais:hover {
+    background: var(--primary-dark);
+}
+
+/* Filtros e busca */
+.filtros-container {
+    background: var(--light-blue);
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.busca-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 15px;
+}
+
+.busca-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.filtros-rapidos {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-filtro {
+    padding: 8px 15px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-filtro.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Paginação */
+.paginacao {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.btn-pagina {
+    padding: 8px 15px;
+    background: white;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    min-width: 40px;
+    text-align: center;
+}
+
+.btn-pagina.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Loading skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 4px;
+    height: 16px;
+    margin: 8px 0;
+}
+
+@keyframes loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ===== VERSÃO DESKTOP ===== */
+@media (min-width: 768px) {
+    .principal {
+        padding: 25px;
+        margin: 25px auto;
+        max-width: 1200px;
+    }
+    
+    .info-atleta {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    
+    .card-atleta {
+        padding: 20px;
+    }
+    
+    .filtros-container {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+    
+    .busca-input {
+        width: 300px;
+        margin-bottom: 0;
+        flex: 1;
+    }
+    
+    .filtros-rapidos {
+        flex-wrap: nowrap;
+    }
+}
+
+@media (min-width: 1024px) {
+    .info-atleta {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .btn-ver-mais {
+        width: auto;
+        margin-top: 0;
+        margin-left: auto;
+    }
+    
+    .card-atleta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+}
