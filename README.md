@@ -2,7 +2,6 @@
 
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-777BB4?logo=php)](https://php.net)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7%2B-4479A1?logo=mysql)](https://mysql.com)
-[![Status](https://img.shields.io/badge/Status-Production-green)](https://github.com/seu-usuario/jiu-jitsu-competitions)
 
 Sistema completo para gestão de competições de Jiu-Jitsu com cadastro de academias, atletas, eventos e processamento de pagamentos integrado.
 
