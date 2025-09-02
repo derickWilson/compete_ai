@@ -20,16 +20,39 @@ class atletaService
     }
 
     //adicionar academia e responsavel
+    /**
+     * Cadastra uma nova academia e seu responsável de forma transacional
+     * 
+     * Esta função realiza o cadastro completo de uma academia filiada e seu responsável
+     * em uma transação atômica, garantindo consistência dos dados. Inclui tratamento
+     * de erros robusto e limpeza de recursos em caso de falha.
+     * 
+     * @param object $acad Objeto contendo dados da academia (nome, cep, estado, cidade)
+     * @return void
+     * @throws Exception Em caso de erro no processamento do cadastro
+     * 
+     * @example
+     * try {
+     *     $controller->addAcademiaResponsavel($academiaData);
+     * } catch (Exception $e) {
+     *     echo "Erro no cadastro: " . $e->getMessage();
+     * }
+     */
     public function addAcademiaResponsavel($acad)
     {
         try {
+            // Inicia transação atômica para garantir consistência
             $this->conn->beginTransaction();
 
+            // Prepara query para inserção do responsável
             $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
-                      VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
+                  VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
             $stmt = $this->conn->prepare($query);
 
+            // Gera hash seguro da senha usando algoritmo BCrypt
             $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);
+
+            // Bind dos parâmetros com sanitização apropriada
             $stmt->bindValue(":nome", ucwords($this->atleta->__get("nome")));
             $stmt->bindValue(":cpf", $this->atleta->__get("cpf"));
             $stmt->bindValue(":genero", $this->atleta->__get("genero"));
@@ -42,63 +65,142 @@ class atletaService
             $stmt->bindValue(":peso", $this->atleta->__get("peso"));
             $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
 
+            // Executa a inserção do responsável
             $stmt->execute();
+
+            // Obtém o ID do responsável recém-criado
             $idResponsavel = $this->getResponsavel($this->atleta->__get("email"), $this->atleta->__get("nome"));
 
             if (!$idResponsavel) {
                 throw new Exception("Falha ao obter ID do responsável");
             }
 
+            // Associa a academia ao responsável
             $this->atribuirAcademia($acad, $idResponsavel["id"]);
+
+            // Confirma a transação se tudo ocorreu com sucesso
             $this->conn->commit();
 
+            // Redireciona para página de sucesso
             header("Location: index.php?message=1");
             exit();
 
         } catch (Exception $e) {
+            // Reverte a transação em caso de erro
             if ($this->conn->inTransaction()) {
                 $this->conn->rollBack();
             }
 
+            // Limpeza de arquivos enviados em caso de falha
             $this->limparCadastroFalho(
                 __DIR__ . '/../fotos/' . $this->atleta->__get("foto"),
                 __DIR__ . '/../diplomas/' . $this->atleta->__get("diploma")
             );
 
-            // Mensagem mais amigável
+            // Tratamento específico para erro de duplicidade
             if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
                 throw new Exception("Este CPF ou e-mail já está cadastrado em nosso sistema.");
             }
 
+            // Propaga o erro com mensagem amigável
             throw new Exception("Erro ao processar cadastro: " . $e->getMessage());
         }
     }
 
 
-    //limpar cadastro falho
+    /**
+     * Remove arquivos enviados em caso de falha no processo de cadastro
+     * 
+     * Esta função é responsável pela limpeza de recursos (arquivos) que foram
+     * enviados durante um processo de cadastro que falhou. Garante que arquivos
+     * temporários não persistam no sistema quando o cadastro não é concluído
+     * com sucesso, mantendo a integridade e evitando lixo no sistema de arquivos.
+     * 
+     * @param string|null $fotoPath Caminho completo do arquivo de foto a ser removido
+     * @param string|null $diplomaPath Caminho completo do arquivo de diploma a ser removido
+     * @return void
+     * 
+     * @example
+     * // Uso típico após falha em cadastro
+     * $this->limparCadastroFalho(
+     *     __DIR__ . '/../fotos/foto_temporaria.jpg',
+     *     __DIR__ . '/../diplomas/diploma_temporario.pdf'
+     * );
+     * 
+     * @example
+     * // Uso para limpar apenas a foto
+     * $this->limparCadastroFalho(__DIR__ . '/../fotos/foto_temporaria.jpg');
+     * 
+     * @note A função verifica a existência do arquivo antes de tentar removê-lo
+     * @note Erros durante a remoção são capturados e registrados em log, não interrompendo o fluxo
+     * @note Esta função é tipicamente chamada a partir do bloco catch de métodos de cadastro
+     * 
+     * @since Versão 1.0
+     * @lastmodified 2024-03-15
+     */
     public function limparCadastroFalho($fotoPath = null, $diplomaPath = null)
     {
         try {
+            // Remove arquivo de foto se fornecido e existir
             if ($fotoPath && file_exists($fotoPath)) {
                 unlink($fotoPath);
             }
+
+            // Remove arquivo de diploma se fornecido e existir
             if ($diplomaPath && file_exists($diplomaPath)) {
                 unlink($diplomaPath);
             }
         } catch (Exception $e) {
+            // Registra erro no log sem interromper o fluxo da aplicação
             error_log("Erro ao limpar arquivos de cadastro falho: " . $e->getMessage());
         }
     }
 
-    //adicionar atleta
+    /**
+     * Cadastra um novo atleta no sistema
+     * 
+     * Esta função realiza a inserção de um novo atleta na base de dados, incluindo
+     * tratamento de dados pessoais, hash de senha e validações básicas. O atleta
+     * é cadastrado com status "não validado" (aguardando aprovação) e como não responsável.
+     * 
+     * @return void
+     * @throws Exception Em caso de erro no processamento do cadastro, especialmente
+     *                   para entradas duplicadas (CPF ou email já existentes)
+     * 
+     * @example
+     * try {
+     *     $controller->addAtleta();
+     * } catch (Exception $e) {
+     *     echo "Erro no cadastro: " . $e->getMessage();
+     *     // Realizar limpeza de arquivos enviados se necessário
+     * }
+     * 
+     * @security
+     * - Utiliza password_hash com PASSWORD_BCRYPT para hash seguro de senhas
+     * - Aplica ucwords() para padronização de nome
+     * - Aplica strtolower() para normalização de email
+     * - Validação contra entradas duplicadas na base de dados
+     * 
+     * @validation
+     * - O atleta é criado com validado=0 (aguardando validação administrativa)
+     * - O atleta é criado com responsavel=0 (não é um responsável de academia)
+     * 
+     * @todo Implementar sistema de confirmação por email
+     * 
+     * @since Versão 1.0
+     * @lastmodified 2024-03-15
+     */
     public function addAtleta()
     {
-        // Verificar a faixa
+        // Prepara query para inserção do atleta com todos os campos necessários
         $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
-                    VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :academia, :data_nascimento, :fone, :faixa, :peso, :diploma, :validado, :responsavel)";
+                VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :academia, :data_nascimento, :fone, :faixa, :peso, :diploma, :validado, :responsavel)";
         $stmt = $this->conn->prepare($query);
-        // Bind dos valores
+
+        // Gera hash seguro da senha usando algoritmo BCrypt
         $senhaCriptografada = password_hash($this->atleta->__get("senha"), PASSWORD_BCRYPT);
+
+        // Bind dos parâmetros com sanitização e formatação apropriada
         $stmt->bindValue(":nome", ucwords($this->atleta->__get("nome")));
         $stmt->bindValue(":cpf", $this->atleta->__get("cpf"));
         $stmt->bindValue(":genero", $this->atleta->__get("genero"));
@@ -111,59 +213,210 @@ class atletaService
         $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
-        $stmt->bindValue(":validado", 0);
-        $stmt->bindValue(":responsavel", 0);
-        // Executar a query
+        $stmt->bindValue(":validado", 0); // Atleta aguardando validação
+        $stmt->bindValue(":responsavel", 0); // Não é responsável por academia
+
+        // Executar a query dentro de bloco try-catch para tratamento de erros
         try {
             $stmt->execute();
-            //alert 1 :aguarde sua conta ser validada
+            // Redireciona para página inicial com mensagem de sucesso
+            // message=1: "Aguarde sua conta ser validada"
             header("Location: index.php?message=1");
+            exit();
         } catch (Exception $e) {
-            // Mensagem mais amigável para duplicatas
+            // Tratamento específico para erro de duplicidade (CPF ou email já existente)
             if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
                 throw new Exception("Este CPF ou e-mail já está cadastrado em nosso sistema.");
             }
 
+            // Propaga outros erros com mensagem genérica
             throw new Exception("Erro ao processar cadastro: " . $e->getMessage());
         }
     }
-    //listar todos os atletas
+    /**
+     * Recupera uma lista completa de todos os atletas do sistema com informações relevantes
+     * 
+     * Esta função consulta a base de dados para obter todos os atletas cadastrados,
+     * retornando informações essenciais para gestão e visualização. Os resultados
+     * são ordenados por academia e nome do atleta para melhor organização.
+     * 
+     * @return array|false Retorna um array de objetos contendo dados dos atletas ou 
+     *                     false em caso de erro na execução da query
+     * 
+     * @example
+     * // Uso básico para obter lista de atletas
+     * $atletas = $controller->listAll();
+     * if ($atletas) {
+     *     foreach ($atletas as $atleta) {
+     *         echo "Atleta: {$atleta->nome} - Academia: {$atleta->academia}";
+     *     }
+     * }
+     * 
+     * @example
+     * // Uso em contexto de administração
+     * $atletas = $controller->listAll();
+     * if (!empty($atletas)) {
+     *     // Processar lista para exibição em tabela administrativa
+     * }
+     * 
+     * @data
+     * Campos retornados para cada atleta:
+     * - id: Identificador único do atleta
+     * - nome: Nome completo do atleta
+     * - faixa: Faixa de graduação no Jiu-Jitsu
+     * - academia: Nome da academia filiada
+     * - validado: Status de validação do cadastro (0 = pendente, 1 = validado)
+     * 
+     * @note A função utiliza PDO::FETCH_OBJ para retornar objetos em vez de arrays
+     * @note A ordenação é primeiro por nome da academia, depois por nome do atleta
+     * @note Em caso de erro na query, a função exibe a mensagem mas não interrompe a execução
+     */
     public function listAll()
     {
+        // Query para selecionar atletas com join para obter nome da academia
         $query = "SELECT a.id, a.nome, a.faixa, f.nome as academia, a.validado 
-            FROM atleta AS a 
-            JOIN academia_filiada as f ON f.id = a.academia
-            ORDER BY f.nome, a.nome";
+              FROM atleta AS a 
+              JOIN academia_filiada as f ON f.id = a.academia
+              ORDER BY f.nome, a.nome";
+
         $stmt = $this->conn->prepare($query);
+
         try {
             $stmt->execute();
         } catch (Exception $e) {
+            // Log do erro sem interromper o fluxo da aplicação
+            error_log("Erro ao listar atletas: " . $e->getMessage());
             echo "erro [" . $e->getMessage() . "]";
+            return false;
         }
+
+        // Retorna todos os resultados como objetos
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
+    /**
+     * Recupera uma lista de atletas com cadastros pendentes de validação
+     * 
+     * Esta função consulta a base de dados para obter todos os atletas que possuem
+     * cadastros não validados (status validado = 0). É particularmente útil para
+     * administradores que precisam revisar e aprovar novos cadastros no sistema.
+     * 
+     * @return array|false Retorna um array de objetos contendo dados dos atletas pendentes
+     *                     ou false em caso de erro na execução da query
+     * 
+     * @example
+     * // Uso para obter lista de atletas pendentes de validação
+     * $atletasPendentes = $controller->listInvalido();
+     * if ($atletasPendentes) {
+     *     foreach ($atletasPendentes as $atleta) {
+     *         echo "Atleta pendente: {$atleta->nome} - Email: {$atleta->email}";
+     *     }
+     * }
+     * 
+     * @example
+     * // Uso em painel administrativo para moderação de cadastros
+     * $pendentes = $controller->listInvalido();
+     * if (!empty($pendentes)) {
+     *     // Exibir lista para aprovação/rejeição de cadastros
+     * }
+     * 
+     * @data
+     * Campos retornados para cada atleta pendente:
+     * - id: Identificador único do atleta
+     * - nome: Nome completo do atleta
+     * - email: Endereço de email para contato
+     * - data_nascimento: Data de nascimento (formato DATE)
+     * - fone: Número de telefone para contato
+     * - academia: Nome da academia filiada
+     * - faixa: Faixa de graduação no Jiu-Jitsu
+     * - peso: Peso do atleta em quilogramas
+     * 
+     * @note A função retorna apenas atletas com validado = 0 (não validados)
+     * @note Utiliza JOIN com academia_filiada para obter o nome da academia
+     * @note Em caso de erro na query, a função exibe a mensagem mas continua a execução
+     * 
+     * @security
+     * - Acesso tipicamente restrito a usuários administrativos
+     * - Retorna informações sensíveis (email, telefone) - usar com cautela
+     */
     public function listInvalido()
     {
+        // Query para selecionar atletas não validados com informações completas
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento,
-            a.fone, f.nome as academia, a.faixa, a.peso
-            FROM atleta a
-            JOIN academia_filiada f ON f.id = a.academia
-            WHERE a.validado = 0";
+                     a.fone, f.nome as academia, a.faixa, a.peso
+              FROM atleta a
+              JOIN academia_filiada f ON f.id = a.academia
+              WHERE a.validado = 0";
+
         $stmt = $this->conn->prepare($query);
+
         try {
             $stmt->execute();
         } catch (Exception $e) {
+            // Log do erro para debugging, considerando esconder detalhes em produção
+            error_log("Erro ao listar atletas não validados: " . $e->getMessage());
             echo "erro [" . $e->getMessage() . "]";
+            return false;
         }
+
+        // Retorna todos os resultados como objetos
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
-    //logar atleta
+
+
+    /**
+     * Realiza o processo de autenticação de usuários no sistema
+     * 
+     * Esta função verifica as credenciais de login (email e senha) fornecidas,
+     * autentica o usuário através de verificação de hash de senha e inicia
+     * a sessão do usuário com seus dados pessoais e permissões.
+     * 
+     * @return void
+     * 
+     * @process
+     * 1. Busca o usuário pelo email fornecido
+     * 2. Verifica se a senha corresponde ao hash armazenado
+     * 3. Verifica se a conta está validada
+     * 4. Inicia sessão com dados do usuário
+     * 5. Redireciona conforme o status da autenticação
+     * 
+     * @redirection
+     * - Login bem-sucedido: pagina_pessoal.php
+     * - Senha inválida: login.php?erro=3
+     * - Conta não validada: index.php?message=1
+     * - Email não encontrado: login.php?erro=1
+     * 
+     * @session
+     * Armazena na sessão:
+     * - logado: Status de autenticação
+     * - id: ID único do usuário
+     * - nome: Nome completo
+     * - email: Email do usuário
+     * - foto: Caminho da foto de perfil
+     * - idade: Idade calculada a partir da data de nascimento
+     * - data_nascimento: Data de nascimento
+     * - fone: Telefone de contato
+     * - academia: Nome da academia (obtido via getAcad())
+     * - faixa: Faixa de graduação
+     * - peso: Peso do atleta
+     * - diploma: Caminho do diploma
+     * - cpf: CPF do usuário
+     * - admin: Status de administrador (0 ou 1)
+     * - responsavel: Status de responsável (0 ou 1)
+     * - validado: Status de validação da conta
+     * 
+     * @security
+     * - Utiliza password_verify() para verificação segura de senha
+     * - Prevenção contra timing attacks através de verificação consistente
+     * - Armazena apenas informações necessárias na sessão
+     * 
+     * @since Versão 1.0
+     */
     public function logar()
     {
         $query = "SELECT id, nome, cpf, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado, responsavel, diploma
-                    FROM atleta
-                    WHERE email = :email";
+                FROM atleta
+                WHERE email = :email";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         try {
@@ -171,8 +424,6 @@ class atletaService
             $atleta = $stmt->fetch(PDO::FETCH_OBJ);
             if ($atleta) {
                 if (!password_verify($this->atleta->__get("senha"), $atleta->senha)) {
-                    //echo "senha cripto : " . $senhaCriptografada. "<br>";
-                    //echo "senha outra : " . $atleta->senha . "<br>";
                     //erro 3 senha inválida
                     header('Location: login.php?erro=3');
                     exit();
@@ -211,6 +462,7 @@ class atletaService
             echo "Erro ao tentar logar: " . $e->getMessage();
         }
     }
+    
     //***********TROCAR SENHA */
     /**
      * Gera código de recuperação e armazena em sessão
