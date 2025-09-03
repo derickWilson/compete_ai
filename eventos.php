@@ -149,7 +149,8 @@ if (isset($_GET['id'])) {
 
                 <!-- Seção de imagem do evento -->
                 <div class="imagem-container">
-                    <img src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento">
+                    <img src="uploads/<?php echo $eventoDetails->imagen; ?>" alt="Imagem do Evento"
+                        style="max-width: 100%; height: auto; display: block; margin: 0 auto;">
                 </div>
 
                 <!-- Informações básicas do evento -->
