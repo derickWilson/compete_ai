@@ -96,6 +96,324 @@ header nav a:hover {
     padding: 10px 0;
 }
 
+/* Correção de contraste para títulos em fundo escuro */
+.section-title {
+    color: var(--white) !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    position: relative;
+    padding-bottom: 15px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: var(--accent);
+}
+
+/* Melhorias para a galeria e seções de patrocinadores */
+.galeria-carousel {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.patrocinio-container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+/* Estilos para o botão de inscrever-se */
+.botao-inscrever {
+    display: inline-block;
+    background-color: var(--secondary);
+    color: var(--white);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 10px;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.botao-inscrever:hover {
+    background-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ajuste para as imagens menores */
+.evento-imagem img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+/* Ajuste no layout do conteúdo do evento */
+.evento-conteudo {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Ajuste para o grid de eventos */
+.eventos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 25px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto 30px;
+}
+
+/* Estilos para a página de eventos */
+.eventos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto 30px;
+}
+
+.evento-card {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.evento-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.evento-imagem {
+    height: 150px;
+    overflow: hidden;
+}
+
+.evento-imagem img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.evento-card:hover .evento-imagem img {
+    transform: scale(1.05);
+}
+
+.evento-conteudo {
+    padding: 15px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.evento-titulo {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.evento-tipo {
+    display: inline-block;
+    background: var(--primary-light);
+    color: var(--white);
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.evento-normal .evento-tipo {
+    background: var(--accent);
+    color: var(--dark);
+}
+
+.botao-detalhes {
+    display: inline-block;
+    background-color: var(--secondary);
+    color: var(--white);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 10px;
+    transition: var(--transition);
+    text-align: center;
+}
+
+.botao-detalhes:hover {
+    background-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: var(--white);
+}
+
+.botao-voltar {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--primary);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    margin: 20px 0;
+}
+
+.botao-voltar:hover {
+    background-color: var(--primary-light);
+    color: var(--white);
+}
+
+.voltar-container {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.admin-options {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.admin-options a {
+    font-size: 12px;
+    color: var(--primary);
+    text-decoration: none;
+    padding: 4px 8px;
+    background: #f0f4f8;
+    border-radius: 4px;
+    transition: var(--transition);
+}
+
+.admin-options a:hover {
+    background: var(--primary);
+    color: var(--white);
+}
+
+/* Ajustes para a visualização individual de evento */
+.principal {
+    margin: 20px auto;
+    max-width: 1000px;
+    padding: 25px;
+    background: var(--white);
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+}
+
+.imagem-container img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.precos-container {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+.termos {
+    margin: 15px 0;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link:hover {
+    color: var(--primary-light);
+    text-decoration: underline;
+}
+
+/* Melhorias de responsividade */
+@media (max-width: 768px) {
+    .eventos-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+        padding: 10px;
+    }
+
+    .evento-imagem {
+        height: 120px;
+    }
+
+    .admin-options {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .admin-options a {
+        text-align: center;
+    }
+}
+
+/* Estilo para o botão de inscrever/detalhes */
+.botao-inscrever {
+    display: inline-block;
+    background-color: var(--secondary);
+    color: var(--white) !important;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    margin-top: 10px;
+    transition: var(--transition);
+    text-align: center;
+    border: none;
+    cursor: pointer;
+}
+
+.botao-inscrever:hover {
+    background-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    color: var(--white) !important;
+}
+
+/* Se precisar forçar a cor do texto para evitar herança */
+.botao-inscrever,
+.botao-inscrever:link,
+.botao-inscrever:visited,
+.botao-inscrever:hover,
+.botao-inscrever:active {
+    color: var(--white) !important;
+    text-decoration: none;
+}
+
 /* ===== TÍTULOS DE SEÇÃO ===== */
 .section-header {
     text-align: center;
@@ -478,7 +796,12 @@ body {
     line-height: 1.6;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     line-height: 1.3;
     margin-bottom: 0.5em;
 }
@@ -508,7 +831,7 @@ h1, h2, h3, h4, h5, h6 {
     .galeria-wrapper {
         height: 300px;
     }
-    
+
     .eventos-grid {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
@@ -519,31 +842,31 @@ h1, h2, h3, h4, h5, h6 {
         flex-wrap: wrap;
         justify-content: center;
     }
-    
+
     header nav a {
         font-size: 13px;
         padding: 6px 12px;
         margin: 2px;
     }
-    
+
     .galeria-carousel {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .carousel-btn {
         width: 40px;
         height: 40px;
     }
-    
+
     .section-header h2 {
         font-size: 1.4rem;
     }
-    
+
     .evento-card {
         min-height: 250px;
     }
-    
+
     .evento-imagem {
         height: 130px;
     }
@@ -553,34 +876,34 @@ h1, h2, h3, h4, h5, h6 {
     header img.logo {
         max-height: 60px;
     }
-    
+
     .blue {
         font-size: 1.3rem;
         padding: 8px 0;
     }
-    
+
     .galeria-wrapper {
         height: 250px;
     }
-    
+
     .galeria-slide img {
         max-height: 180px;
     }
-    
+
     .eventos-grid {
         grid-template-columns: 1fr;
         gap: 15px;
     }
-    
+
     .patrocinio-container {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .patrocinador {
         max-width: 100%;
     }
-    
+
     footer {
         font-size: 13px;
         padding: 20px 0 10px;
@@ -592,11 +915,11 @@ h1, h2, h3, h4, h5, h6 {
         font-size: 12px;
         padding: 5px 10px;
     }
-    
+
     .section-header h2 {
         font-size: 1.2rem;
     }
-    
+
     .galeria-wrapper {
         height: 220px;
     }
@@ -604,12 +927,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ===== ANIMAÇÕES SUAVES ===== */
 @media (prefers-reduced-motion: no-preference) {
+
     .evento-card,
     .patrocinador,
     .galeria-slide {
         transition: all 0.3s ease;
     }
-    
+
     header nav a {
         transition: all 0.2s ease;
     }
@@ -621,7 +945,7 @@ h1, h2, h3, h4, h5, h6 {
     .evento-imagem {
         background-color: #f8f9fa;
     }
-    
+
     /* Reduzir sombras em mobile para performance */
     .evento-card,
     .galeria-carousel {
@@ -640,11 +964,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ===== SUPORTE PARA DARK MODE ===== */
 @media (prefers-color-scheme: dark) {
+
     .evento-card,
     .galeria-carousel {
         background: #2d3748;
     }
-    
+
     .evento-titulo,
     .galeria-slide p {
         color: #e2e8f0;
@@ -1089,8 +1414,13 @@ footer a:hover {
 }
 
 @keyframes loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 /* ===== VERSÃO DESKTOP ===== */
@@ -1100,28 +1430,28 @@ footer a:hover {
         margin: 25px auto;
         max-width: 1200px;
     }
-    
+
     .info-atleta {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
-    
+
     .card-atleta {
         padding: 20px;
     }
-    
+
     .filtros-container {
         display: flex;
         gap: 15px;
         align-items: center;
     }
-    
+
     .busca-input {
         width: 300px;
         margin-bottom: 0;
         flex: 1;
     }
-    
+
     .filtros-rapidos {
         flex-wrap: nowrap;
     }
@@ -1131,13 +1461,13 @@ footer a:hover {
     .info-atleta {
         grid-template-columns: repeat(4, 1fr);
     }
-    
+
     .btn-ver-mais {
         width: auto;
         margin-top: 0;
         margin-left: auto;
     }
-    
+
     .card-atleta {
         display: flex;
         align-items: center;

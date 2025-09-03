@@ -98,34 +98,45 @@ if (isset($_GET['id'])) {
     <?php include "menu/add_menu.php"; ?>
 
     <?php if ($tudo) { ?>
-        <!-- Lista todos os eventos -->
-        <?php foreach ($list as $valor) { ?>
-            <div class="campeonato <?php echo ($valor->normal) ? 'evento-normal' : ''; ?>">
-                <img src="uploads/<?php echo $valor->imagen; ?>" alt="Imagem" class='mini-banner'>
-                <a href='eventos.php?id=<?php echo $valor->id ?>' class='clear'>
-                    <h2>
-                        <?php echo htmlspecialchars($valor->nome); ?>
-                        <?php if ($normal = $eventoDetails->normal ?? false) { ?>
-                            <span class="badge-normal">(Evento Normal)</span>
-                        <?php } ?>
-                    </h2>
-                </a>
+        <div class="container">
+            <h2 class="section-title" style="color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Todos os Eventos</h2>
 
-                <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
-                    | <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
-                    | <a href='admin/editar_evento.php?id=<?php echo $valor->id ?>'>Editar Evento</a>
-                    <div class="chapa-options">
-                        Gerar Chapas:
-                        <a href='admin/baixar_chapa.php?id=<?php echo $valor->id ?>'>CSV</a> |
+            <div class="eventos-grid">
+                <!-- Lista todos os eventos -->
+                <?php foreach ($list as $valor) { ?>
+                    <div class="evento-card <?php echo ($valor->normal) ? 'evento-normal' : ''; ?>">
+                        <div class="evento-imagem">
+                            <img src="uploads/<?php echo $valor->imagen; ?>"
+                                alt="<?php echo htmlspecialchars($valor->nome); ?>">
+                        </div>
+                        <div class="evento-conteudo">
+                            <h3 class="evento-titulo"><?php echo htmlspecialchars($valor->nome); ?></h3>
+                            <span class="evento-tipo">
+                                <?php echo ($valor->normal) ? 'Evento Normal' : 'Campeonato'; ?>
+                            </span>
+
+                            <a href='eventos.php?id=<?php echo $valor->id ?>' class="botao-inscrever">
+                                <i class="fas fa-info-circle"></i> Ver Detalhes
+                            </a>
+
+                            <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
+                                <div class="admin-options">
+                                    <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
+                                    <a href='admin/editar_evento.php?id=<?php echo $valor->id ?>'>Editar</a>
+                                    <a href='admin/baixar_chapa.php?id=<?php echo $valor->id ?>'>CSV</a>
+                                </div>
+                            <?php } ?>
+                        </div>
                     </div>
                 <?php } ?>
-
-                <br class='clear'>
             </div>
-        <?php } ?>
 
-        <br><a href="index.php">Voltar</a>
-
+            <div class="voltar-container">
+                <a href="index.php" class="botao-voltar">
+                    <i class="fas fa-arrow-left"></i> Voltar para a Página Inicial
+                </a>
+            </div>
+        </div>
     <?php } else { ?>
         <!-- Detalhes de um único evento -->
         <?php if (isset($eventoDetails)) { ?>
