@@ -47,7 +47,7 @@ try {
         }
 
         .page-title {
-            color: #1e3c64;
+            color: var(--primary-dark);
             margin-bottom: 20px;
             text-align: center;
         }
@@ -55,6 +55,9 @@ try {
         .table-responsive {
             overflow-x: auto;
             margin-bottom: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            background: var(--white);
         }
 
         .inscricoes-table {
@@ -63,15 +66,20 @@ try {
         }
 
         .inscricoes-table th {
-            background-color: #1e3c64;
-            color: white;
+            background-color: var(--primary-dark);
+            color: var(--white);
             padding: 12px;
             text-align: left;
+            font-weight: 600;
         }
 
         .inscricoes-table td {
             padding: 10px;
             border-bottom: 1px solid #e0e0e0;
+        }
+
+        .inscricoes-table tr:hover {
+            background-color: #f8f9fa;
         }
 
         .status {
@@ -82,11 +90,15 @@ try {
         }
 
         .status-pago {
-            color: #28a745;
+            color: var(--success);
         }
 
         .status-pendente {
-            color: #ffc107;
+            color: var(--warning);
+        }
+
+        .status-erro {
+            color: var(--danger);
         }
 
         .text-center {
@@ -100,21 +112,93 @@ try {
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            font-size: 14px;
+            transition: var(--transition);
+            margin: 2px;
         }
 
         .btn-pagar {
-            background-color: #28a745;
+            background-color: var(--success);
             color: white;
+        }
+
+        .btn-pagar:hover {
+            background-color: #218838;
         }
 
         .btn-visualizar {
-            background-color: #17a2b8;
+            background-color: var(--primary);
             color: white;
         }
 
+        .btn-visualizar:hover {
+            background-color: var(--primary-dark);
+        }
+
         .btn-editar {
-            background-color: #ffc107;
-            color: #212529;
+            background-color: var(--accent);
+            color: var(--dark);
+        }
+
+        .btn-editar:hover {
+            background-color: #d4a017;
+        }
+
+        .valor-pago {
+            display: block;
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 4px;
+        }
+
+        /* Responsividade para a tabela */
+        @media (max-width: 992px) {
+            .inscricoes-table {
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                margin: 0 -15px;
+                border-radius: 0;
+            }
+
+            .inscricoes-table th,
+            .inscricoes-table td {
+                padding: 8px 6px;
+                font-size: 13px;
+            }
+
+            .inscricoes-table th:nth-child(n+6),
+            .inscricoes-table td:nth-child(n+6) {
+                display: none;
+            }
+
+            .btn {
+                display: block;
+                margin-bottom: 5px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+
+            .inscricoes-table th:nth-child(3),
+            .inscricoes-table td:nth-child(3),
+            .inscricoes-table th:nth-child(4),
+            .inscricoes-table td:nth-child(4) {
+                display: none;
+            }
+
+            .container {
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -126,25 +210,25 @@ try {
         <h1 class="page-title">Meus Campeonatos Inscritos</h1>
 
         <?php if (isset($_SESSION['sucesso'])): ?>
-            <div class="alert alert-success">
+            <div class="alert-message success">
                 <i class="fas fa-check-circle"></i> <?= htmlspecialchars($_SESSION['sucesso']); ?>
                 <?php unset($_SESSION['sucesso']); ?>
             </div>
         <?php endif; ?>
 
         <?php if (isset($_SESSION['erro'])): ?>
-            <div class="alert alert-error">
+            <div class="alert-message error">
                 <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($_SESSION['erro']); ?>
                 <?php unset($_SESSION['erro']); ?>
             </div>
         <?php elseif ($erro): ?>
-            <div class="alert alert-error">
+            <div class="alert-message error">
                 <i class="fas fa-exclamation-circle"></i> <?= htmlspecialchars($erro); ?>
             </div>
         <?php endif; ?>
 
         <?php if (empty($inscritos)): ?>
-            <div class="alert alert-info">
+            <div class="alert-message info">
                 <i class="fas fa-info-circle"></i> Você não está inscrito em nenhum campeonato no momento.
             </div>
         <?php else: ?>
@@ -230,7 +314,8 @@ try {
                                             <i class="fas fa-money-bill-wave"></i> Pagar
                                         </a>
                                     <?php endif; ?>
-                                    <a href="inscricao.php?inscricao=<?= (int) ($inscrito->idC ?? 0); ?>" class="btn btn-editar">
+                                    <a href="inscricao.php?inscricao=<?= (int) ($inscrito->idC ?? 0); ?>"
+                                        class="btn btn-editar">
                                         <i class="fas fa-edit"></i> Editar
                                     </a>
                                 </td>
