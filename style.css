@@ -90,6 +90,11 @@ header nav a:hover {
     transform: translateY(-2px);
 }
 
+.logo{
+    width: 200px;
+    height: 200px;
+}
+
 .blue {
     font-size: 35px;
     color: var(--white);
