@@ -123,7 +123,7 @@ if (isset($_GET['id'])) {
                                 <div class="admin-options">
                                     <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
                                     <a href='admin/editar_evento.php?id=<?php echo $valor->id ?>'>Editar</a>
-                                    <a href='admin/baixar_chapa.php?id=<?php echo $valor->id ?>'>CSV</a>
+                                    <a href='admin/baixar_chapa.php?id=<?php echo $valor->id ?>'>Gerar chapa PDF</a>
                                 </div>
                             <?php } ?>
                         </div>
@@ -154,10 +154,24 @@ if (isset($_GET['id'])) {
                 </div>
 
                 <!-- Informações básicas do evento -->
-                <p>Descrição: <?php echo htmlspecialchars($eventoDetails->descricao); ?></p>
-                <p>Data: <?php echo htmlspecialchars($eventoDetails->data_evento); ?></p>
-                <p>Local: <?php echo htmlspecialchars($eventoDetails->local_camp); ?></p>
+                <div class="info-evento-simples">
+                    <h3>Informações do Evento</h3>
 
+                    <div class="info-linha">
+                        <strong>📅 Data:</strong>
+                        <span><?php echo date('d/m/Y', strtotime($eventoDetails->data_evento)); ?></span>
+                    </div>
+
+                    <div class="info-linha">
+                        <strong>📍 Local:</strong>
+                        <span><?php echo htmlspecialchars($eventoDetails->local_camp); ?></span>
+                    </div>
+
+                    <div class="info-linha">
+                        <strong>📝 Descrição:<br></strong>
+                        <span><?php echo htmlspecialchars($eventoDetails->descricao); ?></span>
+                    </div>
+                </div>
                 <!-- Seção de preços -->
                 <div class="precos-container">
                     <h3>Valores</h3>
@@ -267,7 +281,7 @@ if (isset($_GET['id'])) {
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     <div class="chapa-options">
                         <h3>Opções de Administrador</h3>
-                        <a href='admin/baixar_chapa.php?id=<?php echo $eventoId ?>'>Baixar Chapas (CSV)</a> |
+                        <a href='admin/baixar_chapa.php?id=<?php echo $eventoId ?>'>Baixar Chapas (PDF)</a> |
                     </div>
                 <?php } ?>
 
