@@ -141,14 +141,18 @@
         align-items: center;
         justify-content: center;
         gap: 20px;
+        min-height: 450px;
     }
 
     .galeria-wrapper {
         width: 100%;
         overflow: hidden;
         position: relative;
-        height: 400px;
+        min-height: 400px;
         border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .galeria-slide {
@@ -167,11 +171,15 @@
     }
 
     .galeria-slide img {
-        width: 100%;
-        max-height: 300px;
-        object-fit: cover;
+        width: auto;
+        max-width: 100%;
+        max-height: 350px;
+        height: auto;
+        object-fit: contain;
         border-radius: 8px;
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        margin: 0 auto;
+        display: block;
     }
 
     .galeria-slide p {
