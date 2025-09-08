@@ -327,10 +327,14 @@
     }
 
     .evento-imagem {
-        height: 150px;
+        height: 180px;
+        /* Aumentei um pouco a altura */
         overflow: hidden;
         position: relative;
         background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .evento-imagem:before {
@@ -341,13 +345,19 @@
         left: 50%;
         transform: translate(-50%, -50%);
         opacity: 0.2;
+        z-index: 1;
     }
 
     .evento-imagem img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        width: auto;
+        max-width: 100%;
+        max-height: 100%;
+        height: auto;
+        object-fit: contain;
+        /* Mudado de cover para contain */
         transition: transform 0.5s ease;
+        position: relative;
+        z-index: 2;
     }
 
     .evento-card:hover .evento-imagem img {
@@ -477,20 +487,27 @@
         box-shadow: var(--box-shadow);
     }
 
+    /* Na seção de imagem do evento individual */
     .imagem-container {
         text-align: center;
         margin: 20px 0;
         max-width: 100%;
         overflow: hidden;
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
     }
 
     .imagem-container img {
         max-width: 100%;
-        height: auto;
         max-height: 500px;
+        height: auto;
+        width: auto;
         object-fit: contain;
         border-radius: 8px;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+        display: block;
     }
 
     .precos-container {
