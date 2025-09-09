@@ -1,10 +1,10 @@
     /* ===== VARIÁVEIS GLOBAIS ===== */
     :root {
-        --primary-dark: #1a365d;
-        --primary: #2a4d8e;
+        --primary-dark: #2520a0;
+        --primary: #322ec0;
+        --primary-light: #4a45d9;
         /* nova possivel cor #2e3192 */
         /* cor velha #2a4d8e */
-        --primary-light: #3b69c9;
         --secondary: #d14141;
         --accent: #e9b949;
         --light: #f8f9fa;
@@ -43,7 +43,7 @@
 
     /* ===== HEADER E NAVEGAÇÃO ===== */
     header {
-        background: rgba(26, 54, 93, 0.95);
+        background: rgba(37, 32, 160, 0.95);
         backdrop-filter: blur(10px);
         padding: 15px 0;
         box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
@@ -99,11 +99,39 @@
         object-fit: contain;
     }
 
+    .logos-mini-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
+
+    .logo-mini,
+    .logo-lateral {
+        max-height: 60px;
+        width: auto;
+        margin-bottom: 10px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .logo-mini {
+        margin-right: 0;
+        /* Remove espaço à direita */
+    }
+
+    .logo-lateral {
+        margin-left: 0;
+        /* Remove espaço à esquerda */
+    }
+
     .blue {
         font-size: 35px;
         color: var(--white);
         background-color: transparent;
-        padding: 10px 0;
+        padding: -30px 0;
     }
 
     /* ===== TÍTULOS E SEÇÕES ===== */

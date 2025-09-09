@@ -1,7 +1,12 @@
 <header>
     <div class="center-content">
-        <h2 class='blue'>Federação Paulista De Jiu-Jitsu Internacional</h2>
-        <img src="/estilos/banner1.png" class="logo" alt="FPJJI - Federação Paulista de Jiu-Jitsu Internacional">
+        <div class="logos-mini-container">
+            <img src="/estilos/banner1.png" class="logo-mini">
+            <img src="/estilos/banner11.png" class="logo-lateral">
+        </div>
+        <h2 class='blue'>Federação Paulista</h2>
+        <img src="/estilos/banner11.png" class="logo" alt="FPJJI - Federação Paulista de Jiu-Jitsu Internacional">
+        <h2 class='blue'>Jiu-Jitsu Internacional</h2>
     </div>
     <nav>
         <a href="/index.php">Home</a>
