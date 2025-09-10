@@ -47,9 +47,10 @@ try {
         }
 
         .page-title {
-            color: var(--primary-dark);
+            color: var(--white) !important;
             margin-bottom: 20px;
             text-align: center;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
         .table-responsive {
@@ -175,8 +176,20 @@ try {
                 font-size: 13px;
             }
 
-            .inscricoes-table th:nth-child(n+6),
-            .inscricoes-table td:nth-child(n+6) {
+            /* Mostra apenas colunas essenciais em mobile */
+            .inscricoes-table th:nth-child(1),
+            .inscricoes-table td:nth-child(1),
+            .inscricoes-table th:nth-child(2),
+            .inscricoes-table td:nth-child(2),
+            .inscricoes-table th:nth-child(10),
+            .inscricoes-table td:nth-child(10),
+            .inscricoes-table th:nth-child(11),
+            .inscricoes-table td:nth-child(11) {
+                display: table-cell;
+            }
+
+            .inscricoes-table th:nth-child(n+3):nth-child(-n+9),
+            .inscricoes-table td:nth-child(n+3):nth-child(-n+9) {
                 display: none;
             }
 
@@ -184,20 +197,8 @@ try {
                 display: block;
                 margin-bottom: 5px;
                 text-align: center;
-            }
-        }
-
-        @media (max-width: 576px) {
-
-            .inscricoes-table th:nth-child(3),
-            .inscricoes-table td:nth-child(3),
-            .inscricoes-table th:nth-child(4),
-            .inscricoes-table td:nth-child(4) {
-                display: none;
-            }
-
-            .container {
-                padding: 10px;
+                font-size: 12px;
+                padding: 4px 8px;
             }
         }
     </style>
@@ -255,7 +256,7 @@ try {
                                 continue;
 
                             $statusPagamento = $inscrito->status_pagamento ?? 'PENDENTE';
-                            $cobrancaId = $inscrito->id_cobranca_asaas ?? null;
+                            $cobrancaId = $inscrito->assas ?? null;
                             $valorPago = isset($inscrito->valor_pago) ? 'R$ ' . number_format($inscrito->valor_pago, 2, ',', '.') : '--';
 
                             if ($cobrancaId) {

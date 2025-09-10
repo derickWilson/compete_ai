@@ -462,7 +462,7 @@ class atletaService
             echo "Erro ao tentar logar: " . $e->getMessage();
         }
     }
-    
+
     //***********TROCAR SENHA */
     /**
      * Gera código de recuperação e armazena em sessão
@@ -613,18 +613,7 @@ class atletaService
 
         try {
             $stmt->execute();
-
-            // // Debug: Verificar se retornou resultados
-            // $rowCount = $stmt->rowCount();
-            // error_log("Total de registros encontrados: " . $rowCount);
-
             $result = $stmt->fetchAll(PDO::FETCH_OBJ);
-
-            // // Debug: Verificar estrutura dos dados
-            // if (!empty($result)) {
-            //     error_log("Primeiro registro: " . print_r($result[0], true));
-            // }
-
             return $result ?: []; // Retorna array vazio se não houver resultados
 
         } catch (PDOException $e) {
@@ -636,7 +625,7 @@ class atletaService
     //editar atleta
     public function updateAtleta()
     {
-        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, peso = :peso, 
+        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, peso = :peso
                 WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
@@ -801,10 +790,23 @@ class atletaService
                         return $ar->id;
                     }, $lista);
                     if (count($idsAtletas) > 0) {
-                        $idsStr = implode(",", $idsAtletas);
-                        $queryDeleteAtletas = "DELETE FROM atleta WHERE id IN ($idsStr)";
-                        $stmtDelete = $this->conn->prepare($queryDeleteAtletas);
-                        $stmtDelete->execute();
+                        // Se não houver IDs, não executa
+                        if (count($idsAtletas) > 0) {
+                            // Cria um placeholder para cada ID (ex: ":id0, :id1, :id2")
+                            $placeholders = implode(',', array_map(function ($index) {
+                                return ':id' . $index;
+                            }, array_keys($idsAtletas)));
+
+                            $queryDeleteAtletas = "DELETE FROM atleta WHERE id IN ($placeholders)";
+                            $stmtDelete = $this->conn->prepare($queryDeleteAtletas);
+
+                            // Faz o bind de cada valor
+                            foreach ($idsAtletas as $index => $id) {
+                                $stmtDelete->bindValue(':id' . $index, $id, PDO::PARAM_INT);
+                            }
+
+                            $stmtDelete->execute();
+                        }
 
                         // Remover diploma e foto de todos os atletas
                         foreach ($lista as $ar) {
