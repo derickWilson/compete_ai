@@ -148,7 +148,7 @@ class eventosService
         $query = "SELECT e.nome AS evento, e.id AS ide, a.nome AS inscrito, a.data_nascimento, a.id,
                 a.faixa, a.peso, f.nome as academia, f.id as idAcademia,
                 i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem, i.modalidade as modalidade,
-                i.status_pagamento, i.id_cobranca_asaas, i.valor_pago
+                i.status_pagamento, i.id_cobranca_asaas, i.valor_pago, a.email
                 FROM evento e
                 JOIN inscricao i ON i.id_evento = e.id
                 JOIN atleta a ON a.id = i.id_atleta

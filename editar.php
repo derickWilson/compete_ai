@@ -10,8 +10,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $attServ = new atletaService($con, $at);
 
     $atleta = $attServ->getById($_SESSION["id"]);
+    $telefone_novo = '+'.preg_replace('/[^0-9]/', '', $_POST["ddd"]).preg_replace('/[^0-9]/', '', $_POST["fone"]);
 
-    $diploma_antigo = $atleta->diploma;
     $foto_antiga = $atleta->foto;
     //tratar foto nova
     if (isset($_FILES['foto_nova']) && $_FILES['foto_nova']['error'] === UPLOAD_ERR_OK) {
@@ -39,10 +39,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }else{
         $fotoNova = $foto_antiga;
     }
+    $email_permissao = isset($_POST["permissao_email"]) ? 1 : 0;
     // Sanitiza e define os valores
     $at->__set("id", cleanWords($_SESSION["id"]));
     $at->__set("email", cleanWords($_POST["email"]));
-    $at->__set("fone", cleanWords($_POST["fone"]));
+    $at->__set("fone", $telefone_novo);
+    $at->__set("permissao_email", $email_permissao);
     $at->__set("foto", $fotoNova);
     $at->__set("peso", cleanWords($_POST["peso"]));
     

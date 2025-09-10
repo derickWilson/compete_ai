@@ -16,6 +16,7 @@ class Atleta {
     private $validado;
     private $responsavel;
     private $adm;
+    private $permissao_email;
 
     // Getters and setters for all properties
     public function __get($atributo) {

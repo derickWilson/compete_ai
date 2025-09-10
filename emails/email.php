@@ -1,71 +1,77 @@
 <?php
-function envia_notificacao_para($nome_ev, $id_atleta, $tipo, $dias)
+function obter_mensagem_base($nome_ev, $id_atleta, $tipo, $dias)
 {
-    //incluir dependencias
     require_once __DIR__ . "/../classes/atletaService.php";
     $con = new Conexao();
     $atleta = new Atleta();
     $atr = new atletaService($con, $atleta);
     $at = $atr->getById($id_atleta);
-    //para cada tipo
+    
+    if (!$at) {
+        return ''; // Retorna vazio se atleta não for encontrado
+    }
+
+    $msg = '';
+    
     switch ($tipo) {
-        case "camp":
+        case "campeonato_lembrete":
+            $dias_texto = $dias == 1 ? "<strong>Amanhã</strong>" : "em <strong>$dias dias</strong>";
+            
             $msg = '
-            <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FPJJI - Federação Paulista de Jiu-Jitsu Internacional</title>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Federação Paulista de Jiu-Jitsu Internacional</h1>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f9f9f9;">
+    <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 5px;">
+        <div style="background-color: #2520a0; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0;">
+            <h1 style="margin: 0; font-size: 24px;">Federação Paulista de Jiu-Jitsu Internacional</h1>
         </div>
         
-        <div class="content">
-            <h2>Memorando de Campeonato</h2>
+        <div style="padding: 25px;">
+            <h2 style="color: #2520a0; font-size: 20px; margin-bottom: 15px; border-bottom: 2px solid #e9b949; padding-bottom: 5px;">Memorando de Campeonato</h2>
             
-            <p>Olá <strong>' . $at->nome . '</strong>,</p>
+            <p style="margin-bottom: 15px;">Olá <strong style="color: #2520a0;">' . $at->nome . '</strong>,</p>
             
-            <div class="info-box">
-                <p>Este é um lembrete importante sobre o evento' . $nome_ev . '<br>
-                que ocorrerá ' . $dias == 1? "<strong>Amanhã</strong><br>
-                
-            <div>
-                <h3>📋 Checklist de Preparação:</h3>
-                <ul>
-                    <li>✅ Confirme sua categoria de peso e faixa</li>
-                    <li>✅ Verifique o local e horário do evento</li>
-                    <li>✅ Separe seu kimono e equipamentos necessários</li>
-                    <li>✅ Leve documento de identificação com foto</li>
-                    <li>✅ Chegue com pelo menos 1 hora de antecedência</li>
-                    <li>✅ Hidrate-se adequadamente antes da competição</li>
+            <div style="background-color: #e8eaf6; border-left: 4px solid #2520a0; padding: 15px; margin: 20px 0;">
+                <p style="margin: 0; font-size: 16px;">
+                    Este é um lembrete importante sobre o evento <strong style="color: #2520a0;">' . $nome_ev . '</strong> que ocorrerá ' . $dias_texto . '.
+                </p>
+            </div>
+            
+            <div style="background-color: #f8f9fa; border-radius: 8px; padding: 15px; margin: 20px 0; border: 1px solid #e0e0e0;">
+                <h3 style="color: #2520a0; margin-top: 0; margin-bottom: 12px; font-size: 18px;">📋 Checklist de Preparação:</h3>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li style="margin-bottom: 8px; color: #2d3748;">✅ Confirme sua categoria de peso e faixa</li>
+                    <li style="margin-bottom: 8px; color: #2d3748;">✅ Verifique o local e horário do evento</li>
+                    <li style="margin-bottom: 8px; color: #2d3748;">✅ Separe seu kimono e equipamentos necessários</li>
+                    <li style="margin-bottom: 8px; color: #2d3748;">✅ Leve documento de identificação com foto</li>
+                    <li style="margin-bottom: 8px; color: #2d3748;">✅ Chegue com pelo menos 1 hora de antecedência</li>
+                    <li style="margin-bottom: 8px; color: #2d3748;">✅ Hidrate-se adequadamente antes da competição</li>
                 </ul>
             </div>
-                ":'em <strong>'.$dias.'</strong> dias.</p>
-            </div>
             
-            <p>Estamos ansiosos para tê-lo conosco neste grande evento de Jiu-Jitsu. Para garantir que tudo corra bem, pedimos que verifique as informações importantes abaixo:</p>
+            <p style="margin-bottom: 15px;">Para mais informações sobre regulamento, tabela de pesagem ou qualquer dúvida, acesse nosso sistema ou entre em contato conosco.</p>
             
-            <p>Para mais informações sobre regulamento, tabela de pesagem ou qualquer dúvida, acesse nosso sistema ou entre em contato conosco.</p>
+            <p style="margin-bottom: 15px;">Desejamos a você uma excelente competição!</p>
             
-            <p>Desejamos a você uma excelente competição!</p>
-            
-            <p>Atenciosamente,<br>
-            <strong>Equipe FPJJI - Federação Paulista de Jiu-Jitsu Internacional</strong></p>
+            <p style="margin-bottom: 5px;">Atenciosamente,</p>
+            <p style="margin: 0; font-weight: bold; color: #2520a0;">Equipe FPJJI - Federação Paulista de Jiu-Jitsu Internacional</p>
         </div>
         
-        <div class="footer">
-            <p><em>Esta é uma mensagem automática, por favor não responda este e-mail.</em></p>            
-            <p>© ' . date('Y') . ' FPJJI - Federação Paulista de Jiu-Jitsu Internacional. Todos os direitos reservados.</p>
-            <p>Caso não queira receber mais estas comunicações, <a href="#">clique aqui</a>.</p>
+        <div style="background-color: #f5f5f5; padding: 15px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 5px 5px;">
+            <p style="margin: 0 0 10px 0; font-style: italic;">Esta é uma mensagem automática, por favor não responda este e-mail.</p>            
+            <p style="margin: 0 0 10px 0;">© ' . date('Y') . ' FPJJI - Federação Paulista de Jiu-Jitsu Internacional. Todos os direitos reservados.</p>
         </div>
     </div>
 </body>
 </html>';
             break;
     }
+
+    return $msg;
 }
 ?>

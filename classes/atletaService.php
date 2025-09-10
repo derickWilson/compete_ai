@@ -548,7 +548,7 @@ class atletaService
     public function getById($id)
     {
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto, a.academia as acadid,
-                    a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel
+                    a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel, a.permissao_email
                     FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":id", $id);
@@ -625,10 +625,11 @@ class atletaService
     //editar atleta
     public function updateAtleta()
     {
-        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, peso = :peso
+        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, peso = :peso, permissao_email = :permissao_email
                 WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
+        $stmt->bindValue(":permissao_email", $this->atleta->__get("permissao_email"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
         $stmt->bindValue(":foto", $this->atleta->__get("foto"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
