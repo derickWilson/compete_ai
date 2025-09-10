@@ -11,36 +11,60 @@ function envia_notificacao_para($nome_ev, $id_atleta, $tipo, $dias)
     switch ($tipo) {
         case "camp":
             $msg = '
-            <html lang="pt">
-            <head>
-            <meta charset="UTF-8">
+            <!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FPJJI - Federação Paulista de Jiu-Jitsu Intenacionaç</title>
-    <link rel="stylesheet" href="/style.css">
-    <!-- Adicionando ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>FPJJI - Federação Paulista de Jiu-Jitsu Internacional</title>
 </head>
 <body>
-                <div class="center-content">
-        <div class="logos-mini-container">
-            <img src="/estilos/banner1.png" class="logo-mini">
-            <img src="/estilos/banner11.png" class="logo-lateral">
+    <div class="container">
+        <div class="header">
+            <h1>Federação Paulista de Jiu-Jitsu Internacional</h1>
         </div>
-        <h2 class="blue">Federação Paulista Jiu-Jitsu Internacional</h2>
-        <img src="/estilos/banner11.png" class="logo">
-        <h2 class="blue">Jiu-Jitsu Internacional</h2>
+        
+        <div class="content">
+            <h2>Memorando de Campeonato</h2>
+            
+            <p>Olá <strong>' . $at->nome . '</strong>,</p>
+            
+            <div class="info-box">
+                <p>Este é um lembrete importante sobre o evento' . $nome_ev . '<br>
+                que ocorrerá ' . $dias == 1? "<strong>Amanhã</strong><br>
+                
+            <div>
+                <h3>📋 Checklist de Preparação:</h3>
+                <ul>
+                    <li>✅ Confirme sua categoria de peso e faixa</li>
+                    <li>✅ Verifique o local e horário do evento</li>
+                    <li>✅ Separe seu kimono e equipamentos necessários</li>
+                    <li>✅ Leve documento de identificação com foto</li>
+                    <li>✅ Chegue com pelo menos 1 hora de antecedência</li>
+                    <li>✅ Hidrate-se adequadamente antes da competição</li>
+                </ul>
+            </div>
+                ":'em <strong>'.$dias.'</strong> dias.</p>
+            </div>
+            
+            <p>Estamos ansiosos para tê-lo conosco neste grande evento de Jiu-Jitsu. Para garantir que tudo corra bem, pedimos que verifique as informações importantes abaixo:</p>
+            
+            <p>Para mais informações sobre regulamento, tabela de pesagem ou qualquer dúvida, acesse nosso sistema ou entre em contato conosco.</p>
+            
+            <p>Desejamos a você uma excelente competição!</p>
+            
+            <p>Atenciosamente,<br>
+            <strong>Equipe FPJJI - Federação Paulista de Jiu-Jitsu Internacional</strong></p>
+        </div>
+        
+        <div class="footer">
+            <p><em>Esta é uma mensagem automática, por favor não responda este e-mail.</em></p>            
+            <p>© ' . date('Y') . ' FPJJI - Federação Paulista de Jiu-Jitsu Internacional. Todos os direitos reservados.</p>
+            <p>Caso não queira receber mais estas comunicações, <a href="#">clique aqui</a>.</p>
+        </div>
     </div>
-
-    <h2>Memorando de campeonato<h2/>
-    Olá <strong>' . $at->nome . '</strong><br>
-    <div>
-    Este é um memorando de que o evento '.$nome_ev.' ocorrerá em
-    <p></p>
-    </div>
-    
-    <p><em>Esta é uma mensagem automática, por favor não responda este e-mail.</em></p>
-</body>    
-            ';
+</body>
+</html>';
             break;
     }
 }
