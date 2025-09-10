@@ -5,8 +5,8 @@ CREATE DATABASE IF NOT EXISTS usuario;
         id INT NOT NULL AUTO_INCREMENT,
         nome VARCHAR(100) NOT NULL,
         cep VARCHAR(20) NOT NULL,
-        estado VARCHAR (2) NOT NULL,
-        cidade VARCHAR (50) NOT NULL,
+        estado VARCHAR(2) NOT NULL,
+        cidade VARCHAR(50) NOT NULL,
         responsavel INT,
         PRIMARY KEY (id)
         );
@@ -17,7 +17,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         cpf VARCHAR(19),
         foto VARCHAR(30) NOT NULL,
         senha VARCHAR(100) NOT NULL,
-        email VARCHAR (100) NOT NULL,
+        email VARCHAR(100) NOT NULL,
         data_nascimento DATE NOT NULL,
         fone VARCHAR(15) NOT NULL,
         academia INT,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS evento(
     preco FLOAT(5,2),
     preco_menor FLOAT(5,2),
     preco_abs FLOAT(5,2),
-    doc VARCHAR (20),
+    doc VARCHAR(20),
     normal BOOLEAN DEFAULT 0,
     normal_preco FLOAT(5,2) DEFAULT 0.00,
     PRIMARY KEY (id)

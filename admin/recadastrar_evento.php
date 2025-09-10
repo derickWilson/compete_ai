@@ -60,15 +60,15 @@ $dadosEvento = [
 if (isset($_FILES['imagen_nova']) && $_FILES['imagen_nova']['error'] === UPLOAD_ERR_OK) {
     $imagen = $_FILES['imagen_nova'];
     $extensao = strtolower(pathinfo($imagen['name'], PATHINFO_EXTENSION));
-    
+
     if (in_array($extensao, ['jpg', 'jpeg', 'png'])) {
         $novoNome = 'img_' . time() . '.' . $extensao;
         $caminhoDestino = __DIR__ . "/../uploads/" . $novoNome;
-        
+
         if (!empty($dadosEvento['img']) && file_exists(__DIR__ . "/../uploads/" . $dadosEvento['img'])) {
             unlink(__DIR__ . "/../uploads/" . $dadosEvento['img']);
         }
-        
+
         if (move_uploaded_file($imagen['tmp_name'], $caminhoDestino)) {
             $dadosEvento['img'] = $novoNome;
         } else {
@@ -87,19 +87,19 @@ if (isset($_FILES['imagen_nova']) && $_FILES['imagen_nova']['error'] === UPLOAD_
 if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
     $doc = $_FILES['nDoc'];
     $extensao = strtolower(pathinfo($doc['name'], PATHINFO_EXTENSION));
-    
+
     if ($extensao === 'pdf') {
         $novoNome = 'doc_' . time() . '.pdf';
         $caminhoDestino = __DIR__ . "/../docs/" . $novoNome;
-        
+
         if (!file_exists(__DIR__ . "/../docs")) {
             mkdir(__DIR__ . "/../docs", 0755, true);
         }
-        
+
         if (!empty($dadosEvento['doc']) && file_exists(__DIR__ . "/../docs/" . $dadosEvento['doc'])) {
             unlink(__DIR__ . "/../docs/" . $dadosEvento['doc']);
         }
-        
+
         if (move_uploaded_file($doc['tmp_name'], $caminhoDestino)) {
             $dadosEvento['doc'] = $novoNome;
         } else {
@@ -155,6 +155,9 @@ if (isset($_POST['normal_preco']) && is_numeric($_POST['normal_preco'])) {
     $dadosEvento['normal_preco'] = (float) str_replace(',', '.', cleanWords($_POST['normal_preco']));
 }
 
+// Verifica se a data limite foi alterada
+$dataLimiteAlterada = ($dadosEvento['data_limite'] != $eventoAntigo->data_limite);
+
 // Verifica se algum preço foi alterado
 $precoAlterado = (
     $dadosEvento['preco'] != $eventoAntigo->preco ||
@@ -171,30 +174,39 @@ try {
     
     $resultado = $eventoService->editEvento();
     
-    if ($resultado && $precoAlterado) {
+    if ($resultado && ($precoAlterado || $dataLimiteAlterada)) {
         // Busca todas as inscrições com cobranças pendentes
         $inscricoes = $eventoService->getInscritos($id);
         
         foreach ($inscricoes as $inscricao) {
             if ($inscricao->status_pagamento === 'PENDING' && !empty($inscricao->id_cobranca_asaas)) {
                 try {
-                    // Determinar o novo valor conforme a modalidade
-                    $novoValor = calcularNovoValor($inscricao, $dadosEvento);
+                    $dadosAtualizacao = [];
                     
-                    // Atualiza a cobrança no Asaas
-                    $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
-                        'billingType' => 'PIX',
-                        'value' => $novoValor,
-                        'dueDate' => $dadosEvento['data_limite'],
-                        'description' => "Inscrição: " . $dadosEvento['nome'] . " (" . $inscricao->modalidade . ")"
-                    ]);
+                    // Se o preço foi alterado, calcular novo valor
+                    if ($precoAlterado) {
+                        $novoValor = calcularNovoValor($inscricao, $dadosEvento);
+                        $dadosAtualizacao['value'] = $novoValor;
+                        
+                        // Atualiza o valor no banco de dados
+                        $eventoService->atualizarValorInscricao(
+                            $inscricao->id, 
+                            $inscricao->ide, 
+                            $novoValor
+                        );
+                    }
                     
-                    // Atualiza o valor no banco de dados
-                    $eventoService->atualizarValorInscricao(
-                        $inscricao->id_atleta, 
-                        $inscricao->id_evento, 
-                        $novoValor
-                    );
+                    // Se a data limite foi alterada, atualizar data de vencimento
+                    if ($dataLimiteAlterada) {
+                        // CALCULAR NOVA DATA DE VENCIMENTO (1 DIA ANTES DA NOVA DATA LIMITE)
+                        $novaDataLimite = new DateTime($dadosEvento['data_limite']);
+                        $novaDataVencimento = $novaDataLimite->modify('-1 day')->format('Y-m-d');
+                        
+                        $dadosAtualizacao['dueDate'] = $novaDataVencimento;
+                    }
+                    
+                    // ATUALIZAR COBRANÇA NO ASAAS (mesmo que só a data tenha mudado)
+                    $assasService->editarCobranca($inscricao->id_cobranca_asaas, $dadosAtualizacao);
                     
                 } catch (Exception $e) {
                     error_log("Erro ao atualizar cobrança {$inscricao->id_cobranca_asaas}: " . $e->getMessage());
@@ -207,6 +219,7 @@ try {
     $_SESSION['mensagem'] = "Evento atualizado com sucesso!";
     header("Location: /eventos.php?id=" . $id);
     exit();
+    
 } catch (Exception $e) {
     error_log("Erro ao atualizar evento: " . $e->getMessage());
     $_SESSION['mensagem'] = "Erro ao atualizar evento. Por favor, tente novamente.";
@@ -217,30 +230,33 @@ try {
 /**
  * Calcula o novo valor da inscrição com base na modalidade (agora seguindo a lógica do inscreverAtleta.php)
  */
-function calcularNovoValor($inscricao, $dadosEvento) {
+function calcularNovoValor($inscricao, $dadosEvento)
+{
     // Se for evento normal
     if ($dadosEvento['normal']) {
         return $dadosEvento['normal_preco'] * TAXA;
     }
-    
+
     $idade = calcularIdade($inscricao->data_nascimento);
     $menorIdade = ($idade <= 15); // Ajustado para <= 15 como no inscreverAtleta
-    
+
     // Absoluto tem prioridade
     if ($inscricao->mod_ab_com || $inscricao->mod_ab_sem) {
         return $dadosEvento['preco_abs'] * TAXA;
     }
-    
+
     // Modalidades normais (com ou sem kimono)
     $precoBase = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
-    
+
     // Se marcou ambas modalidades (com e sem kimono), cobra apenas uma vez
-    if (($inscricao->mod_com && $inscricao->mod_sem) || 
-        $inscricao->mod_com || 
-        $inscricao->mod_sem) {
+    if (
+        ($inscricao->mod_com && $inscricao->mod_sem) ||
+        $inscricao->mod_com ||
+        $inscricao->mod_sem
+    ) {
         return $precoBase * TAXA;
     }
-    
+
     // Se nenhuma modalidade foi selecionada (não deveria acontecer)
     return $inscricao->valor_pago; // Mantém o valor original como fallback
 }
