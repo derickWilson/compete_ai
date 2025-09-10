@@ -7,6 +7,7 @@ function envia_notificacao_para($nome_ev, $id_atleta, $tipo, $dias)
     $atleta = new Atleta();
     $atr = new atletaService($con, $atleta);
     $at = $atr->getById($id_atleta);
+    //para cada tipo
     switch ($tipo) {
         case "camp":
             $msg = '
@@ -31,7 +32,11 @@ function envia_notificacao_para($nome_ev, $id_atleta, $tipo, $dias)
     </div>
 
     <h2>Memorando de campeonato<h2/>
-    Olá <strong>' . $at->nome . '</strong>
+    Olá <strong>' . $at->nome . '</strong><br>
+    <div>
+    Este é um memorando de que o evento '.$nome_ev.' ocorrerá em
+    <p></p>
+    </div>
     
     <p><em>Esta é uma mensagem automática, por favor não responda este e-mail.</em></p>
 </body>    
