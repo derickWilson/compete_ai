@@ -118,6 +118,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/estilos/icone.jpeg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Lista de Inscritos</title>
     <style>
         .status-pago {
@@ -203,6 +205,7 @@ try {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            background: var(--white) !important;
         }
 
         th,
@@ -210,123 +213,149 @@ try {
             padding: 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
+            color: var(--dark) !important;
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: var(--primary-dark) !important;
+            color: var(--white) !important;
         }
 
-        tr:hover {
-            background-color: #f5f5f5;
+        /* CORREÇÃO: Garantir que o texto nas células fique sempre com cor escura */
+        table td {
+            color: var(--dark) !important;
         }
-    </style>
+
+        /* Manter o hover com um efeito sutil */
+        tr:hover td {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        /* Estilizar os links dentro da tabela */
+        table a {
+            color: var(--primary) !important;
+            text-decoration: none;
+        }
+
+        table a:hover {
+            color: var(--primary-dark) !important;
+            text-decoration: underline;
+        }
+        
+        /* CORREÇÃO: Garantir que os títulos fiquem brancos no fundo azul */
+        h1, h3 {
+            color: var(--white) !important;
+        }
+        </style>
 </head>
 
 <body>
     <?php include "../menu/menu_admin.php"; ?>
+    <div class="container">
+        <?php if (isset($_SESSION['mensagem'])): ?>
+            <div class="mensagem sucesso"><?= htmlspecialchars($_SESSION['mensagem']) ?></div>
+            <?php unset($_SESSION['mensagem']); ?>
+        <?php endif; ?>
 
-    <?php if (isset($_SESSION['mensagem'])): ?>
-        <div class="mensagem sucesso"><?= htmlspecialchars($_SESSION['mensagem']) ?></div>
-        <?php unset($_SESSION['mensagem']); ?>
-    <?php endif; ?>
+        <?php if (isset($_SESSION['erro'])): ?>
+            <div class="mensagem erro"><?= htmlspecialchars($_SESSION['erro']) ?></div>
+            <?php unset($_SESSION['erro']); ?>
+        <?php endif; ?>
 
-    <?php if (isset($_SESSION['erro'])): ?>
-        <div class="mensagem erro"><?= htmlspecialchars($_SESSION['erro']) ?></div>
-        <?php unset($_SESSION['erro']); ?>
-    <?php endif; ?>
+        <h1>Inscritos no Evento</h1>
 
-    <h1>Inscritos no Evento</h1>
+        <?php if ($inscritos && !empty($inscritos)): ?>
+            <h3>Evento: <?= htmlspecialchars($inscritos[0]->evento) ?></h3>
 
-    <?php if ($inscritos && !empty($inscritos)): ?>
-        <h3>Evento: <?= htmlspecialchars($inscritos[0]->evento) ?></h3>
+            <button onclick="location.reload()" class="refresh-btn">
+                Atualizar Status de Pagamentos
+            </button>
 
-        <button onclick="location.reload()" class="refresh-btn">
-            Atualizar Status de Pagamentos
-        </button>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Atleta</th>
-                    <th>Idade</th>
-                    <th>Modalidade</th>
-                    <th>Academia</th>
-                    <th>Status</th>
-                    <th>Valor</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($inscritos as $inscrito):
-                    $statusClass = 'status-outros';
-                    $statusText = $inscrito->status_pagamento;
-
-                    switch ($inscrito->status_pagamento) {
-                        case 'RECEIVED':
-                            $statusClass = 'status-pago';
-                            $statusText = 'Pago';
-                            break;
-                        case 'PENDING':
-                            $statusClass = 'status-pendente';
-                            $statusText = 'Pendente';
-                            break;
-                        case 'CONFIRMED':
-                            $statusClass = 'status-confirmado';
-                            $statusText = 'Confirmado';
-                            break;
-                        case 'ISENTO':
-                            $statusClass = 'status-isento';
-                            $statusText = 'Isento';
-                            break;
-                    }
-
-                    $valorExibicao = ($inscrito->valor_pago > 0)
-                        ? 'R$ ' . number_format($inscrito->valor_pago, 2, ',', '.')
-                        : '-';
-                    ?>
+            <table>
+                <thead>
                     <tr>
-                        <td><?= $inscrito->id ?></td>
-                        <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
-                        <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
-                        <td><?= htmlspecialchars($inscrito->modalidade) ?></td>
-                        <td><?= htmlspecialchars($inscrito->academia) ?></td>
-                        <td class="<?= $statusClass ?>"><?= $statusText ?></td>
-                        <td><?= $valorExibicao ?></td>
-                        <td>
-                            <?php if ($inscrito->id_cobranca_asaas): ?>
-                                <a href="pagamento.php?cobranca_id=<?= urlencode($inscrito->id_cobranca_asaas) ?>&view=1"
-                                    title="Ver detalhes do pagamento">
-                                    Detalhes
-                                </a>
-                            <?php endif; ?>
-
-                            <?php if ($inscrito->status_pagamento === 'PENDING'): ?>
-                                <form class="action-form" method="POST" onsubmit="return confirm('Confirmar marcação como PAGO?')">
-                                    <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
-                                    <input type="hidden" name="action" value="marcar_pago">
-                                    <input type="number" name="valor" class="valor-input" step="0.01" min="0"
-                                        value="<?= number_format($inscrito->valor_pago ?? 0, 2, '.', '') ?>" required>
-                                    <button type="submit" class="action-btn pago-btn" title="Marcar como pago">
-                                        Pago
-                                    </button>
-                                </form>
-
-                                <form class="action-form" method="POST"
-                                    onsubmit="return confirm('Confirmar isenção? A cobrança será cancelada.')">
-                                    <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
-                                    <input type="hidden" name="action" value="marcar_isento">
-                                    <button type="submit" class="action-btn isento-btn" title="Marcar como isento">
-                                        Isento
-                                    </button>
-                                </form>
-                            <?php endif; ?>
-                        </td>
+                        <th>ID</th>
+                        <th>Atleta</th>
+                        <th>Idade</th>
+                        <th>Modalidade</th>
+                        <th>Academia</th>
+                        <th>Status</th>
+                        <th>Valor</th>
+                        <th>Ações</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($inscritos as $inscrito):
+                        $statusClass = 'status-outros';
+                        $statusText = $inscrito->status_pagamento;
 
+                        switch ($inscrito->status_pagamento) {
+                            case 'RECEIVED':
+                                $statusClass = 'status-pago';
+                                $statusText = 'Pago';
+                                break;
+                            case 'PENDING':
+                                $statusClass = 'status-pendente';
+                                $statusText = 'Pendente';
+                                break;
+                            case 'CONFIRMED':
+                                $statusClass = 'status-confirmado';
+                                $statusText = 'Confirmado';
+                                break;
+                            case 'ISENTO':
+                                $statusClass = 'status-isento';
+                                $statusText = 'Isento';
+                                break;
+                        }
+
+                        $valorExibicao = ($inscrito->valor_pago > 0)
+                            ? 'R$ ' . number_format($inscrito->valor_pago, 2, ',', '.')
+                            : '-';
+                        ?>
+                        <tr>
+                            <td><?= $inscrito->id ?></td>
+                            <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
+                            <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
+                            <td><?= htmlspecialchars($inscrito->modalidade) ?></td>
+                            <td><?= htmlspecialchars($inscrito->academia) ?></td>
+                            <td class="<?= $statusClass ?>"><?= $statusText ?></td>
+                            <td><?= $valorExibicao ?></td>
+                            <td>
+                                <?php if ($inscrito->id_cobranca_asaas): ?>
+                                    <a href="/pagamento.php?cobranca_id=<?= urlencode($inscrito->id_cobranca_asaas) ?>&view=1"
+                                        title="Ver detalhes do pagamento">
+                                        Detalhes
+                                    </a>
+                                <?php endif; ?>
+
+                                <?php if ($inscrito->status_pagamento === 'PENDING'): ?>
+                                    <form class="action-form" method="POST"
+                                        onsubmit="return confirm('Confirmar marcação como PAGO?')">
+                                        <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
+                                        <input type="hidden" name="action" value="marcar_pago">
+                                        <input type="number" name="valor" class="valor-input" step="0.01" min="0"
+                                            value="<?= number_format($inscrito->valor_pago ?? 0, 2, '.', '') ?>" required>
+                                        <button type="submit" class="action-btn pago-btn" title="Marcar como pago">
+                                            Pago
+                                        </button>
+                                    </form>
+
+                                    <form class="action-form" method="POST"
+                                        onsubmit="return confirm('Confirmar isenção? A cobrança será cancelada.')">
+                                        <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
+                                        <input type="hidden" name="action" value="marcar_isento">
+                                        <button type="submit" class="action-btn isento-btn" title="Marcar como isento">
+                                            Isento
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+        </div>
         <div style="margin-top: 20px;">
             <form action="baixar_chapa.php" method="GET" style="display: inline-block;">
                 <input type="hidden" name="id" value="<?= htmlspecialchars($idEvento) ?>">
@@ -336,8 +365,11 @@ try {
             <a href="eventos.php" style="margin-left: 15px;" class="action-btn">Voltar para Eventos</a>
         </div>
     <?php else: ?>
-        <p>Nenhum inscrito encontrado para este evento.</p>
-        <a href="eventos.php" class="action-btn">Voltar para Eventos</a>
+        <div class="container">
+            <p>Nenhum inscrito encontrado para este evento.</p>
+            <a href="eventos.php" class="action-btn">Voltar para Eventos</a>
+
+        </div>
     <?php endif; ?>
 
     <?php include "../menu/footer.php"; ?>
