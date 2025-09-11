@@ -20,24 +20,19 @@ $atleta = $attServ->getById($_SESSION["id"]);
 
 // Extrair DDD e número do telefone completo
 $telefone_completo = $atleta->fone;
-$ddd = '+55'; // Valor padrão
+$ddd = '55'; // Valor padrão para Brasil
 $numero_telefone = '';
 
 if (!empty($telefone_completo)) {
-    // Remove o '+' se existir
-    $telefone_sem_plus = str_replace('+', '', $telefone_completo);
+    // Remove o código do país (+55) se existir
+    $telefone_sem_codigo_pais = str_replace('+55', '', $telefone_completo);
     
-    // Extrai os primeiros 2 dígitos como DDD (após o código do país)
-    if (strlen($telefone_sem_plus) >= 4) {
-        // Assume que os primeiros 2 dígitos são código do país (55) e os próximos 2 são DDD
-        $ddd = '+' . substr($telefone_sem_plus, 0, 2); // +55 (código do país)
-        $numero_com_ddd = substr($telefone_sem_plus, 2); // Remove código do país
-        
-        // Agora extrai DDD local (2 dígitos) e o número
-        if (strlen($numero_com_ddd) >= 2) {
-            $ddd_local = substr($numero_com_ddd, 0, 2); // DDD (11, 21, etc.)
-            $numero_telefone = substr($numero_com_ddd, 2); // Número real
-        }
+    // Extrai os primeiros 2 dígitos como DDD
+    if (strlen($telefone_sem_codigo_pais) >= 2) {
+        $ddd = substr($telefone_sem_codigo_pais, 0, 2); // DDD (11, 21, etc.)
+        $numero_telefone = substr($telefone_sem_codigo_pais, 2); // Número real
+    } else {
+        $numero_telefone = $telefone_sem_codigo_pais;
     }
 }
 
@@ -83,7 +78,7 @@ if (!empty($numero_telefone)) {
                          class="current-photo" 
                          id="currentPhoto"
                          alt="Foto atual"
-                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2RkZCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkeT0iLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiPlNlbSBGb3RvPC90ZXh0Pjwvc3ZnPg=='">
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgZmlsbD0iI2RkZCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBdyT0iLjM1ZW0iIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM5OTkiPlNlbSBGb3RvPC90ZXh0Pjwvc3ZnPg=='">
                     
                     <div class="file-input-container">
                         <label for="foto_nova" class="file-input-label">
@@ -117,7 +112,7 @@ if (!empty($numero_telefone)) {
                             <label class="form-label">Telefone</label>
                             <div class="telefone-container">
                                 <input type="text" name="ddd" id="ddd" class="ddd-input"
-                                       value="55" maxlength="2" placeholder="DDD"
+                                       value="<?php echo htmlspecialchars($ddd); ?>" maxlength="2" placeholder="DDD"
                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                                 <input type="tel" name="fone" id="fone" class="telefone-input" 
                                        maxlength="15" placeholder="(00) 00000-0000" 
@@ -269,4 +264,3 @@ if (!empty($numero_telefone)) {
     </script>
 </body>
 </html>
-[file content end]
