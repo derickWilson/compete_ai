@@ -64,6 +64,7 @@ function obter_mensagem_base($nome_ev, $id_atleta, $tipo, $dias)
         
         <div style="background-color: #f5f5f5; padding: 15px; text-align: center; font-size: 12px; color: #666; border-radius: 0 0 5px 5px;">
             <p style="margin: 0 0 10px 0; font-style: italic;">Esta é uma mensagem automática, por favor não responda este e-mail.</p>            
+            <p style="margin: 0 0 10px 0;">Caso Não Queira receber esse tipo de notificação pode trocar em <a href="https://fpjji.com/edit.php"> editar dados</a></p>
             <p style="margin: 0 0 10px 0;">© ' . date('Y') . ' FPJJI - Federação Paulista de Jiu-Jitsu Internacional. Todos os direitos reservados.</p>
         </div>
     </div>
