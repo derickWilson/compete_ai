@@ -45,9 +45,11 @@ try {
                     $headers .= "Reply-To: fpjjioficial@gmail.com\r\n";
                     $headers .= "X-Mailer: PHP/" . phpversion();
 
-                    $assunto = "Lembrete: " . $evento_detalhes->nome. "Pagamento Pendente";
+                    $assunto = "Lembrete: " . $evento_detalhes->nome . "Pagamento Pendente";
 
                     if (mail($inscrito->email, $assunto, $mensagem, $headers)) {
+                        // Aguardar o tempo de 10 segundos para proxima entrega
+                        usleep((10 * 1000000));
                         $notificacoes_enviadas++;
                         file_put_contents($log_file, "[" . date('Y-m-d H:i:s') . "] E-mail enviado para: {$inscrito->email}\n", FILE_APPEND);
                     } else {
