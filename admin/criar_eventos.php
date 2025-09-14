@@ -1,3 +1,8 @@
+<?php
+session_start();
+require "../func/is_adm.php";
+is_adm();
+?>
 <!DOCTYPE html>
 <html lang="pt">
 
