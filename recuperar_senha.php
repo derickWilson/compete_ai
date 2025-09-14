@@ -27,8 +27,13 @@ function enviarEmailRecuperacao($destinatario, $codigo)
 
     $headers = "MIME-Version: 1.0\r\n";
     $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-    $headers .= "From: fpjji.com\r\n";
+    $headers .= "From: FPJJI <fpjjioficial@gmail.com>\r\n"; // Nome + email
     $headers .= "Reply-To: fpjjioficial@gmail.com\r\n";
+    $headers .= "Return-Path: fpjjioficial@gmail.com\r\n"; // Adicione esta linha
+    $headers .= "Message-ID: <" . time() . rand(1, 1000) . "@fpjji.com>\r\n"; // ID único
+    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+    $headers .= "X-Priority: 3\r\n"; // Prioridade normal
+    $headers .= "X-MSMail-Priority: Normal\r\n";
 
     return mail($destinatario, $assunto, $mensagem, $headers);
 }

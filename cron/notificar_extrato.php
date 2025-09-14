@@ -40,16 +40,20 @@ try {
 
                 if (!empty($mensagem)) {
                     $headers = "MIME-Version: 1.0\r\n";
-                    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+                    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
                     $headers .= "From: FPJJI <fpjjioficial@gmail.com>\r\n";
                     $headers .= "Reply-To: fpjjioficial@gmail.com\r\n";
-                    $headers .= "X-Mailer: PHP/" . phpversion();
+                    $headers .= "Return-Path: fpjjioficial@gmail.com\r\n";
+                    $headers .= "Message-ID: <" . time() . rand(1, 1000) . "@fpjji.com>\r\n";
+                    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+                    $headers .= "X-Priority: 3\r\n";
+                    $headers .= "X-MSMail-Priority: Normal\r\n";
 
                     $assunto = "Lembrete: " . $evento_detalhes->nome . "Pagamento Pendente";
 
                     if (mail($inscrito->email, $assunto, $mensagem, $headers)) {
-                        // Aguardar o tempo de 10 segundos para proxima entrega
-                        usleep((10 * 1000000));
+                        // Aguardar o tempo de 5 segundos para proxima entrega
+                        usleep((5 * 1000000));
                         $notificacoes_enviadas++;
                         file_put_contents($log_file, "[" . date('Y-m-d H:i:s') . "] E-mail enviado para: {$inscrito->email}\n", FILE_APPEND);
                     } else {
