@@ -240,7 +240,6 @@ if (isset($_GET['id'])) {
                             <?php if (!$eventoDetails->normal) {//mostrar modalidade se o evento não é normal
                                                     ?>
                                 <select name="modalidade" required>
-                                    <option value="">Selecione a modalidade</option>
                                     <option value="galo">Galo</option>
                                     <option value="pluma">Pluma</option>
                                     <option value="pena">Pena</option>

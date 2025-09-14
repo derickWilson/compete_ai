@@ -711,9 +711,7 @@ class atletaService
         $stmt->bindValue(":evento", $evento);
         $stmt->bindValue(":idAtleta", $idAtleta);
         try {
-            $stmt->execute();
-            header("Location: eventos_cadastrados.php");
-            exit();
+            return $stmt->execute();
         } catch (Exception $e) {
             echo "erro ao editar inscricao [ " . $e->getMessage() . " ]";
         }

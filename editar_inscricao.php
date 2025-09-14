@@ -123,8 +123,10 @@ function handleUpdate(
 ): void {
     // Verifica se é evento gratuito
     $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && $dadosEvento->preco_abs == 0);
-    
+
     $valor = 0;
+    $valorMudou = false;
+
     if (!$eventoGratuito) {
         if ($dadosEvento->normal) {
             $valor = $dadosEvento->normal_preco * TAXA;
@@ -137,8 +139,11 @@ function handleUpdate(
             }
         }
     }
-    // Atualiza modalidades no banco de dados
-    $atserv->editarInscricao($eventoId, $idAtleta, $com, $abCom, $sem, $abSem, $modalidade);
+
+    // Atualiza modalidades no banco de dados (SEM REDIRECIONAMENTO)
+    if (!$atserv->editarInscricao($eventoId, $idAtleta, $com, $abCom, $sem, $abSem, $modalidade)) {
+        throw new Exception("Falha ao atualizar modalidades da inscrição");
+    }
 
     // Para eventos pagos com cobrança existente
     if (!$eventoGratuito && !empty($inscricao->id_cobranca_asaas)) {
@@ -161,8 +166,8 @@ function handleUpdate(
         }
     }
 
-    $_SESSION['sucesso'] = "Inscrição atualizada" . ($valorMudou ?? false ? " (valor ajustado)" : "");
-    header("Location: inscricao.php?inscricao=" . $eventoId);
+    $_SESSION['sucesso'] = "Inscrição atualizada" . ($valorMudou ? " (valor ajustado)" : "");
+    header("Location: eventos_cadastrados.php");
     exit();
 }
 ?>
