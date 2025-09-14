@@ -88,19 +88,17 @@ try {
         : ($eventoDetails->preco == 0 && $eventoDetails->preco_menor == 0 && $eventoDetails->preco_abs == 0);
 
     // Cálculo do valor com taxa
+    // CORREÇÃO: Usa o valor enviado pelo formulário em vez de recalcular
     $valor = 0;
     if (!$eventoGratuito) {
         if ($eventoDetails->normal) {
-            // Preço fixo para eventos normais
             $valor = $eventoDetails->normal_preco * TAXA;
         } else {
-            // Lógica tradicional para eventos com/sem kimono
-            $valor = ($_SESSION['idade'] > 15)
-                ? $eventoDetails->preco * TAXA
-                : $eventoDetails->preco_menor * TAXA;
+            $valor = (float) cleanWords($_POST['valor']);
 
-            if (($modalidades['abs_com'] || $modalidades['abs_sem']) && $eventoDetails->preco_abs > 0) {
-                $valor = $eventoDetails->preco_abs * TAXA;
+            // Validação de segurança
+            if ($valor <= 0) {
+                throw new Exception("Valor da inscrição inválido");
             }
         }
     }

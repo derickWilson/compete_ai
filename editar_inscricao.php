@@ -54,7 +54,7 @@ try {
     // Obtém dados atuais
     $dadosEvento = $eventoServ->getById($eventoId);
     $inscricao = $atserv->getInscricao($eventoId, $idAtleta);
-    
+
     if (!$dadosEvento || !$inscricao) {
         throw new Exception("Registro não encontrado no sistema");
     }
@@ -77,28 +77,29 @@ try {
 /**
  * Processa a exclusão de uma inscrição
  */
-function handleDeletion(AssasService $assasService, atletaService $atserv, $inscricao, int $eventoId, int $idAtleta): void {
+function handleDeletion(AssasService $assasService, atletaService $atserv, $inscricao, int $eventoId, int $idAtleta): void
+{
     // Verifica status da cobrança se existir
     if (!empty($inscricao->id_cobranca_asaas)) {
         $status = $assasService->verificarStatusCobranca($inscricao->id_cobranca_asaas);
-        
+
         // Bloqueia exclusão se pagamento já foi recebido
         if ($status['status'] === 'RECEIVED') {
             throw new Exception("Inscrição já paga não pode ser excluída");
         }
-        
+
         // Tenta cancelar a cobrança no Asaas
         $resultado = $assasService->deletarCobranca($inscricao->id_cobranca_asaas);
         if (!$resultado['deleted']) {
             throw new Exception("Não foi possível cancelar a cobrança: " . ($resultado['message'] ?? ''));
         }
     }
-    
+
     // Remove a inscrição do banco de dados
     if (!$atserv->excluirInscricao($eventoId, $idAtleta)) {
         throw new Exception("Falha ao remover inscrição do sistema");
     }
-    
+
     $_SESSION['sucesso'] = "Inscrição excluída com sucesso";
     header("Location: eventos_cadastrados.php");
     exit();
@@ -107,15 +108,26 @@ function handleDeletion(AssasService $assasService, atletaService $atserv, $insc
 /**
  * Processa atualização de uma inscrição
  */
-function handleUpdate($dadosEvento, $inscricao, AssasService $assasService, atletaService $atserv, 
-                     int $eventoId, int $idAtleta, int $com, int $abCom, int $sem, int $abSem, string $modalidade): void {
+function handleUpdate(
+    $dadosEvento,
+    $inscricao,
+    AssasService $assasService,
+    atletaService $atserv,
+    int $eventoId,
+    int $idAtleta,
+    int $com,
+    int $abCom,
+    int $sem,
+    int $abSem,
+    string $modalidade
+): void {
     // Verifica se é evento gratuito
     $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && $dadosEvento->preco_abs == 0);
-    
+
     // Calcula novo valor com taxa
     $novoValor = calcularValorInscricao($dadosEvento, $_SESSION["idade"], $com, $abCom, $sem, $abSem);
     $novoValorComTaxa = $novoValor * TAXA;
-    
+
     // Atualiza modalidades no banco de dados
     $atserv->editarInscricao($eventoId, $idAtleta, $com, $abCom, $sem, $abSem, $modalidade);
 
@@ -123,18 +135,18 @@ function handleUpdate($dadosEvento, $inscricao, AssasService $assasService, atle
     if (!$eventoGratuito && !empty($inscricao->id_cobranca_asaas)) {
         $valorAtual = (float) $inscricao->valor_pago;
         $valorMudou = abs($novoValorComTaxa - $valorAtual) > 0.01; // Considera diferenças > 1 centavo
-        
+
         if ($valorMudou) {
             $resultado = $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
                 'value' => number_format($novoValorComTaxa, 2, '.', ''),
                 'dueDate' => $dadosEvento->data_limite,
                 'description' => 'Inscrição: ' . $dadosEvento->nome . ' (' . $modalidade . ')'
             ]);
-            
+
             if (!$resultado['success']) {
                 throw new Exception("Erro ao atualizar cobrança: " . ($resultado['message'] ?? ''));
             }
-            
+
             // Atualiza valor no banco de dados
             $atserv->atualizarValorInscricao($eventoId, $idAtleta, $novoValorComTaxa);
         }
@@ -148,14 +160,23 @@ function handleUpdate($dadosEvento, $inscricao, AssasService $assasService, atle
 /**
  * Calcula valor da inscrição baseado nas modalidades selecionadas
  */
-function calcularValorInscricao($evento, int $idade, int $com, int $abCom, int $sem, int $abSem): float {
+function calcularValorInscricao($evento, int $idade, int $com, int $abCom, int $sem, int $abSem): float
+{
     $valor = 0.0;
     $eAdulto = $idade > 15;
-    $valorBase = $eAdulto ? (float)$evento->preco : (float)$evento->preco_menor;
+    $valorBase = $eAdulto ? (float) $evento->preco : (float) $evento->preco_menor;
 
-    if ($com) $valor += $abCom ? (float)$evento->preco_abs : $valorBase;
-    if ($sem) $valor += $abSem ? (float)$evento->preco_abs : $valorBase;
-    
+    // CORREÇÃO: Se for absoluto, usa apenas o preço absoluto
+    if ($abCom || $abSem) {
+        $valor = (float) $evento->preco_abs;
+    } else {
+        // Modalidades normais - soma com e sem kimono
+        if ($com)
+            $valor += $valorBase;
+        if ($sem)
+            $valor += $valorBase;
+    }
+
     return $valor;
 }
 ?>
