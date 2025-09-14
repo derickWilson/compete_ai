@@ -40,7 +40,7 @@ try {
     
     // 3. Se já estiver pago e não for modo visualização, atualiza banco e redireciona
     if (!$modoVisualizacao && in_array($status, ['RECEIVED', 'CONFIRMED'])) {
-        $this->atualizarStatusInscricao($asaasService, $dadosCobranca, $cobrancaId, $statusTraduzido);
+        atualizarStatusInscricao($asaasService, $dadosCobranca, $cobrancaId, $statusTraduzido);
         header("Location: comprovante.php?id=" . $cobrancaId);
         exit();
     }

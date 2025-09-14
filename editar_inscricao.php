@@ -123,22 +123,31 @@ function handleUpdate(
 ): void {
     // Verifica se é evento gratuito
     $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && $dadosEvento->preco_abs == 0);
-
-    // Calcula novo valor com taxa
-    $novoValor = calcularValorInscricao($dadosEvento, $_SESSION["idade"], $com, $abCom, $sem, $abSem);
-    $novoValorComTaxa = $novoValor * TAXA;
-
+    
+    $valor = 0;
+    if (!$eventoGratuito) {
+        if ($dadosEvento->normal) {
+            $valor = $dadosEvento->normal_preco * TAXA;
+        } else {
+            $valor = $abCom == 1 ? $dadosEvento->preco_abs : $dadosEvento->preco;
+            $valor *= TAXA;
+            // Validação de segurança
+            if ($valor <= 0) {
+                throw new Exception("Valor da inscrição inválido");
+            }
+        }
+    }
     // Atualiza modalidades no banco de dados
     $atserv->editarInscricao($eventoId, $idAtleta, $com, $abCom, $sem, $abSem, $modalidade);
 
     // Para eventos pagos com cobrança existente
     if (!$eventoGratuito && !empty($inscricao->id_cobranca_asaas)) {
         $valorAtual = (float) $inscricao->valor_pago;
-        $valorMudou = abs($novoValorComTaxa - $valorAtual) > 0.01; // Considera diferenças > 1 centavo
+        $valorMudou = abs($valor - $valorAtual) > 0.01; // Considera diferenças > 1 centavo
 
         if ($valorMudou) {
             $resultado = $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
-                'value' => number_format($novoValorComTaxa, 2, '.', ''),
+                'value' => number_format($valor, 2, '.', ''),
                 'dueDate' => $dadosEvento->data_limite,
                 'description' => 'Inscrição: ' . $dadosEvento->nome . ' (' . $modalidade . ')'
             ]);
@@ -148,35 +157,12 @@ function handleUpdate(
             }
 
             // Atualiza valor no banco de dados
-            $atserv->atualizarValorInscricao($eventoId, $idAtleta, $novoValorComTaxa);
+            $atserv->atualizarValorInscricao($eventoId, $idAtleta, $valor);
         }
     }
 
     $_SESSION['sucesso'] = "Inscrição atualizada" . ($valorMudou ?? false ? " (valor ajustado)" : "");
     header("Location: inscricao.php?inscricao=" . $eventoId);
     exit();
-}
-
-/**
- * Calcula valor da inscrição baseado nas modalidades selecionadas
- */
-function calcularValorInscricao($evento, int $idade, int $com, int $abCom, int $sem, int $abSem): float
-{
-    $valor = 0.0;
-    $eAdulto = $idade > 15;
-    $valorBase = $eAdulto ? (float) $evento->preco : (float) $evento->preco_menor;
-
-    // CORREÇÃO: Se for absoluto, usa apenas o preço absoluto
-    if ($abCom || $abSem) {
-        $valor = (float) $evento->preco_abs;
-    } else {
-        // Modalidades normais - soma com e sem kimono
-        if ($com)
-            $valor += $valorBase;
-        if ($sem)
-            $valor += $valorBase;
-    }
-
-    return $valor;
 }
 ?>

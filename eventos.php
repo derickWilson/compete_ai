@@ -208,7 +208,6 @@ if (isset($_GET['id'])) {
                 <?php } ?>
 
                 <!-- Formulário de inscrição -->
-                <!-- Formulário de inscrição -->
                 <?php if (isset($_SESSION['logado']) && $_SESSION['logado']) { ?>
                     <?php if (!$evserv->isInscrito($_SESSION["id"], $eventoId)) { ?>
                         <form action="inscreverAtleta.php" method="POST">
@@ -218,32 +217,28 @@ if (isset($_GET['id'])) {
                                 <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->normal_preco); ?>">
                                 <p>Este é um evento normal sem distinção por idade ou modalidade.</p>
                             <?php } else { ?>
-                                <!-- CORREÇÃO: Campo hidden para valor será preenchido via JavaScript -->
-                                <input type="hidden" name="valor" id="valor_inscricao" value="0">
+                                <input type="hidden" name="valor" value="<?php
+                                echo ($_SESSION["idade"] > 15) ? htmlspecialchars($eventoDetails->preco) : htmlspecialchars($eventoDetails->preco_menor);
+                                ?>">
 
                                 <?php if ($eventoDetails->tipo_com == 1) { ?>
-                                    <input type="checkbox" name="com" id="com_kimono" onclick="atualizarValorInscricao()" checked
-                                        style="pointer-events: none;"> Com Kimono
+                                    <input type="checkbox" name="com" checked onclick="return false;" style="pointer-events: none;"> Com Kimono
                                     <?php if ($_SESSION["idade"] > 15) { ?>
-                                        <input type="checkbox" name="abs_com" id="abs_com" onclick="atualizarValorInscricao()"> Absoluto Com Kimono
+                                        <input type="checkbox" name="abs_com"> Absoluto Com Kimono
                                     <?php } ?>
                                 <?php } ?>
 
                                 <?php if ($eventoDetails->tipo_sem == 1) { ?>
-                                    <input type="checkbox" name="sem" id="sem_kimono" onclick="atualizarValorInscricao()"> Sem Kimono
+                                    <input type="checkbox" name="sem"> Sem Kimono
                                     <?php if ($_SESSION["idade"] > 15) { ?>
-                                        <input type="checkbox" name="abs_sem" id="abs_sem" onclick="atualizarValorInscricao()"> Absoluto Sem Kimono
+                                        <input type="checkbox" name="abs_sem"> Absoluto Sem Kimono
                                     <?php } ?>
                                 <?php } ?>
-
-                                <!-- Exibição do valor calculado -->
-                                <div id="valor_exibicao" style="margin: 10px 0; font-weight: bold;">
-                                    Valor: R$ 0,00
-                                </div>
                             <?php } ?>
 
                             <br>
-                            <?php if (!$eventoDetails->normal) { ?>
+                            <?php if (!$eventoDetails->normal) {//mostrar modalidade se o evento não é normal
+                                                    ?>
                                 <select name="modalidade" required>
                                     <option value="">Selecione a modalidade</option>
                                     <option value="galo">Galo</option>
@@ -269,54 +264,63 @@ if (isset($_GET['id'])) {
                                     <input type="checkbox" name="aceite_responsabilidade" id="aceite_responsabilidade" required>
                                     <label for="aceite_responsabilidade">Aceito os termos de responsabilidade</label>
                                 </div>
-                            <?php } ?>
 
-                            <input type="submit" value="Inscrever-se" id="botao_inscrever">
+                                <?php
+                                                }//mostrar modalidade se o evento não é normal
+                                                ?>
+                            <input type="submit" value="Inscrever-se">
                         </form>
-
-                        <!-- Script JavaScript para cálculo do valor -->
-                        <script>
-                            function atualizarValorInscricao() {
-                                const idade = <?php echo $_SESSION["idade"]; ?>;
-                                const precoBase = idade > 15 ? <?php echo $eventoDetails->preco; ?> : <?php echo $eventoDetails->preco_menor; ?>;
-                                const precoAbsoluto = <?php echo $eventoDetails->preco_abs; ?>;
-
-                                const comKimono = document.getElementById('com_kimono')?.checked || false;
-                                const semKimono = document.getElementById('sem_kimono')?.checked || false;
-                                const absCom = document.getElementById('abs_com')?.checked || false;
-                                const absSem = document.getElementById('abs_sem')?.checked || false;
-
-                                let valorTotal = 0;
-
-                                // CORREÇÃO: Se absoluto selecionado, usa apenas preço absoluto
-                                if (absCom || absSem) {
-                                    valorTotal = precoAbsoluto;
-                                } else {
-                                    // Modalidades normais - soma com e sem kimono
-                                    if (comKimono) valorTotal += precoBase;
-                                    if (semKimono) valorTotal += precoBase;
-                                }
-
-                                // Aplica taxa
-                                const valorComTaxa = valorTotal * <?php echo TAXA; ?>;
-
-                                // Atualiza campos
-                                document.getElementById('valor_inscricao').value = valorComTaxa.toFixed(2);
-                                document.getElementById('valor_exibicao').textContent =
-                                    'Valor: R$ ' + valorComTaxa.toFixed(2).replace('.', ',');
-                            }
-
-                            // Inicializa o valor ao carregar a página
-                            document.addEventListener('DOMContentLoaded', function () {
-                                atualizarValorInscricao();
-                            });
-                        </script>
                     <?php } else { ?>
                         <p>Você já está inscrito neste evento.</p>
+
+                        <!-- editar o evento-->
+                        <form action="editar_inscricao.php" method="POST">
+                            <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($inscricao->id); ?>">
+                            <?php
+                            if ($inscricao->tipo_com == 1) {
+                                echo '<input type="checkbox" name="com" ' . ($inscricao->mod_com == 1 ? 'checked' : '') . '> Categoria ';
+
+                                if ($_SESSION["idade"] > 15) {
+                                    echo '<input type="checkbox" name="abs_com"' . ($inscricao->mod_ab_com == 1 ? 'checked' : '') . '> Categoria + Absoluto ';
+                                }
+                            }
+                            if ($inscricao->tipo_sem == 1) {
+                                echo '<input type="checkbox" name="sem"' . ($inscricao->mod_sem == 1 ? 'checked' : '') . '> Categoria sem Quimono ';
+
+                                if ($_SESSION["idade"] > 15) {
+                                    echo '<input type="checkbox" name="abs_sem"' . ($inscricao->mod_ab_sem == 1 ? 'checked' : '') . '> Categoria sem Quimono + Absoluto sem Quimono ';
+                                }
+                            }
+                            ?>
+                            <br>modalidade
+                            <select name="modalidade">
+                                <option value="galo" <?php echo $inscricao->modalidade == "galo" ? "selected" : ""; ?>>Galo</option>
+                                <option value="pluma" <?php echo $inscricao->modalidade == "pluma" ? "selected" : ""; ?>>Pluma</option>
+                                <option value="pena" <?php echo $inscricao->modalidade == "pena" ? "selected" : ""; ?>>Pena</option>
+                                <option value="leve" <?php echo $inscricao->modalidade == "leve" ? "selected" : ""; ?>>Leve</option>
+                                <option value="medio" <?php echo $inscricao->modalidade == "medio" ? "selected" : ""; ?>>Médio</option>
+                                <option value="meio-pesado" <?php echo $inscricao->modalidade == "meio-pesado" ? "selected" : ""; ?>>
+                                    Meio-Pesado</option>
+                                <option value="pesado" <?php echo $inscricao->modalidade == "pesado" ? "selected" : ""; ?>>Pesado</option>
+                                <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>
+                                    Super-Pesado</option>
+                                <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>
+                                    Pesadíssimo</option>
+                                <?php if ($_SESSION["idade"] > 15): ?>
+                                    <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
+                                <?php endif; ?>
+                            </select>
+                            <div class="form-actions">
+                                <input type="submit" name="action" value="Salvar Alterações" class="botao-acao">
+                                <input type="submit" name="action" value="Excluir Inscrição" class="danger"
+                                    onclick="return confirm('Tem certeza que deseja excluir esta inscrição?')">
+                            </div>
+                        </form>
                     <?php } ?>
                 <?php } else { ?>
                     <p>Faça <a href="/login.php">login</a> para se inscrever.</p>
                 <?php } ?>
+
                 <!-- Opções de administrador -->
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     <div class="chapa-options">

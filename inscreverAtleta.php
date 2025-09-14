@@ -88,14 +88,13 @@ try {
         : ($eventoDetails->preco == 0 && $eventoDetails->preco_menor == 0 && $eventoDetails->preco_abs == 0);
 
     // Cálculo do valor com taxa
-    // CORREÇÃO: Usa o valor enviado pelo formulário em vez de recalcular
     $valor = 0;
     if (!$eventoGratuito) {
         if ($eventoDetails->normal) {
             $valor = $eventoDetails->normal_preco * TAXA;
         } else {
-            $valor = (float) cleanWords($_POST['valor']);
-
+            $valor = $modalidades["abs_com"] == 1 ? $eventoDetails->preco_abs : $eventoDetails->preco;
+            $valor *= TAXA;
             // Validação de segurança
             if ($valor <= 0) {
                 throw new Exception("Valor da inscrição inválido");
