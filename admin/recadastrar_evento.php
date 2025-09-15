@@ -50,6 +50,9 @@ $dadosEvento = [
     'preco' => $eventoAntigo->preco ?? 0,
     'preco_menor' => $eventoAntigo->preco_menor ?? 0,
     'preco_abs' => $eventoAntigo->preco_abs ?? 0,
+    'preco_sem' => $eventoAntigo->preco_sem ?? 0, // Adicionado
+    'preco_sem_menor' => $eventoAntigo->preco_sem_menor ?? 0, // Adicionado
+    'preco_sem_abs' => $eventoAntigo->preco_sem_abs ?? 0, // Adicionado
     'img' => $eventoAntigo->imagen ?? null,
     'doc' => $eventoAntigo->doc ?? null,
     'normal' => $eventoAntigo->normal ?? 0,
@@ -155,14 +158,32 @@ if (isset($_POST['normal_preco']) && is_numeric($_POST['normal_preco'])) {
     $dadosEvento['normal_preco'] = (float) str_replace(',', '.', cleanWords($_POST['normal_preco']));
 }
 
+// Captura dos preços SEM kimono
+if (isset($_POST['preco_sem']) && is_numeric($_POST['preco_sem'])) {
+    $dadosEvento['preco_sem'] = (float) str_replace(',', '.', cleanWords($_POST['preco_sem']));
+}
+
+if (isset($_POST['preco_sem_menor']) && is_numeric($_POST['preco_sem_menor'])) {
+    $dadosEvento['preco_sem_menor'] = (float) str_replace(',', '.', cleanWords($_POST['preco_sem_menor']));
+}
+
+if (isset($_POST['preco_sem_abs']) && is_numeric($_POST['preco_sem_abs'])) {
+    $dadosEvento['preco_sem_abs'] = (float) str_replace(',', '.', cleanWords($_POST['preco_sem_abs']));
+}
+
+
 // Verifica se a data limite foi alterada
 $dataLimiteAlterada = ($dadosEvento['data_limite'] != $eventoAntigo->data_limite);
 
+// Verifica se algum preço foi alterado
 // Verifica se algum preço foi alterado
 $precoAlterado = (
     $dadosEvento['preco'] != $eventoAntigo->preco ||
     $dadosEvento['preco_menor'] != $eventoAntigo->preco_menor ||
     $dadosEvento['preco_abs'] != $eventoAntigo->preco_abs ||
+    $dadosEvento['preco_sem'] != $eventoAntigo->preco_sem || // Adicionado
+    $dadosEvento['preco_sem_menor'] != $eventoAntigo->preco_sem_menor || // Adicionado
+    $dadosEvento['preco_sem_abs'] != $eventoAntigo->preco_sem_abs || // Adicionado
     $dadosEvento['normal_preco'] != $eventoAntigo->normal_preco
 );
 
@@ -226,9 +247,9 @@ try {
     header("Location: /admin/editar_evento.php?id=" . $id);
     exit();
 }
-
 /**
- * Calcula o novo valor da inscrição com base na modalidade (agora seguindo a lógica do inscreverAtleta.php)
+ * Calcula o novo valor da inscrição com base na modalidade
+ * Se optar por ambas modalidades (com e sem kimono): (preço_com + preço_sem) * 0.6 (40% de desconto)
  */
 function calcularNovoValor($inscricao, $dadosEvento)
 {
@@ -238,26 +259,51 @@ function calcularNovoValor($inscricao, $dadosEvento)
     }
 
     $idade = calcularIdade($inscricao->data_nascimento);
-    $menorIdade = ($idade <= 15); // Ajustado para <= 15 como no inscreverAtleta
+    $menorIdade = ($idade <= 15);
 
-    // Absoluto tem prioridade
-    if ($inscricao->mod_ab_com || $inscricao->mod_ab_sem) {
-        return $dadosEvento['preco_abs'] * TAXA;
+    $valorTotal = 0;
+    $modalidadesSelecionadas = 0;
+
+    // Modalidade COM kimono
+    if ($inscricao->mod_com) {
+        $precoCom = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
+        $valorTotal += $precoCom;
+        $modalidadesSelecionadas++;
     }
 
-    // Modalidades normais (com ou sem kimono)
-    $precoBase = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
-
-    // Se marcou ambas modalidades (com e sem kimono), cobra apenas uma vez
-    if (
-        ($inscricao->mod_com && $inscricao->mod_sem) ||
-        $inscricao->mod_com ||
-        $inscricao->mod_sem
-    ) {
-        return $precoBase * TAXA;
+    // Modalidade SEM kimono
+    if ($inscricao->mod_sem) {
+        $precoSem = $menorIdade ? $dadosEvento['preco_sem_menor'] : $dadosEvento['preco_sem'];
+        $valorTotal += $precoSem;
+        $modalidadesSelecionadas++;
     }
 
-    // Se nenhuma modalidade foi selecionada (não deveria acontecer)
-    return $inscricao->valor_pago; // Mantém o valor original como fallback
+    // Absoluto COM kimono
+    if ($inscricao->mod_ab_com) {
+        $valorTotal += $dadosEvento['preco_abs'];
+        $modalidadesSelecionadas++;
+    }
+
+    // Absoluto SEM kimono
+    if ($inscricao->mod_ab_sem) {
+        $valorTotal += $dadosEvento['preco_sem_abs'];
+        $modalidadesSelecionadas++;
+    }
+
+    // Aplica desconto de 40% se fez mais de uma modalidade
+    if ($modalidadesSelecionadas > 1) {
+        $valorTotal *= 0.6; // 40% de desconto
+    }
+
+    // Aplica a taxa
+    $valorTotal *= TAXA;
+
+    // Validação de segurança
+    if ($valorTotal <= 0) {
+        error_log("Valor calculado inválido para inscrição {$inscricao->id}: $valorTotal");
+        return $inscricao->valor_pago; // Mantém o valor original em caso de erro
+    }
+
+    return $valorTotal;
 }
 ?>

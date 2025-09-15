@@ -118,23 +118,26 @@ class eventosService
     public function getById($id)
     {
         $query = "SELECT 
-                    id, 
-                    nome, 
-                    descricao, 
-                    data_evento, 
-                    data_limite, 
-                    local_evento AS local_camp, 
-                    tipo_com, 
-                    tipo_sem, 
-                    preco, 
-                    preco_menor, 
-                    preco_abs, 
-                    imagen, 
-                    doc,
-                    normal AS normal,
-                    normal_preco
-                  FROM evento 
-                  WHERE id = :id";
+                id, 
+                nome, 
+                descricao, 
+                data_evento, 
+                data_limite, 
+                local_evento AS local_camp, 
+                tipo_com, 
+                tipo_sem, 
+                preco, 
+                preco_menor, 
+                preco_abs, 
+                preco_sem, 
+                preco_sem_menor, 
+                preco_sem_abs, 
+                imagen, 
+                doc,
+                normal AS normal,
+                normal_preco
+              FROM evento 
+              WHERE id = :id";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);

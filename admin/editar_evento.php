@@ -42,6 +42,9 @@ $propriedadesObrigatorias = [
     'preco',
     'preco_menor',
     'preco_abs',
+    'preco_sem',
+    'preco_sem_menor',
+    'preco_sem_abs',
     'doc',
     'normal',
     'normal_preco'
@@ -154,6 +157,20 @@ unset($_SESSION['mensagem']);
                 <input type="number" name="preco_menor" step="0.01" min="0" required
                     value="<?= number_format($eventoDetails->preco_menor, 2, '.', '') ?>">
                 <label>Preço para Evento Normal (R$):</label>
+
+                <h4>Preços SEM Kimono</h4>
+                <label>Preço geral SEM Kimono (R$):*</label>
+                <input type="number" name="preco_sem" step="0.01" min="0" required
+                    value="<?= number_format($eventoDetails->preco_sem ?? 0, 2, '.', '') ?>">
+
+                <label>Preço Absoluto SEM Kimono (R$):</label>
+                <input type="number" name="preco_sem_abs" step="0.01" min="0"
+                    value="<?= number_format($eventoDetails->preco_sem_abs ?? 0, 2, '.', '') ?>">
+
+                <label>Preço para menores de 15 anos SEM Kimono (R$):*</label>
+                <input type="number" name="preco_sem_menor" step="0.01" min="0" required
+                    value="<?= number_format($eventoDetails->preco_sem_menor ?? 0, 2, '.', '') ?>">
+
                 <input type="number" name="normal_preco" step="0.01" min="0"
                     value="<?= number_format($eventoDetails->normal_preco ?? 0, 2, '.', '') ?>">
             </div>
