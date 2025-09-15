@@ -9,14 +9,16 @@ class Evento {
     private $data_limite;
     private $tipoCom;
     private $tipoSem;
-    //private $tipoAbCom;
-    //private $tipoAbSem;
     private $preco;
     private $preco_menor;
     private $preco_abs;
     private $doc;
     private $normal;
     private $normal_preco;
+    private $preco_sem;
+    private $preco_sem_menor;
+    private $preco_sem_abs;
+    
 
     // Método mágico __get para getters
     public function __get($atributo) {

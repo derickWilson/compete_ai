@@ -17,8 +17,17 @@ class eventosService
     //adicionar um evento novo
     public function addEvento()
     {
-        $query = "INSERT INTO evento (nome, descricao, data_limite, data_evento, local_evento, tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs, doc, normal, normal_preco)
-    VALUES(:nome, :descricao, :data_limite, :data_evento, :local_camp, :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs, :doc, :normal, :normal_preco)";
+        $query = "INSERT INTO evento (
+        nome, descricao, data_limite, data_evento, local_evento, 
+        tipo_com, tipo_sem, imagen, preco, preco_menor, preco_abs,
+        preco_sem, preco_sem_menor, preco_sem_abs,
+        doc, normal, normal_preco
+    ) VALUES (
+        :nome, :descricao, :data_limite, :data_evento, :local_camp, 
+        :tipoCom, :tipoSem, :img, :preco, :preco_menor, :preco_abs,
+        :preco_sem, :preco_sem_menor, :preco_sem_abs,
+        :doc, :normal, :normal_preco
+    )";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':nome', $this->evento->__get('nome'));
         $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'));
@@ -34,7 +43,9 @@ class eventosService
         $stmt->bindValue(':doc', $this->evento->__get('doc'));
         $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
         $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
-
+        $stmt->bindValue(':preco_sem', $this->evento->__get('preco_sem'));
+        $stmt->bindValue(':preco_sem_menor', $this->evento->__get('preco_sem_menor'));
+        $stmt->bindValue(':preco_sem_abs', $this->evento->__get('preco_sem_abs'));
         try {
             $stmt->execute();
             header("Location: /eventos.php");
@@ -94,7 +105,6 @@ class eventosService
     //listar todos os eventos
     public function listAll()
     {
-        //$query = "SELECT id, nome FROM evento WHERE data_evento >= CURRENT_DATE";
         $query = "SELECT id, nome, imagen, normal FROM evento WHERE data_evento >= CURRENT_DATE + INTERVAL 1 DAY";
         $stmt = $this->conn->prepare($query);
         try {
@@ -235,47 +245,47 @@ class eventosService
      * @throws Exception Em caso de erro grave
      */
     public function limparEventosExpirados()
-{
-    // Primeiro obtemos os eventos que devem ser deletados
-    // Altere para 1 dia ao invés de 7 dias, se quiser limpeza mais frequente
-    if (!$this->conn) {
-        throw new Exception("Conexão com o banco de dados não disponível");
-    }
-    $query = "SELECT id, nome, data_limite FROM evento 
+    {
+        // Primeiro obtemos os eventos que devem ser deletados
+        // Altere para 1 dia ao invés de 7 dias, se quiser limpeza mais frequente
+        if (!$this->conn) {
+            throw new Exception("Conexão com o banco de dados não disponível");
+        }
+        $query = "SELECT id, nome, data_limite FROM evento 
           WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
           AND data_limite IS NOT NULL";
-    $stmt = $this->conn->prepare($query);
+        $stmt = $this->conn->prepare($query);
 
-    try {
-        $stmt->execute();
-        $eventosParaDeletar = $stmt->fetchAll(PDO::FETCH_OBJ);
-        $resultados = [
-            'total_eventos' => count($eventosParaDeletar),
-            'eventos_deletados' => 0,
-            'erros' => []
-        ];
+        try {
+            $stmt->execute();
+            $eventosParaDeletar = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $resultados = [
+                'total_eventos' => count($eventosParaDeletar),
+                'eventos_deletados' => 0,
+                'erros' => []
+            ];
 
-        // Para cada evento, chamamos o método de deleção existente
-        foreach ($eventosParaDeletar as $evento) {
-            try {
-                $this->deletarEvento($evento->id);
-                $resultados['eventos_deletados']++;
-            } catch (Exception $e) {
-                $resultados['erros'][] = [
-                    'id_evento' => $evento->id,
-                    'erro' => $e->getMessage()
-                ];
-                error_log("Erro ao deletar evento ID {$evento->id}: " . $e->getMessage());
+            // Para cada evento, chamamos o método de deleção existente
+            foreach ($eventosParaDeletar as $evento) {
+                try {
+                    $this->deletarEvento($evento->id);
+                    $resultados['eventos_deletados']++;
+                } catch (Exception $e) {
+                    $resultados['erros'][] = [
+                        'id_evento' => $evento->id,
+                        'erro' => $e->getMessage()
+                    ];
+                    error_log("Erro ao deletar evento ID {$evento->id}: " . $e->getMessage());
+                }
             }
+
+            return $resultados;
+
+        } catch (Exception $e) {
+            error_log('Erro ao buscar eventos expirados: ' . $e->getMessage());
+            throw new Exception("Erro ao buscar eventos para limpeza");
         }
-
-        return $resultados;
-
-    } catch (Exception $e) {
-        error_log('Erro ao buscar eventos expirados: ' . $e->getMessage());
-        throw new Exception("Erro ao buscar eventos para limpeza");
     }
-}
     //ver e limpar eventos
     public function verificarELimparEventosExpirados()
     {

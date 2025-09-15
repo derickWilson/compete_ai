@@ -9,7 +9,10 @@ is_adm();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="/estilos/icone.jpeg">
+    <!-- Adicionando ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <title>Criar evento</title>
 </head>
 
@@ -32,11 +35,17 @@ is_adm();
             Data limite <input type="date" id="data_limite" name="data_limite" required><br>
 
             Modalidade:
-            <br><input type="checkbox" name="tipo_com" id="tipo_com"> Com Kimono
-            <br><input type="checkbox" name="tipo_sem" id="tipo_sem"> Sem Kimono
-            <br><input type="checkbox" name="normal" id="normal"> Evento Normal
+            <input type="checkbox" name="normal" id="normal">
+            <label for="normal">Evento Normal (Preço único)</label><br>
+
+            <input type="checkbox" name="tipo_com" id="tipo_com">
+            <label for="tipo_com">Com Kimono</label><br>
+
+            <input type="checkbox" name="tipo_sem" id="tipo_sem">
+            <label for="tipo_sem">Sem Kimono</label><br>
             <br>
 
+            <h4>Preço para Evento Com Quimono</h4>
             Preço para maiores de 15
             <input type="number" name="preco" id="preco" placeholder="Preço por Inscrição" step="0.01" min="0">
 
@@ -47,7 +56,19 @@ is_adm();
             <input type="number" name="preco_menor" id="preco_menor"
                 placeholder="Preço por Inscrição abaixo dos 15 anos" step="0.01" min="0">
 
-            Preço para Evento Normal
+            <h4>Preços para eventos Sem Kimono</h4>
+            Preço para maiores de 15 anos
+            <input type="number" name="preco_sem" id="preco_sem" placeholder="Preço por Inscrição SEM Kimono"
+                step="0.01" min="0"><br>
+
+            Preço para menores de 15 anos
+            <input type="number" name="preco_sem_menor" id="preco_sem_menor"
+                placeholder="Preço por Inscrição SEM Kimono abaixo dos 15 anos" step="0.01" min="0"><br>
+
+            Preço para Absoluto SEM Kimono
+            <input type="number" name="preco_sem_abs" placeholder="Preço por Absoluto SEM Kimono" step="0.01" min="0">
+
+            <h4>Preço para Evento Normal</h4>
             <input type="number" name="normal_preco" id="normal_preco" placeholder="Preço para Evento Normal"
                 step="0.01" min="0">
             <br>

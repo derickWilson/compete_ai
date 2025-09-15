@@ -28,12 +28,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         die("Erro: Selecione pelo menos um tipo de modalidade ou marque como 'Evento Normal'");
     }
 
-    // Captura dos preços
+    // Captura dos preços COM kimono
     $preco = isset($_POST['preco']) ? (float) cleanWords($_POST['preco']) : 0;
     $preco_menor = isset($_POST['preco_menor']) ? (float) cleanWords($_POST['preco_menor']) : 0;
     $preco_abs = isset($_POST['preco_abs']) ? (float) cleanWords($_POST['preco_abs']) : 0;
-    $normal_preco = isset($_POST['normal_preco']) ? (float) cleanWords($_POST['normal_preco']) : 0;
 
+    // Captura dos preços SEM kimono
+    $preco_sem = isset($_POST['preco_sem']) ? (float) cleanWords($_POST['preco_sem']) : 0;
+    $preco_sem_menor = isset($_POST['preco_sem_menor']) ? (float) cleanWords($_POST['preco_sem_menor']) : 0;
+    $preco_sem_abs = isset($_POST['preco_sem_abs']) ? (float) cleanWords($_POST['preco_sem_abs']) : 0;
     // Validação para eventos normais
     if ($normal && $normal_preco <= 0) {
         die("Erro: Eventos normais devem ter um preço definido");
@@ -90,6 +93,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $evento->__set('preco_menor', $preco_menor);
     $evento->__set('preco_abs', $preco_abs);
     $evento->__set('doc', $nomeArquivo);
+    $evento->__set('preco_sem', $preco_sem);
+    $evento->__set('preco_sem_menor', $preco_sem_menor);
+    $evento->__set('preco_sem_abs', $preco_sem_abs);
 
     $adEvento = new eventosService($conn, $evento);
     $adEvento->addEvento();
