@@ -310,7 +310,7 @@ function calcularNovoValor($inscricao, $dadosEvento)
     }
 
     // Aplica desconto de 40% se fez mais de uma modalidade
-    if ($modalidadesSelecionadas > 1) {
+    if ($modalidadesSelecionadas > 2) {
         $valorTotal *= 0.6; // 40% de desconto
     }
 

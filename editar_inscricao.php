@@ -20,6 +20,7 @@ try {
     require_once "classes/eventosServices.php";
     require_once "classes/AssasService.php";
     require_once "func/clearWord.php";
+    require_once "func/calcularIdade.php";
     require_once __DIR__ . '/config_taxa.php';
 } catch (Throwable $th) {
     error_log("Erro ao carregar dependências: " . $th->getMessage());
@@ -106,6 +107,74 @@ function handleDeletion(AssasService $assasService, atletaService $atserv, $insc
 }
 
 /**
+ * Função para calcular o valor da inscrição
+ */
+function calcularNovoValor($inscricao, $dadosEvento)
+{
+    // Se for evento normal
+    if ($dadosEvento->normal) {
+        return $dadosEvento->normal_preco * TAXA;
+    }
+
+    // Se for evento gratuito
+    $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && 
+                      $dadosEvento->preco_abs == 0 && $dadosEvento->preco_sem == 0 && 
+                      $dadosEvento->preco_sem_menor == 0 && $dadosEvento->preco_sem_abs == 0);
+    
+    if ($eventoGratuito) {
+        return 0;
+    }
+
+    $idade = calcularIdade($inscricao->data_nascimento);
+    $menorIdade = ($idade <= 15);
+
+    $valorTotal = 0;
+    $modalidadesSelecionadas = 0;
+
+    // Modalidade COM kimono
+    if ($inscricao->mod_com) {
+        $precoCom = $menorIdade ? $dadosEvento->preco_menor : $dadosEvento->preco;
+        $valorTotal += $precoCom;
+        $modalidadesSelecionadas++;
+    }
+
+    // Modalidade SEM kimono
+    if ($inscricao->mod_sem) {
+        $precoSem = $menorIdade ? $dadosEvento->preco_sem_menor : $dadosEvento->preco_sem;
+        $valorTotal += $precoSem;
+        $modalidadesSelecionadas++;
+    }
+
+    // Absoluto COM kimono
+    if ($inscricao->mod_ab_com) {
+        $valorTotal += $dadosEvento->preco_abs;
+        $modalidadesSelecionadas++;
+    }
+
+    // Absoluto SEM kimono
+    if ($inscricao->mod_ab_sem) {
+        $valorTotal += $dadosEvento->preco_sem_abs;
+        $modalidadesSelecionadas++;
+    }
+
+    // Aplica desconto de 40% se fez mais de uma modalidade
+    if ($modalidadesSelecionadas > 2) {
+        $valorTotal *= 0.6; // 40% de desconto
+    }
+
+    // Aplica a taxa
+    $valorTotal *= TAXA;
+
+    // Validação de segurança
+    if ($valorTotal <= 0) {
+        error_log("Valor calculado inválido para inscrição {$inscricao->id}: $valorTotal");
+        return $inscricao->valor_pago; // Mantém o valor original em caso de erro
+    }
+
+    return $valorTotal;
+}
+
+/**
  * Processa atualização de uma inscrição
  */
 function handleUpdate(
@@ -121,49 +190,45 @@ function handleUpdate(
     int $abSem,
     string $modalidade
 ): void {
-    // Verifica se é evento gratuito
-    $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && $dadosEvento->preco_abs == 0);
+    // Prepara dados para cálculo do valor
+    $dadosInscricao = (object)[
+        'data_nascimento' => $_SESSION['data_nascimento'],
+        'mod_com' => $com,
+        'mod_sem' => $sem,
+        'mod_ab_com' => $abCom,
+        'mod_ab_sem' => $abSem,
+        'valor_pago' => $inscricao->valor_pago,
+        'id' => $inscricao->id
+    ];
 
-    $valor = 0;
-    $valorMudou = false;
+    // Calcula o novo valor
+    $novoValor = calcularNovoValor($dadosInscricao, $dadosEvento);
+    $valorAtual = (float) $inscricao->valor_pago;
+    $valorMudou = abs($novoValor - $valorAtual) > 0.01; // Considera diferenças > 1 centavo
 
-    if (!$eventoGratuito) {
-        if ($dadosEvento->normal) {
-            $valor = $dadosEvento->normal_preco * TAXA;
-        } else {
-            $valor = $abCom == 1 ? $dadosEvento->preco_abs : $dadosEvento->preco;
-            $valor *= TAXA;
-            // Validação de segurança
-            if ($valor <= 0) {
-                throw new Exception("Valor da inscrição inválido");
-            }
-        }
-    }
-
-    // Atualiza modalidades no banco de dados (SEM REDIRECIONAMENTO)
+    // Atualiza modalidades no banco de dados
     if (!$atserv->editarInscricao($eventoId, $idAtleta, $com, $abCom, $sem, $abSem, $modalidade)) {
         throw new Exception("Falha ao atualizar modalidades da inscrição");
     }
 
     // Para eventos pagos com cobrança existente
-    if (!$eventoGratuito && !empty($inscricao->id_cobranca_asaas)) {
-        $valorAtual = (float) $inscricao->valor_pago;
-        $valorMudou = abs($valor - $valorAtual) > 0.01; // Considera diferenças > 1 centavo
+    $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && 
+                      $dadosEvento->preco_abs == 0 && $dadosEvento->preco_sem == 0 && 
+                      $dadosEvento->preco_sem_menor == 0 && $dadosEvento->preco_sem_abs == 0);
+    
+    if (!$eventoGratuito && !empty($inscricao->id_cobranca_asaas) && $valorMudou) {
+        $resultado = $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
+            'value' => number_format($novoValor, 2, '.', ''),
+            'dueDate' => $dadosEvento->data_limite,
+            'description' => 'Inscrição: ' . $dadosEvento->nome . ' (' . $modalidade . ')'
+        ]);
 
-        if ($valorMudou) {
-            $resultado = $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
-                'value' => number_format($valor, 2, '.', ''),
-                'dueDate' => $dadosEvento->data_limite,
-                'description' => 'Inscrição: ' . $dadosEvento->nome . ' (' . $modalidade . ')'
-            ]);
-
-            if (!$resultado['success']) {
-                throw new Exception("Erro ao atualizar cobrança: " . ($resultado['message'] ?? ''));
-            }
-
-            // Atualiza valor no banco de dados
-            $atserv->atualizarValorInscricao($eventoId, $idAtleta, $valor);
+        if (!$resultado['success']) {
+            throw new Exception("Erro ao atualizar cobrança: " . ($resultado['message'] ?? ''));
         }
+
+        // Atualiza valor no banco de dados
+        $atserv->atualizarValorInscricao($eventoId, $idAtleta, $novoValor);
     }
 
     $_SESSION['sucesso'] = "Inscrição atualizada" . ($valorMudou ? " (valor ajustado)" : "");
