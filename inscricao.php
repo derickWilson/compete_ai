@@ -75,7 +75,7 @@ if (isset($_GET["inscricao"])) {
                 echo "<br>Sem Kimono: " . $inscricao->preco_sem_menor . " R$";
             }
             ?>
-            <br><small>Desconto de 40% para múltiplas modalidades</small>
+            <br><small>Desconto de 40% para mais de duas modalidades</small>
         </p>
         <?php else: ?>
         <p>Evento Gratuito</p>
