@@ -106,8 +106,8 @@ function validarDadosBasicos(array $dados): void
             throw new Exception("O nome da academia é obrigatório.");
         }
 
-        if (!preg_match('/^[a-zA-Z0-9\s\-]{3,100}$/', $dados['academia'] ?? '')) {
-            throw new Exception("Nome da academia inválido. Use apenas letras, números e hífens.");
+        if (!preg_match('/^[\p{L}0-9\s\-\'\(\)\.\,]{3,100}$/u', $dados['academia'] ?? '')) {
+            throw new Exception("Nome da academia inválido. Use apenas letras, números, espaços, hífens, apóstrofos e parênteses.");
         }
 
         // Valida CEP (apenas para cadastro tipo A)
