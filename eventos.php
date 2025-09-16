@@ -173,6 +173,7 @@ if (isset($_GET['id'])) {
                     </div>
                 </div>
                 <!-- Seção de preços -->
+                <!-- Seção de preços -->
                 <div class="precos-container">
                     <h3>Valores</h3>
                     <?php
@@ -184,16 +185,42 @@ if (isset($_GET['id'])) {
                         // Exibição para Evento com Classificação
                         if (!isset($_SESSION["idade"])) {
                             // Usuário não logado - mostra todos os preços
-                            echo "<p>Preço geral: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong> (maiores de 15 anos)</p>";
-                            echo "<p>Preço para menores: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong> (menores de 15 anos)</p>";
-                            echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
+            
+                            // Preços COM Kimono
+                            echo "<h4>COM Kimono:</h4>";
+                            echo "<p>Maiores de 15: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong></p>";
+                            echo "<p>Menores de 15: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
+                            echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
+
+                            // Preços SEM Kimono (se o evento tiver essa modalidade)
+                            if ($eventoDetails->tipo_sem == 1) {
+                                echo "<h4>SEM Kimono:</h4>";
+                                echo "<p>Maiores de 15: <strong>" . number_format($eventoDetails->preco_sem * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Menores de 15: <strong>" . number_format($eventoDetails->preco_sem_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_sem_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
+                            }
                         } else {
                             // Usuário logado - mostra preço conforme idade
                             if ($_SESSION["idade"] > 15) {
+                                echo "<h4>COM Kimono:</h4>";
                                 echo "<p>Preço: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                echo "<p>Preço absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
+
+                                // Preços SEM Kimono (se o evento tiver essa modalidade)
+                                if ($eventoDetails->tipo_sem == 1) {
+                                    echo "<h4>SEM Kimono:</h4>";
+                                    echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_sem * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                    echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_sem_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                }
                             } else {
+                                echo "<h4>COM Kimono:</h4>";
                                 echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
+
+                                // Preços SEM Kimono (se o evento tiver essa modalidade)
+                                if ($eventoDetails->tipo_sem == 1) {
+                                    echo "<h4>SEM Kimono:</h4>";
+                                    echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_sem_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                }
                             }
                         }
                     }

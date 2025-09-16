@@ -85,7 +85,9 @@ try {
     // Verifica se o evento é gratuito
     $eventoGratuito = ($eventoDetails->normal)
         ? ($eventoDetails->normal_preco == 0)
-        : ($eventoDetails->preco == 0 && $eventoDetails->preco_menor == 0 && $eventoDetails->preco_abs == 0);
+        : ($eventoDetails->preco == 0 && $eventoDetails->preco_menor == 0 &&
+            $eventoDetails->preco_abs == 0 && $eventoDetails->preco_sem == 0 &&
+            $eventoDetails->preco_sem_menor == 0 && $eventoDetails->preco_sem_abs == 0);
 
     // Cálculo do valor com taxa
     $valor = 0;
@@ -93,8 +95,28 @@ try {
         if ($eventoDetails->normal) {
             $valor = $eventoDetails->normal_preco * TAXA;
         } else {
-            $valor = $modalidades["abs_com"] == 1 ? $eventoDetails->preco_abs : $eventoDetails->preco;
-            $valor *= TAXA;
+            // Prepara dados para a função de cálculo
+            $dadosInscricao = (object) [
+                'data_nascimento' => $_SESSION['data_nascimento'],
+                'mod_com' => $modalidades['com'],
+                'mod_sem' => $modalidades['sem'],
+                'mod_ab_com' => $modalidades['abs_com'],
+                'mod_ab_sem' => $modalidades['abs_sem']
+            ];
+
+            $dadosEventoArray = [
+                'normal' => $eventoDetails->normal,
+                'normal_preco' => $eventoDetails->normal_preco,
+                'preco' => $eventoDetails->preco,
+                'preco_menor' => $eventoDetails->preco_menor,
+                'preco_abs' => $eventoDetails->preco_abs,
+                'preco_sem' => $eventoDetails->preco_sem,
+                'preco_sem_menor' => $eventoDetails->preco_sem_menor,
+                'preco_sem_abs' => $eventoDetails->preco_sem_abs
+            ];
+
+            $valor = calcularNovoValor($dadosInscricao, $dadosEventoArray);
+
             // Validação de segurança
             if ($valor <= 0) {
                 throw new Exception("Valor da inscrição inválido");
@@ -237,5 +259,70 @@ try {
     header("Location: evento_detalhes.php?id=" . $evento_id);
     ob_end_flush();
     exit();
+}
+
+function calcularNovoValor($inscricao, $dadosEvento)
+{
+    // Se for evento normal
+    if ($dadosEvento['normal']) {
+        return $dadosEvento['normal_preco'] * TAXA;
+    }
+
+    // Se for evento gratuito
+    if (
+        $dadosEvento['preco'] == 0 && $dadosEvento['preco_menor'] == 0 &&
+        $dadosEvento['preco_abs'] == 0 && $dadosEvento['preco_sem'] == 0 &&
+        $dadosEvento['preco_sem_menor'] == 0 && $dadosEvento['preco_sem_abs'] == 0
+    ) {
+        return 0;
+    }
+
+    $idade = calcularIdade($inscricao->data_nascimento);
+    $menorIdade = ($idade <= 15);
+
+    $valorTotal = 0;
+    $modalidadesSelecionadas = 0;
+
+    // Modalidade COM kimono
+    if ($inscricao->mod_com) {
+        $precoCom = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
+        $valorTotal += $precoCom;
+        $modalidadesSelecionadas++;
+    }
+
+    // Modalidade SEM kimono
+    if ($inscricao->mod_sem) {
+        $precoSem = $menorIdade ? $dadosEvento['preco_sem_menor'] : $dadosEvento['preco_sem'];
+        $valorTotal += $precoSem;
+        $modalidadesSelecionadas++;
+    }
+
+    // Absoluto COM kimono
+    if ($inscricao->mod_ab_com) {
+        $valorTotal += $dadosEvento['preco_abs'];
+        $modalidadesSelecionadas++;
+    }
+
+    // Absoluto SEM kimono
+    if ($inscricao->mod_ab_sem) {
+        $valorTotal += $dadosEvento['preco_sem_abs'];
+        $modalidadesSelecionadas++;
+    }
+
+    // Aplica desconto de 40% se fez mais de uma modalidade
+    if ($modalidadesSelecionadas > 1) {
+        $valorTotal *= 0.6; // 40% de desconto
+    }
+
+    // Aplica a taxa
+    $valorTotal *= TAXA;
+
+    // Validação de segurança
+    if ($valorTotal <= 0) {
+        error_log("Valor calculado inválido para inscrição {$inscricao->id}: $valorTotal");
+        return $inscricao->valor_pago; // Mantém o valor original em caso de erro
+    }
+
+    return $valorTotal;
 }
 ?>

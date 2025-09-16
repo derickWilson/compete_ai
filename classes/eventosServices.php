@@ -55,52 +55,59 @@ class eventosService
         }
     }
     //editar evento
-    public function editEvento()
-    {
-        $query = "UPDATE evento SET
-            nome = :nome,
-            imagen = :imagen,
-            descricao = :descricao,
-            data_limite = :data_limite,
-            data_evento = :data_evento,
-            local_evento = :local_evento,
-            tipo_com = :tipoCom,
-            tipo_sem = :tipoSem,
-            preco = :preco,
-            preco_abs = :preco_abs,
-            preco_menor = :preco_menor,
-            doc = :doc,
-            normal = :normal,
-            normal_preco = :normal_preco
-            WHERE id = :id";
+    //editar evento
+public function editEvento()
+{
+    $query = "UPDATE evento SET
+        nome = :nome,
+        imagen = :imagen,
+        descricao = :descricao,
+        data_limite = :data_limite,
+        data_evento = :data_evento,
+        local_evento = :local_evento,
+        tipo_com = :tipoCom,
+        tipo_sem = :tipoSem,
+        preco = :preco,
+        preco_menor = :preco_menor,
+        preco_abs = :preco_abs,
+        preco_sem = :preco_sem,
+        preco_sem_menor = :preco_sem_menor,
+        preco_sem_abs = :preco_sem_abs,
+        doc = :doc,
+        normal = :normal,
+        normal_preco = :normal_preco
+        WHERE id = :id";
 
-        $stmt = $this->conn->prepare($query);
+    $stmt = $this->conn->prepare($query);
 
-        // Mapeamento correto dos campos
-        $stmt->bindValue(':id', $this->evento->__get('id'), PDO::PARAM_INT);
-        $stmt->bindValue(':nome', $this->evento->__get('nome'), PDO::PARAM_STR);
-        $stmt->bindValue(':imagen', $this->evento->__get('img'), PDO::PARAM_STR);
-        $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'), PDO::PARAM_STR);
-        $stmt->bindValue(':local_evento', $this->evento->__get('local_camp'), PDO::PARAM_STR);
-        $stmt->bindValue(':descricao', $this->evento->__get('descricao'), PDO::PARAM_STR);
-        $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'), PDO::PARAM_STR);
-        $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'), PDO::PARAM_INT);
-        $stmt->bindValue(':tipoSem', $this->evento->__get('tipoSem'), PDO::PARAM_INT);
-        $stmt->bindValue(':preco', $this->evento->__get('preco'));
-        $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
-        $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
-        $stmt->bindValue(':doc', $this->evento->__get('doc'), PDO::PARAM_STR);
-        $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
-        $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
+    // Mapeamento correto dos campos
+    $stmt->bindValue(':id', $this->evento->__get('id'), PDO::PARAM_INT);
+    $stmt->bindValue(':nome', $this->evento->__get('nome'), PDO::PARAM_STR);
+    $stmt->bindValue(':imagen', $this->evento->__get('img'), PDO::PARAM_STR);
+    $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'), PDO::PARAM_STR);
+    $stmt->bindValue(':local_evento', $this->evento->__get('local_camp'), PDO::PARAM_STR);
+    $stmt->bindValue(':descricao', $this->evento->__get('descricao'), PDO::PARAM_STR);
+    $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'), PDO::PARAM_STR);
+    $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'), PDO::PARAM_INT);
+    $stmt->bindValue(':tipoSem', $this->evento->__get('tipoSem'), PDO::PARAM_INT);
+    $stmt->bindValue(':preco', $this->evento->__get('preco'));
+    $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
+    $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
+    $stmt->bindValue(':preco_sem', $this->evento->__get('preco_sem'));
+    $stmt->bindValue(':preco_sem_menor', $this->evento->__get('preco_sem_menor'));
+    $stmt->bindValue(':preco_sem_abs', $this->evento->__get('preco_sem_abs'));
+    $stmt->bindValue(':doc', $this->evento->__get('doc'), PDO::PARAM_STR);
+    $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
+    $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
 
-        try {
-            $result = $stmt->execute();
-            return $result; // Retorna true/false para o chamador decidir o redirecionamento
-        } catch (Exception $e) {
-            error_log('Erro ao editar evento: ' . $e->getMessage());
-            throw new Exception("Erro ao atualizar o evento no banco de dados");
-        }
+    try {
+        $result = $stmt->execute();
+        return $result; // Retorna true/false para o chamador decidir o redirecionamento
+    } catch (Exception $e) {
+        error_log('Erro ao editar evento: ' . $e->getMessage());
+        throw new Exception("Erro ao atualizar o evento no banco de dados");
     }
+}
 
     //listar todos os eventos
     public function listAll()
