@@ -587,6 +587,44 @@ class atletaService
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['count'] > 0;
     }
+    
+    /**
+     * Verifica se um CPF já está cadastrado no sistema
+     * 
+     * Esta função consulta a base de dados para verificar se o CPF fornecido
+     * já está cadastrado para algum atleta, prevenindo duplicidades.
+     * 
+     * @param string $cpf CPF a ser verificado (com ou sem formatação)
+     * @return bool Retorna true se o CPF já existe, false caso contrário
+     * 
+     * @example
+     * if ($atletaService->cpfExists('123.456.789-00')) {
+     *     echo "CPF já cadastrado!";
+     * }
+     * 
+     * @security
+     * - Remove caracteres não numéricos antes da verificação
+     * - Previne SQL injection através de prepared statements
+     */
+    public function cpfExists($cpf)
+    {
+        // Remove caracteres não numéricos
+        $cpfLimpo = preg_replace('/[^0-9]/', '', $cpf);
+
+        // Query para verificar se o CPF existe
+        $query = "SELECT COUNT(*) as count FROM atleta WHERE REPLACE(REPLACE(cpf, '.', ''), '-', '') = :cpf";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(":cpf", $cpfLimpo);
+
+        try {
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result['count'] > 0;
+        } catch (Exception $e) {
+            error_log("Erro ao verificar CPF: " . $e->getMessage());
+            return false; // Em caso de erro, assume que não existe para não bloquear o cadastro
+        }
+    }
     public function listarCampeonatos($id_atleta)
     {
         $query = 'SELECT 

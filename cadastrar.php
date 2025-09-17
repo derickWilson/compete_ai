@@ -155,6 +155,11 @@ try {
         $atletas->__set("peso", (float) $_POST["peso"]);
         $atletas->__set("diploma", $novoNomeDiploma);
 
+        // Verifica se CPF já existe
+        if ($attServ->cpfExists($_POST['cpf'])) {
+            throw new Exception("Este CPF já está cadastrado em nosso sistema.");
+        }
+
         // Verifica se e-mail já existe
         if ($attServ->emailExists($atletas->__get("email"))) {
             throw new Exception("Este e-mail já está cadastrado.");
@@ -255,6 +260,10 @@ try {
 
         $atletas->__set("peso", (float) $_POST["peso"]);
         $atletas->__set("diploma", $novoNomeDiploma);
+        // Verifica se CPF já existe
+        if ($attServ->cpfExists($_POST['cpf'])) {
+            throw new Exception("Este CPF já está cadastrado em nosso sistema.");
+        }
 
         // Verifica se e-mail já existe
         if ($attServ->emailExists($atletas->__get("email"))) {

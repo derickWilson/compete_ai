@@ -42,6 +42,9 @@ if (isset($_GET['erro'])) {
         case 6:
             $erro_message = 'CPF inválido. Por favor, verifique o número digitado.';
             break;
+        case 7:
+            $erro_message = 'Este CPF já está cadastrado. Por favor, utilize outro CPF ou faça login.';
+            break;
         default:
             $erro_message = 'Ocorreu um erro durante o cadastro. Por favor, tente novamente.';
     }
