@@ -1,22 +1,66 @@
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST"){
-    try{
-        require_once "classes/atletaService.php";
-        include "func/clearWord.php";
-    }catch (Exception $e){
-        echo $e->getMessage();
+session_start();
+ob_start();
+
+// Prevenir acesso direto
+define('LOGIN_ACCESS', true);
+
+if ($_SERVER["REQUEST_METHOD"] != "POST") {
+    header("Location: index.php");
+    exit();
+}
+
+// Verificar se já está logado
+if (isset($_SESSION['logado']) && $_SESSION['logado']) {
+    header("Location: pagina_pessoal.php");
+    exit();
+}
+
+try {
+    require_once "classes/atletaService.php";
+    include "func/clearWord.php";
+    
+    // Validação dos campos
+    $camposObrigatorios = ['usuario', 'senha'];
+    foreach ($camposObrigatorios as $campo) {
+        if (empty($_POST[$campo])) {
+            header('Location: login.php?erro=2'); // Campos obrigatórios
+            exit();
+        }
     }
+    
+    // Sanitização
+    $email = trim(cleanWords($_POST["usuario"]));
+    $senha = $_POST["senha"]; // Não limpar a senha (pode remover caracteres importantes)
+    
+    // Validação de email
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        header('Location: login.php?erro=4'); // Email inválido
+        exit();
+    }
+    
+    // Instanciar e autenticar
     $atleta = new Atleta();
     $conn = new Conexao();
-    $atleta->__set("email", cleanWords($_POST["usuario"]));
-    $atleta->__set("senha", cleanWords($_POST["senha"]));
-    try {
-        $attServ = new atletaService($conn, $atleta);
-        $attServ->logar(); 
-    } catch (Exception $e) {
-        echo "Erro ao tentar logar: " . $e->getMessage();
-    }
-} else {
-    header("Location: index.php");
+    
+    $atleta->__set("email", $email);
+    $atleta->__set("senha", $senha); // A senha será hasheada no service
+    
+    $attServ = new atletaService($conn, $atleta);
+    $attServ->logar();
+    
+} catch (PDOException $e) {
+    // Erro de banco de dados
+    error_log("PDO Error in login: " . $e->getMessage());
+    header('Location: login.php?erro=3'); // Erro de sistema
+    exit();
+    
+} catch (Exception $e) {
+    // Outros erros
+    error_log("General Error in login: " . $e->getMessage());
+    header('Location: login.php?erro=5'); // Erro genérico
+    exit();
 }
+
+ob_end_flush();
 ?>
