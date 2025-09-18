@@ -19,7 +19,7 @@ if (isset($_SESSION['logado']) && $_SESSION['logado']) {
 try {
     require_once "classes/atletaService.php";
     include "func/clearWord.php";
-    
+
     // Validação dos campos
     $camposObrigatorios = ['usuario', 'senha'];
     foreach ($camposObrigatorios as $campo) {
@@ -28,33 +28,34 @@ try {
             exit();
         }
     }
-    
+
     // Sanitização
-    $email = trim(cleanWords($_POST["usuario"]));
+    $email = trim($_POST["usuario"]); // Remove apenas espaços
+    $email = filter_var($email, FILTER_SANITIZE_EMAIL); // Sanitização segura para email    
     $senha = $_POST["senha"]; // Não limpar a senha (pode remover caracteres importantes)
-    
+
     // Validação de email
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         header('Location: login.php?erro=4'); // Email inválido
         exit();
     }
-    
+
     // Instanciar e autenticar
     $atleta = new Atleta();
     $conn = new Conexao();
-    
+
     $atleta->__set("email", $email);
     $atleta->__set("senha", $senha); // A senha será hasheada no service
-    
+
     $attServ = new atletaService($conn, $atleta);
     $attServ->logar();
-    
+
 } catch (PDOException $e) {
     // Erro de banco de dados
     error_log("PDO Error in login: " . $e->getMessage());
     header('Location: login.php?erro=3'); // Erro de sistema
     exit();
-    
+
 } catch (Exception $e) {
     // Outros erros
     error_log("General Error in login: " . $e->getMessage());
