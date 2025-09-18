@@ -7,36 +7,56 @@ if (isset($_SESSION["logado"]) && $_SESSION["logado"]) {
 
 require_once "classes/atletaService.php";
 require_once "func/clearWord.php";
-function enviarEmailRecuperacao($destinatario, $codigo)
-{
-    $assunto = "Recuperação de Senha FPJJI";
-    $mensagem = "
-    <html>
-    <head>
-        <title>Recuperação de Senha</title>
-    </head>
-    <body>
-        <h2>Recuperação de Senha</h2>
-        <p>Você solicitou a recuperação de senha. Use o código abaixo para continuar:</p>
-        <div style='font-size: 24px; font-weight: bold; margin: 20px 0;'>$codigo</div>
-        <p>Este código é válido por 30 minutos.</p>
-        <p>Caso não tenha solicitado esta alteração, ignore este email.</p>
-    </body>
-    </html>
-    ";
 
-    $headers = "MIME-Version: 1.0\r\n";
-    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-    $headers .= "From: FPJJI <wsaazizbjj@fpjji.com>\r\n"; // Nome + email
-    $headers .= "Reply-To: wsaazizbjj@fpjji.com\r\n";
-    $headers .= "Return-Path: wsaazizbjj@fpjji.com\r\n"; // Adicione esta linha
-    $headers .= "Message-ID: <" . time() . rand(1, 1000) . "@fpjji.com>\r\n"; // ID único
-    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
-    $headers .= "X-Priority: 1\r\n"; 
-    $headers .= "X-MSMail-Priority: Normal\r\n";
+// Incluir e configurar PHPMailer
+require 'classes/PHPMailer/src/Exception.php';
+require 'classes/PHPMailer/src/PHPMailer.php';
+require 'classes/PHPMailer/src/SMTP.php';
 
-    return mail($destinatario, $assunto, $mensagem, $headers);
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+function enviarEmailRecuperacaoSMTP($destinatario, $codigo) {
+    $mail = new PHPMailer(true);
+    
+    try {
+        // Configurações do servidor SMTP
+        $mail->isSMTP();
+        $mail->Host = 'mail.fpjji.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'wsaazizbjj@fpjji.com';
+        $mail->Password = 'SUA_SENHA_AQUI'; // ATENÇÃO: Substitua pela senha real
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
+        
+        // Remetente e destinatário
+        $mail->setFrom('wsaazizbjj@fpjji.com', 'FPJJI');
+        $mail->addAddress($destinatario);
+        $mail->addReplyTo('wsaazizbjj@fpjji.com', 'FPJJI');
+        
+        // Conteúdo do email
+        $mail->isHTML(true);
+        $mail->Subject = 'Recuperação de Senha FPJJI';
+        $mail->Body = "
+            <h2>Recuperação de Senha</h2>
+            <p>Você solicitou a recuperação de senha. Use o código abaixo para continuar:</p>
+            <div style='font-size: 24px; font-weight: bold; margin: 20px 0;'>$codigo</div>
+            <p>Este código é válido por 30 minutos.</p>
+            <p>Caso não tenha solicitado esta alteração, ignore este email.</p>
+        ";
+        
+        // Enviar email
+        $mail->send();
+        return true;
+        
+    } catch (Exception $e) {
+        error_log('Erro ao enviar e-mail: ' . $mail->ErrorInfo);
+        return false;
+    }
 }
+
 $mensagem = "";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -50,10 +70,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $codigo = $attServ->gerarCodigoRecuperacao($email);
 
-        //envio de email
-        if (enviarEmailRecuperacao($email, $codigo)) {
+        // Envio de email usando PHPMailer
+        if (enviarEmailRecuperacaoSMTP($email, $codigo)) {
             $mensagem = "Um código de recuperação foi enviado para seu email:<br>
-            Lembre de Conferir a Caixa de Espam<br>";
+            Lembre de Conferir a Caixa de Spam<br>";
         } else {
             error_log("FALHA NO ENVIO DE EMAIL - Email: " . $email . ", Código: " . $codigo . ", Data: " . date('Y-m-d H:i:s'));
             throw new Exception("Falha ao enviar email. Tente novamente mais tarde.");
