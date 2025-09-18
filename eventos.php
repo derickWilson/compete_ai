@@ -249,7 +249,7 @@ if (isset($_GET['id'])) {
                                 ?>">
 
                                 <?php if ($eventoDetails->tipo_com == 1) { ?>
-                                    <input type="checkbox" name="com" checked onclick="return false;" style="pointer-events: none;"> Com Kimono
+                                    <input type="checkbox" name="com" style="pointer-events: none;"> Com Kimono
                                     <?php if ($_SESSION["idade"] > 15) { ?>
                                         <input type="checkbox" name="abs_com"> Absoluto Com Kimono
                                     <?php } ?>
@@ -298,11 +298,13 @@ if (isset($_GET['id'])) {
                         </form>
                     <?php } else { ?>
                         <p>Você já está inscrito neste evento.</p>
+
                         <!-- editar o evento-->
                     <?php } ?>
                 <?php } else { ?>
                     <p>Faça <a href="/login.php">login</a> para se inscrever.</p>
                 <?php } ?>
+
                 <!-- Opções de administrador -->
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     <div class="chapa-options">

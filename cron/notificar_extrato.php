@@ -4,9 +4,57 @@ require_once __DIR__ . "/../classes/eventosServices.php";
 require_once __DIR__ . "/../func/database.php";
 require_once __DIR__ . "/../emails/email.php";
 
+// Incluir e configurar PHPMailer
+require __DIR__ . '/../classes/PHPMailer/src/Exception.php';
+require __DIR__ . '/../classes/PHPMailer/src/PHPMailer.php';
+require __DIR__ . '/../classes/PHPMailer/src/SMTP.php';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 // Configurar logging
 $log_file = __DIR__ . '/notificacoes_cobranca_log_' . date('Y-m-d') . '.txt';
 file_put_contents($log_file, "[" . date('Y-m-d H:i:s') . "] Iniciando processamento\n", FILE_APPEND);
+
+function enviarEmailCobrancaSMTP($destinatario, $assunto, $mensagem) {
+    $mail = new PHPMailer(true);
+    
+    try {
+        // Configurações do servidor SMTP
+        $mail->isSMTP();
+        $mail->Host = 'mail.fpjji.com';
+        $mail->SMTPAuth = true;
+        $mail->Username = 'wsaazizbjj@fpjji.com';
+        $mail->Password = 'SUA_SENHA_AQUI'; // ATENÇÃO: Substitua pela senha real
+        $mail->SMTPSecure = 'tls';
+        $mail->Port = 587;
+        
+        // Configuração de codificação UTF-8
+        $mail->CharSet = 'UTF-8';
+        $mail->Encoding = 'base64';
+        
+        // Remetente e destinatário
+        $mail->setFrom('wsaazizbjj@fpjji.com', 'FPJJI');
+        $mail->addAddress($destinatario);
+        $mail->addReplyTo('wsaazizbjj@fpjji.com', 'FPJJI');
+        
+        // Conteúdo do email
+        $mail->isHTML(true);
+        $mail->Subject = $assunto;
+        $mail->Body = $mensagem;
+        
+        // Versão alternativa em texto simples
+        $mail->AltBody = strip_tags($mensagem);
+        
+        // Enviar email
+        $mail->send();
+        return true;
+        
+    } catch (Exception $e) {
+        error_log('Erro ao enviar e-mail de cobrança: ' . $mail->ErrorInfo);
+        return false;
+    }
+}
 
 try {
     $conn = new Conexao();
@@ -36,22 +84,12 @@ try {
             $permissao_email = property_exists($inscrito, 'permissao_email') ? $inscrito->permissao_email : 1;
 
             if ($inscrito->status_pagamento == "PENDING" && $permissao_email == 1) {
-                $mensagem = obter_mensagem_base($evento_detalhes->nome, $inscrito->id, "cobranca_lembrete", $dias_restantes);
+                $mensagem = obter_mensagem_base($evento_detalhes->nome, $inscrito->id, "cobranca_lembrete", 0);
 
                 if (!empty($mensagem)) {
-                    $headers = "MIME-Version: 1.0\r\n";
-                    $headers .= "Content-type: text/html; charset=UTF-8\r\n";
-                    $headers .= "From: FPJJI <fpjjioficial@gmail.com>\r\n";
-                    $headers .= "Reply-To: fpjjioficial@gmail.com\r\n";
-                    $headers .= "Return-Path: fpjjioficial@gmail.com\r\n";
-                    $headers .= "Message-ID: <" . time() . rand(1, 1000) . "@fpjji.com>\r\n";
-                    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
-                    $headers .= "X-Priority: 3\r\n";
-                    $headers .= "X-MSMail-Priority: Normal\r\n";
+                    $assunto = "Lembrete: " . $evento_detalhes->nome . " - Pagamento Pendente";
 
-                    $assunto = "Lembrete: " . $evento_detalhes->nome . "Pagamento Pendente";
-
-                    if (mail($inscrito->email, $assunto, $mensagem, $headers)) {
+                    if (enviarEmailCobrancaSMTP($inscrito->email, $assunto, $mensagem)) {
                         // Aguardar o tempo de 5 segundos para proxima entrega
                         usleep((5 * 1000000));
                         $notificacoes_enviadas++;
