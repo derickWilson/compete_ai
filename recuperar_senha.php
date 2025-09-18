@@ -52,8 +52,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         //envio de email
         if (enviarEmailRecuperacao($email, $codigo)) {
-            $mensagem = "Um código de recuperação foi enviado para seu email:<br>";
+            $mensagem = "Um código de recuperação foi enviado para seu email:<br>
+            Lembre de Conferir a Caixa de Espam<br>";
         } else {
+            error_log("FALHA NO ENVIO DE EMAIL - Email: " . $email . ", Código: " . $codigo . ", Data: " . date('Y-m-d H:i:s'));
             throw new Exception("Falha ao enviar email. Tente novamente mais tarde.");
         }
     } catch (Exception $e) {
