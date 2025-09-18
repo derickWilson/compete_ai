@@ -249,16 +249,16 @@ if (isset($_GET['id'])) {
                                 ?>">
 
                                 <?php if ($eventoDetails->tipo_com == 1) { ?>
-                                    <input type="checkbox" name="com" style="pointer-events: none;"> Com Kimono
+                                    <input type="checkbox" name="com"> Categoria (Com Kimono)
                                     <?php if ($_SESSION["idade"] > 15) { ?>
-                                        <input type="checkbox" name="abs_com"> Absoluto Com Kimono
+                                        <br><input type="checkbox" name="abs_com"> Categoria + Absoluto (Com Kimono)
                                     <?php } ?>
                                 <?php } ?>
 
                                 <?php if ($eventoDetails->tipo_sem == 1) { ?>
-                                    <input type="checkbox" name="sem"> Sem Kimono
+                                    <input type="checkbox" name="sem"> Categoria (Sem Kimono)
                                     <?php if ($_SESSION["idade"] > 15) { ?>
-                                        <input type="checkbox" name="abs_sem"> Absoluto Sem Kimono
+                                        <br><input type="checkbox" name="abs_sem"> Categoria + Absoluto (Sem Kimono)
                                     <?php } ?>
                                 <?php } ?>
                             <?php } ?>

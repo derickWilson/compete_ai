@@ -78,6 +78,10 @@ try {
             'abs_com' => isset($_POST['abs_com']) ? 1 : 0,
             'abs_sem' => isset($_POST['abs_sem']) ? 1 : 0
         ];
+        
+        if($modalidades['com'] == 0 && $modalidades['sem'] == 0 && $modalidades['abs_com'] == 0 && $modalidades['abs_sem'] == 0){
+            throw new Exception("Nenhuma Modalidade Selecionada");
+        }
     }
 
     $modalidade_escolhida = cleanWords($_POST['modalidade']);
