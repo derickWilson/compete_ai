@@ -175,8 +175,8 @@ try {
             $idInserido = $attServ->Filiar(
                 $nomeAcademia,
                 $_POST["cep"],
-                $_POST["cidade"], // ← SEM cleanWords()
-                $_POST["estado"]  // ← SEM cleanWords()
+                $_POST["cidade"],
+                $_POST["estado"]
             );
 
             // Já temos o ID, não precisa buscar
