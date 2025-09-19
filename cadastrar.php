@@ -169,7 +169,7 @@ try {
         //$nomeAcademia = cleanWords($_POST["academia"]);
 
         // Cadastra academia se não existir
-        $nomeAcademia = $_POST["academia"]; // ← SEM cleanWords() para manter espaços
+        $nomeAcademia = $_POST["academia"];
 
         if (!$attServ->existAcad($nomeAcademia)) {
             $idInserido = $attServ->Filiar(
