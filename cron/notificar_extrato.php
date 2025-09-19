@@ -24,7 +24,7 @@ function enviarEmailCobrancaSMTP($destinatario, $assunto, $mensagem) {
         $mail->isSMTP();
         $mail->Host = 'mail.fpjji.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'wsaazizbjj@fpjji.com';
+        $mail->Username = '';
         $mail->Password = 'SUA_SENHA_AQUI'; // ATENÇÃO: Substitua pela senha real
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
