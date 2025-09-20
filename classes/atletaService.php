@@ -587,7 +587,7 @@ class atletaService
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         return $result['count'] > 0;
     }
-    
+
     /**
      * Verifica se um CPF já está cadastrado no sistema
      * 
@@ -741,8 +741,8 @@ class atletaService
             SET mod_com = :com, mod_sem = :sem, mod_ab_com = :abCom, mod_ab_sem = :abSem, modalidade = :mod
             WHERE id_evento = :evento AND id_atleta = :idAtleta";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":com", $com);
-        $stmt->bindValue(":sem", $sem);
+        $stmt->bindValue(":com", ($com || $abCom) ? 1 : 0, PDO::PARAM_INT);
+        $stmt->bindValue(":sem", ($sem || $abSem) ? 1 : 0, PDO::PARAM_INT);
         $stmt->bindValue(":abCom", $abCom);
         $stmt->bindValue(":abSem", $abSem);
         $stmt->bindValue(":mod", $moda);

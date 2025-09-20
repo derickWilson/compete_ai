@@ -31,10 +31,10 @@ if (isset($_GET["inscricao"])) {
     }
 
     // Verifica se é evento gratuito considerando todos os preços
-    $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && 
-                      $dadosEvento->preco_abs == 0 && $dadosEvento->preco_sem == 0 && 
-                      $dadosEvento->preco_sem_menor == 0 && $dadosEvento->preco_sem_abs == 0);
-    
+    $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 &&
+        $dadosEvento->preco_abs == 0 && $dadosEvento->preco_sem == 0 &&
+        $dadosEvento->preco_sem_menor == 0 && $dadosEvento->preco_sem_abs == 0);
+
     // Formata os preços para exibição
     $inscricao->preco = number_format($inscricao->preco * TAXA, 2, ',', '.');
     $inscricao->preco_menor = number_format($inscricao->preco_menor * TAXA, 2, ',', '.');
@@ -50,6 +50,7 @@ if (isset($_GET["inscricao"])) {
 ?>
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -57,30 +58,31 @@ if (isset($_GET["inscricao"])) {
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/estilos/icone.jpeg">
 </head>
+
 <body>
     <?php include "menu/add_menu.php"; ?>
     <div class='principal'>
         <h3><?php echo htmlspecialchars($inscricao->nome); ?></h3>
-        
+
         <?php if (!$eventoGratuito): ?>
-        <p>Preços:
-            <?php
-            if ($_SESSION["idade"] > 15) {
-                echo "<br>Com Kimono: " . $inscricao->preco . " R$";
-                echo "<br>Absoluto Com Kimono: " . $inscricao->preco_abs . " R$";
-                echo "<br>Sem Kimono: " . $inscricao->preco_sem . " R$";
-                echo "<br>Absoluto Sem Kimono: " . $inscricao->preco_sem_abs . " R$";
-            } else {
-                echo "<br>Com Kimono: " . $inscricao->preco_menor . " R$";
-                echo "<br>Sem Kimono: " . $inscricao->preco_sem_menor . " R$";
-            }
-            ?>
-            <br><small>Desconto de 40% para mais de duas modalidades</small>
-        </p>
+            <p>Preços:
+                <?php
+                if ($_SESSION["idade"] > 15) {
+                    echo "<br>Com Kimono: " . $inscricao->preco . " R$";
+                    echo "<br>Absoluto Com Kimono: " . $inscricao->preco_abs . " R$";
+                    echo "<br>Sem Kimono: " . $inscricao->preco_sem . " R$";
+                    echo "<br>Absoluto Sem Kimono: " . $inscricao->preco_sem_abs . " R$";
+                } else {
+                    echo "<br>Com Kimono: " . $inscricao->preco_menor . " R$";
+                    echo "<br>Sem Kimono: " . $inscricao->preco_sem_menor . " R$";
+                }
+                ?>
+                <br><small>Desconto de 40% para mais de duas modalidades</small>
+            </p>
         <?php else: ?>
-        <p>Evento Gratuito</p>
+            <p>Evento Gratuito</p>
         <?php endif; ?>
-        
+
         <form action="editar_inscricao.php" method="POST">
             <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($inscricao->id); ?>">
             <?php
@@ -88,19 +90,19 @@ if (isset($_GET["inscricao"])) {
                 echo '<div class="modalidade-group">';
                 echo '<input type="checkbox" name="com" id="com" ' . ($inscricao->mod_com == 1 ? 'checked' : '') . '>';
                 echo '<label for="com"> Categoria Com Kimono</label>';
-                
+
                 if ($_SESSION["idade"] > 15) {
                     echo '<br><input type="checkbox" name="abs_com" id="abs_com"' . ($inscricao->mod_ab_com == 1 ? 'checked' : '') . '>';
                     echo '<label for="abs_com"> Absoluto Com Kimono</label>';
                 }
                 echo '</div>';
             }
-            
+
             if ($inscricao->tipo_sem == 1) {
                 echo '<div class="modalidade-group">';
                 echo '<input type="checkbox" name="sem" id="sem"' . ($inscricao->mod_sem == 1 ? 'checked' : '') . '>';
                 echo '<label for="sem"> Categoria Sem Kimono</label>';
-                
+
                 if ($_SESSION["idade"] > 15) {
                     echo '<br><input type="checkbox" name="abs_sem" id="abs_sem"' . ($inscricao->mod_ab_sem == 1 ? 'checked' : '') . '>';
                     echo '<label for="abs_sem"> Absoluto Sem Kimono</label>';
@@ -108,7 +110,7 @@ if (isset($_GET["inscricao"])) {
                 echo '</div>';
             }
             ?>
-            
+
             <br>
             <label for="modalidade">Modalidade:</label>
             <select name="modalidade" id="modalidade">
@@ -117,22 +119,25 @@ if (isset($_GET["inscricao"])) {
                 <option value="pena" <?php echo $inscricao->modalidade == "pena" ? "selected" : ""; ?>>Pena</option>
                 <option value="leve" <?php echo $inscricao->modalidade == "leve" ? "selected" : ""; ?>>Leve</option>
                 <option value="medio" <?php echo $inscricao->modalidade == "medio" ? "selected" : ""; ?>>Médio</option>
-                <option value="meio-pesado" <?php echo $inscricao->modalidade == "meio-pesado" ? "selected" : ""; ?>>Meio-Pesado</option>
+                <option value="meio-pesado" <?php echo $inscricao->modalidade == "meio-pesado" ? "selected" : ""; ?>>
+                    Meio-Pesado</option>
                 <option value="pesado" <?php echo $inscricao->modalidade == "pesado" ? "selected" : ""; ?>>Pesado</option>
-                <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>Super-Pesado</option>
-                <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>Pesadíssimo</option>
+                <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>
+                    Super-Pesado</option>
+                <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>
+                    Pesadíssimo</option>
                 <?php if ($_SESSION["idade"] > 15): ?>
                     <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
                 <?php endif; ?>
             </select>
-            
+
             <div class="form-actions">
                 <input type="submit" name="action" value="Salvar Alterações" class="botao-acao">
-                <input type="submit" name="action" value="Excluir Inscrição" class="danger" 
-                       onclick="return confirm('Tem certeza que deseja excluir esta inscrição?')">
+                <input type="submit" name="action" value="Excluir Inscrição" class="danger"
+                    onclick="return confirm('Tem certeza que deseja excluir esta inscrição?')">
             </div>
         </form>
-        
+
         <br>
         <center>Tabela de Pesos</center>
         <center>
@@ -141,5 +146,58 @@ if (isset($_GET["inscricao"])) {
         <br><a class="link" href="eventos_cadastrados.php">voltar</a>
     </div>
     <?php include "menu/footer.php"; ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Grupos de checkboxes que são mutuamente exclusivos
+            const gruposExclusivos = [
+                ['com', 'abs_com'],     // Categoria Com Kimono vs Absoluto Com Kimono
+                ['sem', 'abs_sem']      // Categoria Sem Kimono vs Absoluto Sem Kimono
+            ];
+
+            // Para cada grupo de exclusividade
+            gruposExclusivos.forEach(grupo => {
+                const checkboxes = grupo.map(name => {
+                    const checkbox = document.querySelector(`input[name="${name}"]`);
+                    return checkbox;
+                }).filter(checkbox => checkbox !== null);
+
+                // Adiciona evento a cada checkbox do grupo
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', function () {
+                        if (this.checked) {
+                            // Se este foi marcado, desmarca os outros do mesmo grupo
+                            checkboxes.forEach(otherCheckbox => {
+                                if (otherCheckbox !== this) {
+                                    otherCheckbox.checked = false;
+                                }
+                            });
+                        }
+                    });
+                });
+            });
+
+            // Validação no envio do formulário
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    // Verifica se pelo menos uma modalidade foi selecionada
+                    const comSelecionado = document.querySelector('input[name="com"]:checked');
+                    const semSelecionado = document.querySelector('input[name="sem"]:checked');
+                    const absComSelecionado = document.querySelector('input[name="abs_com"]:checked');
+                    const absSemSelecionado = document.querySelector('input[name="abs_sem"]:checked');
+
+                    // Se nenhuma modalidade foi selecionada
+                    if (!comSelecionado && !semSelecionado && !absComSelecionado && !absSemSelecionado) {
+                        e.preventDefault();
+                        alert('Por favor, selecione pelo menos uma modalidade');
+                        return false;
+                    }
+
+                    return true;
+                });
+            }
+        });
+    </script>
 </body>
+
 </html>

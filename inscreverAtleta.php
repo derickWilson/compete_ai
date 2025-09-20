@@ -73,8 +73,8 @@ try {
     } else {
         // Evento tradicional - processa modalidades normais
         $modalidades = [
-            'com' => isset($_POST['com']) ? 1 : 0,
-            'sem' => isset($_POST['sem']) ? 1 : 0,
+            'com' => (isset($_POST['com']) ? 1 : 0) || (isset($_POST['abs_com']) ? 1 : 0),
+            'sem' => (isset($_POST['sem']) ? 1 : 0) || (isset($_POST['abs_sem']) ? 1 : 0),
             'abs_com' => isset($_POST['abs_com']) ? 1 : 0,
             'abs_sem' => isset($_POST['abs_sem']) ? 1 : 0
         ];
@@ -102,8 +102,8 @@ try {
             // Prepara dados para a função de cálculo
             $dadosInscricao = (object) [
                 'data_nascimento' => $_SESSION['data_nascimento'],
-                'mod_com' => $modalidades['com'],
-                'mod_sem' => $modalidades['sem'],
+                'mod_com' => isset($_POST['com']) ? 1 : 0,
+                'mod_sem' => isset($_POST['sem']) ? 1 : 0,
                 'mod_ab_com' => $modalidades['abs_com'],
                 'mod_ab_sem' => $modalidades['abs_sem']
             ];
@@ -293,17 +293,15 @@ function calcularNovoValor($inscricao, $dadosEvento)
         $valorTotal += $precoCom;
         $modalidadesSelecionadas++;
     }
-
+   // Absoluto COM kimono
+    if ($inscricao->mod_ab_com) {
+        $valorTotal += $dadosEvento['preco_abs'];
+        $modalidadesSelecionadas++;
+    }
     // Modalidade SEM kimono
     if ($inscricao->mod_sem) {
         $precoSem = $menorIdade ? $dadosEvento['preco_sem_menor'] : $dadosEvento['preco_sem'];
         $valorTotal += $precoSem;
-        $modalidadesSelecionadas++;
-    }
-
-    // Absoluto COM kimono
-    if ($inscricao->mod_ab_com) {
-        $valorTotal += $dadosEvento['preco_abs'];
         $modalidadesSelecionadas++;
     }
 
