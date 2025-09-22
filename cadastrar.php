@@ -148,7 +148,7 @@ try {
         $atletas->__set("cpf", cleanWords($_POST["cpf"]));
         $atletas->__set("senha", password_hash($_POST["senha"], PASSWORD_BCRYPT));
         $atletas->__set("foto", $novoNomeFoto);
-        $atletas->__set("email", strtolower(cleanWords($_POST["email"])));
+        $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("fone", $telefone_completo);
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
@@ -191,29 +191,6 @@ try {
             throw new Exception("Falha ao obter ID da academia. Nome: " . $nomeAcademia);
         }
 
-        //$attServ->addAcademiaResponsavel($idAcademia["id"]);
-        // Obtém ID da academia e cadastra responsável
-        // No bloco onde você obtém o ID da academia:
-//        $idAcademia = $attServ->getIdAcad($nomeAcademia);
-
-        //if (!$idAcademia || !isset($idAcademia["id"])) {
-        //    // Tenta criar a academia novamente se não foi encontrada
-        //    if (!$attServ->existAcad($nomeAcademia)) {
-        //        $attServ->Filiar(
-        //            $nomeAcademia,
-        //            preg_replace('/[^0-9]/', '', $_POST["cep"]),
-        //            cleanWords($_POST["cidade"]),
-        //            strtoupper(cleanWords($_POST["estado"]))
-        //        );
-        //        // Tenta buscar novamente
-        //        $idAcademia = $attServ->getIdAcad($nomeAcademia);
-        //    }
-//
-        //    if (!$idAcademia || !isset($idAcademia["id"])) {
-        //        throw new Exception("Falha ao obter ID da academia. Nome: " . $nomeAcademia);
-        //    }
-        //}
-
         $attServ->addAcademiaResponsavel($idAcademia["id"]);
         // Redireciona para página de sucesso
         $_SESSION['cadastro_sucesso'] = true;
@@ -249,7 +226,7 @@ try {
         $atletas->__set("cpf", cleanWords($_POST["cpf"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
         $atletas->__set("senha", password_hash($_POST["senha"], PASSWORD_BCRYPT));
-        $atletas->__set("email", strtolower(cleanWords($_POST["email"])));
+        $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("fone", $telefone_completo);

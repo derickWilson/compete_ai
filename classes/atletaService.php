@@ -58,7 +58,7 @@ class atletaService
             $stmt->bindValue(":genero", $this->atleta->__get("genero"));
             $stmt->bindValue(":foto", $this->atleta->__get("foto"));
             $stmt->bindValue(":senha", $senhaCriptografada);
-            $stmt->bindValue(":email", strtolower($this->atleta->__get("email")));
+            $stmt->bindValue(":email", $this->atleta->__get("email"));
             $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
             $stmt->bindValue(":fone", $this->atleta->__get("fone"));
             $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
@@ -207,7 +207,7 @@ class atletaService
         $stmt->bindValue(":foto", $this->atleta->__get("foto"));
         $stmt->bindValue(":academia", $this->atleta->__get("academia"));
         $stmt->bindValue(":senha", $senhaCriptografada);
-        $stmt->bindValue(":email", strtolower($this->atleta->__get("email")));
+        $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
         $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
