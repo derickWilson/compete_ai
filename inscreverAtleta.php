@@ -285,34 +285,32 @@ function calcularNovoValor($inscricao, $dadosEvento)
     $menorIdade = ($idade <= 15);
 
     $valorTotal = 0;
-    $modalidadesSelecionadas = 0;
+    $valorComKimono = 0;
+    $valorSemKimono = 0;
 
-    // Modalidade COM kimono
-    if ($inscricao->mod_com) {
-        $precoCom = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
-        $valorTotal += $precoCom;
-        $modalidadesSelecionadas++;
-    }
-   // Absoluto COM kimono
-    if ($inscricao->mod_ab_com) {
-        $valorTotal += $dadosEvento['preco_abs'];
-        $modalidadesSelecionadas++;
-    }
-    // Modalidade SEM kimono
-    if ($inscricao->mod_sem) {
-        $precoSem = $menorIdade ? $dadosEvento['preco_sem_menor'] : $dadosEvento['preco_sem'];
-        $valorTotal += $precoSem;
-        $modalidadesSelecionadas++;
+    // 🔵 MODALIDADE COM KIMONO
+    if ($inscricao->mod_ab_com && !$menorIdade) {
+        // ABSOLUTO COM KIMONO (substitui a modalidade normal)
+        $valorComKimono = $dadosEvento['preco_abs'];
+    } elseif ($inscricao->mod_com) {
+        // MODALIDADE NORMAL COM KIMONO
+        $valorComKimono = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
     }
 
-    // Absoluto SEM kimono
-    if ($inscricao->mod_ab_sem) {
-        $valorTotal += $dadosEvento['preco_sem_abs'];
-        $modalidadesSelecionadas++;
+    // 🔴 MODALIDADE SEM KIMONO
+    if ($inscricao->mod_ab_sem && !$menorIdade) {
+        // ABSOLUTO SEM KIMONO (substitui a modalidade normal)
+        $valorSemKimono = $dadosEvento['preco_sem_abs'];
+    } elseif ($inscricao->mod_sem) {
+        // MODALIDADE NORMAL SEM KIMONO
+        $valorSemKimono = $menorIdade ? $dadosEvento['preco_sem_menor'] : $dadosEvento['preco_sem'];
     }
 
-    // Aplica desconto de 40% se fez mais de uma modalidade
-    if ($modalidadesSelecionadas > 2) {
+    $valorTotal = $valorComKimono + $valorSemKimono;
+
+    // 🎯 APLICAÇÃO DE DESCONTOS
+    // Desconto de 40% se fizer COM e SEM kimono (qualquer combinação)
+    if ($valorComKimono > 0 && $valorSemKimono > 0) {
         $valorTotal *= 0.6; // 40% de desconto
     }
 
@@ -321,8 +319,8 @@ function calcularNovoValor($inscricao, $dadosEvento)
 
     // Validação de segurança
     if ($valorTotal <= 0) {
-        error_log("Valor calculado inválido para inscrição {$inscricao->id}: $valorTotal");
-        return $inscricao->valor_pago; // Mantém o valor original em caso de erro
+        error_log("Valor calculado inválido para inscrição: $valorTotal");
+        return $inscricao->valor_pago ?? 0;
     }
 
     return $valorTotal;

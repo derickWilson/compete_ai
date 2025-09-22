@@ -109,7 +109,7 @@ function handleDeletion(AssasService $assasService, atletaService $atserv, $insc
 /**
  * Função para calcular o valor da inscrição
  */
-function calcularNovoValor($dadosInscricao, $dadosEvento)
+function calcularNovoValor($inscricao, $dadosEvento)
 {
     // Se for evento normal
     if ($dadosEvento->normal) {
@@ -128,31 +128,31 @@ function calcularNovoValor($dadosInscricao, $dadosEvento)
     $idade = calcularIdade($_SESSION['data_nascimento']);
     $menorIdade = ($idade <= 15);
 
+    $valorTotal = 0;
     $valorComKimono = 0;
     $valorSemKimono = 0;
-    
-    // Modalidade COM kimono
-    if ($dadosInscricao->mod_com) {
+
+    //  MODALIDADE COM KIMONO
+    if ($inscricao->mod_ab_com && !$menorIdade) {
+        // ABSOLUTO COM KIMONO (substitui a modalidade normal)
+        $valorComKimono = $dadosEvento->preco_abs;
+    } elseif ($inscricao->mod_com) {
+        // MODALIDADE NORMAL COM KIMONO
         $valorComKimono = $menorIdade ? $dadosEvento->preco_menor : $dadosEvento->preco;
     }
-    
-    // Absoluto COM kimono
-    if ($dadosInscricao->mod_ab_com) {
-        $valorComKimono += $dadosEvento->preco_abs;
-    }
 
-    // Modalidade SEM kimono
-    if ($dadosInscricao->mod_sem) {
+    // MODALIDADE SEM KIMONO
+    if ($inscricao->mod_ab_sem && !$menorIdade) {
+        // ABSOLUTO SEM KIMONO (substitui a modalidade normal)
+        $valorSemKimono = $dadosEvento->preco_sem_abs;
+    } elseif ($inscricao->mod_sem) {
+        // MODALIDADE NORMAL SEM KIMONO
         $valorSemKimono = $menorIdade ? $dadosEvento->preco_sem_menor : $dadosEvento->preco_sem;
-    }
-    
-    // Absoluto SEM kimono
-    if ($dadosInscricao->mod_ab_sem) {
-        $valorSemKimono += $dadosEvento->preco_sem_abs;
     }
 
     $valorTotal = $valorComKimono + $valorSemKimono;
 
+    // Desconto de 40% se fizer COM e SEM kimono (qualquer combinação)
     if ($valorComKimono > 0 && $valorSemKimono > 0) {
         $valorTotal *= 0.6; // 40% de desconto
     }
@@ -162,8 +162,8 @@ function calcularNovoValor($dadosInscricao, $dadosEvento)
 
     // Validação de segurança
     if ($valorTotal <= 0) {
-        error_log("Valor calculado inválido: $valorTotal");
-        return $dadosInscricao->valor_pago; // Mantém o valor original em caso de erro
+        error_log("Valor calculado inválido para inscrição: $valorTotal");
+        return $inscricao->valor_pago ?? 0;
     }
 
     return $valorTotal;
@@ -186,15 +186,12 @@ function handleUpdate(
     string $modalidade
 ): void {
     // Prepara dados para cálculo do valor
-    $dadosInscricao = (object)[
-        'data_nascimento' => $_SESSION['data_nascimento'],
-        'mod_com' => $com,
-        'mod_sem' => $sem,
-        'mod_ab_com' => $abCom,
-        'mod_ab_sem' => $abSem,
-        'valor_pago' => $inscricao->valor_pago,
-        'id' => $inscricao->id
-    ];
+    // Prepara dados para cálculo do valor - usa a inscrição original
+    $dadosInscricao = $inscricao;
+    $dadosInscricao->mod_com = $com;
+    $dadosInscricao->mod_sem = $sem;
+    $dadosInscricao->mod_ab_com = $abCom;
+    $dadosInscricao->mod_ab_sem = $abSem;
 
     // Calcula o novo valor
     $novoValor = calcularNovoValor($dadosInscricao, $dadosEvento);
@@ -207,10 +204,10 @@ function handleUpdate(
     }
 
     // Para eventos pagos com cobrança existente
-    $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && 
-                      $dadosEvento->preco_abs == 0 && $dadosEvento->preco_sem == 0 && 
-                      $dadosEvento->preco_sem_menor == 0 && $dadosEvento->preco_sem_abs == 0);
-    
+    $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 &&
+        $dadosEvento->preco_abs == 0 && $dadosEvento->preco_sem == 0 &&
+        $dadosEvento->preco_sem_menor == 0 && $dadosEvento->preco_sem_abs == 0);
+
     if (!$eventoGratuito && !empty($inscricao->id_cobranca_asaas) && $valorMudou) {
         $resultado = $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
             'value' => number_format($novoValor, 2, '.', ''),
