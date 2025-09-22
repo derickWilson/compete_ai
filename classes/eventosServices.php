@@ -55,10 +55,9 @@ class eventosService
         }
     }
     //editar evento
-    //editar evento
-public function editEvento()
-{
-    $query = "UPDATE evento SET
+    public function editEvento()
+    {
+        $query = "UPDATE evento SET
         nome = :nome,
         imagen = :imagen,
         descricao = :descricao,
@@ -78,36 +77,36 @@ public function editEvento()
         normal_preco = :normal_preco
         WHERE id = :id";
 
-    $stmt = $this->conn->prepare($query);
+        $stmt = $this->conn->prepare($query);
 
-    // Mapeamento correto dos campos
-    $stmt->bindValue(':id', $this->evento->__get('id'), PDO::PARAM_INT);
-    $stmt->bindValue(':nome', $this->evento->__get('nome'), PDO::PARAM_STR);
-    $stmt->bindValue(':imagen', $this->evento->__get('img'), PDO::PARAM_STR);
-    $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'), PDO::PARAM_STR);
-    $stmt->bindValue(':local_evento', $this->evento->__get('local_camp'), PDO::PARAM_STR);
-    $stmt->bindValue(':descricao', $this->evento->__get('descricao'), PDO::PARAM_STR);
-    $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'), PDO::PARAM_STR);
-    $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'), PDO::PARAM_INT);
-    $stmt->bindValue(':tipoSem', $this->evento->__get('tipoSem'), PDO::PARAM_INT);
-    $stmt->bindValue(':preco', $this->evento->__get('preco'));
-    $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
-    $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
-    $stmt->bindValue(':preco_sem', $this->evento->__get('preco_sem'));
-    $stmt->bindValue(':preco_sem_menor', $this->evento->__get('preco_sem_menor'));
-    $stmt->bindValue(':preco_sem_abs', $this->evento->__get('preco_sem_abs'));
-    $stmt->bindValue(':doc', $this->evento->__get('doc'), PDO::PARAM_STR);
-    $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
-    $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
+        // Mapeamento correto dos campos
+        $stmt->bindValue(':id', $this->evento->__get('id'), PDO::PARAM_INT);
+        $stmt->bindValue(':nome', $this->evento->__get('nome'), PDO::PARAM_STR);
+        $stmt->bindValue(':imagen', $this->evento->__get('img'), PDO::PARAM_STR);
+        $stmt->bindValue(':data_evento', $this->evento->__get('data_evento'), PDO::PARAM_STR);
+        $stmt->bindValue(':local_evento', $this->evento->__get('local_camp'), PDO::PARAM_STR);
+        $stmt->bindValue(':descricao', $this->evento->__get('descricao'), PDO::PARAM_STR);
+        $stmt->bindValue(':data_limite', $this->evento->__get('data_limite'), PDO::PARAM_STR);
+        $stmt->bindValue(':tipoCom', $this->evento->__get('tipoCom'), PDO::PARAM_INT);
+        $stmt->bindValue(':tipoSem', $this->evento->__get('tipoSem'), PDO::PARAM_INT);
+        $stmt->bindValue(':preco', $this->evento->__get('preco'));
+        $stmt->bindValue(':preco_menor', $this->evento->__get('preco_menor'));
+        $stmt->bindValue(':preco_abs', $this->evento->__get('preco_abs'));
+        $stmt->bindValue(':preco_sem', $this->evento->__get('preco_sem'));
+        $stmt->bindValue(':preco_sem_menor', $this->evento->__get('preco_sem_menor'));
+        $stmt->bindValue(':preco_sem_abs', $this->evento->__get('preco_sem_abs'));
+        $stmt->bindValue(':doc', $this->evento->__get('doc'), PDO::PARAM_STR);
+        $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
+        $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
 
-    try {
-        $result = $stmt->execute();
-        return $result; // Retorna true/false para o chamador decidir o redirecionamento
-    } catch (Exception $e) {
-        error_log('Erro ao editar evento: ' . $e->getMessage());
-        throw new Exception("Erro ao atualizar o evento no banco de dados");
+        try {
+            $result = $stmt->execute();
+            return $result; // Retorna true/false para o chamador decidir o redirecionamento
+        } catch (Exception $e) {
+            error_log('Erro ao editar evento: ' . $e->getMessage());
+            throw new Exception("Erro ao atualizar o evento no banco de dados");
+        }
     }
-}
 
     //listar todos os eventos
     public function listAll()
@@ -165,23 +164,42 @@ public function editEvento()
     //pegar todos os inscritos de um evento
     public function getInscritos($id)
     {
-        $query = "SELECT e.nome AS evento, e.id AS ide, a.nome AS inscrito, a.data_nascimento, a.id,
-                a.faixa, a.peso, f.nome as academia, f.id as idAcademia,
-                i.mod_com, i.mod_sem, i.mod_ab_com, i.mod_ab_sem, i.modalidade as modalidade,
-                i.status_pagamento, i.id_cobranca_asaas, i.valor_pago, a.email
-                FROM evento e
-                JOIN inscricao i ON i.id_evento = e.id
-                JOIN atleta a ON a.id = i.id_atleta
-                JOIN academia_filiada f ON a.academia = f.id
-                WHERE e.id = :id";
+        $query = "SELECT 
+                e.nome AS evento, 
+                e.id AS ide, 
+                a.nome AS inscrito, 
+                a.data_nascimento, 
+                a.id,
+                a.faixa, 
+                a.peso, 
+                a.genero,
+                f.nome as academia, 
+                f.id as idAcademia,
+                i.mod_com, 
+                i.mod_sem, 
+                i.mod_ab_com, 
+                i.mod_ab_sem, 
+                i.modalidade as modalidade,
+                i.status_pagamento, 
+                i.id_cobranca_asaas, 
+                i.valor_pago, 
+                a.email
+            FROM evento e
+            JOIN inscricao i ON i.id_evento = e.id
+            JOIN atleta a ON a.id = i.id_atleta
+            JOIN academia_filiada f ON a.academia = f.id
+            WHERE e.id = :id";
+
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
         try {
             $stmt->execute();
         } catch (Exception $e) {
             error_log('Erro ao listar inscritos no evento: ' . $e->getMessage());
             throw new Exception("Erro ao carregar lista de inscritos");
         }
+
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     //inscrever um atleta em um evento

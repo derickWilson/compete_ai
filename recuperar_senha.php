@@ -16,26 +16,64 @@ require 'classes/PHPMailer/src/SMTP.php';
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-function enviarEmailRecuperacaoSMTP($destinatario, $codigo) {
+
+/**
+ * Registra logs de envio de email em arquivo de texto
+ * 
+ * @param string $destinatario Email do destinatário
+ * @param string $codigo Código de recuperação enviado
+ * @param bool $sucesso Status do envio (true para sucesso, false para falha)
+ * @param string $mensagem_erro Mensagem de erro em caso de falha (opcional)
+ * @return bool Retorna true se o log foi registrado com sucesso
+ */
+function registrarLogEmail($destinatario, $codigo, $sucesso, $mensagem_erro = '')
+{
+    // Configurações do log
+    $diretorio_logs = __DIR__ . '/logs/';
+    $arquivo_log = $diretorio_logs . 'email_logs.txt';
+
+    // Criar diretório de logs se não existir
+    if (!file_exists($diretorio_logs)) {
+        mkdir($diretorio_logs, 0755, true);
+    }
+
+    // Formatar a mensagem de log
+    $data_hora = date('Y-m-d H:i:s');
+    $status = $sucesso ? 'SUCESSO' : 'FALHA';
+    $mensagem = $sucesso ?
+        "Código enviado: $codigo" :
+        "Erro: " . (!empty($mensagem_erro) ? $mensagem_erro : 'Desconhecido');
+
+    // Linha do log
+    $linha_log = "[$data_hora] $status - Para: $destinatario - $mensagem" . PHP_EOL;
+
+    // Registrar no arquivo de log
+    $resultado = file_put_contents($arquivo_log, $linha_log, FILE_APPEND | LOCK_EX);
+
+    return $resultado !== false;
+}
+
+function enviarEmailRecuperacaoSMTP($destinatario, $codigo)
+{
     $mail = new PHPMailer(true);
-    
+
     try {
         // Configurações do servidor SMTP
         $mail->isSMTP();
         $mail->Host = 'mail.fpjji.com';
         $mail->SMTPAuth = true;
-        $mail->Username = '';
-        $mail->Password = 'SUA_SENHA_AQUI'; // ATENÇÃO: Substitua pela senha real
+        $mail->Username = 'wsaazizbjj@fpjji.com';
+        $mail->Password = '<De21b026bf1ae9b802ff094f187e33813>';
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
         $mail->CharSet = 'UTF-8';
         $mail->Encoding = 'base64';
-        
+
         // Remetente e destinatário
         $mail->setFrom('wsaazizbjj@fpjji.com', 'FPJJI');
         $mail->addAddress($destinatario);
         $mail->addReplyTo('wsaazizbjj@fpjji.com', 'FPJJI');
-        
+
         // Conteúdo do email
         $mail->isHTML(true);
         $mail->Subject = 'Recuperação de Senha FPJJI';
@@ -46,11 +84,12 @@ function enviarEmailRecuperacaoSMTP($destinatario, $codigo) {
             <p>Este código é válido por 30 minutos.</p>
             <p>Caso não tenha solicitado esta alteração, ignore este email.</p>
         ";
-        
+
         // Enviar email
         $mail->send();
+        registrarLogEmail($destinatario, $codigo, true);
         return true;
-        
+
     } catch (Exception $e) {
         error_log('Erro ao enviar e-mail: ' . $mail->ErrorInfo);
         return false;
