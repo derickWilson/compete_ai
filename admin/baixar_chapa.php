@@ -353,16 +353,16 @@ foreach ($chapeamento as $chapa) {
 
     // Definição das larguras das colunas (em mm)
     $largura_nome = 70;    // Nome do atleta
-    $largura_academia = 50; // Nome da academia  
+    $largura_academia = 60; // Nome da academia  
     $largura_idade = 15;   // Idade
     $largura_peso = 20;    // Peso
-    $largura_status = 25;  // Status
+    //$largura_status = 25;  // Status
 
     $pdf->Cell($largura_nome, 8, 'NOME DO ATLETA', 1, 0, 'C');
     $pdf->Cell($largura_academia, 8, 'ACADEMIA', 1, 0, 'C');
     $pdf->Cell($largura_idade, 8, 'IDADE', 1, 0, 'C');
-    $pdf->Cell($largura_peso, 8, 'PESO', 1, 0, 'C');
-    $pdf->Cell($largura_status, 8, 'STATUS', 1, 1, 'C');
+    $pdf->Cell($largura_peso, 8, 'PESO', 1, 1, 'C');
+    //$pdf->Cell($largura_status, 8, 'STATUS', 1, 1, 'C');
 
     $pdf->SetFont('helvetica', '', 9);
 
@@ -382,7 +382,7 @@ foreach ($chapeamento as $chapa) {
         
         // Nome da academia (com texto reduzido se necessário)
         $academia = strlen($atleta->academia) > 20 ? 
-            substr($atleta->academia, 0, 17) . '...' : 
+            substr($atleta->academia, 0, 22) . '...' : 
             $atleta->academia;
         $pdf->Cell($largura_academia, 7, $academia, 1, 0, 'L');
         
@@ -390,10 +390,10 @@ foreach ($chapeamento as $chapa) {
         $pdf->Cell($largura_idade, 7, calcularIdade($atleta->data_nascimento), 1, 0, 'C');
         
         // Peso
-        $pdf->Cell($largura_peso, 7, $atleta->peso . ' kg', 1, 0, 'C');
+        $pdf->Cell($largura_peso, 7, $atleta->peso . ' kg', 1, 1, 'C');
         
         // Status
-        $pdf->Cell($largura_status, 7, $statusText, 1, 1, 'C');
+        //$pdf->Cell($largura_status, 7, $statusText, 1, 1, 'C');
     }
     
     $pdf->Ln(10);
