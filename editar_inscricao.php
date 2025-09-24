@@ -132,7 +132,7 @@ function calcularNovoValor($inscricao, $dadosEvento)
     $valorComKimono = 0;
     $valorSemKimono = 0;
 
-    //  MODALIDADE COM KIMONO
+    // MODALIDADE COM KIMONO
     if ($inscricao->mod_ab_com && !$menorIdade) {
         // ABSOLUTO COM KIMONO (substitui a modalidade normal)
         $valorComKimono = $dadosEvento->preco_abs;
@@ -163,7 +163,7 @@ function calcularNovoValor($inscricao, $dadosEvento)
     // Validação de segurança
     if ($valorTotal <= 0) {
         error_log("Valor calculado inválido para inscrição: $valorTotal");
-        return $inscricao->valor_pago ?? 0;
+        return 0;
     }
 
     return $valorTotal;
@@ -186,16 +186,18 @@ function handleUpdate(
     string $modalidade
 ): void {
     // Prepara dados para cálculo do valor
-    // Prepara dados para cálculo do valor - usa a inscrição original
-    $dadosInscricao = $inscricao;
-    $dadosInscricao->mod_com = $com;
-    $dadosInscricao->mod_sem = $sem;
-    $dadosInscricao->mod_ab_com = $abCom;
-    $dadosInscricao->mod_ab_sem = $abSem;
+    $dadosInscricao = (object) [
+        'mod_com' => $com,
+        'mod_sem' => $sem,
+        'mod_ab_com' => $abCom,
+        'mod_ab_sem' => $abSem
+    ];
 
     // Calcula o novo valor
     $novoValor = calcularNovoValor($dadosInscricao, $dadosEvento);
-    $valorAtual = (float) $inscricao->valor_pago;
+    
+    // CORREÇÃO: Verifica se a propriedade existe antes de acessá-la
+    $valorAtual = isset($inscricao->valor_pago) ? (float) $inscricao->valor_pago : 0;
     $valorMudou = abs($novoValor - $valorAtual) > 0.01; // Considera diferenças > 1 centavo
 
     // Atualiza modalidades no banco de dados
@@ -208,18 +210,48 @@ function handleUpdate(
         $dadosEvento->preco_abs == 0 && $dadosEvento->preco_sem == 0 &&
         $dadosEvento->preco_sem_menor == 0 && $dadosEvento->preco_sem_abs == 0);
 
+    //Verifica se existe cobrança e se o status permite edição
     if (!$eventoGratuito && !empty($inscricao->id_cobranca_asaas) && $valorMudou) {
-        $resultado = $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
-            'value' => number_format($novoValor, 2, '.', ''),
-            'dueDate' => $dadosEvento->data_limite,
-            'description' => 'Inscrição: ' . $dadosEvento->nome . ' (' . $modalidade . ')'
-        ]);
+        
+        // Verifica o status atual da cobrança antes de tentar editar
+        try {
+            $statusCobranca = $assasService->verificarStatusCobranca($inscricao->id_cobranca_asaas);
+            
+            // Só permite edição se a cobrança estiver pendente
+            if ($statusCobranca['status'] !== 'PENDING') {
+                // Apenas atualiza o valor localmente sem alterar no Asaas
+                $atserv->atualizarValorInscricao($eventoId, $idAtleta, $novoValor);
+                $_SESSION['sucesso'] = "Modalidades atualizadas (valor ajustado localmente - cobrança já processada)";
+                header("Location: eventos_cadastrados.php");
+                exit();
+            }
 
-        if (!$resultado['success']) {
-            throw new Exception("Erro ao atualizar cobrança: " . ($resultado['message'] ?? ''));
+            $resultado = $assasService->editarCobranca($inscricao->id_cobranca_asaas, [
+                'value' => number_format($novoValor, 2, '.', ''),
+                'dueDate' => $dadosEvento->data_limite,
+                'description' => 'Inscrição: ' . $dadosEvento->nome . ' (' . $modalidade . ')'
+            ]);
+
+            if (!$resultado['success']) {
+                throw new Exception("Erro ao atualizar cobrança: " . ($resultado['message'] ?? ''));
+            }
+
+            // Atualiza valor no banco de dados
+            $atserv->atualizarValorInscricao($eventoId, $idAtleta, $novoValor);
+            
+        } catch (Exception $e) {
+            // Se não for possível editar a cobrança, apenas atualiza as modalidades
+            error_log("Aviso: Não foi possível atualizar cobrança, mas modalidades foram alteradas: " . $e->getMessage());
+            
+            // Atualiza o valor localmente mesmo sem alterar no Asaas
+            $atserv->atualizarValorInscricao($eventoId, $idAtleta, $novoValor);
+            
+            $_SESSION['sucesso'] = "Modalidades atualizadas (valor ajustado localmente)";
+            header("Location: eventos_cadastrados.php");
+            exit();
         }
-
-        // Atualiza valor no banco de dados
+    } elseif ($valorMudou) {
+        // Atualiza apenas o valor localmente se não houver cobrança no Asaas
         $atserv->atualizarValorInscricao($eventoId, $idAtleta, $novoValor);
     }
 

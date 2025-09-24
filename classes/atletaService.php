@@ -716,7 +716,7 @@ class atletaService
         $query = "SELECT e.nome AS nome, e.id, e.preco, e.preco_menor, e.preco_abs, 
                         e.tipo_com, e.tipo_sem, 
                         i.mod_com, i.mod_ab_com, i.mod_sem, i.mod_ab_sem, i.modalidade,
-                        i.id_cobranca_asaas
+                        i.id_cobranca_asaas, i.valor_pago
                       FROM inscricao i
                       JOIN evento e ON e.id = i.id_evento
                       JOIN atleta a ON a.id = i.id_atleta
