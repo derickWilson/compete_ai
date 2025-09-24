@@ -274,6 +274,75 @@ uksort($chapeamento, function($a, $b) {
 });
 
 // ----------------------------------------------------------------------------
+// FUNÇÃO PARA GERAR CHAVEAMENTO SIMPLES EM TABELA
+// ----------------------------------------------------------------------------
+
+/**
+ * Função para criar chaveamento simples em formato de tabela vertical
+ */
+function gerarChaveamentoSimples($atletas, $pdf) {
+    $numAtletas = count($atletas);
+    if ($numAtletas == 0) return;
+    
+    $pdf->SetFont('helvetica', '', 9);
+    
+    // Larguras das colunas
+    $largura_nome = 60;
+    $largura_vencedor = 60;
+    $largura_espaco = 10;
+    
+    $startY = $pdf->GetY();
+    $maxY = $pdf->GetPageHeight() - 30; // Margem inferior
+    
+    for ($i = 0; $i < $numAtletas; $i += 2) {
+        // Verifica se precisa de nova página
+        if ($pdf->GetY() > $maxY - 30) {
+            $pdf->AddPage();
+            $startY = $pdf->GetY();
+        }
+        
+        $x = $pdf->GetX();
+        $y = $pdf->GetY();
+        
+        // Atleta 1 (ou único atleta)
+        $pdf->SetXY($x, $y);
+        $pdf->SetFillColor(240, 240, 240);
+        $pdf->Cell($largura_nome, 6, substr($atletas[$i]->inscrito, 0, 25), 1, 0, 'L', true);
+        
+        // Se tem segundo atleta
+        if (isset($atletas[$i + 1])) {
+            // Atleta 2
+            $pdf->SetXY($x, $y + 12);
+            $pdf->Cell($largura_nome, 6, substr($atletas[$i + 1]->inscrito, 0, 25), 1, 0, 'L', true);
+            
+            // Linha vertical conectando
+            $pdf->Line($x + $largura_nome + 2, $y + 3, $x + $largura_nome + 2, $y + 15);
+            
+            // Linha horizontal para vencedor
+            $pdf->Line($x + $largura_nome + 2, $y + 9, $x + $largura_nome + $largura_espaco - 2, $y + 9);
+            
+            // Quadro do vencedor
+            $pdf->SetXY($x + $largura_nome + $largura_espaco, $y + 6);
+            $pdf->SetFillColor(255, 255, 200);
+            $pdf->Cell($largura_vencedor, 6, 'Vencedor ' . (($i/2) + 1), 1, 0, 'C', true);
+            
+            $pdf->SetY($y + 18);
+        } else {
+            // BYE - apenas um atleta
+            $pdf->SetXY($x + $largura_nome + $largura_espaco, $y);
+            $pdf->SetFillColor(200, 255, 200);
+            $pdf->Cell($largura_vencedor, 6, 'BYE', 1, 0, 'C', true);
+            
+            $pdf->SetY($y + 8);
+        }
+        
+        $pdf->Ln(2);
+    }
+    
+    $pdf->Ln(10);
+}
+
+// ----------------------------------------------------------------------------
 // GERAÇÃO DO PDF COM TCPDF
 // ----------------------------------------------------------------------------
 
@@ -309,7 +378,7 @@ $pdf->Cell(0, 8, 'Data de Emissão: ' . date('d/m/Y H:i:s'), 0, 1, 'C');
 $pdf->Ln(15);
 
 // ----------------------------------------------------------------------------
-// PÁGINAS POR CATEGORIA - CORREÇÃO NO CABEÇALHO PARA ABSOLUTOS
+// PÁGINAS POR CATEGORIA - COM CHAVEAMENTO SIMPLES
 // ----------------------------------------------------------------------------
 
 foreach ($chapeamento as $chapa) {
@@ -356,27 +425,16 @@ foreach ($chapeamento as $chapa) {
     $largura_academia = 60; // Nome da academia  
     $largura_idade = 15;   // Idade
     $largura_peso = 20;    // Peso
-    //$largura_status = 25;  // Status
 
     $pdf->Cell($largura_nome, 8, 'NOME DO ATLETA', 1, 0, 'C');
     $pdf->Cell($largura_academia, 8, 'ACADEMIA', 1, 0, 'C');
     $pdf->Cell($largura_idade, 8, 'IDADE', 1, 0, 'C');
     $pdf->Cell($largura_peso, 8, 'PESO', 1, 1, 'C');
-    //$pdf->Cell($largura_status, 8, 'STATUS', 1, 1, 'C');
 
     $pdf->SetFont('helvetica', '', 9);
 
     // Listagem dos atletas com quebra de linha automática
     foreach ($chapa['atletas'] as $atleta) {
-        $statusText = match($atleta->status_pagamento) {
-            'RECEIVED' => 'PAGO',
-            'CONFIRMED' => 'CONFIRMADO',
-            'ISENTO' => 'ISENTO',
-            'RECEIVED_IN_CASH' => 'PAGO (DINHEIRO)',
-            'PENDING' => 'PENDENTE',
-            default => $atleta->status_pagamento
-        };
-        
         // Nome do atleta (com quebra de linha se necessário)
         $pdf->Cell($largura_nome, 7, $atleta->inscrito, 1, 0, 'L');
         
@@ -391,39 +449,19 @@ foreach ($chapeamento as $chapa) {
         
         // Peso
         $pdf->Cell($largura_peso, 7, $atleta->peso . ' kg', 1, 1, 'C');
-        
-        // Status
-        //$pdf->Cell($largura_status, 7, $statusText, 1, 1, 'C');
     }
     
     $pdf->Ln(10);
     
     // ------------------------------------------------------------------------
-    // CHAVEAMENTO SIMPLES
+    // CHAVEAMENTO SIMPLES EM TABELA VERTICAL
     // ------------------------------------------------------------------------
     
     $pdf->SetFont('helvetica', 'B', 12);
-    $pdf->Cell(0, 10, 'CHAVEAMENTO PRELIMINAR:', 0, 1);
-    $pdf->SetFont('helvetica', '', 10);
+    $pdf->Cell(0, 10, 'CHAVEAMENTO OFICIAL:', 0, 1);
     
-    $numAtletas = count($chapa['atletas']);
-    for ($i = 0; $i < $numAtletas; $i += 2) {
-        if (isset($chapa['atletas'][$i + 1])) {
-            $pdf->Cell(0, 7, 
-                ($i + 1) . '. ' . $chapa['atletas'][$i]->inscrito . 
-                '  vs  ' . 
-                ($i + 2) . '. ' . $chapa['atletas'][$i + 1]->inscrito, 
-                0, 1
-            );
-        } else {
-            $pdf->Cell(0, 7, 
-                ($i + 1) . '. ' . $chapa['atletas'][$i]->inscrito . ' - BYE', 
-                0, 1
-            );
-        }
-    }
-    
-    $pdf->Ln(15);
+    // Gera o chaveamento simples
+    gerarChaveamentoSimples($chapa['atletas'], $pdf);
 }
 
 // ----------------------------------------------------------------------------
