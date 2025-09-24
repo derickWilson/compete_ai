@@ -236,75 +236,89 @@ if (isset($_GET['id'])) {
 
                 <!-- Formulário de inscrição -->
                 <?php if (isset($_SESSION['logado']) && $_SESSION['logado']) { ?>
-                    <?php if (!$evserv->isInscrito($_SESSION["id"], $eventoId)) { ?>
-                        <form action="inscreverAtleta.php" method="POST">
-                            <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
+                    <?php
+                    // passou a data limite
+                    $limite = new DateTime($eventoDetails->data_limite);
+                    $hoje = new DateTime();
 
-                            <?php if ($eventoDetails->normal) { ?>
-                                <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->normal_preco); ?>">
-                                <p>Este é um evento normal sem distinção por idade ou modalidade.</p>
-                            <?php } else { ?>
-                                <input type="hidden" name="valor" value="<?php
-                                echo ($_SESSION["idade"] > 15) ? htmlspecialchars($eventoDetails->preco) : htmlspecialchars($eventoDetails->preco_menor);
-                                ?>">
+                    if ($hoje < $limite) {
+                        ?>
+                        <?php if (!$evserv->isInscrito($_SESSION["id"], $eventoId)) {// ver se está inscrito ?>
+                            <form action="inscreverAtleta.php" method="POST">
+                                <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
 
-                                <?php if ($eventoDetails->tipo_com == 1) { ?>
-                                    <input type="checkbox" name="com"> Categoria (Com Kimono)
-                                    <?php if ($_SESSION["idade"] > 15) { ?>
-                                        <br><input type="checkbox" name="abs_com"> Categoria + Absoluto (Com Kimono)
+                                <?php if ($eventoDetails->normal) { ?>
+                                    <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->normal_preco); ?>">
+                                    <p>Este é um evento normal sem distinção por idade ou modalidade.</p>
+                                <?php } else { ?>
+                                    <input type="hidden" name="valor" value="<?php
+                                    echo ($_SESSION["idade"] > 15) ? htmlspecialchars($eventoDetails->preco) : htmlspecialchars($eventoDetails->preco_menor);
+                                    ?>">
+
+                                    <?php if ($eventoDetails->tipo_com == 1) { ?>
+                                        <input type="checkbox" name="com"> Categoria (Com Kimono)
+                                        <?php if ($_SESSION["idade"] > 15) { ?>
+                                            <br><input type="checkbox" name="abs_com"> Categoria + Absoluto (Com Kimono)
+                                        <?php } ?>
+                                    <?php } ?>
+
+                                    <?php if ($eventoDetails->tipo_sem == 1) { ?>
+                                        <input type="checkbox" name="sem"> Categoria (Sem Kimono)
+                                        <?php if ($_SESSION["idade"] > 15) { ?>
+                                            <br><input type="checkbox" name="abs_sem"> Categoria + Absoluto (Sem Kimono)
+                                        <?php } ?>
                                     <?php } ?>
                                 <?php } ?>
 
-                                <?php if ($eventoDetails->tipo_sem == 1) { ?>
-                                    <input type="checkbox" name="sem"> Categoria (Sem Kimono)
-                                    <?php if ($_SESSION["idade"] > 15) { ?>
-                                        <br><input type="checkbox" name="abs_sem"> Categoria + Absoluto (Sem Kimono)
-                                    <?php } ?>
-                                <?php } ?>
-                            <?php } ?>
+                                <br>
+                                <?php if (!$eventoDetails->normal) {//mostrar modalidade se o evento não é normal
+                                                            ?>
+                                    <select name="modalidade" required>
+                                        <option value="galo">Galo</option>
+                                        <option value="pluma">Pluma</option>
+                                        <option value="pena">Pena</option>
+                                        <option value="leve">Leve</option>
+                                        <option value="medio">Médio</option>
+                                        <option value="meio-pesado">Meio-Pesado</option>
+                                        <option value="pesado">Pesado</option>
+                                        <option value="super-pesado">Super-Pesado</option>
+                                        <option value="pesadissimo">Pesadíssimo</option>
+                                        <?php if ($_SESSION["idade"] > 15) { ?>
+                                            <option value="super-pesadissimo">Super-Pesadíssimo</option>
+                                        <?php } ?>
+                                    </select>
 
-                            <br>
-                            <?php if (!$eventoDetails->normal) {//mostrar modalidade se o evento não é normal
-                                                    ?>
-                                <select name="modalidade" required>
-                                    <option value="galo">Galo</option>
-                                    <option value="pluma">Pluma</option>
-                                    <option value="pena">Pena</option>
-                                    <option value="leve">Leve</option>
-                                    <option value="medio">Médio</option>
-                                    <option value="meio-pesado">Meio-Pesado</option>
-                                    <option value="pesado">Pesado</option>
-                                    <option value="super-pesado">Super-Pesado</option>
-                                    <option value="pesadissimo">Pesadíssimo</option>
-                                    <?php if ($_SESSION["idade"] > 15) { ?>
-                                        <option value="super-pesadissimo">Super-Pesadíssimo</option>
-                                    <?php } ?>
-                                </select>
+                                    <div class="termos">
+                                        <input type="checkbox" name="aceite_regulamento" id="aceite_regulamento" required>
+                                        <label for="aceite_regulamento">Li e aceito o regulamento</label>
 
-                                <div class="termos">
-                                    <input type="checkbox" name="aceite_regulamento" id="aceite_regulamento" required>
-                                    <label for="aceite_regulamento">Li e aceito o regulamento</label>
+                                        <br>
 
-                                    <br>
+                                        <input type="checkbox" name="aceite_responsabilidade" id="aceite_responsabilidade" required>
+                                        <label for="aceite_responsabilidade">Aceito os termos de responsabilidade</label>
+                                    </div>
 
-                                    <input type="checkbox" name="aceite_responsabilidade" id="aceite_responsabilidade" required>
-                                    <label for="aceite_responsabilidade">Aceito os termos de responsabilidade</label>
-                                </div>
+                                    <?php
+                                                        }//mostrar modalidade se o evento não é normal
+                                                        ?>
+                                <input type="submit" value="Inscrever-se">
+                            </form>
+                        <?php } else { ?>
+                            <p>Você já está inscrito neste evento.</p>
 
-                                <?php
-                                                }//mostrar modalidade se o evento não é normal
-                                                ?>
-                            <input type="submit" value="Inscrever-se">
-                        </form>
+                            <!-- editar o evento-->
+                        <?php } ?>
                     <?php } else { ?>
-                        <p>Você já está inscrito neste evento.</p>
-
-                        <!-- editar o evento-->
+                        <p>Faça <a href="/login.php">login</a> para se inscrever.</p>
                     <?php } ?>
-                <?php } else { ?>
-                    <p>Faça <a href="/login.php">login</a> para se inscrever.</p>
-                <?php } ?>
-
+                    <?php
+                } else {
+                    echo '<div class="aviso error" style="text-align: center; padding: 15px; margin: 10px 0;">';
+                    echo '📅 <strong>Inscrições encerradas</strong><br>';
+                    echo 'O prazo para inscrições terminou em ' . date('d/m/Y', strtotime($evento->data_limite));
+                    echo '</div>';
+                }//fim da lógica de data limite expirado
+                ?>
                 <!-- Opções de administrador -->
                 <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
                     <div class="chapa-options">
