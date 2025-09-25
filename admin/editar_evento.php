@@ -66,6 +66,11 @@ unset($_SESSION['mensagem']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar evento - <?= htmlspecialchars($eventoDetails->nome) ?></title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="icon" href="/estilos/icone.jpeg">
+    <!-- Adicionando ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 
 <body>
@@ -107,15 +112,15 @@ unset($_SESSION['mensagem']);
                 <h3>Informações do Evento</h3>
 
                 <label>Nome do evento:*</label>
-                <input type="text" name="nome_evento" required value="<?= htmlspecialchars($eventoDetails->nome) ?>">
+                <input type="text" name="nome_evento" required value="<?= htmlspecialchars($eventoDetails->nome) ?>"><br>   
 
                 <label>Data do Evento:*</label>
                 <input type="date" name="data_evento" required
-                    value="<?= htmlspecialchars($eventoDetails->data_evento) ?>">
+                    value="<?= htmlspecialchars($eventoDetails->data_evento) ?>"><br>
 
                 <label>Local:*</label>
                 <input type="text" name="local_camp" required
-                    value="<?= htmlspecialchars($eventoDetails->local_camp) ?>">
+                    value="<?= htmlspecialchars($eventoDetails->local_camp) ?>"><br>
 
                 <label>Descrição:*</label>
                 <textarea name="desc_Evento" required><?= htmlspecialchars($eventoDetails->descricao) ?></textarea>
@@ -127,7 +132,7 @@ unset($_SESSION['mensagem']);
 
                 <label>Data limite para inscrições:*</label>
                 <input type="date" name="data_limite" required
-                    value="<?= htmlspecialchars($eventoDetails->data_limite) ?>">
+                    value="<?= htmlspecialchars($eventoDetails->data_limite) ?>"><br>
 
                 <label>Modalidades:*</label>
                 <div class="checkbox-group">
@@ -147,30 +152,31 @@ unset($_SESSION['mensagem']);
 
                 <label>Preço geral (R$):*</label>
                 <input type="number" name="preco" step="0.01" min="0" required
-                    value="<?= number_format($eventoDetails->preco, 2, '.', '') ?>">
+                    value="<?= number_format($eventoDetails->preco, 2, '.', '') ?>"><br>
 
                 <label>Preço Absoluto (R$):*</label>
                 <input type="number" name="preco_abs" step="0.01" min="0" required
-                    value="<?= number_format($eventoDetails->preco_abs, 2, '.', '') ?>">
+                    value="<?= number_format($eventoDetails->preco_abs, 2, '.', '') ?>"><br>
 
                 <label>Preço para menores de 15 anos (R$):*</label>
                 <input type="number" name="preco_menor" step="0.01" min="0" required
-                    value="<?= number_format($eventoDetails->preco_menor, 2, '.', '') ?>">
-                <label>Preço para Evento Normal (R$):</label>
+                    value="<?= number_format($eventoDetails->preco_menor, 2, '.', '') ?>"><br>
 
                 <h4>Preços SEM Kimono</h4>
                 <label>Preço geral SEM Kimono (R$):*</label>
                 <input type="number" name="preco_sem" step="0.01" min="0" required
-                    value="<?= number_format($eventoDetails->preco_sem ?? 0, 2, '.', '') ?>">
+                    value="<?= number_format($eventoDetails->preco_sem ?? 0, 2, '.', '') ?>"><br>
 
                 <label>Preço Absoluto SEM Kimono (R$):</label>
                 <input type="number" name="preco_sem_abs" step="0.01" min="0"
-                    value="<?= number_format($eventoDetails->preco_sem_abs ?? 0, 2, '.', '') ?>">
+                    value="<?= number_format($eventoDetails->preco_sem_abs ?? 0, 2, '.', '') ?>"><br>
 
                 <label>Preço para menores de 15 anos SEM Kimono (R$):*</label>
                 <input type="number" name="preco_sem_menor" step="0.01" min="0" required
-                    value="<?= number_format($eventoDetails->preco_sem_menor ?? 0, 2, '.', '') ?>">
-
+                    value="<?= number_format($eventoDetails->preco_sem_menor ?? 0, 2, '.', '') ?>"><br>
+                
+                    <h4>Preços para Evento Normal</h4>
+                <label>Preço para Evento Normal (R$):</label>
                 <input type="number" name="normal_preco" step="0.01" min="0"
                     value="<?= number_format($eventoDetails->normal_preco ?? 0, 2, '.', '') ?>">
             </div>
