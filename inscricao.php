@@ -8,6 +8,7 @@ if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
 try {
     require_once "classes/atletaService.php";
     require_once "classes/eventosServices.php";
+    require_once "classes/AssasService.php";
     include "func/clearWord.php";
     require_once __DIR__ . "/config_taxa.php";
 } catch (\Throwable $th) {
@@ -18,6 +19,7 @@ $conn = new Conexao();
 $at = new Atleta();
 $atserv = new atletaService($conn, $at);
 $eventoServ = new eventosService($conn, new Evento());
+$assasService = new AssasService($conn);
 
 if (isset($_GET["inscricao"])) {
     $eventoId = (int) cleanWords($_GET["inscricao"]);
@@ -29,6 +31,23 @@ if (isset($_GET["inscricao"])) {
         header("Location: eventos_cadastrados.php");
         exit();
     }
+
+    // Verifica status do pagamento
+    $statusPagamento = $inscricao->status_pagamento ?? 'PENDING';
+    $cobrancaId = $inscricao->id_cobranca_asaas ?? null;
+    
+    // Se existir cobrança, verifica status real no Asaas
+    if ($cobrancaId) {
+        try {
+            $statusInfo = $assasService->verificarStatusCobranca($cobrancaId);
+            $statusPagamento = $statusInfo['status'];
+        } catch (Exception $e) {
+            // Mantém o status local em caso de erro
+            error_log("Erro ao verificar status da cobrança: " . $e->getMessage());
+        }
+    }
+
+    $pagamentoNaoPendente = (strtoupper($statusPagamento) !== 'PENDING');
 
     // Verifica se é evento gratuito considerando todos os preços
     $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 &&
@@ -57,12 +76,90 @@ if (isset($_GET["inscricao"])) {
     <title>Editar Inscrição</title>
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="/estilos/icone.jpeg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        .modalidade-group.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
+        .status-info {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            color: #0066cc;
+        }
+        
+        .form-actions {
+            margin-top: 20px;
+        }
+        
+        .botao-acao {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .danger {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .link {
+            color: #007bff;
+            text-decoration: none;
+        }
+        
+        .current-selection {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            border-left: 4px solid #007bff;
+        }
+    </style>
 </head>
 
 <body>
     <?php include "menu/add_menu.php"; ?>
     <div class='principal'>
         <h3><?php echo htmlspecialchars($inscricao->nome); ?></h3>
+
+        <?php if ($pagamentoNaoPendente): ?>
+            <div class="status-info">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Pagamento Confirmado:</strong> Você pode alterar apenas a categoria de peso. 
+                As modalidades não podem ser modificadas após a confirmação do pagamento.
+            </div>
+            
+            <!-- Mostra as modalidades atuais como informação -->
+            <div class="current-selection">
+                <strong>Modalidades Atuais:</strong><br>
+                <?php
+                $modalidades = [];
+                if ($inscricao->mod_com == 1) $modalidades[] = "Com Kimono";
+                if ($inscricao->mod_ab_com == 1) $modalidades[] = "Absoluto Com Kimono";
+                if ($inscricao->mod_sem == 1) $modalidades[] = "Sem Kimono";
+                if ($inscricao->mod_ab_sem == 1) $modalidades[] = "Absoluto Sem Kimono";
+                
+                if (empty($modalidades)) {
+                    echo "Nenhuma modalidade selecionada";
+                } else {
+                    echo implode(", ", $modalidades);
+                }
+                ?>
+            </div>
+        <?php endif; ?>
 
         <?php if (!$eventoGratuito): ?>
             <p>Preços:
@@ -85,47 +182,52 @@ if (isset($_GET["inscricao"])) {
 
         <form action="editar_inscricao.php" method="POST">
             <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($inscricao->id); ?>">
-            <?php
-            if ($inscricao->tipo_com == 1) {
-                echo '<div class="modalidade-group">';
-                echo '<input type="checkbox" name="com" id="com" ' . ($inscricao->mod_com == 1 ? 'checked' : '') . '>';
-                echo '<label for="com"> Categoria Com Kimono</label>';
+            
+            <?php if (!$pagamentoNaoPendente): ?>
+                <!-- MODALIDADES - APENAS SE ESTIVER PENDENTE -->
+                <?php if ($inscricao->tipo_com == 1): ?>
+                    <div class="modalidade-group">
+                        <input type="checkbox" name="com" id="com" <?php echo $inscricao->mod_com == 1 ? 'checked' : ''; ?>>
+                        <label for="com"> Categoria Com Kimono</label>
 
-                if ($_SESSION["idade"] > 15) {
-                    echo '<br><input type="checkbox" name="abs_com" id="abs_com"' . ($inscricao->mod_ab_com == 1 ? 'checked' : '') . '>';
-                    echo '<label for="abs_com"> Absoluto Com Kimono</label>';
-                }
-                echo '</div>';
-            }
+                        <?php if ($_SESSION["idade"] > 15): ?>
+                            <br><input type="checkbox" name="abs_com" id="abs_com" <?php echo $inscricao->mod_ab_com == 1 ? 'checked' : ''; ?>>
+                            <label for="abs_com"> Absoluto Com Kimono</label>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
 
-            if ($inscricao->tipo_sem == 1) {
-                echo '<div class="modalidade-group">';
-                echo '<input type="checkbox" name="sem" id="sem"' . ($inscricao->mod_sem == 1 ? 'checked' : '') . '>';
-                echo '<label for="sem"> Categoria Sem Kimono</label>';
+                <?php if ($inscricao->tipo_sem == 1): ?>
+                    <div class="modalidade-group">
+                        <input type="checkbox" name="sem" id="sem" <?php echo $inscricao->mod_sem == 1 ? 'checked' : ''; ?>>
+                        <label for="sem"> Categoria Sem Kimono</label>
 
-                if ($_SESSION["idade"] > 15) {
-                    echo '<br><input type="checkbox" name="abs_sem" id="abs_sem"' . ($inscricao->mod_ab_sem == 1 ? 'checked' : '') . '>';
-                    echo '<label for="abs_sem"> Absoluto Sem Kimono</label>';
-                }
-                echo '</div>';
-            }
-            ?>
+                        <?php if ($_SESSION["idade"] > 15): ?>
+                            <br><input type="checkbox" name="abs_sem" id="abs_sem" <?php echo $inscricao->mod_ab_sem == 1 ? 'checked' : ''; ?>>
+                            <label for="abs_sem"> Absoluto Sem Kimono</label>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+            <?php else: ?>
+                <!-- SE NÃO ESTIVER PENDENTE, MOSTRA APENAS AS MODALIDADES COMO INFORMAÇÃO -->
+                <input type="hidden" name="com" value="<?php echo $inscricao->mod_com; ?>">
+                <input type="hidden" name="abs_com" value="<?php echo $inscricao->mod_ab_com; ?>">
+                <input type="hidden" name="sem" value="<?php echo $inscricao->mod_sem; ?>">
+                <input type="hidden" name="abs_sem" value="<?php echo $inscricao->mod_ab_sem; ?>">
+            <?php endif; ?>
 
             <br>
-            <label for="modalidade">Modalidade:</label>
+            <label for="modalidade">Categoria de Peso:</label>
             <select name="modalidade" id="modalidade">
                 <option value="galo" <?php echo $inscricao->modalidade == "galo" ? "selected" : ""; ?>>Galo</option>
                 <option value="pluma" <?php echo $inscricao->modalidade == "pluma" ? "selected" : ""; ?>>Pluma</option>
                 <option value="pena" <?php echo $inscricao->modalidade == "pena" ? "selected" : ""; ?>>Pena</option>
                 <option value="leve" <?php echo $inscricao->modalidade == "leve" ? "selected" : ""; ?>>Leve</option>
                 <option value="medio" <?php echo $inscricao->modalidade == "medio" ? "selected" : ""; ?>>Médio</option>
-                <option value="meio-pesado" <?php echo $inscricao->modalidade == "meio-pesado" ? "selected" : ""; ?>>
-                    Meio-Pesado</option>
+                <option value="meio-pesado" <?php echo $inscricao->modalidade == "meio-pesado" ? "selected" : ""; ?>>Meio-Pesado</option>
                 <option value="pesado" <?php echo $inscricao->modalidade == "pesado" ? "selected" : ""; ?>>Pesado</option>
-                <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>
-                    Super-Pesado</option>
-                <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>
-                    Pesadíssimo</option>
+                <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>Super-Pesado</option>
+                <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>Pesadíssimo</option>
                 <?php if ($_SESSION["idade"] > 15): ?>
                     <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
                 <?php endif; ?>
@@ -133,8 +235,12 @@ if (isset($_GET["inscricao"])) {
 
             <div class="form-actions">
                 <input type="submit" name="action" value="Salvar Alterações" class="botao-acao">
-                <input type="submit" name="action" value="Excluir Inscrição" class="danger"
-                    onclick="return confirm('Tem certeza que deseja excluir esta inscrição?')">
+                
+                <?php if (!$pagamentoNaoPendente): ?>
+                    <!-- EXCLUSÃO APENAS SE ESTIVER PENDENTE -->
+                    <input type="submit" name="action" value="Excluir Inscrição" class="danger"
+                        onclick="return confirm('Tem certeza que deseja excluir esta inscrição?')">
+                <?php endif; ?>
             </div>
         </form>
 
@@ -146,58 +252,62 @@ if (isset($_GET["inscricao"])) {
         <br><a class="link" href="eventos_cadastrados.php">voltar</a>
     </div>
     <?php include "menu/footer.php"; ?>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Grupos de checkboxes que são mutuamente exclusivos
-            const gruposExclusivos = [
-                ['com', 'abs_com'],     // Categoria Com Kimono vs Absoluto Com Kimono
-                ['sem', 'abs_sem']      // Categoria Sem Kimono vs Absoluto Sem Kimono
-            ];
+    
+    <?php if (!$pagamentoNaoPendente): ?>
+        <!-- SCRIPT APENAS PARA PENDENTES -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                // Grupos de checkboxes que são mutuamente exclusivos
+                const gruposExclusivos = [
+                    ['com', 'abs_com'],     // Categoria Com Kimono vs Absoluto Com Kimono
+                    ['sem', 'abs_sem']      // Categoria Sem Kimono vs Absoluto Sem Kimono
+                ];
 
-            // Para cada grupo de exclusividade
-            gruposExclusivos.forEach(grupo => {
-                const checkboxes = grupo.map(name => {
-                    const checkbox = document.querySelector(`input[name="${name}"]`);
-                    return checkbox;
-                }).filter(checkbox => checkbox !== null);
+                // Para cada grupo de exclusividade
+                gruposExclusivos.forEach(grupo => {
+                    const checkboxes = grupo.map(name => {
+                        const checkbox = document.querySelector(`input[name="${name}"]`);
+                        return checkbox;
+                    }).filter(checkbox => checkbox !== null);
 
-                // Adiciona evento a cada checkbox do grupo
-                checkboxes.forEach(checkbox => {
-                    checkbox.addEventListener('change', function () {
-                        if (this.checked) {
-                            // Se este foi marcado, desmarca os outros do mesmo grupo
-                            checkboxes.forEach(otherCheckbox => {
-                                if (otherCheckbox !== this) {
-                                    otherCheckbox.checked = false;
-                                }
-                            });
-                        }
+                    // Adiciona evento a cada checkbox do grupo
+                    checkboxes.forEach(checkbox => {
+                        checkbox.addEventListener('change', function () {
+                            if (this.checked) {
+                                // Se este foi marcado, desmarca os outros do mesmo grupo
+                                checkboxes.forEach(otherCheckbox => {
+                                    if (otherCheckbox !== this) {
+                                        otherCheckbox.checked = false;
+                                    }
+                                });
+                            }
+                        });
                     });
                 });
+
+                // Validação no envio do formulário
+                const form = document.querySelector('form');
+                if (form) {
+                    form.addEventListener('submit', function (e) {
+                        // Verifica se pelo menos uma modalidade foi selecionada
+                        const comSelecionado = document.querySelector('input[name="com"]:checked');
+                        const semSelecionado = document.querySelector('input[name="sem"]:checked');
+                        const absComSelecionado = document.querySelector('input[name="abs_com"]:checked');
+                        const absSemSelecionado = document.querySelector('input[name="abs_sem"]:checked');
+
+                        // Se nenhuma modalidade foi selecionada
+                        if (!comSelecionado && !semSelecionado && !absComSelecionado && !absSemSelecionado) {
+                            e.preventDefault();
+                            alert('Por favor, selecione pelo menos uma modalidade');
+                            return false;
+                        }
+
+                        return true;
+                    });
+                }
             });
-
-            // Validação no envio do formulário
-            const form = document.querySelector('form');
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    // Verifica se pelo menos uma modalidade foi selecionada
-                    const comSelecionado = document.querySelector('input[name="com"]:checked');
-                    const semSelecionado = document.querySelector('input[name="sem"]:checked');
-                    const absComSelecionado = document.querySelector('input[name="abs_com"]:checked');
-                    const absSemSelecionado = document.querySelector('input[name="abs_sem"]:checked');
-
-                    // Se nenhuma modalidade foi selecionada
-                    if (!comSelecionado && !semSelecionado && !absComSelecionado && !absSemSelecionado) {
-                        e.preventDefault();
-                        alert('Por favor, selecione pelo menos uma modalidade');
-                        return false;
-                    }
-
-                    return true;
-                });
-            }
-        });
-    </script>
+        </script>
+    <?php endif; ?>
 </body>
 
 </html>
