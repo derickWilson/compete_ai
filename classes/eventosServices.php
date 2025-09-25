@@ -275,12 +275,12 @@ class eventosService
     public function limparEventosExpirados()
     {
         // Primeiro obtemos os eventos que devem ser deletados
-        // Altere para 1 dia ao invés de 7 dias, se quiser limpeza mais frequente
+        //deleta eventos depois de 12 dias
         if (!$this->conn) {
             throw new Exception("Conexão com o banco de dados não disponível");
         }
         $query = "SELECT id, nome, data_limite FROM evento 
-          WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 7 DAY)
+          WHERE data_limite < DATE_SUB(CURRENT_DATE, INTERVAL 12 DAY)
           AND data_limite IS NOT NULL";
         $stmt = $this->conn->prepare($query);
 
