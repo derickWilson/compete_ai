@@ -18,6 +18,7 @@ class Evento {
     private $preco_sem;
     private $preco_sem_menor;
     private $preco_sem_abs;
+    private $chaveamento;
     
 
     // Método mágico __get para getters

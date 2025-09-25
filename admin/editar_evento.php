@@ -106,13 +106,24 @@ unset($_SESSION['mensagem']);
                 <input type="file" name="nDoc" accept=".pdf">
                 <small>Apenas PDF (Máx. 5MB)</small>
             </div>
+            <!-- Após a seção do Documento de Ementa, adicione: -->
+            <div class="form-section">
+                <h3>Chaveamento (PDF)</h3>
+                <?php if ($eventoDetails->chaveamento): ?>
+                    <a href="/docs/<?= htmlspecialchars($eventoDetails->chaveamento) ?>" target="_blank">Visualizar
+                        chaveamento atual</a><br>
+                <?php endif; ?>
+                <input type="file" name="chaveamento_novo" accept=".pdf">
+                <small>Apenas PDF (Máx. 5MB)</small>
+            </div>
 
             <!-- Informações Básicas -->
             <div class="form-section">
                 <h3>Informações do Evento</h3>
 
                 <label>Nome do evento:*</label>
-                <input type="text" name="nome_evento" required value="<?= htmlspecialchars($eventoDetails->nome) ?>"><br>   
+                <input type="text" name="nome_evento" required
+                    value="<?= htmlspecialchars($eventoDetails->nome) ?>"><br>
 
                 <label>Data do Evento:*</label>
                 <input type="date" name="data_evento" required
@@ -174,8 +185,8 @@ unset($_SESSION['mensagem']);
                 <label>Preço para menores de 15 anos SEM Kimono (R$):*</label>
                 <input type="number" name="preco_sem_menor" step="0.01" min="0" required
                     value="<?= number_format($eventoDetails->preco_sem_menor ?? 0, 2, '.', '') ?>"><br>
-                
-                    <h4>Preços para Evento Normal</h4>
+
+                <h4>Preços para Evento Normal</h4>
                 <label>Preço para Evento Normal (R$):</label>
                 <input type="number" name="normal_preco" step="0.01" min="0"
                     value="<?= number_format($eventoDetails->normal_preco ?? 0, 2, '.', '') ?>">

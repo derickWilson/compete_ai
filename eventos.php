@@ -232,9 +232,15 @@ if (isset($_GET['id'])) {
                 <?php } else { ?>
                     <p><em>Edital não disponível</em></p>
                 <?php } ?>
-
+                <!-- Link para download do chaveamento -->
+                <?php if (!empty($eventoDetails->chaveamento)) { ?>
+                    <p><a href="<?php echo '/docs/' . htmlspecialchars($eventoDetails->chaveamento); ?>" download>Baixar
+                            Chaveamento</a></p>
+                <?php } else { ?>
+                    <p><em>Chaveamento não disponível</em></p>
+                <?php } ?>
                 <!-- Formulário de inscrição -->
-                <?php 
+                <?php
                 // Primeiro verifica se as inscrições estão abertas ou encerradas
                 $limite = new DateTime($eventoDetails->data_limite);
                 $limite->modify('+1 day');
@@ -247,13 +253,13 @@ if (isset($_GET['id'])) {
                     echo '📅 <strong>Inscrições encerradas</strong><br>';
                     echo 'O prazo para inscrições terminou em ' . date('d/m/Y', strtotime($eventoDetails->data_limite));
                     echo '</div>';
-                    
+
                 } else {
                     // INSCRIÇÕES ABERTAS - data limite ainda não chegou
-                    
+        
                     if (isset($_SESSION['logado']) && $_SESSION['logado']) {
                         // USUÁRIO LOGADO
-                        
+        
                         if (!$evserv->isInscrito($_SESSION["id"], $eventoId)) {
                             // USUÁRIO NÃO INSCRITO - mostra formulário
                             ?>
@@ -318,7 +324,7 @@ if (isset($_GET['id'])) {
                             // USUÁRIO JÁ INSCRITO
                             echo '<p class="aviso info">Você já está inscrito neste evento.</p>';
                         }
-                        
+
                     } else {
                         // USUÁRIO NÃO LOGADO
                         echo '<p class="aviso info">Faça <a href="/login.php">login</a> para se inscrever.</p>';

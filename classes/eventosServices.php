@@ -74,7 +74,8 @@ class eventosService
         preco_sem_abs = :preco_sem_abs,
         doc = :doc,
         normal = :normal,
-        normal_preco = :normal_preco
+        normal_preco = :normal_preco,
+        chaveamento = :chaveamento
         WHERE id = :id";
 
         $stmt = $this->conn->prepare($query);
@@ -98,7 +99,7 @@ class eventosService
         $stmt->bindValue(':doc', $this->evento->__get('doc'), PDO::PARAM_STR);
         $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
         $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
-
+        $stmt->bindValue(':chaveamento', $this->evento->__get('chaveamento'), PDO::PARAM_STR);
         try {
             $result = $stmt->execute();
             return $result; // Retorna true/false para o chamador decidir o redirecionamento
@@ -141,7 +142,8 @@ class eventosService
                 imagen, 
                 doc,
                 normal AS normal,
-                normal_preco
+                normal_preco,
+                chaveamento
               FROM evento 
               WHERE id = :id";
 
@@ -424,7 +426,9 @@ class eventosService
         ];
 
         foreach ($diretorios as $tipo => $caminho) {
-            $arquivo = $tipo === 'imagens' ? $evento->imagen : $evento->doc;
+            $arquivo = $tipo === 'imagens' ? $evento->imagen :
+                ($tipo === 'documentos' ? ($evento->doc ?? $evento->chaveamento) : null);
+
             if (!empty($arquivo)) {
                 $caminhoCompleto = $caminho . $arquivo;
                 if (file_exists($caminhoCompleto)) {

@@ -117,6 +117,29 @@ if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
     }
 }
 
+// Processar chaveamento
+if (isset($_FILES['chaveamento_novo']) && $_FILES['chaveamento_novo']['error'] === UPLOAD_ERR_OK) {
+    $chaveamento = $_FILES['chaveamento_novo'];
+    $extChaveamento = pathinfo($chaveamento['name'], PATHINFO_EXTENSION);
+    
+    if (strtolower($extChaveamento) === 'pdf') {
+        $nomeChaveamento = "chaveamento_" . $id . '_' . time() . '.' . $extChaveamento;
+        $caminhoChaveamento = "../docs/" . $nomeChaveamento;
+        
+        // Deletar chaveamento antigo se existir
+        if (!empty($eventoAtual->chaveamento) && file_exists("../docs/" . $eventoAtual->chaveamento)) {
+            unlink("../docs/" . $eventoAtual->chaveamento);
+        }
+        
+        if (move_uploaded_file($chaveamento['tmp_name'], $caminhoChaveamento)) {
+            $ev->__set('chaveamento', $nomeChaveamento);
+        }
+    }
+} else {
+    // Manter o chaveamento atual se não foi enviado novo
+    $ev->__set('chaveamento', $eventoAtual->chaveamento);
+}
+
 // Atualizar campos do formulário
 if (isset($_POST['nome_evento']) && !empty($_POST['nome_evento'])) {
     $dadosEvento['nome'] = cleanWords($_POST['nome_evento']);
