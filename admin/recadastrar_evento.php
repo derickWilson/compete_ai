@@ -38,6 +38,7 @@ if (!$eventoAntigo || !isset($eventoAntigo->id)) {
 }
 
 // Inicializa array com os dados atuais do evento
+// Inicializa array com os dados atuais do evento
 $dadosEvento = [
     'id' => $id,
     'nome' => $eventoAntigo->nome ?? '',
@@ -50,15 +51,15 @@ $dadosEvento = [
     'preco' => $eventoAntigo->preco ?? 0,
     'preco_menor' => $eventoAntigo->preco_menor ?? 0,
     'preco_abs' => $eventoAntigo->preco_abs ?? 0,
-    'preco_sem' => $eventoAntigo->preco_sem ?? 0, // Adicionado
-    'preco_sem_menor' => $eventoAntigo->preco_sem_menor ?? 0, // Adicionado
-    'preco_sem_abs' => $eventoAntigo->preco_sem_abs ?? 0, // Adicionado
+    'preco_sem' => $eventoAntigo->preco_sem ?? 0,
+    'preco_sem_menor' => $eventoAntigo->preco_sem_menor ?? 0,
+    'preco_sem_abs' => $eventoAntigo->preco_sem_abs ?? 0,
     'img' => $eventoAntigo->imagen ?? null,
     'doc' => $eventoAntigo->doc ?? null,
+    'chaveamento' => $eventoAntigo->chaveamento ?? null,
     'normal' => $eventoAntigo->normal ?? 0,
     'normal_preco' => $eventoAntigo->normal_preco ?? 0
 ];
-
 // Processar upload da nova imagem
 if (isset($_FILES['imagen_nova']) && $_FILES['imagen_nova']['error'] === UPLOAD_ERR_OK) {
     $imagen = $_FILES['imagen_nova'];
@@ -120,24 +121,37 @@ if (isset($_FILES['nDoc']) && $_FILES['nDoc']['error'] === UPLOAD_ERR_OK) {
 // Processar chaveamento
 if (isset($_FILES['chaveamento_novo']) && $_FILES['chaveamento_novo']['error'] === UPLOAD_ERR_OK) {
     $chaveamento = $_FILES['chaveamento_novo'];
-    $extChaveamento = pathinfo($chaveamento['name'], PATHINFO_EXTENSION);
-    
-    if (strtolower($extChaveamento) === 'pdf') {
-        $nomeChaveamento = "chaveamento_" . $id . '_' . time() . '.' . $extChaveamento;
-        $caminhoChaveamento = "../docs/" . $nomeChaveamento;
-        
+    $extensao = strtolower(pathinfo($chaveamento['name'], PATHINFO_EXTENSION));
+
+    if ($extensao === 'pdf') {
+        $novoNome = 'chave_' . time() . '.pdf';
+        $caminhoDestino = __DIR__ . "/../docs/" . $novoNome;
+
+        // Verificar se diretório existe
+        if (!file_exists(__DIR__ . "/../docs")) {
+            mkdir(__DIR__ . "/../docs", 0755, true);
+        }
+
         // Deletar chaveamento antigo se existir
-        if (!empty($eventoAtual->chaveamento) && file_exists("../docs/" . $eventoAtual->chaveamento)) {
-            unlink("../docs/" . $eventoAtual->chaveamento);
+        if (!empty($eventoAntigo->chaveamento) && file_exists(__DIR__ . "/../docs/" . $eventoAntigo->chaveamento)) {
+            unlink(__DIR__ . "/../docs/" . $eventoAntigo->chaveamento);
         }
-        
-        if (move_uploaded_file($chaveamento['tmp_name'], $caminhoChaveamento)) {
-            $ev->__set('chaveamento', $nomeChaveamento);
+
+        if (move_uploaded_file($chaveamento['tmp_name'], $caminhoDestino)) {
+            $dadosEvento['chaveamento'] = $novoNome; // CORREÇÃO: usar $dadosEvento
+        } else {
+            $_SESSION['mensagem'] = "Erro ao salvar o novo chaveamento.";
+            header("Location: /admin/editar_evento.php?id=" . $id);
+            exit();
         }
+    } else {
+        $_SESSION['mensagem'] = "O chaveamento deve ser um arquivo PDF.";
+        header("Location: /admin/editar_evento.php?id=" . $id);
+        exit();
     }
 } else {
     // Manter o chaveamento atual se não foi enviado novo
-    $ev->__set('chaveamento', $eventoAtual->chaveamento);
+    $dadosEvento['chaveamento'] = $eventoAntigo->chaveamento ?? null; // CORREÇÃO: usar $dadosEvento
 }
 
 // Atualizar campos do formulário
@@ -276,45 +290,55 @@ try {
  */
 function calcularNovoValor($inscricao, $dadosEvento)
 {
-    // Se for evento normal
-    if ($dadosEvento['normal']) {
-        return $dadosEvento['normal_preco'] * TAXA;
+    // Converter array para objeto se necessário
+    if (is_array($dadosEvento)) {
+        $dadosEvento = (object)$dadosEvento;
     }
 
+    // Se for evento normal
+    if ($dadosEvento->normal) {
+        return $dadosEvento->normal_preco * TAXA;
+    }
+
+    // Se for evento gratuito
+    $eventoGratuito = ($dadosEvento->preco == 0 && $dadosEvento->preco_menor == 0 && 
+                      $dadosEvento->preco_abs == 0 && $dadosEvento->preco_sem == 0 && 
+                      $dadosEvento->preco_sem_menor == 0 && $dadosEvento->preco_sem_abs == 0);
+    
+    if ($eventoGratuito) {
+        return 0;
+    }
+
+    // CORREÇÃO: Usar a data de nascimento da inscrição, não da sessão
     $idade = calcularIdade($inscricao->data_nascimento);
     $menorIdade = ($idade <= 15);
 
     $valorTotal = 0;
-    $modalidadesSelecionadas = 0;
+    $valorComKimono = 0;
+    $valorSemKimono = 0;
 
-    // Modalidade COM kimono
-    if ($inscricao->mod_com) {
-        $precoCom = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
-        $valorTotal += $precoCom;
-        $modalidadesSelecionadas++;
+    // MODALIDADE COM KIMONO
+    if ($inscricao->mod_ab_com && !$menorIdade) {
+        // ABSOLUTO COM KIMONO (substitui a modalidade normal)
+        $valorComKimono = $dadosEvento->preco_abs;
+    } elseif ($inscricao->mod_com) {
+        // MODALIDADE NORMAL COM KIMONO
+        $valorComKimono = $menorIdade ? $dadosEvento->preco_menor : $dadosEvento->preco;
     }
 
-    // Modalidade SEM kimono
-    if ($inscricao->mod_sem) {
-        $precoSem = $menorIdade ? $dadosEvento['preco_sem_menor'] : $dadosEvento['preco_sem'];
-        $valorTotal += $precoSem;
-        $modalidadesSelecionadas++;
+    // MODALIDADE SEM KIMONO
+    if ($inscricao->mod_ab_sem && !$menorIdade) {
+        // ABSOLUTO SEM KIMONO (substitui a modalidade normal)
+        $valorSemKimono = $dadosEvento->preco_sem_abs;
+    } elseif ($inscricao->mod_sem) {
+        // MODALIDADE NORMAL SEM KIMONO
+        $valorSemKimono = $menorIdade ? $dadosEvento->preco_sem_menor : $dadosEvento->preco_sem;
     }
 
-    // Absoluto COM kimono
-    if ($inscricao->mod_ab_com) {
-        $valorTotal += $dadosEvento['preco_abs'];
-        $modalidadesSelecionadas++;
-    }
+    $valorTotal = $valorComKimono + $valorSemKimono;
 
-    // Absoluto SEM kimono
-    if ($inscricao->mod_ab_sem) {
-        $valorTotal += $dadosEvento['preco_sem_abs'];
-        $modalidadesSelecionadas++;
-    }
-
-    // Aplica desconto de 40% se fez mais de uma modalidade
-    if ($modalidadesSelecionadas > 1) {
+    // Desconto de 40% se fizer COM e SEM kimono (qualquer combinação)
+    if ($valorComKimono > 0 && $valorSemKimono > 0) {
         $valorTotal *= 0.6; // 40% de desconto
     }
 

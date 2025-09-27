@@ -28,6 +28,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         genero VARCHAR(9),
         responsavel TINYINT NOT NULL,
         diploma VARCHAR(30) NOT NULL,
+        permissao_email TINYINT DEFAULT 1,
         FOREIGN KEY (academia) REFERENCES academia_filiada(id),
         PRIMARY KEY (id)
     );
@@ -49,6 +50,10 @@ CREATE TABLE IF NOT EXISTS evento(
     doc VARCHAR(20),
     normal BOOLEAN DEFAULT 0,
     normal_preco FLOAT(5,2) DEFAULT 0.00,
+    preco_sem FLOAT(5,2),
+    preco_sem_menor FLOAT(5,2),
+    preco_sem_abs FLOAT(5,2),
+    chaveamento VARCHAR(25),
     PRIMARY KEY (id)
 );
 
@@ -77,5 +82,3 @@ CREATE TABLE IF NOT EXISTS galeria (
     imagem VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
-
-ALTER TABLE atleta ADD COLUMN permissao_email TINYINT DEFAULT 1;

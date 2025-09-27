@@ -441,6 +441,48 @@ class eventosService
     }
 
     /**
+     * Método auxiliar para deletar um único arquivo associados ao evento
+     * @param int $evento Objeto evento com propriedades imagen e doc
+     * @param int $tipo documento a se deletado: imagen, doc, chaveamento
+     * @param string $arquivo documento a se deletado: imagen, doc, chaveamento
+     */
+    public function deletarArquivo($id, $tipo, $arquivo)
+    {
+        $diretorios = [
+            'imagen' => __DIR__ . '/../uploads/',
+            'doc' => __DIR__ . '/../docs/',
+            'chaveamento' => __DIR__ . '/../docs/'
+        ];
+        $tabela = $tipo === 'imagen' ? 'imagen' : ($tipo === 'doc' ? 'doc' : 'chaveamento');
+        $caminho = $diretorios[$tipo] . $arquivo;
+        try {
+            $query = "UPDATE evento SET {$tabela} = NULL WHERE id = :id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+            if (!$stmt->execute()) {
+                throw new Exception("Falha ao atualizar banco de dados");
+            }
+            //apos deletar no BD deletar o arquivo
+            if (file_exists($caminho)) {
+                if (!unlink($caminho)) {
+                    throw new Exception("Falha ao deletar arquivo físico");
+                }
+            } else {
+                // Arquivo não existe fisicamente, mas continuamos (já removemos do BD)
+                error_log("Arquivo físico não encontrado: {$caminho}");
+            }
+
+            return true;
+
+        } catch (Exception $e) {
+            error_log("Erro ao deletar arquivo: " . $e->getMessage());
+            throw new Exception("Erro ao deletar arquivo: " . $e->getMessage());
+        }
+    }
+
+    /**
      * Deleta todas as inscrições relacionadas ao evento
      * @param int $idEvento ID do evento
      */
