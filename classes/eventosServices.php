@@ -442,9 +442,9 @@ class eventosService
 
     /**
      * Método auxiliar para deletar um único arquivo associados ao evento
-     * @param int $evento Objeto evento com propriedades imagen e doc
-     * @param int $tipo documento a se deletado: imagen, doc, chaveamento
-     * @param string $arquivo documento a se deletado: imagen, doc, chaveamento
+     * @param int $evento id do evento com propriedades imagen e doc
+     * @param string $tipo tipo de documento a se deletado: imagen, doc, chaveamento
+     * @param string $arquivo documento a ser
      */
     public function deletarArquivo($id, $tipo, $arquivo)
     {
