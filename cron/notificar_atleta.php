@@ -22,10 +22,10 @@ function enviarEmailNotificacaoSMTP($destinatario, $assunto, $mensagem) {
     try {
         // Configurações do servidor SMTP
         $mail->isSMTP();
-        $mail->Host = 'mail.fpjji.com';
+        $mail->Host = '';
         $mail->SMTPAuth = true;
         $mail->Username = '';
-        $mail->Password = 'SUA_SENHA_AQUI'; // ATENÇÃO: Substitua pela senha real
+        $mail->Password = '';
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
         
@@ -83,7 +83,11 @@ try {
             continue;
         }
 
-        $diferenca = $data_atual->diff($data_ev);
+        // Calcular diferença de forma mais precisa
+        $data_atual_sem_hora = new DateTime($data_atual->format('Y-m-d'));
+        $data_ev_sem_hora = new DateTime($data_ev->format('Y-m-d'));
+
+        $diferenca = $data_atual_sem_hora->diff($data_ev_sem_hora);
         $dias_restantes = $diferenca->days;
 
         // Notificar em 14, 7, 3 e 1 dias antes

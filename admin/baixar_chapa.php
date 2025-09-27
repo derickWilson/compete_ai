@@ -55,8 +55,8 @@ $inscritosValidos = array_filter($inscritos, function($inscrito) use ($evento) {
     $eventoGratuito = $evento->normal ? ($evento->normal_preco == 0) : 
         ($evento->preco == 0 && $evento->preco_menor == 0 && $evento->preco_abs == 0);
     
-    return $eventoGratuito || in_array($inscrito->status_pagamento, [
-        'RECEIVED', 'CONFIRMED', 'ISENTO'
+    return $eventoGratuito || !in_array($inscrito->status_pagamento, [
+        'PENDING'
     ]);
 });
 
