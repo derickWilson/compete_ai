@@ -414,7 +414,7 @@ class atletaService
      */
     public function logar()
     {
-        $query = "SELECT id, nome, cpf, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado, responsavel, diploma
+        $query = "SELECT id, nome, cpf, genero, senha, foto, academia, email, data_nascimento, fone, faixa, peso, adm, validado, responsavel, diploma
                 FROM atleta
                 WHERE email = :email";
         $stmt = $this->conn->prepare($query);
@@ -434,6 +434,7 @@ class atletaService
                     $_SESSION["id"] = $atleta->id;
                     $_SESSION["nome"] = $atleta->nome;
                     $_SESSION["email"] = $atleta->email;
+                    $_SESSION["genero"] = $atleta->genero;
                     $_SESSION["foto"] = $atleta->foto;
                     $_SESSION["idade"] = calcularIdade($atleta->data_nascimento);
                     $_SESSION["data_nascimento"] = $atleta->data_nascimento;

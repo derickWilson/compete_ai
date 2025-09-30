@@ -136,10 +136,7 @@ foreach ($inscritosValidos as $inscrito) {
             $idade >= 14 && $idade <= 15 => "INFANTO-JUVENIL",
             $idade >= 16 && $idade <= 17 => "JUVENIL",
             $idade >= 18 && $idade <= 29 => "ADULTO",
-            $idade >= 30 && $idade <= 35 => "MASTER 1",
-            $idade >= 36 && $idade <= 40 => "MASTER 2",
-            $idade >= 41 && $idade <= 45 => "MASTER 3",
-            $idade >= 46 => "MASTER 4+",
+            $idade >= 30 && $idade <= 35 => "MASTER",
             default => "OUTROS"
         };
         
@@ -256,10 +253,7 @@ uksort($chapeamento, function($a, $b) {
     $orderCategoria = [
         "PRE-MIRIM" => 0, "MIRIM 1" => 1, "MIRIM 2" => 2,
         "INFANTIL 1" => 3, "INFANTIL 2" => 4, "INFANTO-JUVENIL" => 5,
-        "JUVENIL" => 6, "ADULTO" => 7, "MASTER 1" => 8, 
-        "MASTER 2" => 9, "MASTER 3" => 10, "MASTER 4+" => 11,
-        "OUTROS" => 12,
-        "ABSOLUTO" => 13  // Absolutos ficam depois de todas as categorias etárias
+        "JUVENIL" => 6, "ADULTO" => 7, "MASTER" => 8,"ABSOLUTO" => 9  // Absolutos ficam depois de todas as categorias etárias
     ];
     
     $ordemCatA = $orderCategoria[$catA] ?? 999;
@@ -352,8 +346,8 @@ function gerarChaveamentoSimples($atletas, $pdf) {
 $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 // Metadados do documento
-$pdf->SetCreator('Sistema de Competições de Jiu-Jitsu');
-$pdf->SetAuthor('Federação de Jiu-Jitsu');
+$pdf->SetCreator('Sistema de Competições da FPJJI');
+$pdf->SetAuthor('Federação Paulista de Jiu-Jitsu Internacional');
 $pdf->SetTitle('Chaves de Competição - ' . $evento->nome);
 $pdf->SetSubject('Chaveamento Oficial');
 

@@ -9,6 +9,7 @@ try {
     require_once "classes/AssasService.php";
     include "func/clearWord.php";
     require_once "func/calcularIdade.php";
+    require_once "func/determinar_categoria.php";
     require_once __DIR__ . '/config_taxa.php';
 } catch (\Throwable $th) {
     print ('[' . $th->getMessage() . ']');
@@ -290,21 +291,28 @@ if (isset($_GET['id'])) {
                                 <?php } ?>
 
                                 <br>
-                                <?php if (!$eventoDetails->normal) { ?>
+                                <?php if (!$eventoDetails->normal) {
+                                    // determinar a categoria automaticamente
+                                    $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
+                                    $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
+                                    ?>
                                     <select name="modalidade" required>
-                                        <option value="galo">Galo</option>
-                                        <option value="pluma">Pluma</option>
-                                        <option value="pena">Pena</option>
-                                        <option value="leve">Leve</option>
-                                        <option value="medio">Médio</option>
-                                        <option value="meio-pesado">Meio-Pesado</option>
-                                        <option value="pesado">Pesado</option>
-                                        <option value="super-pesado">Super-Pesado</option>
-                                        <option value="pesadissimo">Pesadíssimo</option>
+                                        <option value="galo" <?= $categoriaAuto == 'galo' ? 'selected' : '' ?>>Galo</option>
+                                        <option value="pluma" <?= $categoriaAuto == 'pluma' ? 'selected' : '' ?>>Pluma</option>
+                                        <option value="pena" <?= $categoriaAuto == 'pena' ? 'selected' : '' ?>>Pena</option>
+                                        <option value="leve" <?= $categoriaAuto == 'leve' ? 'selected' : '' ?>>Leve</option>
+                                        <option value="medio" <?= $categoriaAuto == 'medio' ? 'selected' : '' ?>>Médio</option>
+                                        <option value="meio-pesado" <?= $categoriaAuto == 'meio-pesado' ? 'selected' : '' ?>>Meio-Pesado</option>
+                                        <option value="pesado" <?= $categoriaAuto == 'pesado' ? 'selected' : '' ?>>Pesado</option>
+                                        <option value="super-pesado" <?= $categoriaAuto == 'super-pesado' ? 'selected' : '' ?>>Super-Pesado
+                                        </option>
+                                        <option value="pesadissimo" <?= $categoriaAuto == 'pesadissimo' ? 'selected' : '' ?>>Pesadíssimo</option>
                                         <?php if ($_SESSION["idade"] > 15) { ?>
-                                            <option value="super-pesadissimo">Super-Pesadíssimo</option>
+                                            <option value="super-pesadissimo" <?= $categoriaAuto == 'super-pesadissimo' ? 'selected' : '' ?>>
+                                                Super-Pesadíssimo</option>
                                         <?php } ?>
                                     </select>
+
 
                                     <div class="termos">
                                         <input type="checkbox" name="aceite_regulamento" id="aceite_regulamento" required>
