@@ -17,6 +17,7 @@
         <a href="/admin/criar_eventos.php">Criar Evento</a>
         <a href="/admin/pessoas.php">Atletas</a>
         <a href="/admin/galeria.php">Gerenciar Galeria</a>
+        <a href="/admin/patrocinadores.php">Gerenciar Patrocinadores</a>
         <a href="/logout.php">Deslogar</a>
         <a href="/regras.php">Regras</a>
     </nav>

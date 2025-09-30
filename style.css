@@ -1355,6 +1355,180 @@
         }
     }
 
+    /* ===== PATROCINADORES - LAYOUT FLUTUANTE À ESQUERDA ===== */
+    .patrocinadores-admin {
+        margin: 20px 0;
+    }
+
+    .patrocinadores-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        margin: 20px 0;
+    }
+
+    .patrocinador-item {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 15px;
+        width: 100%;
+    }
+
+    .patrocinador-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .patrocinador-imagem {
+        flex-shrink: 0;
+        width: 200px;
+        height: 100px;
+        overflow: hidden;
+        background: #f8f9fa;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        border-radius: 8px;
+    }
+
+    .patrocinador-imagem img.patrocinador {
+        width: auto;
+        max-width: 100%;
+        max-height: 100%;
+        height: auto;
+        object-fit: contain;
+    }
+
+    .patrocinador-info {
+        flex: 1;
+        padding: 0;
+    }
+
+    .patrocinador-info h4.blue {
+        color: var(--primary-dark);
+        margin-bottom: 8px;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .patrocinador-info p.blue {
+        color: var(--dark);
+        margin: 5px 0;
+        font-size: 14px;
+        word-break: break-all;
+    }
+
+    .patrocinador-info p.blue strong {
+        color: var(--primary-dark);
+    }
+
+    .patrocinador-acoes {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+
+    .patrocinador-acoes a {
+        padding: 8px 15px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: var(--transition);
+        font-weight: 500;
+    }
+
+    .botao-editar {
+        background-color: var(--accent);
+        color: var(--dark);
+    }
+
+    .botao-editar:hover {
+        background-color: #d4a017;
+        color: var(--dark);
+        transform: translateY(-2px);
+    }
+
+    .danger {
+        background-color: var(--danger);
+        color: var(--white);
+    }
+
+    .danger:hover {
+        background-color: #c53030;
+        color: var(--white);
+        transform: translateY(-2px);
+    }
+
+    /* Responsividade para layout flutuante */
+    @media (max-width: 768px) {
+        .patrocinador-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+
+        .patrocinador-imagem {
+            width: 100%;
+            max-width: 300px;
+            height: 120px;
+        }
+
+        .patrocinador-acoes {
+            justify-content: center;
+        }
+
+        .patrocinador-acoes a {
+            flex: 1;
+            justify-content: center;
+            max-width: 150px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .patrocinador-item {
+            margin: 0 10px;
+            padding: 12px;
+        }
+
+        .patrocinador-imagem {
+            height: 100px;
+        }
+
+        .patrocinador-acoes {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .patrocinador-acoes a {
+            max-width: 100%;
+        }
+    }
+
+    /* Estilos para quando não há patrocinadores */
+    .nenhum-item {
+        text-align: center;
+        padding: 40px;
+        background-color: var(--light);
+        border-radius: var(--border-radius);
+        color: var(--gray);
+    }
+
+    .acao-centralizada {
+        text-align: center;
+        margin: 30px 0;
+    }
+
     /* ===== ESTATÍSTICAS DE INSCRIÇÕES ===== */
     .estatisticas-inscricoes {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

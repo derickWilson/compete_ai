@@ -18,6 +18,12 @@ $galeria = new Galeria();
 $galeriaServ = new GaleriaService($conn, $galeria);
 $fotos = $galeriaServ->listGaleria();
 
+// Carregar patrocinadores
+require_once "classes/patrocinadorClass.php";
+$patrocinador = new Patrocinador();
+$patrocinadorServ = new PatrocinadorService($conn, $patrocinador);
+$patrocinadores = $patrocinadorServ->listPatrocinadores();
+
 ?>
 <!DOCTYPE html>
 <html lang="pt">
@@ -89,20 +95,25 @@ $fotos = $galeriaServ->listGaleria();
                 </div>
             <?php endif; ?>
         </div>
-
+        <!--patrocinadores-->
         <h2 class="section-title" style="color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5);">Nossos Patrocinadores
         </h2>
         <div class="patrocinio-container">
-            <a class="patrocinador" target="blank" href="https://lsisopradores.ind.br/">
-                <img width="340" height="140" src="patrocinio/patrocinador_1.jpeg" alt="Patrocinador 1">
-            </a>
-            <a class="patrocinador" target="blank" href="https://multivix.edu.br/ead/">
-                <img width="340" height="140" src="patrocinio/patrocinador_2.jpeg" alt="Patrocinador 2">
-            </a>
-            <a class="patrocinador" target="blank" href="https://www.instagram.com/lotususinagem_pecas">
-                <img width="340" height="140" src="patrocinio/patrocinador_3.jpeg" alt="Patrocinador 3">
-            </a>
+            <?php if (!empty($patrocinadores)): ?>
+                <?php foreach ($patrocinadores as $patrocinador): ?>
+                    <a class="patrocinador" target="_blank" href="<?php echo htmlspecialchars($patrocinador->link); ?>">
+                        <img width="340" height="140" src="patrocinio/<?php echo htmlspecialchars($patrocinador->imagem); ?>"
+                            alt="<?php echo htmlspecialchars($patrocinador->nome); ?>" loading="lazy">
+                    </a>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="nenhum-patrocinador">
+                    <i class="fas fa-handshake" style="font-size: 48px; color: var(--gray); margin-bottom: 15px;"></i>
+                    <p>Nossos patrocinadores em breve...</p>
+                </div>
+            <?php endif; ?>
         </div>
+    </div>
     </div>
 
     <?php include "menu/footer.php"; ?>

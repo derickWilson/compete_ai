@@ -84,4 +84,10 @@ CREATE TABLE IF NOT EXISTS galeria (
     PRIMARY KEY (id)
 );
 
-ALTER TABLE inscricao ADD categoria_idade VARCHAR(15) DEFAULT NULL;
+CREATE TABLE IF NOT EXISTS patrocinador (
+    id INT NOT NULL AUTO_INCREMENT,
+    nome VARCHAR(50) NOT NULL,
+    imagem VARCHAR(30) NOT NULL,
+    link VARCHAR(255) NOT NULL,
+    PRIMARY KEY (id)
+);
