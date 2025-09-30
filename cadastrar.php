@@ -222,7 +222,7 @@ try {
         // Prepara dados do atleta
         $telefone_completo = '+55' . preg_replace('/[^0-9]/', '', $_POST["fone"]);
 
-        $atletas->__set("nome", cleanWords($_POST["nome"]));
+        $atletas->__set("nome", ucwords(cleanWords($_POST["nome"])));
         $atletas->__set("cpf", cleanWords($_POST["cpf"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
         $atletas->__set("senha", password_hash($_POST["senha"], PASSWORD_BCRYPT));
