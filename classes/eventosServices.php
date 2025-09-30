@@ -355,7 +355,7 @@ class eventosService
     //Contagem de Inscriçao
     public function contagemCategoria($id, $idade, $todos = false, $pendentes = false, $modalidade = "com")
     {
-        //pagar a faixa etaria
+        // Determinar a faixa etária
         $faixa_etaria = match (true) {
             $idade >= 4 && $idade <= 5 => "PRE-MIRIM",
             $idade >= 6 && $idade <= 7 => "MIRIM 1",
@@ -369,36 +369,41 @@ class eventosService
             default => "OUTROS"
         };
 
-        //caso pendente falso, retorna inscrições pendentes
-        //caso contrario, retorna a quary com os que estão confirmados
-        $quary_pendentes = $pendentes ? "AND status_pagamento = 'RECEIVED' OR 'ISENTO' OR 'GRATUITO'" :
+        //condição de status de pagamento
+        $query_pendentes = $pendentes ?
+            "AND (status_pagamento = 'RECEIVED' OR status_pagamento = 'ISENTO' OR status_pagamento = 'GRATUITO')" :
             "AND status_pagamento = 'PENDING'";
 
-        //se todos = false contar todos, senão contar os absoluto
-        $todos = $todos ? 1 : 0;
-
         // Determinar qual coluna de modalidade usar
-        $coluna_modalidade = '';
-        $coluna_modalidade_abs = '';
+        $condicao_modalidade = '';
         switch ($modalidade) {
             case 'com':
-                $coluna_modalidade = ' AND mod_com = 1 ';
-                $coluna_modalidade_abs = ' AND mod_ab_com = ' . $todos. ' ';
+                if ($todos) {
+                    // Absoluto: mod_ab_com = 1
+                    $condicao_modalidade = 'AND mod_ab_com = 1';
+                } else {
+                    // Normal: mod_com = 1
+                    $condicao_modalidade = 'AND mod_com = 1';
+                }
                 break;
             case 'sem':
-                $coluna_modalidade = ' AND mod_sem = 1';
-                $coluna_modalidade_abs = ' AND mod_ab_sem = ' . $todos . ' ';
+                if ($todos) {
+                    // Absoluto: mod_ab_sem = 1
+                    $condicao_modalidade = 'AND mod_ab_sem = 1';
+                } else {
+                    // Normal: mod_sem = 1
+                    $condicao_modalidade = 'AND mod_sem = 1';
+                }
                 break;
         }
 
-        $query = "COUNT(*) as quantidade FROM inscricao WHERE id_evento = :id 
-        AND categoria_idade = :faixa_etaria " . $quary_pendentes . $coluna_modalidade . $coluna_modalidade_abs;
+        $query = "SELECT COUNT(*) as quantidade FROM inscricao WHERE id_evento = :id 
+              AND categoria_idade = :faixa_etaria " . $query_pendentes . " " . $condicao_modalidade;
 
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindValue(":faixa_etaria", $faixa_etaria, PDO::PARAM_STR);
         $stmt->bindValue(":id", $id, PDO::PARAM_INT);
-        $stmt->bindValue(":todos", $id, PDO::PARAM_INT);
 
         try {
             $stmt->execute();

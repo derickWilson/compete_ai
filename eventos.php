@@ -54,13 +54,30 @@ if (isset($_GET['id'])) {
     $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
     $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
     if ($eventoDetails->tipo_com) {
-        //pendentes todos
-        $inscritos_geral = $evserv->contagemCategoria($eventoId, $_SESSION["idade"],false,true,'com');
-        $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, 'com');
-        
+        //pendentes na categoria
+        $inscritos_geral = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'com');
+
+        //pendentes no absoluto
+        $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'com');
+
+        //confirmados na categoria
+        $inscritos_geral_confirmados = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'com');
+
+        //confirmados no absoluto
+        $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'com');
     }
     if ($eventoDetails->tipo_sem) {
+        //pendentes na categoria
+        $inscritos_geral_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'sem');
 
+        //pendentes no absoluto
+        $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'sem');
+
+        //confirmados na categoria
+        $inscritos_geral_confirmados_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'sem');
+
+        //confirmados no absoluto
+        $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'sem');
     }
     $tudo = false;
 } else {
@@ -185,6 +202,92 @@ if (isset($_GET['id'])) {
                         <span><?php echo htmlspecialchars($eventoDetails->descricao); ?></span>
                     </div>
                 </div>
+
+                <!-- Seção de Estatísticas de Inscrições -->
+                <div class="estatisticas-inscricoes">
+                    <h3>📊 Estatísticas de Inscrições</h3>
+                    <p class="aviso-info"><strong>⚠️ Atenção:</strong> Os números abaixo estão sujeitos a alterações constantes
+                    </p>
+
+                    <div class="estatisticas-grid">
+                        <?php if ($eventoDetails->tipo_com) { ?>
+                            <!-- Modalidade COM Kimono -->
+                            <div class="modalidade-estatistica">
+                                <h4>🥋 COM Kimono</h4>
+                                <div class="numeros-container">
+                                    <div class="numero-item">
+                                        <span class="numero-destaque"><?php echo $inscritos_geral ?? 0; ?></span>
+                                        <span class="numero-label">Pendentes (Categoria)</span>
+                                    </div>
+                                    <div class="numero-item">
+                                        <span class="numero-destaque"><?php echo $inscritos_abs ?? 0; ?></span>
+                                        <span class="numero-label">Pendentes (Absoluto)</span>
+                                    </div>
+                                    <div class="numero-item">
+                                        <span
+                                            class="numero-destaque confirmado"><?php echo $inscritos_geral_confirmados ?? 0; ?></span>
+                                        <span class="numero-label">Confirmados (Categoria)</span>
+                                    </div>
+                                    <div class="numero-item">
+                                        <span
+                                            class="numero-destaque confirmado"><?php echo $inscritos_abs_confirmados ?? 0; ?></span>
+                                        <span class="numero-label">Confirmados (Absoluto)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>
+
+                        <?php if ($eventoDetails->tipo_sem) { ?>
+                            <!-- Modalidade SEM Kimono -->
+                            <div class="modalidade-estatistica">
+                                <h4>👊 SEM Kimono</h4>
+                                <div class="numeros-container">
+                                    <div class="numero-item">
+                                        <span class="numero-destaque"><?php echo $inscritos_geral_sem ?? 0; ?></span>
+                                        <span class="numero-label">Pendentes (Categoria)</span>
+                                    </div>
+                                    <div class="numero-item">
+                                        <span class="numero-destaque"><?php echo $inscritos_abs_sem ?? 0; ?></span>
+                                        <span class="numero-label">Pendentes (Absoluto)</span>
+                                    </div>
+                                    <div class="numero-item">
+                                        <span
+                                            class="numero-destaque confirmado"><?php echo $inscritos_geral_confirmados_sem ?? 0; ?></span>
+                                        <span class="numero-label">Confirmados (Categoria)</span>
+                                    </div>
+                                    <div class="numero-item">
+                                        <span
+                                            class="numero-destaque confirmado"><?php echo $inscritos_abs_sem_confirmados ?? 0; ?></span>
+                                        <span class="numero-label">Confirmados (Absoluto)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+
+                    <!-- Resumo Geral -->
+                    <div class="resumo-geral">
+                        <?php
+                        // Calcular totais
+                        $total_pendentes = ($inscritos_geral ?? 0) + ($inscritos_abs ?? 0) + ($inscritos_geral_sem ?? 0) + ($inscritos_abs_sem ?? 0);
+                        $total_confirmados = ($inscritos_geral_confirmados ?? 0) + ($inscritos_abs_confirmados ?? 0) + ($inscritos_geral_confirmados_sem ?? 0) + ($inscritos_abs_sem_confirmados ?? 0);
+                        $total_geral = $total_pendentes + $total_confirmados;
+                        ?>
+                        <div class="total-item">
+                            <span class="total-numero"><?php echo $total_pendentes; ?></span>
+                            <span class="total-label">Inscrições Pendentes</span>
+                        </div>
+                        <div class="total-item">
+                            <span class="total-numero confirmado"><?php echo $total_confirmados; ?></span>
+                            <span class="total-label">Inscrições Confirmadas</span>
+                        </div>
+                        <div class="total-item destaque">
+                            <span class="total-numero total-geral"><?php echo $total_geral; ?></span>
+                            <span class="total-label">Total de Inscritos</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Seção de preços -->
                 <div class="precos-container">
                     <h3>Valores</h3>
