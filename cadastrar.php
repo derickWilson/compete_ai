@@ -141,7 +141,7 @@ try {
         }
 
         // Prepara dados do responsável
-        $telefone_completo = '+55' . preg_replace('/[^0-9]/', '', $_POST["fone"]);
+        $telefone_completo = "+" . preg_replace('/[^0-9]/', '', $_POST["ddd"]) . preg_replace('/[^0-9]/', '', $_POST["fone"]);
 
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
@@ -220,7 +220,7 @@ try {
         }
 
         // Prepara dados do atleta
-        $telefone_completo = '+55' . preg_replace('/[^0-9]/', '', $_POST["fone"]);
+        $telefone_completo = "+" . preg_replace('/[^0-9]/', '', $_POST["ddd"]) . preg_replace('/[^0-9]/', '', $_POST["fone"]);
 
         $atletas->__set("nome", ucwords(cleanWords($_POST["nome"])));
         $atletas->__set("cpf", cleanWords($_POST["cpf"]));
