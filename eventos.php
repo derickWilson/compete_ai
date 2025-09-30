@@ -51,33 +51,35 @@ if (isset($_GET['id'])) {
         die("Evento não encontrado ou erro na consulta");
     }
     //determinar categoria
-    $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
-    $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
-    if ($eventoDetails->tipo_com) {
-        //pendentes na categoria
-        $inscritos_geral = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'com');
+    if (isset($_SESSION['logado']) && $_SESSION['logado']) {
+        $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
+        $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
+        if ($eventoDetails->tipo_com) {
+            //pendentes na categoria
+            $inscritos_geral = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'com');
 
-        //pendentes no absoluto
-        $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'com');
+            //pendentes no absoluto
+            $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'com');
 
-        //confirmados na categoria
-        $inscritos_geral_confirmados = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'com');
+            //confirmados na categoria
+            $inscritos_geral_confirmados = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'com');
 
-        //confirmados no absoluto
-        $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'com');
-    }
-    if ($eventoDetails->tipo_sem) {
-        //pendentes na categoria
-        $inscritos_geral_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'sem');
+            //confirmados no absoluto
+            $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'com');
+        }
+        if ($eventoDetails->tipo_sem) {
+            //pendentes na categoria
+            $inscritos_geral_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'sem');
 
-        //pendentes no absoluto
-        $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'sem');
+            //pendentes no absoluto
+            $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'sem');
 
-        //confirmados na categoria
-        $inscritos_geral_confirmados_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'sem');
+            //confirmados na categoria
+            $inscritos_geral_confirmados_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'sem');
 
-        //confirmados no absoluto
-        $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'sem');
+            //confirmados no absoluto
+            $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'sem');
+        }
     }
     $tudo = false;
 } else {
