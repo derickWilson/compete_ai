@@ -84,4 +84,4 @@ CREATE TABLE IF NOT EXISTS galeria (
     PRIMARY KEY (id)
 );
 
-ALTER TABLE inscricao ADD categoria_idade VARCHAR(15);
+ALTER TABLE inscricao ADD categoria_idade VARCHAR(15) DEFAULT NULL;
