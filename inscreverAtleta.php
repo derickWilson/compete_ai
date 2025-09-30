@@ -144,7 +144,8 @@ try {
     if (!$aceite_regulamento || !$aceite_responsabilidade) {
         throw new Exception("Você deve aceitar todos os termos para se inscrever");
     }
-
+    
+    //calcular a faixa etária antes de inscrever
     $categoria_idade = determinarFaixaEtaria($_SESSION["idade"]);
 
     // 1. Inscreve no banco de dados local
