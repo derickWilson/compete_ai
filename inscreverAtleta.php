@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 require_once __DIR__ . "/classes/eventosServices.php";
 require_once __DIR__ . "/classes/AssasService.php";
 require_once __DIR__ . "/func/clearWord.php";
+require_once __DIR__ . "/func/determinar_categoria.php";
 require_once __DIR__ . "/config_taxa.php";
 require_once __DIR__ . "/func/database.php";
 
@@ -143,6 +144,8 @@ try {
     if (!$aceite_regulamento || !$aceite_responsabilidade) {
         throw new Exception("Você deve aceitar todos os termos para se inscrever");
     }
+
+    $categoria_idade = determinarFaixaEtaria($_SESSION["idade"]);
 
     // 1. Inscreve no banco de dados local
     $inscricaoSucesso = $evserv->inscrever(
