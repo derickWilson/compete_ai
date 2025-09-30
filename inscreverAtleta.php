@@ -153,6 +153,7 @@ try {
         $modalidades['sem'],
         $modalidades['abs_sem'],
         $modalidade_escolhida,
+        $categoria_idade,
         $aceite_regulamento,
         $aceite_responsabilidade
     );

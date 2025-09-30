@@ -205,7 +205,7 @@ class eventosService
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
     //inscrever um atleta em um evento
-    public function inscrever($id_atleta, $id_evento, $mod_com, $mod_abs_com, $mod_sem, $mod_abs_sem, $modalidade, $aceite_regulamento, $aceite_responsabilidade)
+    public function inscrever($id_atleta, $id_evento, $mod_com, $mod_abs_com, $mod_sem, $mod_abs_sem, $modalidade, $categoria_idade, $aceite_regulamento, $aceite_responsabilidade)
     {
         try {
             $query = "INSERT INTO inscricao (
@@ -216,6 +216,7 @@ class eventosService
                         mod_ab_com, 
                         mod_ab_sem, 
                         modalidade,
+                        categoria_idade,
                         aceite_regulamento,
                         aceite_responsabilidade
                       ) VALUES (
@@ -226,6 +227,7 @@ class eventosService
                         :mod_ab_com, 
                         :mod_ab_sem, 
                         :modalidade,
+                        :categoria_idade,
                         :aceite_regulamento,
                         :aceite_responsabilidade
                       )";
@@ -238,6 +240,7 @@ class eventosService
             $stmt->bindValue(':mod_ab_com', $mod_abs_com, PDO::PARAM_INT);
             $stmt->bindValue(':mod_ab_sem', $mod_abs_sem, PDO::PARAM_INT);
             $stmt->bindValue(':modalidade', $modalidade, PDO::PARAM_STR);
+            $stmt->bindValue(':categoria_idade', $categoria_idade, PDO::PARAM_STR);
             $stmt->bindValue(':aceite_regulamento', $aceite_regulamento, PDO::PARAM_BOOL);
             $stmt->bindValue(':aceite_responsabilidade', $aceite_responsabilidade, PDO::PARAM_BOOL);
 
@@ -347,6 +350,62 @@ class eventosService
         } catch (Exception $e) {
             error_log("Falha na limpeza automática: " . $e->getMessage());
             throw $e;
+        }
+    }
+    //Contagem de Inscriçao
+    public function contagemCategoria($id, $idade, $todos = false, $pendentes = false, $modalidade = "com")
+    {
+        //pagar a faixa etaria
+        $faixa_etaria = match (true) {
+            $idade >= 4 && $idade <= 5 => "PRE-MIRIM",
+            $idade >= 6 && $idade <= 7 => "MIRIM 1",
+            $idade >= 8 && $idade <= 9 => "MIRIM 2",
+            $idade >= 10 && $idade <= 11 => "INFANTIL 1",
+            $idade >= 12 && $idade <= 13 => "INFANTIL 2",
+            $idade >= 14 && $idade <= 15 => "INFANTO-JUVENIL",
+            $idade >= 16 && $idade <= 17 => "JUVENIL",
+            $idade >= 18 && $idade <= 29 => "ADULTO",
+            $idade >= 30 => "MASTER",
+            default => "OUTROS"
+        };
+
+        //caso pendente falso, retorna inscrições pendentes
+        //caso contrario, retorna a quary com os que estão confirmados
+        $quary_pendentes = $pendentes ? "AND status_pagamento = 'RECEIVED' OR 'ISENTO' OR 'GRATUITO'" :
+            "AND status_pagamento = 'PENDING'";
+
+        //se todos = false contar todos, senão contar os absoluto
+        $todos = $todos ? 1 : 0;
+
+        // Determinar qual coluna de modalidade usar
+        $coluna_modalidade = '';
+        $coluna_modalidade_abs = '';
+        switch ($modalidade) {
+            case 'com':
+                $coluna_modalidade = ' AND mod_com = 1 ';
+                $coluna_modalidade_abs = ' AND mod_ab_com = ' . $todos. ' ';
+                break;
+            case 'sem':
+                $coluna_modalidade = ' AND mod_sem = 1';
+                $coluna_modalidade_abs = ' AND mod_ab_sem = ' . $todos . ' ';
+                break;
+        }
+
+        $query = "COUNT(*) as quantidade FROM inscricao WHERE id_evento = :id 
+        AND categoria_idade = :faixa_etaria " . $quary_pendentes . $coluna_modalidade . $coluna_modalidade_abs;
+
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindValue(":faixa_etaria", $faixa_etaria, PDO::PARAM_STR);
+        $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+        $stmt->bindValue(":todos", $id, PDO::PARAM_INT);
+
+        try {
+            $stmt->execute();
+            $resultado = $stmt->fetch(PDO::FETCH_OBJ);
+            return $resultado->quantidade;
+        } catch (Exception $e) {
+            return 0;
         }
     }
     //ver se um atleta ja esta inscrito em um evento

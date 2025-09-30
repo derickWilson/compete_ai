@@ -50,6 +50,18 @@ if (isset($_GET['id'])) {
     if (!$eventoDetails) {
         die("Evento não encontrado ou erro na consulta");
     }
+    //determinar categoria
+    $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
+    $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
+    if ($eventoDetails->tipo_com) {
+        //pendentes todos
+        $inscritos_geral = $evserv->contagemCategoria($eventoId, $_SESSION["idade"],false,true,'com');
+        $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, 'com');
+        
+    }
+    if ($eventoDetails->tipo_sem) {
+
+    }
     $tudo = false;
 } else {
     // Se não foi especificado um ID, lista todos os eventos
@@ -292,9 +304,6 @@ if (isset($_GET['id'])) {
 
                                 <br>
                                 <?php if (!$eventoDetails->normal) {
-                                    // determinar a categoria automaticamente
-                                    $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
-                                    $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
                                     ?>
                                     <select name="modalidade" required>
                                         <option value="galo" <?= $categoriaAuto == 'galo' ? 'selected' : '' ?>>Galo</option>

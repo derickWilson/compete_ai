@@ -66,6 +66,7 @@ CREATE TABLE IF NOT EXISTS evento(
         mod_ab_com BOOLEAN,
         mod_ab_sem BOOLEAN,
         modalidade VARCHAR(18),
+        categoria_idade VARCHAR(15),
         id_cobranca_asaas VARCHAR(50) NULL,
         status_pagamento VARCHAR(20) DEFAULT 'PENDING',
         valor_pago FLOAT(5,2) NULL,
@@ -82,3 +83,5 @@ CREATE TABLE IF NOT EXISTS galeria (
     imagem VARCHAR(20) NOT NULL,
     PRIMARY KEY (id)
 );
+
+ALTER TABLE inscricao ADD categoria_idade VARCHAR(15);
