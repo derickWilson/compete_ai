@@ -18,33 +18,16 @@ $attServ = new atletaService($con, $atletas);
 // Obtém os dados do atleta logado
 $atleta = $attServ->getById($_SESSION["id"]);
 
-// Extrair DDD e número do telefone completo
+// Extrair codigo e número do telefone completo
 $telefone_completo = $atleta->fone;
-$ddd = '55'; // Valor padrão para Brasil
-$numero_telefone = '';
 
-if (!empty($telefone_completo)) {
-    // Remove o código do país (+55) se existir
-    $telefone_sem_codigo_pais = str_replace('+55', '', $telefone_completo);
-    
-    // Extrai os primeiros 2 dígitos como DDD
-    if (strlen($telefone_sem_codigo_pais) >= 2) {
-        $ddd = substr($telefone_sem_codigo_pais, 0, 2); // DDD (11, 21, etc.)
-        $numero_telefone = substr($telefone_sem_codigo_pais, 2); // Número real
-    } else {
-        $numero_telefone = $telefone_sem_codigo_pais;
-    }
-}
-
-// Formatar o número para exibição
-$telefone_formatado = $numero_telefone;
-if (!empty($numero_telefone)) {
-    // Aplica formatação (XX) XXXXX-XXXX
-    if (strlen($numero_telefone) === 8) {
-        $telefone_formatado = substr($numero_telefone, 0, 4) . '-' . substr($numero_telefone, 4);
-    } elseif (strlen($numero_telefone) === 9) {
-        $telefone_formatado = substr($numero_telefone, 0, 5) . '-' . substr($numero_telefone, 5);
-    }
+// Se começar com +, assume que os primeiros dígitos são código do país
+if (strpos($telefone_completo, '+') === 0) {
+    $fone_cod = substr($telefone_completo, 0, 3);
+    $fone = substr($telefone_completo, -11);
+} else {
+    $fone_cod = '';
+    $fone = $telefone_completo;
 }
 ?>
 <!DOCTYPE html>
@@ -112,11 +95,11 @@ if (!empty($numero_telefone)) {
                             <label class="form-label">Telefone</label>
                             <div class="telefone-container">
                                 <input type="text" name="ddd" id="ddd" class="ddd-input"
-                                       value="<?php echo htmlspecialchars($ddd); ?>" maxlength="2" placeholder="DDD"
+                                       value="<?php echo htmlspecialchars($fone_cod); ?>" maxlength="4" placeholder="Código"
                                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" required>
                                 <input type="tel" name="fone" id="fone" class="telefone-input" 
                                        maxlength="15" placeholder="(00) 00000-0000" 
-                                       value="<?php echo htmlspecialchars($telefone_formatado); ?>"
+                                       value="<?php echo htmlspecialchars($fone); ?>"
                                        oninput="formatPhone(this)" required>
                             </div>
                         </div>
