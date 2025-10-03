@@ -485,8 +485,8 @@ class eventosService
     private function deletarArquivosEvento($evento)
     {
         $diretorios = [
-            'imagens' => __DIR__ . '/../../uploads/',
-            'documentos' => __DIR__ . '/../../docs/'
+            'imagens' => __DIR__ . '/../uploads/',
+            'documentos' => __DIR__ . '/../docs/'
         ];
 
         foreach ($diretorios as $tipo => $caminho) {
