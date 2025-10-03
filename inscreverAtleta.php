@@ -38,6 +38,7 @@ require_once __DIR__ . "/func/clearWord.php";
 require_once __DIR__ . "/func/determinar_categoria.php";
 require_once __DIR__ . "/config_taxa.php";
 require_once __DIR__ . "/func/database.php";
+require_once __DIR__ . "/func/security.php";
 
 // Verificar novamente se headers foram enviados após includes
 if (headers_sent()) {
@@ -53,7 +54,16 @@ try {
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
     $asaasService = new AssasService($conn);
-
+    
+    //Validar identidade real
+    $usuarioReal = validarIdentidadeUsuario($_SESSION['id']);
+    
+    //Detector de Spam
+    $spamDetector = new SpamDetector();
+    if (isset($_POST['modalidade']) && $spamDetector->containsSpam($_POST['modalidade'])) {
+        throw new Exception("Conteúdo suspeito detectado.");
+    }
+    
     // Validação do evento
     $evento_id = (int) cleanWords($_POST['evento_id']);
     $eventoDetails = $evserv->getById($evento_id);

@@ -2,7 +2,7 @@
 require_once __DIR__ . "/../func/database.php";
 require_once __DIR__ . "/../classes/eventoClass.php";
 require_once __DIR__ . "/../func/calcularIdade.php";
-
+require_once __DIR__ . "/../func/security.php";
 class eventosService
 {
     private $conn;
@@ -145,7 +145,8 @@ class eventosService
                 normal_preco,
                 chaveamento
               FROM evento 
-              WHERE id = :id";
+              WHERE id = :id
+              AND data_limite <= CURRENT_DATE()";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
@@ -442,6 +443,7 @@ class eventosService
      */
     public function deletarEvento($idEvento)
     {
+        validarPermissaoAdmin();
         // Primeiro obtemos os dados do evento para deletar os arquivos
         $evento = $this->getById($idEvento);
 
@@ -484,6 +486,7 @@ class eventosService
      */
     private function deletarArquivosEvento($evento)
     {
+        validarPermissaoAdmin();
         $diretorios = [
             'imagens' => __DIR__ . '/../uploads/',
             'documentos' => __DIR__ . '/../docs/'

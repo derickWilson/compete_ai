@@ -19,7 +19,12 @@ if (isset($_SESSION['logado']) && $_SESSION['logado']) {
 try {
     require_once "classes/atletaService.php";
     include "func/clearWord.php";
-
+    require_once __DIR__ . "/func/security.php";
+    
+    $spamDetector = new SpamDetector();
+    if ($spamDetector->containsSpam($_POST['usuario'] ?? '')) {
+        throw new Exception("Credenciais inválidas");
+    }
     // Validação dos campos
     $camposObrigatorios = ['usuario', 'senha'];
     foreach ($camposObrigatorios as $campo) {

@@ -74,52 +74,52 @@ class CSRFProtection {
 /**
  * Rate Limiting
  */
-class RateLimiter {
-    private $pdo;
-    
-    public function __construct($pdo) {
-        $this->pdo = $pdo;
-    }
-    
-    public function checkLimit($userId, $action, $maxAttempts = 5, $timeWindow = 3600) {
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-        
-        // Contar tentativas recentes
-        $query = "SELECT COUNT(*) as attempts 
-                  FROM rate_limiting 
-                  WHERE (user_id = :user_id OR ip = :ip) 
-                  AND action = :action 
-                  AND timestamp > DATE_SUB(NOW(), INTERVAL :seconds SECOND)";
-        
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindValue(":user_id", $userId, PDO::PARAM_INT);
-        $stmt->bindValue(":ip", $ip);
-        $stmt->bindValue(":action", $action);
-        $stmt->bindValue(":seconds", $timeWindow, PDO::PARAM_INT);
-        $stmt->execute();
-        
-        $result = $stmt->fetch(PDO::FETCH_OBJ);
-        
-        if ($result->attempts >= $maxAttempts) {
-            throw new Exception("Muitas tentativas. Tente novamente em " . ceil($timeWindow/60) . " minutos.");
-        }
-        
-        // Registrar tentativa atual
-        $this->logAttempt($userId, $ip, $action);
-        
-        return true;
-    }
-    
-    private function logAttempt($userId, $ip, $action) {
-        $query = "INSERT INTO rate_limiting (user_id, ip, action, timestamp) 
-                  VALUES (:user_id, :ip, :action, NOW())";
-        $stmt = $this->pdo->prepare($query);
-        $stmt->bindValue(":user_id", $userId, PDO::PARAM_INT);
-        $stmt->bindValue(":ip", $ip);
-        $stmt->bindValue(":action", $action);
-        $stmt->execute();
-    }
-}
+//class RateLimiter {
+//    private $pdo;
+//    
+//    public function __construct($pdo) {
+//        $this->pdo = $pdo;
+//    }
+//    
+//    public function checkLimit($userId, $action, $maxAttempts = 5, $timeWindow = 3600) {
+//        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+//        
+//        // Contar tentativas recentes
+//        $query = "SELECT COUNT(*) as attempts 
+//                  FROM rate_limiting 
+//                  WHERE (user_id = :user_id OR ip = :ip) 
+//                  AND action = :action 
+//                  AND timestamp > DATE_SUB(NOW(), INTERVAL :seconds SECOND)";
+//        
+//        $stmt = $this->pdo->prepare($query);
+//        $stmt->bindValue(":user_id", $userId, PDO::PARAM_INT);
+//        $stmt->bindValue(":ip", $ip);
+//        $stmt->bindValue(":action", $action);
+//        $stmt->bindValue(":seconds", $timeWindow, PDO::PARAM_INT);
+//        $stmt->execute();
+//        
+//        $result = $stmt->fetch(PDO::FETCH_OBJ);
+//        
+//        if ($result->attempts >= $maxAttempts) {
+//            throw new Exception("Muitas tentativas. Tente novamente em " . ceil($timeWindow/60) . " minutos.");
+//        }
+//        
+//        // Registrar tentativa atual
+//        $this->logAttempt($userId, $ip, $action);
+//        
+//        return true;
+//    }
+//    
+//    private function logAttempt($userId, $ip, $action) {
+//        $query = "INSERT INTO rate_limiting (user_id, ip, action, timestamp) 
+//                  VALUES (:user_id, :ip, :action, NOW())";
+//        $stmt = $this->pdo->prepare($query);
+//        $stmt->bindValue(":user_id", $userId, PDO::PARAM_INT);
+//        $stmt->bindValue(":ip", $ip);
+//        $stmt->bindValue(":action", $action);
+//        $stmt->execute();
+//    }
+//}
 
 /**
  * Validação de permissões

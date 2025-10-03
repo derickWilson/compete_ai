@@ -91,3 +91,14 @@ CREATE TABLE IF NOT EXISTS patrocinador (
     link VARCHAR(255) NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE TABLE IF NOT EXISTS logs_seguranca (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    usuario_id INT NULL,
+    acao VARCHAR(100) NOT NULL,
+    ip VARCHAR(45) NOT NULL,
+    user_agent TEXT,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+    detalhes TEXT,
+    FOREIGN KEY (usuario_id) REFERENCES atleta(id)
+);
