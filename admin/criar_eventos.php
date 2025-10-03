@@ -9,7 +9,7 @@ is_adm();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/estilos/icone.jpeg">
     <!-- Adicionando ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -34,7 +34,7 @@ is_adm();
 
             Data limite <input type="date" id="data_limite" name="data_limite" required><br>
 
-            Modalidade:
+            Modalidade:<br>
             <input type="checkbox" name="normal" id="normal">
             <label for="normal">Evento Normal (Preço único)</label><br>
 
@@ -47,14 +47,14 @@ is_adm();
 
             <h4>Preço para Evento Com Quimono</h4>
             Preço para maiores de 15
-            <input type="number" name="preco" id="preco" placeholder="Preço por Inscrição" step="0.01" min="0">
+            <input type="number" name="preco" id="preco" placeholder="Preço por Inscrição" step="0.01" min="0"><br>
 
             Preço para Absoluto
-            <input type="number" name="preco_abs" placeholder="Preço por Absoluto" step="0.01" min="0">
+            <input type="number" name="preco_abs" placeholder="Preço por Absoluto" step="0.01" min="0"><br>
 
             Preço para menores de 15
             <input type="number" name="preco_menor" id="preco_menor"
-                placeholder="Preço por Inscrição abaixo dos 15 anos" step="0.01" min="0">
+                placeholder="Preço por Inscrição abaixo dos 15 anos" step="0.01" min="0"><br>
 
             <h4>Preços para eventos Sem Kimono</h4>
             Preço para maiores de 15 anos

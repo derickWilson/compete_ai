@@ -90,9 +90,6 @@ function limparArquivosTemporarios(array $arquivos): void
 /**
  * Valida dados básicos do formulário
  */
-/**
- * Valida dados básicos do formulário
- */
 function validarDadosBasicos(array $dados): void
 {
     // Valida CPF (para ambos os tipos)

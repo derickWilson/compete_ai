@@ -140,6 +140,7 @@ class atletaService
      */
     public function limparCadastroFalho($fotoPath = null, $diplomaPath = null)
     {
+        
         try {
             // Remove arquivo de foto se fornecido e existir
             if ($fotoPath && file_exists($fotoPath)) {
@@ -793,6 +794,9 @@ class atletaService
     //Deletar atleta
     public function excluirAtleta($id)
     {
+        if (!$_SESSION['admin']) {
+            throw new Exception("Sem permissão para excluir este atleta");
+        }
         $dados = $this->getById($id);
         $quary = "DELETE FROM atleta WHERE id = :id";
         $stmt = $this->conn->prepare($quary);
@@ -1007,7 +1011,7 @@ class atletaService
     {
         $query = "SELECT nome FROM academia_filiada WHERE id = :id";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(":id", $id);
+        $stmt->bindValue(":id", $id, PDO::PARAM_INT);
         try {
             $stmt->execute();
         } catch (Exception $e) {

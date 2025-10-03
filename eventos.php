@@ -207,7 +207,7 @@ if (isset($_GET['id'])) {
                 <!-- Seção de Estatísticas de Inscrições -->
                 <?php if (isset($_SESSION['logado']) && $_SESSION['logado']) { ?>
                     <div class="estatisticas-inscricoes">
-                        <h3>📊 Estatísticas de Inscrições</h3>
+                        <h3>📊 Estatísticas de Inscrições Na Sua Categoria</h3>
                         <p class="aviso-info"><strong>⚠️ Atenção:</strong> Os números abaixo estão sujeitos a alterações constantes
                         </p>
 
@@ -411,7 +411,7 @@ if (isset($_GET['id'])) {
                                 <br>
                                 <?php if (!$eventoDetails->normal) {
                                     ?>
-                                    <select name="modalidade" required>
+                                    <select name="modalidade" required disabled>
                                         <option value="galo" <?= $categoriaAuto == 'galo' ? 'selected' : '' ?>>Galo</option>
                                         <option value="pluma" <?= $categoriaAuto == 'pluma' ? 'selected' : '' ?>>Pluma</option>
                                         <option value="pena" <?= $categoriaAuto == 'pena' ? 'selected' : '' ?>>Pena</option>

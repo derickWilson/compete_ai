@@ -41,6 +41,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($normal && $normal_preco <= 0) {
         die("Erro: Eventos normais devem ter um preço definido");
     }
+    
+    if (!$normal) {
+        $normal_preco = 0;
+    }
 
     // Processamento do documento (ementa)
     $docPath = null;
