@@ -6,7 +6,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     require_once "../classes/galeriaClass.php";
     include "../func/clearWord.php";
 
-    $legenda = cleanWords($_POST['legenda']);
+    $legenda = cleanWords(isset($_POST['legenda']) ? $_POST['legenda']:"");
     $imagemPath = null;
 
     if (isset($_FILES['imagem']) && $_FILES['imagem']['error'] === UPLOAD_ERR_OK) {
