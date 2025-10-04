@@ -347,7 +347,7 @@ try {
                                     </a>
                                 <?php endif; ?>
 
-                                <?php if ($inscrito->status_pagamento === 'PENDING'): ?>
+                                <?php if ($inscrito->status_pagamento === 'PENDING'){ ?>
                                     <form class="action-form" method="POST"
                                         onsubmit="return confirm('Confirmar marcação como PAGO?')">
                                         <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
@@ -367,7 +367,7 @@ try {
                                             Isento
                                         </button>
                                     </form>
-                                <?php endif; ?>
+                                <?php } ?>
                             </td>
                         </tr>
                     <?php } ?>
