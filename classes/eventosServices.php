@@ -404,7 +404,7 @@ class eventosService
             $grupoFaixa = 'ROXA';
         } else if (in_array($faixa, ['Marrom'])) {
             $grupoFaixa = 'MARROM';
-        } else if (in_array($faixa, ['Preta', 'Coral', 'Vermelha e Branca', 'Vermelha'])) {
+        } else if (in_array($faixa, ['Preta'])) {
             $grupoFaixa = 'PRETA';
         }
 
