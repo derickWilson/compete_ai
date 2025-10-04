@@ -254,6 +254,25 @@ class eventosService
             return false;
         }
     }
+    //ver se um atleta ja esta inscrito em um evento
+    public function isInscrito($idAtleta, $idEvento)
+    {
+        $query = "SELECT COUNT(*) as total FROM inscricao 
+                  WHERE id_atleta = :idAtleta AND id_evento = :idEvento";
+        $stmt = $this->conn->prepare($query);
+
+        $stmt->bindValue(':idAtleta', $idAtleta, PDO::PARAM_INT);
+        $stmt->bindValue(':idEvento', $idEvento, PDO::PARAM_INT);
+
+        try {
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
+            return ($result->total > 0); // Retorna TRUE se já estiver inscrito
+        } catch (Exception $e) {
+            error_log('Erro ao verificar inscrição: ' . $e->getMessage());
+            return false; // Em caso de erro, assume que não está inscrito
+        }
+    }
     public function atualizarValorInscricao($idAtleta, $idEvento, $valor)
     {
         $query = "UPDATE inscricao SET 
@@ -354,7 +373,8 @@ class eventosService
         }
     }
     //Contagem de Inscriçao
-    public function contagemCategoria($id, $idade, $todos = false, $pendentes = false, $modalidade = "com")
+    //Contagem de Inscrição por Categoria, Idade e Faixa
+    public function contagemCategoria($id, $idade, $todos = false, $pendentes = false, $modalidade = "com", $faixa = null)
     {
         // Determinar a faixa etária
         $faixa_etaria = match (true) {
@@ -370,67 +390,116 @@ class eventosService
             default => "OUTROS"
         };
 
-        //condição de status de pagamento
-        $query_pendentes = $pendentes ?
-            "AND (status_pagamento = 'RECEIVED' OR status_pagamento = 'ISENTO' OR status_pagamento = 'GRATUITO')" :
-            "AND status_pagamento = 'PENDING'";
+        // Determinar o grupo de faixa
+        $grupoFaixa = '';
+        if (in_array($faixa, ['Branca'])) {
+            $grupoFaixa = 'BRANCA';
+        } else if (in_array($faixa, ['Cinza', 'Amarela'])) {
+            $grupoFaixa = 'CINZA/AMARELA';
+        } else if (in_array($faixa, ['Laranja', 'Verde'])) {
+            $grupoFaixa = 'LARANJA/VERDE';
+        } else if (in_array($faixa, ['Azul'])) {
+            $grupoFaixa = 'AZUL';
+        } else if (in_array($faixa, ['Roxa'])) {
+            $grupoFaixa = 'ROXA';
+        } else if (in_array($faixa, ['Marrom'])) {
+            $grupoFaixa = 'MARROM';
+        } else if (in_array($faixa, ['Preta', 'Coral', 'Vermelha e Branca', 'Vermelha'])) {
+            $grupoFaixa = 'PRETA';
+        }
 
-        // Determinar qual coluna de modalidade usar
+        // Mapear faixas individuais para o grupo
+        $faixasDoGrupo = [];
+        switch ($grupoFaixa) {
+            case 'BRANCA':
+                $faixasDoGrupo = ['Branca'];
+                break;
+            case 'CINZA/AMARELA':
+                $faixasDoGrupo = ['Cinza', 'Amarela'];
+                break;
+            case 'LARANJA/VERDE':
+                $faixasDoGrupo = ['Laranja', 'Verde'];
+                break;
+            case 'AZUL':
+                $faixasDoGrupo = ['Azul'];
+                break;
+            case 'ROXA':
+                $faixasDoGrupo = ['Roxa'];
+                break;
+            case 'MARROM':
+                $faixasDoGrupo = ['Marrom'];
+                break;
+            case 'PRETA':
+                $faixasDoGrupo = ['Preta', 'Coral', 'Vermelha e Branca', 'Vermelha'];
+                break;
+            default:
+                // Se foi passada uma faixa específica, usa apenas ela
+                $faixasDoGrupo = $faixa ? [$faixa] : [];
+        }
+
+        // Condição de status de pagamento
+        $query_pendentes = $pendentes ?
+            "AND (i.status_pagamento = 'RECEIVED' OR i.status_pagamento = 'ISENTO' OR i.status_pagamento = 'GRATUITO')" :
+            "AND i.status_pagamento = 'PENDING'";
+
+        // Determinar qual coluna de modalidade usar - CORRIGIDO
         $condicao_modalidade = '';
         switch ($modalidade) {
             case 'com':
                 if ($todos) {
-                    // Absoluto: mod_ab_com = 1
-                    $condicao_modalidade = 'AND mod_ab_com = 1';
+                    // Absoluto: mod_com = 1 AND mod_ab_com = 1 (quem está no absoluto obrigatoriamente está na categoria)
+                    $condicao_modalidade = 'AND i.mod_com = 1 AND i.mod_ab_com = 1';
                 } else {
                     // Normal: mod_com = 1
-                    $condicao_modalidade = 'AND mod_com = 1';
+                    $condicao_modalidade = 'AND i.mod_com = 1';
                 }
                 break;
             case 'sem':
                 if ($todos) {
-                    // Absoluto: mod_ab_sem = 1
-                    $condicao_modalidade = 'AND mod_ab_sem = 1';
+                    // Absoluto: mod_sem = 1 AND mod_ab_sem = 1
+                    $condicao_modalidade = 'AND i.mod_sem = 1 AND i.mod_ab_sem = 1';
                 } else {
                     // Normal: mod_sem = 1
-                    $condicao_modalidade = 'AND mod_sem = 1';
+                    $condicao_modalidade = 'AND i.mod_sem = 1';
                 }
                 break;
         }
 
-        $query = "SELECT COUNT(*) as quantidade FROM inscricao WHERE id_evento = :id 
-              AND categoria_idade = :faixa_etaria " . $query_pendentes . " " . $condicao_modalidade;
+        // Se não há faixas definidas, retorna 0
+        if (empty($faixasDoGrupo)) {
+            return 0;
+        }
+
+        // Criar placeholders para as faixas
+        $placeholders = implode(',', array_fill(0, count($faixasDoGrupo), '?'));
+
+        // Query para contar inscrições
+        $query = "SELECT COUNT(*) as quantidade 
+              FROM inscricao i
+              JOIN atleta a ON a.id = i.id_atleta
+              WHERE i.id_evento = ? 
+              AND i.categoria_idade = ? 
+              AND a.faixa IN ($placeholders)
+              " . $query_pendentes . " " . $condicao_modalidade;
 
         $stmt = $this->conn->prepare($query);
 
-        $stmt->bindValue(":faixa_etaria", $faixa_etaria, PDO::PARAM_STR);
-        $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+        // Bind dos valores
+        $stmt->bindValue(1, $id, PDO::PARAM_INT);
+        $stmt->bindValue(2, $faixa_etaria, PDO::PARAM_STR);
+
+        $paramIndex = 3;
+        foreach ($faixasDoGrupo as $faixaIndividual) {
+            $stmt->bindValue($paramIndex++, $faixaIndividual, PDO::PARAM_STR);
+        }
 
         try {
             $stmt->execute();
             $resultado = $stmt->fetch(PDO::FETCH_OBJ);
             return $resultado->quantidade;
         } catch (Exception $e) {
+            error_log("Erro na contagem de categoria: " . $e->getMessage());
             return 0;
-        }
-    }
-    //ver se um atleta ja esta inscrito em um evento
-    public function isInscrito($idAtleta, $idEvento)
-    {
-        $query = "SELECT COUNT(*) as total FROM inscricao 
-                  WHERE id_atleta = :idAtleta AND id_evento = :idEvento";
-        $stmt = $this->conn->prepare($query);
-
-        $stmt->bindValue(':idAtleta', $idAtleta, PDO::PARAM_INT);
-        $stmt->bindValue(':idEvento', $idEvento, PDO::PARAM_INT);
-
-        try {
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_OBJ);
-            return ($result->total > 0); // Retorna TRUE se já estiver inscrito
-        } catch (Exception $e) {
-            error_log('Erro ao verificar inscrição: ' . $e->getMessage());
-            return false; // Em caso de erro, assume que não está inscrito
         }
     }
 
@@ -533,10 +602,8 @@ class eventosService
             }
             //apos deletar no BD deletar o arquivo
             if (file_exists($caminho)) {
-                if (!unlink($caminho)) {
                     throw new Exception("Falha ao deletar arquivo físico");
-                }
-            } else {
+            }else{
                 // Arquivo não existe fisicamente, mas continuamos (já removemos do BD)
                 error_log("Arquivo físico não encontrado: {$caminho}");
             }
