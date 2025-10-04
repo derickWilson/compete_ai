@@ -39,6 +39,8 @@ require_once __DIR__ . "/func/determinar_categoria.php";
 require_once __DIR__ . "/config_taxa.php";
 require_once __DIR__ . "/func/database.php";
 require_once __DIR__ . "/func/security.php";
+require_once "func/determinar_categoria.php";
+
 
 // Verificar novamente se headers foram enviados após includes
 if (headers_sent()) {

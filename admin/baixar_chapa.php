@@ -154,7 +154,7 @@ foreach ($inscritosValidos as $inscrito) {
             $grupoFaixa = 'ROXA';
         } else if (in_array($inscrito->faixa, ['Marrom'])) {
             $grupoFaixa = 'MARROM';
-        } else if (in_array($inscrito->faixa, ['Preta', 'Coral', 'Vermelha e Branca', 'Vermelha'])) {
+        } else if (in_array($inscrito->faixa, ['Preta'])) {
             $grupoFaixa = 'PRETA';
         }
     }

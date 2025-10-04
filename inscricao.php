@@ -11,6 +11,8 @@ try {
     require_once "classes/AssasService.php";
     include "func/clearWord.php";
     require_once __DIR__ . "/config_taxa.php";
+    require_once "func/determinar_categoria.php";
+
 } catch (\Throwable $th) {
     print ('[' . $th->getMessage() . ']');
 }
@@ -31,7 +33,8 @@ if (isset($_GET["inscricao"])) {
         header("Location: eventos_cadastrados.php");
         exit();
     }
-
+    $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
+    $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
     // Verifica status do pagamento
     $statusPagamento = $inscricao->status_pagamento ?? 'PENDING';
     $cobrancaId = $inscricao->id_cobranca_asaas ?? null;
@@ -218,19 +221,20 @@ if (isset($_GET["inscricao"])) {
 
             <br>
             <label for="modalidade">Categoria de Peso:</label>
-            <select name="modalidade" id="modalidade">
-                <option value="galo" <?php echo $inscricao->modalidade == "galo" ? "selected" : ""; ?>>Galo</option>
-                <option value="pluma" <?php echo $inscricao->modalidade == "pluma" ? "selected" : ""; ?>>Pluma</option>
-                <option value="pena" <?php echo $inscricao->modalidade == "pena" ? "selected" : ""; ?>>Pena</option>
-                <option value="leve" <?php echo $inscricao->modalidade == "leve" ? "selected" : ""; ?>>Leve</option>
-                <option value="medio" <?php echo $inscricao->modalidade == "medio" ? "selected" : ""; ?>>Médio</option>
-                <option value="meio-pesado" <?php echo $inscricao->modalidade == "meio-pesado" ? "selected" : ""; ?>>Meio-Pesado</option>
-                <option value="pesado" <?php echo $inscricao->modalidade == "pesado" ? "selected" : ""; ?>>Pesado</option>
-                <option value="super-pesado" <?php echo $inscricao->modalidade == "super-pesado" ? "selected" : ""; ?>>Super-Pesado</option>
-                <option value="pesadissimo" <?php echo $inscricao->modalidade == "pesadissimo" ? "selected" : ""; ?>>Pesadíssimo</option>
-                <?php if ($_SESSION["idade"] > 15): ?>
-                    <option value="super-pesadissimo" <?php echo ($inscricao->modalidade == "super-pesadissimo") ? "selected" : ""; ?>>Super-Pesadíssimo</option>
-                <?php endif; ?>
+            <select name="modalidade" required readonly>
+            <option value="galo" <?= $categoriaAuto == 'galo' ? 'selected' : '' ?>>Galo</option>
+            <option value="pluma" <?= $categoriaAuto == 'pluma' ? 'selected' : '' ?>>Pluma</option>
+            <option value="pena" <?= $categoriaAuto == 'pena' ? 'selected' : '' ?>>Pena</option>
+            <option value="leve" <?= $categoriaAuto == 'leve' ? 'selected' : '' ?>>Leve</option>
+            <option value="medio" <?= $categoriaAuto == 'medio' ? 'selected' : '' ?>>Médio</option>
+            <option value="meio-pesado" <?= $categoriaAuto == 'meio-pesado' ? 'selected' : '' ?>>Meio-Pesado</option>
+            <option value="pesado" <?= $categoriaAuto == 'pesado' ? 'selected' : '' ?>>Pesado</option>
+            <option value="super-pesado" <?= $categoriaAuto == 'super-pesado' ? 'selected' : '' ?>>Super-Pesado</option>
+            <option value="pesadissimo" <?= $categoriaAuto == 'pesadissimo' ? 'selected' : '' ?>>Pesadíssimo</option>
+            <?php if ($_SESSION["idade"] > 15) { ?>
+            <option value="super-pesadissimo" <?= $categoriaAuto == 'super-pesadissimo' ? 'selected' : '' ?>>
+            Super-Pesadíssimo</option>
+            <?php } ?>
             </select>
 
             <div class="form-actions">

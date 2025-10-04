@@ -411,7 +411,7 @@ if (isset($_GET['id'])) {
                                 <br>
                                 <?php if (!$eventoDetails->normal) {
                                     ?>
-                                    <select name="modalidade" required disabled>
+                                    <select name="modalidade" required readonly>
                                         <option value="galo" <?= $categoriaAuto == 'galo' ? 'selected' : '' ?>>Galo</option>
                                         <option value="pluma" <?= $categoriaAuto == 'pluma' ? 'selected' : '' ?>>Pluma</option>
                                         <option value="pena" <?= $categoriaAuto == 'pena' ? 'selected' : '' ?>>Pena</option>
@@ -462,16 +462,6 @@ if (isset($_GET['id'])) {
                         <a href='admin/baixar_chapa.php?id=<?php echo $eventoId ?>'>Baixar Chapas (PDF)</a> |
                     </div>
                 <?php } ?>
-
-                <!-- Visualizador de PDF -->
-                <?php if (!$eventoDetails->normal) { ?>
-                    <div class="pdf-container">
-                        <object data="tabela_de_pesos.pdf" type="application/pdf" width="100%" height="100%">
-                            <p>Seu navegador não suporta PDFs. <a href="tabela_de_pesos.pdf">Baixe o arquivo</a>.</p>
-                        </object>
-                    </div>
-                <?php } ?>
-
                 <br>
                 <a href="eventos.php" class="link">Voltar</a>
                 <?php if (isset($_SESSION['admin']) && $_SESSION["admin"] == 1) { ?>
