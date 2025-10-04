@@ -372,7 +372,7 @@ class eventosService
             throw $e;
         }
     }
-    //Contagem de Inscriçao
+
     //Contagem de Inscrição por Categoria, Idade e Faixa
     public function contagemCategoria($id, $idade, $todos = false, $pendentes = false, $modalidade = "com", $faixa = null)
     {
@@ -390,51 +390,27 @@ class eventosService
             default => "OUTROS"
         };
 
-        // Determinar o grupo de faixa
-        $grupoFaixa = '';
-        if (in_array($faixa, ['Branca'])) {
-            $grupoFaixa = 'BRANCA';
-        } else if (in_array($faixa, ['Cinza', 'Amarela'])) {
-            $grupoFaixa = 'CINZA/AMARELA';
-        } else if (in_array($faixa, ['Laranja', 'Verde'])) {
-            $grupoFaixa = 'LARANJA/VERDE';
-        } else if (in_array($faixa, ['Azul'])) {
-            $grupoFaixa = 'AZUL';
-        } else if (in_array($faixa, ['Roxa'])) {
-            $grupoFaixa = 'ROXA';
-        } else if (in_array($faixa, ['Marrom'])) {
-            $grupoFaixa = 'MARROM';
-        } else if (in_array($faixa, ['Preta'])) {
-            $grupoFaixa = 'PRETA';
-        }
-
-        // Mapear faixas individuais para o grupo
+        // Determinar as faixas que competem juntas
         $faixasDoGrupo = [];
-        switch ($grupoFaixa) {
-            case 'BRANCA':
-                $faixasDoGrupo = ['Branca'];
-                break;
-            case 'CINZA/AMARELA':
-                $faixasDoGrupo = ['Cinza', 'Amarela'];
-                break;
-            case 'LARANJA/VERDE':
-                $faixasDoGrupo = ['Laranja', 'Verde'];
-                break;
-            case 'AZUL':
-                $faixasDoGrupo = ['Azul'];
-                break;
-            case 'ROXA':
-                $faixasDoGrupo = ['Roxa'];
-                break;
-            case 'MARROM':
-                $faixasDoGrupo = ['Marrom'];
-                break;
-            case 'PRETA':
-                $faixasDoGrupo = ['Preta', 'Coral', 'Vermelha e Branca', 'Vermelha'];
-                break;
-            default:
-                // Se foi passada uma faixa específica, usa apenas ela
-                $faixasDoGrupo = $faixa ? [$faixa] : [];
+
+        if ($faixa) {
+            switch ($faixa) {
+                case 'Cinza':
+                case 'Amarela':
+                    // Cinzas e Amarelas competem entre si
+                    $faixasDoGrupo = ['Cinza', 'Amarela'];
+                    break;
+                case 'Laranja':
+                case 'Verde':
+                    // Laranjas e Verdes competem entre si
+                    $faixasDoGrupo = ['Laranja', 'Verde'];
+                    break;
+                default:
+                    // Branca, Azul, Roxa, Marrom, Preta, Coral, Vermelha e Branca, Vermelha
+                    // competem apenas com a mesma faixa
+                    $faixasDoGrupo = [$faixa];
+                    break;
+            }
         }
 
         // Condição de status de pagamento
@@ -442,24 +418,26 @@ class eventosService
             "AND (i.status_pagamento = 'RECEIVED' OR i.status_pagamento = 'ISENTO' OR i.status_pagamento = 'GRATUITO')" :
             "AND i.status_pagamento = 'PENDING'";
 
-        // Determinar qual coluna de modalidade usar - CORRIGIDO
+        // Determinar qual coluna de modalidade usar - CORREÇÃO AQUI!
         $condicao_modalidade = '';
         switch ($modalidade) {
             case 'com':
                 if ($todos) {
-                    // Absoluto: mod_com = 1 AND mod_ab_com = 1 (quem está no absoluto obrigatoriamente está na categoria)
-                    $condicao_modalidade = 'AND i.mod_com = 1 AND i.mod_ab_com = 1';
+                    // ABSOLUTO: conta apenas quem está no absoluto (mod_ab_com = 1)
+                    // Quem está no absoluto automaticamente está na categoria normal também
+                    $condicao_modalidade = 'AND i.mod_ab_com = 1';
                 } else {
-                    // Normal: mod_com = 1
+                    // CATEGORIA NORMAL: conta quem está na categoria (mod_com = 1)
+                    // Isso INCLUI quem está no absoluto, pois eles também estão na categoria normal
                     $condicao_modalidade = 'AND i.mod_com = 1';
                 }
                 break;
             case 'sem':
                 if ($todos) {
-                    // Absoluto: mod_sem = 1 AND mod_ab_sem = 1
-                    $condicao_modalidade = 'AND i.mod_sem = 1 AND i.mod_ab_sem = 1';
+                    // ABSOLUTO: conta apenas quem está no absoluto (mod_ab_sem = 1)
+                    $condicao_modalidade = 'AND i.mod_ab_sem = 1';
                 } else {
-                    // Normal: mod_sem = 1
+                    // CATEGORIA NORMAL: conta quem está na categoria (mod_sem = 1)
                     $condicao_modalidade = 'AND i.mod_sem = 1';
                 }
                 break;
@@ -602,8 +580,8 @@ class eventosService
             }
             //apos deletar no BD deletar o arquivo
             if (file_exists($caminho)) {
-                    throw new Exception("Falha ao deletar arquivo físico");
-            }else{
+                throw new Exception("Falha ao deletar arquivo físico");
+            } else {
                 // Arquivo não existe fisicamente, mas continuamos (já removemos do BD)
                 error_log("Arquivo físico não encontrado: {$caminho}");
             }
