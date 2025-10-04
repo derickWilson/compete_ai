@@ -6,12 +6,12 @@
  */
 class SpamDetector {
     private $spamKeywords = [
+        // Mantenha apenas palavras realmente suspeitas
         'BTC', 'bitcoin', 'crypto', 'unclaimed', 'free money', 'winning',
         'viagra', 'cialis', 'pharmacy', 'casino', 'porn', 'sex', 'drugs',
-        'graph.org', 'zikzak.gq', 'tempr.email', 'yopmail', 'mail.ru',
-        '📜', '🔄', '➡️', '⚠️', '✅', '💰', '🎯', '🔥', '⚡',
-        'http://', 'https://', 'www.', '.com', '.org', '.net',
+        'graph.org', 'zikzak.gq', 'tempr.email', 'yopmail',
         '<script', 'javascript:', 'onload=', 'onclick='
+        // '.com', '.org', '.net', 'http://', etc.
     ];
     
     public function containsSpam($text) {
