@@ -3,6 +3,7 @@ require_once __DIR__ . "/../func/database.php";
 require_once __DIR__ . "/../classes/eventoClass.php";
 require_once __DIR__ . "/../func/calcularIdade.php";
 require_once __DIR__ . "/../func/security.php";
+require_once __DIR__ . "/../func/determinar_categoria.php";
 class eventosService
 {
     private $conn;
@@ -273,6 +274,48 @@ class eventosService
             return false; // Em caso de erro, assume que não está inscrito
         }
     }
+
+    // Atualizar categoria vazia
+    //public function atualizarCategoriasVazias($idEvento)
+    //{
+    //    // Buscar inscrições com categoria vazia e dados dos atletas
+    //    $query = "SELECT i.id_atleta, i.id_evento, a.peso, a.data_nascimento, a.genero, i.modalidade
+    //          FROM inscricao i
+    //          JOIN atleta a ON a.id = i.id_atleta
+    //          WHERE i.id_evento = :id_evento AND (i.modalidade IS NULL OR i.modalidade = '')";
+//
+    //    $stmt = $this->conn->prepare($query);
+    //    $stmt->bindValue(':id_evento', $idEvento, PDO::PARAM_INT);
+    //    $stmt->execute();
+//
+    //    $inscricoesSemCategoria = $stmt->fetchAll(PDO::FETCH_OBJ);
+    //    $atualizadas = 0;
+//
+    //    foreach ($inscricoesSemCategoria as $inscricao) {
+    //        // Calcular idade
+    //        $idade = calcularIdade($inscricao->data_nascimento);
+    //        $peso = $inscricao->peso;
+    //        $genero = $inscricao->genero;
+//
+    //        // Determinar categoria usando a função existente
+    //        $categoria = determinarCategoriaPeso($peso, $idade, $genero);
+//
+    //        if (!empty($categoria)) {
+    //            $updateQuery = "UPDATE inscricao SET modalidade = :categoria 
+    //                       WHERE id_atleta = :id_atleta AND id_evento = :id_evento";
+    //            $updateStmt = $this->conn->prepare($updateQuery);
+    //            $updateStmt->bindValue(':categoria', $categoria);
+    //            $updateStmt->bindValue(':id_atleta', $inscricao->id_atleta, PDO::PARAM_INT);
+    //            $updateStmt->bindValue(':id_evento', $idEvento, PDO::PARAM_INT);
+//
+    //            if ($updateStmt->execute()) {
+    //                $atualizadas++;
+    //            }
+    //        }
+    //    }
+//
+    //    return $atualizadas;
+    //}
     public function atualizarValorInscricao($idAtleta, $idEvento, $valor)
     {
         $query = "UPDATE inscricao SET 

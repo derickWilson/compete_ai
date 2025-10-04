@@ -1,17 +1,19 @@
 <?php
-function determinarCategoriaPeso($peso, $idade, $genero) {
+function determinarCategoriaPeso($peso, $idade, $genero)
+{
     // Normalizar gênero para maiúsculas
-    $genero = $genero == "Masculino" ? "M":"F";
-    
+    $genero = $genero == "Masculino" ? "M" : "F";
+
     // Determinar faixa etária
     $faixaEtaria = determinarFaixaEtaria($idade);
-    
+
     // Determinar categoria baseada no peso e faixa etária
     return determinarCategoriaPorPeso($peso, $faixaEtaria, $genero);
 }
 
-function determinarFaixaEtaria($idade) {
-    $faixa_etaria = match(true) {
+function determinarFaixaEtaria($idade)
+{
+    $faixa_etaria = match (true) {
         $idade >= 4 && $idade <= 5 => "PRE-MIRIM",
         $idade >= 6 && $idade <= 7 => "MIRIM 1",
         $idade >= 8 && $idade <= 9 => "MIRIM 2",
@@ -27,11 +29,12 @@ function determinarFaixaEtaria($idade) {
     return $faixa_etaria;
 }
 
-function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
+function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero)
+{
     // Tabela de categorias de peso
     //formato: categoria|faixa etária| limite
     $categorias = [
-        'GALO' => [
+        'galo' => [
             'PRE-MIRIM' => null,
             'MIRIM 1' => null,
             'MIRIM 2' => 24.000,
@@ -42,7 +45,7 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 57.500, 'M' => 57.500],
             'MASTER' => ['F' => 57.500, 'M' => 57.500]
         ],
-        'PLUMA' => [
+        'pluma' => [
             'PRE-MIRIM' => 17.900,
             'MIRIM 1' => 21.000,
             'MIRIM 2' => 27.000,
@@ -53,7 +56,7 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 64.000, 'M' => 64.000],
             'MASTER' => ['F' => 64.000, 'M' => 64.000]
         ],
-        'PENA' => [
+        'pena' => [
             'PRE-MIRIM' => 20.000,
             'MIRIM 1' => 24.000,
             'MIRIM 2' => 30.200,
@@ -64,7 +67,7 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 70.000, 'M' => 70.000],
             'MASTER' => ['F' => 70.000, 'M' => 70.000]
         ],
-        'LEVE' => [
+        'leve' => [
             'PRE-MIRIM' => 23.000,
             'MIRIM 1' => 27.200,
             'MIRIM 2' => 33.200,
@@ -75,7 +78,7 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 76.000, 'M' => 76.000],
             'MASTER' => ['F' => 76.000, 'M' => 76.000]
         ],
-        'MEDIO' => [
+        'medio' => [
             'PRE-MIRIM' => 26.000,
             'MIRIM 1' => 30.200,
             'MIRIM 2' => 36.200,
@@ -86,7 +89,7 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 82.300, 'M' => 82.300],
             'MASTER' => ['F' => 82.300, 'M' => 82.300]
         ],
-        'MEIO_PESADO' => [
+        'meio-pesado' => [
             'PRE-MIRIM' => 29.000,
             'MIRIM 1' => 33.200,
             'MIRIM 2' => 39.300,
@@ -97,7 +100,7 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 88.300, 'M' => 88.300],
             'MASTER' => ['F' => 88.300, 'M' => 88.300]
         ],
-        'PESADO' => [
+        'pesado' => [
             'PRE-MIRIM' => 32.000,
             'MIRIM 1' => 36.200,
             'MIRIM 2' => 42.300,
@@ -108,7 +111,7 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 94.300, 'M' => 94.300],
             'MASTER' => ['F' => 94.300, 'M' => 94.300]
         ],
-        'SUPER_PESADO' => [
+        'super-pesado' => [
             'PRE-MIRIM' => 35.000,
             'MIRIM 1' => 39.300,
             'MIRIM 2' => 45.300,
@@ -119,10 +122,10 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 100.500, 'M' => 100.500],
             'MASTER' => ['F' => 100.500, 'M' => 100.500]
         ],
-        'PESADISSIMO' => [
-            'PRE-MIRIM' => 35.001, 
-            'MIRIM 1' => 39.301,   
-            'MIRIM 2' => 45.301,   
+        'pesadissimo' => [
+            'PRE-MIRIM' => 35.001,
+            'MIRIM 1' => 39.301,
+            'MIRIM 2' => 45.301,
             'INFANTIL 1' => 60.501,
             'INFANTIL 2' => 65.001,
             'INFANTO-JUVENIL' => ['F' => 73.001, 'M' => 77.000],
@@ -130,37 +133,37 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             'ADULTO' => ['F' => 116.500, 'M' => 116.500],
             'MASTER' => ['F' => 116.500, 'M' => 116.500]
         ],
-        'SUPER_PESADISSIMO' => [
+        'super-pesadissimo' => [
             'PRE-MIRIM' => null,
             'MIRIM 1' => null,
             'MIRIM 2' => null,
             'INFANTIL 1' => null,
             'INFANTIL 2' => null,
             'INFANTO-JUVENIL' => ['F' => 77.001, 'M' => 94.301],
-            'JUVENIL' => ['F' => 94.301, 'M' => 100.501], 
-            'ADULTO' => ['F' => 116.501, 'M' => 116.501], 
-            'MASTER' => ['F' => 116.501, 'M' => 116.501] 
+            'JUVENIL' => ['F' => 94.301, 'M' => 100.501],
+            'ADULTO' => ['F' => 116.501, 'M' => 116.501],
+            'MASTER' => ['F' => 116.501, 'M' => 116.501]
         ]
     ];
 
     // Verificar cada categoria
     foreach ($categorias as $categoria => $limites) {
         $limite = $limites[$faixaEtaria] ?? null;
-        
+
         if ($limite === null) {
             continue; // Categoria não se aplica a esta faixa etária
         }
-        
+
         // Para faixas etárias que diferenciam por gênero
         if (in_array($faixaEtaria, ['INFANTO-JUVENIL', 'JUVENIL', 'ADULTO', 'MASTER'])) {
             $limiteGenero = $limite[$genero[0]] ?? null; // Pega F ou M
-            
+
             if ($limiteGenero === null) {
                 continue;
             }
-            
+
             // Verificar se é a última categoria (acima de)
-            if (in_array($categoria, ['PESADISSIMO', 'SUPER_PESADISSIMO'])) {
+            if (in_array($categoria, ['pesadissimo', 'super-pesadissimo'])) {
                 if ($peso >= $limiteGenero) {
                     return $categoria;
                 }
@@ -171,7 +174,7 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             }
         } else {
             // Para faixas etárias sem diferenciação por gênero
-            if (in_array($categoria, ['PESADISSIMO', 'SUPER_PESADISSIMO'])) {
+            if (in_array($categoria, ['pesadissimo', 'super-pesadissimo'])) {
                 if ($peso >= $limite) {
                     return $categoria;
                 }
@@ -182,8 +185,8 @@ function determinarCategoriaPorPeso($peso, $faixaEtaria, $genero) {
             }
         }
     }
-    
+
     // Se não encontrou categoria, retorna a mais pesada possível
-    return 'SUPER_PESADISSIMO';
+    return 'super-pesadissimo';
 }
 ?>

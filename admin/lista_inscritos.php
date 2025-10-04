@@ -102,6 +102,22 @@ try {
         }
     }
 
+    //atualizar categorias vazias
+//    try {
+//        $categoriasAtualizadas = $ev->atualizarCategoriasVazias($idEvento);
+//        if ($categoriasAtualizadas > 0) {
+//            error_log("[$idEvento] Categorias atualizadas: $categoriasAtualizadas inscrições");
+//            $inscritos = $ev->getInscritos($idEvento);
+//
+//            if (!isset($_SESSION['mensagem'])) {
+//                $_SESSION['mensagem'] = "Categorias calculadas automaticamente para $categoriasAtualizadas atletas";
+//            }
+//        }
+//    } catch (Exception $e) {
+//        error_log("Erro ao atualizar categorias vazias: " . $e->getMessage());
+//    }
+
+
     // Recarregar lista após atualizações
     $inscritos = $ev->getInscritos($idEvento);
 
@@ -241,12 +257,13 @@ try {
             color: var(--primary-dark) !important;
             text-decoration: underline;
         }
-        
+
         /* CORREÇÃO: Garantir que os títulos fiquem brancos no fundo azul */
-        h1, h3 {
+        h1,
+        h3 {
             color: var(--white) !important;
         }
-        </style>
+    </style>
 </head>
 
 <body>
@@ -277,6 +294,7 @@ try {
                         <th>ID</th>
                         <th>Atleta</th>
                         <th>Idade</th>
+                        <th>Peso</th>
                         <th>Modalidade</th>
                         <th>Academia</th>
                         <th>Status</th>
@@ -285,7 +303,7 @@ try {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($inscritos as $inscrito):
+                    <?php foreach ($inscritos as $inscrito){
                         $statusClass = 'status-outros';
                         $statusText = $inscrito->status_pagamento;
 
@@ -316,6 +334,7 @@ try {
                             <td><?= $inscrito->id ?></td>
                             <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
                             <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
+                            <td><?= htmlspecialchars($inscrito->peso) ?></td>
                             <td><?= htmlspecialchars($inscrito->modalidade) ?></td>
                             <td><?= htmlspecialchars($inscrito->academia) ?></td>
                             <td class="<?= $statusClass ?>"><?= $statusText ?></td>
@@ -351,7 +370,7 @@ try {
                                 <?php endif; ?>
                             </td>
                         </tr>
-                    <?php endforeach; ?>
+                    <?php } ?>
                 </tbody>
             </table>
 
