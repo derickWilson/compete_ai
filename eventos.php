@@ -46,9 +46,16 @@ if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1) {
 // Verifica se foi solicitado um evento específico
 if (isset($_GET['id'])) {
     $eventoId = (int) cleanWords($_GET['id']);
-    $eventoDetails = $evserv->getById($eventoId);
-    if (!$eventoDetails) {
-        die("Evento não encontrado ou erro na consulta");
+    try {
+        $eventoDetails = $evserv->getById($eventoId);
+        if (!$eventoDetails) {
+            throw new Exception("Evento não encontrado");
+        }
+    } catch (Exception $e) {
+        echo "<div class='error'>Erro: " . htmlspecialchars($e->getMessage()) . "</div>";
+        echo "<a href='eventos.php'>Voltar para lista de eventos</a>";
+        include "menu/footer.php";
+        exit();
     }
     //determinar categoria
     if (isset($_SESSION['logado']) && $_SESSION['logado']) {
@@ -56,29 +63,29 @@ if (isset($_GET['id'])) {
         $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
         if ($eventoDetails->tipo_com) {
             //pendentes na categoria
-            $inscritos_geral = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'com',$_SESSION["faixa"]);
+            $inscritos_geral = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'com', $_SESSION["faixa"]);
 
             //pendentes no absoluto
-            $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'com',$_SESSION["faixa"]);
+            $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'com', $_SESSION["faixa"]);
 
             //confirmados na categoria
-            $inscritos_geral_confirmados = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'com',$_SESSION["faixa"]);
+            $inscritos_geral_confirmados = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'com', $_SESSION["faixa"]);
 
             //confirmados no absoluto
-            $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'com',$_SESSION["faixa"]);
+            $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'com', $_SESSION["faixa"]);
         }
         if ($eventoDetails->tipo_sem) {
             //pendentes na categoria
-            $inscritos_geral_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'sem',$_SESSION["faixa"]);
+            $inscritos_geral_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'sem', $_SESSION["faixa"]);
 
             //pendentes no absoluto
-            $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'sem',$_SESSION["faixa"]);
+            $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'sem', $_SESSION["faixa"]);
 
             //confirmados na categoria
-            $inscritos_geral_confirmados_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'sem',$_SESSION["faixa"]);
+            $inscritos_geral_confirmados_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'sem', $_SESSION["faixa"]);
 
             //confirmados no absoluto
-            $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'sem',$_SESSION["faixa"]);
+            $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'sem', $_SESSION["faixa"]);
         }
     }
     $tudo = false;
@@ -209,7 +216,7 @@ if (isset($_GET['id'])) {
                     <div class="estatisticas-inscricoes">
                         <h3>📊 Estatísticas de Inscrições Na Sua Categoria</h3>
                         <p>Sua Faixa : <?php echo htmlspecialchars($_SESSION["faixa"]); ?></p>
-                        <p>Seu Peso : <?php echo htmlspecialchars($_SESSION["peso"]);?> </p>
+                        <p>Seu Peso : <?php echo htmlspecialchars($_SESSION["peso"]); ?> </p>
                         <p>Seu Categoria: <?php echo htmlspecialchars($categoriaAuto); ?></p>
                         <p class="aviso-info"><strong>⚠️ Atenção:</strong> Os números abaixo estão sujeitos a alterações constantes
                         </p>

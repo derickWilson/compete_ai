@@ -146,8 +146,7 @@ class eventosService
                 normal_preco,
                 chaveamento
               FROM evento 
-              WHERE id = :id
-              AND data_limite >= CURRENT_DATE()";
+              WHERE id = :id";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
