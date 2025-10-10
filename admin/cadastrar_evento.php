@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($normal && $normal_preco <= 0) {
         die("Erro: Eventos normais devem ter um preço definido");
     }
-    
+
     if (!$normal) {
         $normal_preco = 0;
     }
@@ -102,7 +102,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $evento->__set('preco_sem_abs', $preco_sem_abs);
 
     $adEvento = new eventosService($conn, $evento);
-    $adEvento->addEvento();
+    try {
+        $idEvento = $adEvento->addEvento();
+
+        if ($idEvento) {
+            require_once __DIR__ . "/../emails/email.php";
+            notificar_geral($idEvento);
+
+            $_SESSION['sucesso'] = "Evento criado e notificações enviadas com sucesso!";
+            header("Location: /eventos.php");
+            exit();
+        }
+    } catch (Exception $e) {
+        $_SESSION['erro'] = "Erro ao criar evento: " . $e->getMessage();
+        header("Location: /admin/cadastrar_evento.php");
+        exit();
+    }
     exit();
 }
 ?>

@@ -49,10 +49,10 @@ class eventosService
         $stmt->bindValue(':preco_sem_abs', $this->evento->__get('preco_sem_abs'));
         try {
             $stmt->execute();
-            header("Location: /eventos.php");
-            exit();
+            return $this->conn->lastInsertId();
         } catch (Exception $e) {
-            echo 'Erro ao adicionar evento: ' . $e->getMessage();
+            error_log('Erro ao adicionar evento: ' . $e->getMessage());
+            throw new Exception("Erro ao criar evento: " . $e->getMessage());
         }
     }
     //editar evento
