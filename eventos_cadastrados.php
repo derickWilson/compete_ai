@@ -241,17 +241,14 @@ try {
                             <th>Campeonato</th>
                             <th>Local</th>
                             <th>Data</th>
+                            <th>Categoria</th>
                             <th>Modalidade</th>
-                            <th>C/ Quimono</th>
-                            <th>S/ Quimono</th>
-                            <th>Absoluto c/</th>
-                            <th>Absoluto s/</th>
                             <th>Status Pagamento</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($inscritos as $inscrito):
+                        <?php foreach ($inscritos as $inscrito) {
                             if (!is_object($inscrito))
                                 continue;
 
@@ -294,10 +291,14 @@ try {
                                 <td><?= htmlspecialchars($inscrito->lugar ?? ''); ?></td>
                                 <td><?= isset($inscrito->dia) ? date('d/m/Y', strtotime($inscrito->dia)) : ''; ?></td>
                                 <td><?= htmlspecialchars($inscrito->modalidade ?? ''); ?></td>
-                                <td class="text-center"><?= !empty($inscrito->mcom) ? "X" : ""; ?></td>
-                                <td class="text-center"><?= !empty($inscrito->msem) ? "X" : ""; ?></td>
-                                <td class="text-center"><?= !empty($inscrito->macom) ? "X" : ""; ?></td>
-                                <td class="text-center"><?= !empty($inscrito->masem) ? "X" : ""; ?></td>
+                                <?
+                                $modalidades_p = "";
+                                !empty($inscrito->mcom) ? $modalidades_p = $modalidades_p."Categoria Com Quimono<br>" : "";
+                                !empty($inscrito->msem) ? $modalidades_p = $modalidades_p."Categoria Sem Quimono<br>" : "";
+                                !empty($inscrito->macom) ? $modalidades_p = "Categoria + Absoluto Com Quimono<br>" : "";
+                                !empty($inscrito->masem) ? $modalidades_p = $modalidades_p."Categoria + Absoluto Sem Quimono<br>" : "";
+                                echo '<td>'.$modalidades_p.'</td>';
+                                ?>
                                 <td>
                                     <span class="status <?= $statusClass; ?>">
                                         <i class="fas <?= $statusIcon; ?>"></i> <?= htmlspecialchars($statusPagamento); ?>
@@ -321,7 +322,7 @@ try {
                                     </a>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>
