@@ -2,9 +2,10 @@
 ob_start(); // INICIA O BUFFER DE SAÍDA
 session_start();
 try {
-    require_once __DIR__ . "/../func/database.php";  // Caminho absoluto para database.php
-    require_once __DIR__ . "/../classes/atletaClass.php";  // Caminho absoluto para atletaClass.php
+    require_once __DIR__ . "/../func/database.php";
+    require_once __DIR__ . "/../classes/atletaClass.php";
     require_once __DIR__ . "/../func/calcularIdade.php";
+    require_once __DIR__ . "/../func/security.php";
 } catch (\Throwable $th) {
     print ("[" . $th->getMessage() . "]");
 }
@@ -140,7 +141,7 @@ class atletaService
      */
     public function limparCadastroFalho($fotoPath = null, $diplomaPath = null)
     {
-        
+
         try {
             // Remove arquivo de foto se fornecido e existir
             if ($fotoPath && file_exists($fotoPath)) {
@@ -342,6 +343,7 @@ class atletaService
      */
     public function listInvalido()
     {
+        validarPermissaoAdmin();
         // Query para selecionar atletas não validados com informações completas
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento,
                      a.fone, f.nome as academia, a.faixa, a.peso
@@ -565,6 +567,8 @@ class atletaService
     //edição feita pelo administrador
     public function editAdmin($id, $validado, $faixa)
     {
+        validarPermissaoAdmin();
+
         $query = "UPDATE atleta SET validado = :validado, faixa = :faixa WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":validado", $validado);

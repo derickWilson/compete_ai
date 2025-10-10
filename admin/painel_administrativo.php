@@ -47,13 +47,12 @@ try {
                                 <th>Email</th>
                                 <th>Faixa</th>
                                 <th>Academia</th>
-                                <th>Data Cadastro</th>
                                 <th>Status</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($lista as $value): ?>
+                            <?php foreach ($lista as $value){ ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($value->nome); ?></td>
                                     <td><?php echo htmlspecialchars($value->email ?? 'N/A'); ?></td>
@@ -61,7 +60,6 @@ try {
                                         <span class="badge-faixa"><?php echo htmlspecialchars($value->faixa); ?></span>
                                     </td>
                                     <td><?php echo htmlspecialchars($value->academia); ?></td>
-                                    <td><?php echo isset($value->data_cadastro) ? date('d/m/Y', strtotime($value->data_cadastro)) : 'N/A'; ?>
                                     </td>
                                     <td>
                                         <span class="status status-pendente">
@@ -75,7 +73,7 @@ try {
                                         </a>
                                     </td>
                                 </tr>
-                            <?php endforeach; ?>
+                            <?php } ?>
                         </tbody>
                     </table>
                 </div>
