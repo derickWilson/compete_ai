@@ -34,9 +34,9 @@ function enviarEmailNotificacaoSMTP($destinatario, $assunto, $mensagem) {
         $mail->Encoding = 'base64';
         
         // Remetente e destinatário
-        $mail->setFrom('wsaazizbjj@fpjji.com', 'FPJJI');
+        $mail->setFrom('', '');
         $mail->addAddress($destinatario);
-        $mail->addReplyTo('wsaazizbjj@fpjji.com', 'FPJJI');
+        $mail->addReplyTo('', '');
         
         // Conteúdo do email
         $mail->isHTML(true);
