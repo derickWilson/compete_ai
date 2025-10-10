@@ -87,6 +87,30 @@ foreach ($inscritosValidos as $inscrito) {
     $inscrito = corrigirInscricaoAbsoluto($inscrito);
 }
 
+/**
+ * Função para agrupar faixas no formato correto
+ * Agora usada tanto para categorias normais quanto absolutas
+ */
+function agruparFaixa($faixa) {
+    if (in_array($faixa, ['Branca'])) {
+        return 'BRANCA';
+    } else if (in_array($faixa, ['Cinza', 'Amarela'])) {
+        return 'CINZA/AMARELA';
+    } else if (in_array($faixa, ['Laranja', 'Verde'])) {
+        return 'LARANJA/VERDE';
+    } else if (in_array($faixa, ['Azul'])) {
+        return 'AZUL';
+    } else if (in_array($faixa, ['Roxa'])) {
+        return 'ROXA';
+    } else if (in_array($faixa, ['Marrom'])) {
+        return 'MARROM';
+    } else if (in_array($faixa, ['Preta'])) {
+        return 'PRETA';
+    } else {
+        return $faixa; // Retorna a faixa original se não encontrar grupo
+    }
+}
+
 // ----------------------------------------------------------------------------
 // CLASSIFICAÇÃO DOS ATLETAS POR CATEGORIA
 // ----------------------------------------------------------------------------
@@ -122,7 +146,8 @@ foreach ($inscritosValidos as $inscrito) {
     // Para categorias ABSOLUTAS, usar categoria "ABSOLUTO" e todas as faixas
     if ($eh_absoluto) {
         $categoria = 'ABSOLUTO';
-        $grupoFaixa = 'TODAS AS FAIXAS';
+        //$grupoFaixa = 'TODAS AS FAIXAS';
+        $grupoFaixa = agruparFaixa($inscrito->faixa);
     } else {
         // Para categorias normais, calcular idade e determinar categoria etária
         $idade = calcularIdade($inscrito->data_nascimento);
@@ -141,22 +166,7 @@ foreach ($inscritosValidos as $inscrito) {
         };
         
         // Agrupa faixas conforme especificado para categorias normais
-        $grupoFaixa = '';
-        if (in_array($inscrito->faixa, ['Branca'])) {
-            $grupoFaixa = 'BRANCA';
-        } else if (in_array($inscrito->faixa, ['Cinza', 'Amarela'])) {
-            $grupoFaixa = 'CINZA/AMARELA';
-        } else if (in_array($inscrito->faixa, ['Laranja', 'Verde'])) {
-            $grupoFaixa = 'LARANJA/VERDE';
-        } else if (in_array($inscrito->faixa, ['Azul'])) {
-            $grupoFaixa = 'AZUL';
-        } else if (in_array($inscrito->faixa, ['Roxa'])) {
-            $grupoFaixa = 'ROXA';
-        } else if (in_array($inscrito->faixa, ['Marrom'])) {
-            $grupoFaixa = 'MARROM';
-        } else if (in_array($inscrito->faixa, ['Preta'])) {
-            $grupoFaixa = 'PRETA';
-        }
+        $grupoFaixa = agruparFaixa($inscrito->faixa);
     }
     
     // Pula se não conseguir classificar a faixa (apenas para categorias não-absolutas)
@@ -325,7 +335,7 @@ function gerarChaveamentoSimples($atletas, $pdf) {
             // BYE - apenas um atleta
             $pdf->SetXY($x + $largura_nome + $largura_espaco, $y);
             $pdf->SetFillColor(200, 255, 200);
-            $pdf->Cell($largura_vencedor, 6, 'BYE', 1, 0, 'C', true);
+            $pdf->Cell($largura_vencedor, 6, 'WO', 1, 0, 'C', true);
             
             $pdf->SetY($y + 8);
         }
