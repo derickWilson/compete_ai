@@ -56,22 +56,28 @@ try {
     $ev = new Evento();
     $evserv = new eventosService($conn, $ev);
     $asaasService = new AssasService($conn);
-    
+
     //Validar identidade real
     $usuarioReal = validarIdentidadeUsuario($_SESSION['id']);
-    
+
     //Detector de Spam
     $spamDetector = new SpamDetector();
     if (isset($_POST['modalidade']) && $spamDetector->containsSpam($_POST['modalidade'])) {
         throw new Exception("Conteúdo suspeito detectado.");
     }
-    
+
     // Validação do evento
     $evento_id = (int) cleanWords($_POST['evento_id']);
     $eventoDetails = $evserv->getById($evento_id);
 
     if (!$eventoDetails) {
         throw new Exception("Evento não encontrado");
+    }
+
+    //Verificar se o evento está disponível para inscrição
+    $disponibilidade = $evserv->verificarDisponibilidadeEvento($evento_id);
+    if (!$disponibilidade['disponivel']) {
+        throw new Exception($disponibilidade['mensagem']);
     }
 
     // Processa modalidades - lógica diferente para eventos normais
@@ -91,8 +97,8 @@ try {
             'abs_com' => isset($_POST['abs_com']) ? 1 : 0,
             'abs_sem' => isset($_POST['abs_sem']) ? 1 : 0
         ];
-        
-        if($modalidades['com'] == 0 && $modalidades['sem'] == 0 && $modalidades['abs_com'] == 0 && $modalidades['abs_sem'] == 0){
+
+        if ($modalidades['com'] == 0 && $modalidades['sem'] == 0 && $modalidades['abs_com'] == 0 && $modalidades['abs_sem'] == 0) {
             throw new Exception("Nenhuma Modalidade Selecionada");
         }
     }
@@ -156,7 +162,7 @@ try {
     if (!$aceite_regulamento || !$aceite_responsabilidade) {
         throw new Exception("Você deve aceitar todos os termos para se inscrever");
     }
-    
+
     //calcular a faixa etária antes de inscrever
     $categoria_idade = determinarFaixaEtaria($_SESSION["idade"]);
 
@@ -305,7 +311,7 @@ function calcularNovoValor($inscricao, $dadosEvento)
     $valorComKimono = 0;
     $valorSemKimono = 0;
 
-    // 🔵 MODALIDADE COM KIMONO
+    //MODALIDADE COM KIMONO
     if ($inscricao->mod_ab_com && !$menorIdade) {
         // ABSOLUTO COM KIMONO (substitui a modalidade normal)
         $valorComKimono = $dadosEvento['preco_abs'];
@@ -314,7 +320,7 @@ function calcularNovoValor($inscricao, $dadosEvento)
         $valorComKimono = $menorIdade ? $dadosEvento['preco_menor'] : $dadosEvento['preco'];
     }
 
-    // 🔴 MODALIDADE SEM KIMONO
+    //MODALIDADE SEM KIMONO
     if ($inscricao->mod_ab_sem && !$menorIdade) {
         // ABSOLUTO SEM KIMONO (substitui a modalidade normal)
         $valorSemKimono = $dadosEvento['preco_sem_abs'];
@@ -325,7 +331,7 @@ function calcularNovoValor($inscricao, $dadosEvento)
 
     $valorTotal = $valorComKimono + $valorSemKimono;
 
-    // 🎯 APLICAÇÃO DE DESCONTOS
+    //APLICAÇÃO DE DESCONTOS
     // Desconto de 40% se fizer COM e SEM kimono (qualquer combinação)
     if ($valorComKimono > 0 && $valorSemKimono > 0) {
         $valorTotal *= 0.6; // 40% de desconto

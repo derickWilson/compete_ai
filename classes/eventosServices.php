@@ -205,10 +205,61 @@ class eventosService
 
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
+    /**
+     * Verifica se um evento está disponível para inscrição
+     * @param int $id_evento ID do evento
+     * @return array Retorna informações sobre a disponibilidade
+     * @throws Exception Se o evento não for encontrado
+     */
+    public function verificarDisponibilidadeEvento($id_evento)
+    {
+        $query = "SELECT data_limite, data_evento, nome FROM evento WHERE id = :id_evento";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':id_evento', $id_evento, PDO::PARAM_INT);
+        $stmt->execute();
+        $evento = $stmt->fetch(PDO::FETCH_OBJ);
+
+        if (!$evento) {
+            throw new Exception("Evento não encontrado");
+        }
+
+        $dataLimite = new DateTime($evento->data_limite);
+        $dataEvento = new DateTime($evento->data_evento);
+        $hoje = new DateTime();
+
+        // Adiciona 1 dia à data limite para considerar o dia inteiro
+        $dataLimite->modify('+1 day');
+
+        $disponivel = true;
+        $mensagem = "Inscrições abertas";
+
+        if ($hoje >= $dataLimite) {
+            $disponivel = false;
+            $mensagem = "Inscrições encerradas. O prazo terminou em " . date('d/m/Y', strtotime($evento->data_limite));
+        } elseif ($hoje > $dataEvento) {
+            $disponivel = false;
+            $mensagem = "Este evento já foi realizado em " . date('d/m/Y', strtotime($evento->data_evento));
+        }
+
+        return [
+            'disponivel' => $disponivel,
+            'mensagem' => $mensagem,
+            'evento' => $evento
+        ];
+    }
+
     //inscrever um atleta em um evento
     public function inscrever($id_atleta, $id_evento, $mod_com, $mod_abs_com, $mod_sem, $mod_abs_sem, $modalidade, $categoria_idade, $aceite_regulamento, $aceite_responsabilidade)
     {
         try {
+            // Verifica disponibilidade do evento
+            $disponibilidade = $this->verificarDisponibilidadeEvento($id_evento);
+
+            if (!$disponibilidade['disponivel']) {
+                throw new Exception($disponibilidade['mensagem']);
+            }
+
             $query = "INSERT INTO inscricao (
                         id_atleta, 
                         id_evento, 
@@ -249,9 +300,9 @@ class eventosService
 
             return $result;
 
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             error_log("Erro ao inscrever atleta: " . $e->getMessage());
-            return false;
+            throw $e;
         }
     }
     //ver se um atleta ja esta inscrito em um evento
