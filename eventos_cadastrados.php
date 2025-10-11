@@ -293,10 +293,13 @@ try {
                                 <td><?= htmlspecialchars($inscrito->modalidade ?? ''); ?></td>
                                 <?
                                 $modalidades_p = "";
-                                !empty($inscrito->mcom) ? $modalidades_p = $modalidades_p."Categoria Com Quimono<br>" : "";
-                                !empty($inscrito->msem) ? $modalidades_p = $modalidades_p."Categoria Sem Quimono<br>" : "";
-                                !empty($inscrito->macom) ? $modalidades_p = "Categoria + Absoluto Com Quimono<br>" : "";
-                                !empty($inscrito->masem) ? $modalidades_p = $modalidades_p."Categoria + Absoluto Sem Quimono<br>" : "";
+                                $modalidade_com = "";
+                                $modalidade_sem = "";
+                                !empty($inscrito->mcom) ? $modalidade_com = $modalidade_com."Categoria Com Quimono<br>" : "";
+                                !empty($inscrito->msem) ? $modalidade_sem = $modalidade_sem."Categoria Sem Quimono<br>" : "";
+                                !empty($inscrito->macom) ? $$modalidade_com = "Categoria + Absoluto Com Quimono<br>" : "";
+                                !empty($inscrito->masem) ? $modalidade_sem = "Categoria + Absoluto Sem Quimono<br>" : "";
+                                $modalidades_p = $modalidade_com . $modalidade_sem;
                                 echo '<td>'.$modalidades_p.'</td>';
                                 ?>
                                 <td>
