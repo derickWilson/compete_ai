@@ -11,6 +11,7 @@ try {
     require_once "func/calcularIdade.php";
     require_once "func/determinar_categoria.php";
     require_once __DIR__ . '/config_taxa.php';
+    require_once __DIR__ . "/emails/notificar_evento.php";
 } catch (\Throwable $th) {
     print ('[' . $th->getMessage() . ']');
 }
@@ -20,6 +21,16 @@ $conn = new Conexao();
 $ev = new Evento();
 $evserv = new eventosService($conn, $ev);
 $tudo = true;
+
+//notificar todos
+if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] == 'notificar_geral'){
+    if(isset($_SESSION['admin']) && $_SESSION['admin'] == 1){
+        if(isset($_GET['id'])){
+            $idEvento = (int) cleanWords($_GET['id']);
+            notificar_geral($idEvento);   
+        }
+    }
+}
 
 if (isset($_SESSION['admin']) && $_SESSION['admin'] == 1) {
     // Verifica quando foi a última limpeza (evita executar em toda requisição)
@@ -181,6 +192,13 @@ if (isset($_GET['id'])) {
         <?php if (isset($eventoDetails)) { ?>
             <div class='principal <?php echo ($eventoDetails->normal) ? 'evento-normal' : ''; ?>'>
                 <h1><?php echo htmlspecialchars($eventoDetails->nome); ?>
+                    <form class="action-form" method="POST"
+                        onsubmit="return confirm('Notificar Todos')">
+                        <input type="hidden" name="action" value="notificar_geral">
+                        <button type="submit" class="action-btn pago-btn" title="Notificar Todos">
+                            Notificar Todos
+                        </button>
+                    </form>
                     <?php if ($eventoDetails->normal) { ?>
                         <span class="badge-normal">(Evento Normal)</span>
                     <?php } ?>
