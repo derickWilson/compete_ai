@@ -24,7 +24,7 @@ require_once __DIR__ . "/func/security.php";
 const MAX_UPLOAD_SIZE_MB = 3;
 
 // Função para validar idade mínima
-function validarIdadeMinima($dataNascimento, $idadeMinima = 13)
+function validarIdadeMinima($dataNascimento, $idadeMinima = 3)
 {
     $hoje = new DateTime();
     $nascimento = new DateTime($dataNascimento);
@@ -41,9 +41,9 @@ function validarDadosNumericos($dados)
     }
 
     // Validar DDD
-    if (!preg_match('/^\d{2,3}$/', $dados['ddd'] ?? '')) {
-        throw new Exception("DDD inválido");
-    }
+    //if (!preg_match('/^\d{2,3}$/', $dados['ddd'] ?? '')) {
+    //    throw new Exception("DDD inválido");
+    //}
 
     return true;
 }
@@ -61,7 +61,7 @@ function validarDataRealista($data, $tipo = 'nascimento')
         }
         // Idade entre 5 e 100 anos
         $idade = $hoje->diff($dataObj)->y;
-        if ($idade < 5 || $idade > 100) {
+        if ($idade < 3 || $idade > 100) {
             throw new Exception("Idade deve estar entre 5 e 100 anos");
         }
     }
@@ -198,11 +198,11 @@ try {
 
 
     // VALIDAÇÃO DE ORIGEM DO FORMULÁRIO
-    $allowed_referers = [$_SERVER['HTTP_HOST']];
-    $referer = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST);
-    if (!in_array($referer, $allowed_referers)) {
-        throw new Exception("Origem do formulário inválida");
-    }
+    //$allowed_referers = [$_SERVER['HTTP_HOST']];
+    //$referer = parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST);
+    //if (!in_array($referer, $allowed_referers)) {
+    //    throw new Exception("Origem do formulário inválida");
+    //}
 
     // Verificar spam nos campos ANTES de processar
     $spamDetector = new SpamDetector();
