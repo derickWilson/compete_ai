@@ -12,6 +12,7 @@ try {
     require_once "func/determinar_categoria.php";
     require_once __DIR__ . '/config_taxa.php';
     require_once __DIR__ . "/emails/notificar_evento.php";
+    require_once __DIR__ . "/func/estatisticasInscricoes.php";
 } catch (\Throwable $th) {
     print ('[' . $th->getMessage() . ']');
 }
@@ -73,32 +74,6 @@ if (isset($_GET['id'])) {
         $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
         $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
         $faixaEtaria = determinarFaixaEtaria($_SESSION["idade"]);
-        if ($eventoDetails->tipo_com) {
-            //pendentes na categoria
-            $inscritos_geral = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'com', $_SESSION["faixa"]);
-
-            //pendentes no absoluto
-            $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'com', $_SESSION["faixa"]);
-
-            //confirmados na categoria
-            $inscritos_geral_confirmados = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'com', $_SESSION["faixa"]);
-
-            //confirmados no absoluto
-            $inscritos_abs = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'com', $_SESSION["faixa"]);
-        }
-        if ($eventoDetails->tipo_sem) {
-            //pendentes na categoria
-            $inscritos_geral_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, false, 'sem', $_SESSION["faixa"]);
-
-            //pendentes no absoluto
-            $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, false, 'sem', $_SESSION["faixa"]);
-
-            //confirmados na categoria
-            $inscritos_geral_confirmados_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], false, true, 'sem', $_SESSION["faixa"]);
-
-            //confirmados no absoluto
-            $inscritos_abs_sem = $evserv->contagemCategoria($eventoId, $_SESSION["idade"], true, true, 'sem', $_SESSION["faixa"]);
-        }
     }
     $tudo = false;
 } else {
@@ -258,342 +233,283 @@ if (isset($_GET['id'])) {
                     </div>
                 </div>
                 <!-- Seção de Estatísticas de Inscrições -->
-                <?php if (isset($_SESSION['logado']) && $_SESSION['logado']) { ?>
-                    <div>
-                        <h3>📊 Estatísticas de Inscrições Na Sua Categoria</h3>
-                        <p>Sua Faixa : <?php echo htmlspecialchars($_SESSION["faixa"]); ?></p>
-                        <p>Seu Peso : <?php echo htmlspecialchars($_SESSION["peso"]); ?>Kg</p>
-                        <p>Sua Categoria: <?php echo htmlspecialchars($categoriaAuto); ?></p>
-                        <p>Sua Faixa Etária: <?php echo htmlspecialchars($faixaEtaria); ?></p>
-                        <p class="aviso-info"><strong>⚠️ Atenção:</strong> Os números abaixo estão sujeitos a alterações
-                            constantes
-                        </p>
+                <?php if (isset($_SESSION['logado']) && $_SESSION['logado']) {
+                    // Obter estatísticas usando a função unificada
+                    $estatisticas = obterEstatisticasInscricoes(
+                        $evserv,
+                        $eventoId,
+                        $_SESSION["idade"],
+                        $_SESSION["faixa"],
+                        $categoriaAuto,
+                        $faixaEtaria
+                    );
 
-                        <div>
-                            <?php if ($eventoDetails->tipo_com) { ?>
-                                <!-- Modalidade COM Kimono -->
-                                <div>
+                    // Verificar se há erro
+                    if (isset($estatisticas['erro'])) {
+                        echo '<div class="error">Erro ao carregar estatísticas: ' . htmlspecialchars($estatisticas['erro']) . '</div>';
+                    } else {
+                        echo '<div>';
+                        echo '<h3>📊 Estatísticas de Inscrições Na Sua Categoria</h3>';
+                        echo renderizarEstatisticas($estatisticas);
+                        echo '</div>';
+                    }
+                } ?>
 
-                                    <h4>🥋 COM Kimono</h4>
-                                    <div class="tabela1">
-                                        <table>
-                                            <caption><?= htmlspecialchars($categoriaAuto); ?></caption>
-                                            <tr>
-                                                <th>Pendentes</th>
-                                                <th>Confirmados</th>
-                                            </tr>
-                                            <tr>
-                                                <td><span><?php echo $inscritos_geral ?? 0; ?></span></td>
-                                                <td><span><?php echo $inscritos_geral_confirmados ?? 0; ?></span></td>
-                                            </tr>
-                                        </table><br class="clear">
-                                        <div class="tabela2">
-                                            <table>
-                                                <caption>Absoluto</caption>
-                                                <tr>
-                                                    <th>Pendentes</th>
-                                                    <th>Confirmados</th>
-                                                </tr>
-                                                <tr>
-                                                    <td><span><?php echo $inscritos_abs ?? 0; ?></span></td>
-                                                    <td><span><?php echo $inscritos_abs_confirmados ?? 0; ?></span></td>
-                                                </tr>
-                                            </table><br>
-                                        </div>
-                                    <?php } ?>
+                <!-- Seção de preços -->
+                <div class="precos-container">
+                    <h3>Valores</h3>
+                    <?php
+                    if ($eventoDetails->normal) {
+                        // Exibição para Evento Normal
+                        $precoNormal = $eventoDetails->normal_preco * TAXA;
+                        echo "<p>Preço único: <strong>" . number_format($precoNormal, 2, ',', '.') . " R$</strong></p>";
+                    } else {
+                        // Exibição para Evento com Classificação
+                        if (!isset($_SESSION["idade"])) {
+                            // Usuário não logado - mostra todos os preços
+            
+                            // Preços COM Kimono
+                            echo "<h4>COM Kimono:</h4>";
+                            echo "<p>Maiores de 15: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong></p>";
+                            echo "<p>Menores de 15: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
+                            echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
 
-                                    <?php if ($eventoDetails->tipo_sem) { ?>
-                                        <!-- Modalidade SEM Kimono -->
-                                        <div class="tabelas">
-                                            <h4>👊 SEM Kimono</h4>
-                                            <div class="tabela-1">
-                                                <table>
-                                                    <caption><?= htmlspecialchars($categoriaAuto); ?></caption>
-                                                    <tr>
-                                                        <th>Pendentes</th>
-                                                        <th>Confirmados</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><span><?php echo $inscritos_geral_sem ?? 0; ?></span></td>
-                                                        <td><span><?php echo $inscritos_geral_confirmados_sem ?? 0; ?></span></td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                            <div class="tabela-2">
-                                                <table>
-                                                    <caption>Absoluto</caption>
-                                                    <tr>
-                                                        <th>Pendentes</th>
-                                                        <th>Confirmados</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <td><span><?php echo $inscritos_abs_sem ?? 0; ?></span></td>
-                                                        <td><span><?php echo $inscritos_abs_sem_confirmados ?? 0; ?></span></td>
-                                                    </tr>
-                                                </table><br>
-                                            </div>
-                                        </div>
-                                    <?php } ?>
-                                </div>
-                            </div>
-                        <?php } ?>
-
-                        <!-- Seção de preços -->
-                        <div class="precos-container">
-                            <h3>Valores</h3>
-                            <?php
-                            if ($eventoDetails->normal) {
-                                // Exibição para Evento Normal
-                                $precoNormal = $eventoDetails->normal_preco * TAXA;
-                                echo "<p>Preço único: <strong>" . number_format($precoNormal, 2, ',', '.') . " R$</strong></p>";
-                            } else {
-                                // Exibição para Evento com Classificação
-                                if (!isset($_SESSION["idade"])) {
-                                    // Usuário não logado - mostra todos os preços
-                    
-                                    // Preços COM Kimono
-                                    echo "<h4>COM Kimono:</h4>";
-                                    echo "<p>Maiores de 15: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                    echo "<p>Menores de 15: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                    echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
-
-                                    // Preços SEM Kimono (se o evento tiver essa modalidade)
-                                    if ($eventoDetails->tipo_sem == 1) {
-                                        echo "<h4>SEM Kimono:</h4>";
-                                        echo "<p>Maiores de 15: <strong>" . number_format($eventoDetails->preco_sem * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                        echo "<p>Menores de 15: <strong>" . number_format($eventoDetails->preco_sem_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                        echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_sem_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                    }
-                                } else {
-                                    // Usuário logado - mostra preço conforme idade
-                                    if ($_SESSION["idade"] > 15) {
-                                        echo "<h4>COM Kimono:</h4>";
-                                        echo "<p>Preço: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                        echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
-
-                                        // Preços SEM Kimono (se o evento tiver essa modalidade)
-                                        if ($eventoDetails->tipo_sem == 1) {
-                                            echo "<h4>SEM Kimono:</h4>";
-                                            echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_sem * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                            echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_sem_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                        }
-                                    } else {
-                                        echo "<h4>COM Kimono:</h4>";
-                                        echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
-
-                                        // Preços SEM Kimono (se o evento tiver essa modalidade)
-                                        if ($eventoDetails->tipo_sem == 1) {
-                                            echo "<h4>SEM Kimono:</h4>";
-                                            echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_sem_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
-                                        }
-                                    }
-                                }
+                            // Preços SEM Kimono (se o evento tiver essa modalidade)
+                            if ($eventoDetails->tipo_sem == 1) {
+                                echo "<h4>SEM Kimono:</h4>";
+                                echo "<p>Maiores de 15: <strong>" . number_format($eventoDetails->preco_sem * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Menores de 15: <strong>" . number_format($eventoDetails->preco_sem_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_sem_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
                             }
-                            ?>
-                        </div>
-
-                        <!-- Link para download do edital -->
-                        <?php if (!empty($eventoDetails->doc)) { ?>
-                            <p><a href="<?php echo '/docs/' . htmlspecialchars($eventoDetails->doc); ?>" download>Baixar Edital</a>
-                            </p>
-                        <?php } else { ?>
-                            <p><em>Edital não disponível</em></p>
-                        <?php } ?>
-                        <!-- Link para download do chaveamento -->
-                        <?php if (!empty($eventoDetails->chaveamento)) { ?>
-                            <p><a href="<?php echo '/docs/' . htmlspecialchars($eventoDetails->chaveamento); ?>" download>Baixar
-                                    Chaveamento</a></p>
-                        <?php } else { ?>
-                            <p><em>Chaveamento não disponível</em></p>
-                        <?php } ?>
-                        <!-- Formulário de inscrição -->
-                        <?php
-                        // Primeiro verifica se as inscrições estão abertas ou encerradas
-                        $limite = new DateTime($eventoDetails->data_limite);
-                        $limite->modify('+1 day');
-                        $hoje = new DateTime();
-                        $inscricoesEncerradas = ($hoje >= $limite);
-
-                        if ($inscricoesEncerradas) {
-                            // INSCRIÇÕES ENCERRADAS - data limite já passou
-                            echo '<div class="aviso error" style="text-align: center; padding: 15px; margin: 10px 0;">';
-                            echo '📅 <strong>Inscrições encerradas</strong><br>';
-                            echo 'O prazo para inscrições terminou em ' . date('d/m/Y', strtotime($eventoDetails->data_limite));
-                            echo '</div>';
-
                         } else {
-                            // INSCRIÇÕES ABERTAS - data limite ainda não chegou
-                
-                            if (isset($_SESSION['logado']) && $_SESSION['logado']) {
-                                // USUÁRIO LOGADO
-                
-                                if (!$evserv->isInscrito($_SESSION["id"], $eventoId)) {
-                                    // USUÁRIO NÃO INSCRITO - mostra formulário
-                                    ?>
-                                    <form action="inscreverAtleta.php" method="POST">
-                                        <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
+                            // Usuário logado - mostra preço conforme idade
+                            if ($_SESSION["idade"] > 15) {
+                                echo "<h4>COM Kimono:</h4>";
+                                echo "<p>Preço: <strong>" . number_format($eventoDetails->preco * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
 
-                                        <?php if ($eventoDetails->normal) { ?>
-                                            <input type="hidden" name="valor"
-                                                value="<?php echo htmlspecialchars($eventoDetails->normal_preco); ?>">
-                                            <p>Este é um evento normal sem distinção por idade ou modalidade.</p>
-                                        <?php } else { ?>
-                                            <input type="hidden" name="valor" value="<?php
-                                            echo ($_SESSION["idade"] > 15) ? htmlspecialchars($eventoDetails->preco) : htmlspecialchars($eventoDetails->preco_menor);
-                                            ?>">
-
-                                            <?php if ($eventoDetails->tipo_com == 1) { ?>
-                                                <input type="checkbox" name="com"> Categoria (Com Kimono)
-                                                <?php if ($_SESSION["idade"] > 15) { ?>
-                                                    <br><input type="checkbox" name="abs_com"> Categoria + Absoluto (Com Kimono)
-                                                <?php } ?>
-                                            <?php } ?>
-
-                                            <?php if ($eventoDetails->tipo_sem == 1) { ?>
-                                                <input type="checkbox" name="sem"> Categoria (Sem Kimono)
-                                                <?php if ($_SESSION["idade"] > 15) { ?>
-                                                    <br><input type="checkbox" name="abs_sem"> Categoria + Absoluto (Sem Kimono)
-                                                <?php } ?>
-                                            <?php } ?>
-                                        <?php } ?>
-
-                                        <br>
-                                        <?php if (!$eventoDetails->normal) {
-                                            ?>
-                                            <select name="modalidade" required readonly>
-                                                <option value="galo" <?= $categoriaAuto == 'galo' ? 'selected' : '' ?>>Galo</option>
-                                                <option value="pluma" <?= $categoriaAuto == 'pluma' ? 'selected' : '' ?>>Pluma</option>
-                                                <option value="pena" <?= $categoriaAuto == 'pena' ? 'selected' : '' ?>>Pena</option>
-                                                <option value="leve" <?= $categoriaAuto == 'leve' ? 'selected' : '' ?>>Leve</option>
-                                                <option value="medio" <?= $categoriaAuto == 'medio' ? 'selected' : '' ?>>Médio</option>
-                                                <option value="meio-pesado" <?= $categoriaAuto == 'meio-pesado' ? 'selected' : '' ?>>Meio-Pesado
-                                                </option>
-                                                <option value="pesado" <?= $categoriaAuto == 'pesado' ? 'selected' : '' ?>>Pesado</option>
-                                                <option value="super-pesado" <?= $categoriaAuto == 'super-pesado' ? 'selected' : '' ?>>Super-Pesado
-                                                </option>
-                                                <option value="pesadissimo" <?= $categoriaAuto == 'pesadissimo' ? 'selected' : '' ?>>Pesadíssimo
-                                                </option>
-                                                <?php if ($_SESSION["idade"] > 15) { ?>
-                                                    <option value="super-pesadissimo" <?= $categoriaAuto == 'super-pesadissimo' ? 'selected' : '' ?>>
-                                                        Super-Pesadíssimo</option>
-                                                <?php } ?>
-                                            </select>
-
-
-                                            <div class="termos">
-                                                <input type="checkbox" name="aceite_regulamento" id="aceite_regulamento" required>
-                                                <label for="aceite_regulamento">Li e aceito o regulamento</label>
-
-                                                <br>
-
-                                                <input type="checkbox" name="aceite_responsabilidade" id="aceite_responsabilidade" required>
-                                                <label for="aceite_responsabilidade">Aceito os termos de responsabilidade</label>
-                                            </div>
-                                        <?php } ?>
-
-                                        <input type="submit" value="Inscrever-se" class="botao-inscrever">
-                                    </form>
-                                    <?php
-                                } else {
-                                    // USUÁRIO JÁ INSCRITO
-                                    echo '<p class="aviso info">Você já está inscrito neste evento.</p>';
+                                // Preços SEM Kimono (se o evento tiver essa modalidade)
+                                if ($eventoDetails->tipo_sem == 1) {
+                                    echo "<h4>SEM Kimono:</h4>";
+                                    echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_sem * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                    echo "<p>Absoluto: <strong>" . number_format($eventoDetails->preco_sem_abs * TAXA, 2, ',', '.') . " R$</strong></p>";
                                 }
-
                             } else {
-                                // USUÁRIO NÃO LOGADO
-                                echo '<p class="aviso info">Faça <a href="/login.php">login</a> para se inscrever.</p>';
+                                echo "<h4>COM Kimono:</h4>";
+                                echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
+
+                                // Preços SEM Kimono (se o evento tiver essa modalidade)
+                                if ($eventoDetails->tipo_sem == 1) {
+                                    echo "<h4>SEM Kimono:</h4>";
+                                    echo "<p>Preço: <strong>" . number_format($eventoDetails->preco_sem_menor * TAXA, 2, ',', '.') . " R$</strong></p>";
+                                }
                             }
                         }
-                        ?>
+                    }
+                    ?>
+                </div>
 
-                        <!-- Opções de administrador -->
-                        <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
-                            <div class="chapa-options">
-                                <h3>Opções de Administrador</h3>
-                                <a href='admin/baixar_chapa.php?id=<?php echo $eventoId ?>'>Baixar Chapas (PDF)</a> |
-                            </div>
-                        <?php } ?>
-                        <br>
-                        <a href="eventos.php" class="link">Voltar</a>
-                        <?php if (isset($_SESSION['admin']) && $_SESSION["admin"] == 1) { ?>
-                            || <a href='/admin/editar_evento.php?id=<?php echo $eventoId ?>'>Editar Evento</a>
-                        <?php } ?>
-                    </div>
+                <!-- Link para download do edital -->
+                <?php if (!empty($eventoDetails->doc)) { ?>
+                    <p><a href="<?php echo '/docs/' . htmlspecialchars($eventoDetails->doc); ?>" download>Baixar Edital</a>
+                    </p>
                 <?php } else { ?>
-                    <p>Evento não encontrado.</p>
-                    <a href="eventos.php">Voltar</a>
+                    <p><em>Edital não disponível</em></p>
                 <?php } ?>
-            <?php } ?>
+                <!-- Link para download do chaveamento -->
+                <?php if (!empty($eventoDetails->chaveamento)) { ?>
+                    <p><a href="<?php echo '/docs/' . htmlspecialchars($eventoDetails->chaveamento); ?>" download>Baixar
+                            Chaveamento</a></p>
+                <?php } else { ?>
+                    <p><em>Chaveamento não disponível</em></p>
+                <?php } ?>
+                <!-- Formulário de inscrição -->
+                <?php
+                // Primeiro verifica se as inscrições estão abertas ou encerradas
+                $limite = new DateTime($eventoDetails->data_limite);
+                $limite->modify('+1 day');
+                $hoje = new DateTime();
+                $inscricoesEncerradas = ($hoje >= $limite);
 
-            <?php include "menu/footer.php"; ?>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    // Grupos de checkboxes que são mutuamente exclusivos
-                    const gruposExclusivos = [
-                        ['com', 'abs_com'],     // Categoria Com Kimono vs Absoluto Com Kimono
-                        ['sem', 'abs_sem']      // Categoria Sem Kimono vs Absoluto Sem Kimono
-                    ];
+                if ($inscricoesEncerradas) {
+                    // INSCRIÇÕES ENCERRADAS - data limite já passou
+                    echo '<div class="aviso error" style="text-align: center; padding: 15px; margin: 10px 0;">';
+                    echo '📅 <strong>Inscrições encerradas</strong><br>';
+                    echo 'O prazo para inscrições terminou em ' . date('d/m/Y', strtotime($eventoDetails->data_limite));
+                    echo '</div>';
 
-                    // Para cada grupo de exclusividade
-                    gruposExclusivos.forEach(grupo => {
-                        const checkboxes = grupo.map(name => document.querySelector(`input[name="${name}"]`));
+                } else {
+                    // INSCRIÇÕES ABERTAS - data limite ainda não chegou
+        
+                    if (isset($_SESSION['logado']) && $_SESSION['logado']) {
+                        // USUÁRIO LOGADO
+        
+                        if (!$evserv->isInscrito($_SESSION["id"], $eventoId)) {
+                            // USUÁRIO NÃO INSCRITO - mostra formulário
+                            ?>
+                            <form action="inscreverAtleta.php" method="POST">
+                                <input type="hidden" name="evento_id" value="<?php echo htmlspecialchars($eventoDetails->id); ?>">
 
-                        // Adiciona evento a cada checkbox do grupo
-                        checkboxes.forEach(checkbox => {
-                            if (checkbox) {
-                                checkbox.addEventListener('change', function () {
-                                    if (this.checked) {
-                                        // Se este foi marcado, desmarca os outros do mesmo grupo
-                                        checkboxes.forEach(otherCheckbox => {
-                                            if (otherCheckbox !== this && otherCheckbox) {
-                                                otherCheckbox.checked = false;
-                                            }
-                                        });
+                                <?php if ($eventoDetails->normal) { ?>
+                                    <input type="hidden" name="valor" value="<?php echo htmlspecialchars($eventoDetails->normal_preco); ?>">
+                                    <p>Este é um evento normal sem distinção por idade ou modalidade.</p>
+                                <?php } else { ?>
+                                    <input type="hidden" name="valor" value="<?php
+                                    echo ($_SESSION["idade"] > 15) ? htmlspecialchars($eventoDetails->preco) : htmlspecialchars($eventoDetails->preco_menor);
+                                    ?>">
+
+                                    <?php if ($eventoDetails->tipo_com == 1) { ?>
+                                        <input type="checkbox" name="com"> Categoria (Com Kimono)
+                                        <?php if ($_SESSION["idade"] > 15) { ?>
+                                            <br><input type="checkbox" name="abs_com"> Categoria + Absoluto (Com Kimono)
+                                        <?php } ?>
+                                    <?php } ?>
+
+                                    <?php if ($eventoDetails->tipo_sem == 1) { ?>
+                                        <input type="checkbox" name="sem"> Categoria (Sem Kimono)
+                                        <?php if ($_SESSION["idade"] > 15) { ?>
+                                            <br><input type="checkbox" name="abs_sem"> Categoria + Absoluto (Sem Kimono)
+                                        <?php } ?>
+                                    <?php } ?>
+                                <?php } ?>
+
+                                <br>
+                                <?php if (!$eventoDetails->normal) {
+                                    ?>
+                                    <select name="modalidade" required readonly>
+                                        <option value="galo" <?= $categoriaAuto == 'galo' ? 'selected' : '' ?>>Galo</option>
+                                        <option value="pluma" <?= $categoriaAuto == 'pluma' ? 'selected' : '' ?>>Pluma</option>
+                                        <option value="pena" <?= $categoriaAuto == 'pena' ? 'selected' : '' ?>>Pena</option>
+                                        <option value="leve" <?= $categoriaAuto == 'leve' ? 'selected' : '' ?>>Leve</option>
+                                        <option value="medio" <?= $categoriaAuto == 'medio' ? 'selected' : '' ?>>Médio</option>
+                                        <option value="meio-pesado" <?= $categoriaAuto == 'meio-pesado' ? 'selected' : '' ?>>Meio-Pesado
+                                        </option>
+                                        <option value="pesado" <?= $categoriaAuto == 'pesado' ? 'selected' : '' ?>>Pesado</option>
+                                        <option value="super-pesado" <?= $categoriaAuto == 'super-pesado' ? 'selected' : '' ?>>Super-Pesado
+                                        </option>
+                                        <option value="pesadissimo" <?= $categoriaAuto == 'pesadissimo' ? 'selected' : '' ?>>Pesadíssimo
+                                        </option>
+                                        <?php if ($_SESSION["idade"] > 15) { ?>
+                                            <option value="super-pesadissimo" <?= $categoriaAuto == 'super-pesadissimo' ? 'selected' : '' ?>>
+                                                Super-Pesadíssimo</option>
+                                        <?php } ?>
+                                    </select>
+
+
+                                    <div class="termos">
+                                        <input type="checkbox" name="aceite_regulamento" id="aceite_regulamento" required>
+                                        <label for="aceite_regulamento">Li e aceito o regulamento</label>
+
+                                        <br>
+
+                                        <input type="checkbox" name="aceite_responsabilidade" id="aceite_responsabilidade" required>
+                                        <label for="aceite_responsabilidade">Aceito os termos de responsabilidade</label>
+                                    </div>
+                                <?php } ?>
+
+                                <input type="submit" value="Inscrever-se" class="botao-inscrever">
+                            </form>
+                            <?php
+                        } else {
+                            // USUÁRIO JÁ INSCRITO
+                            echo '<p class="aviso info">Você já está inscrito neste evento.</p>';
+                        }
+
+                    } else {
+                        // USUÁRIO NÃO LOGADO
+                        echo '<p class="aviso info">Faça <a href="/login.php">login</a> para se inscrever.</p>';
+                    }
+                }
+                ?>
+
+                <!-- Opções de administrador -->
+                <?php if (isset($_SESSION['admin']) && $_SESSION['admin']) { ?>
+                    <div class="chapa-options">
+                        <h3>Opções de Administrador</h3>
+                        <a href='admin/baixar_chapa.php?id=<?php echo $eventoId ?>'>Baixar Chapas (PDF)</a> |
+                    </div>
+                <?php } ?>
+                <br>
+                <a href="eventos.php" class="link">Voltar</a>
+                <?php if (isset($_SESSION['admin']) && $_SESSION["admin"] == 1) { ?>
+                    || <a href='/admin/editar_evento.php?id=<?php echo $eventoId ?>'>Editar Evento</a>
+                <?php } ?>
+            </div>
+        <?php } else { ?>
+            <p>Evento não encontrado.</p>
+            <a href="eventos.php">Voltar</a>
+        <?php } ?>
+    <?php } ?>
+
+    <?php include "menu/footer.php"; ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Grupos de checkboxes que são mutuamente exclusivos
+            const gruposExclusivos = [
+                ['com', 'abs_com'],     // Categoria Com Kimono vs Absoluto Com Kimono
+                ['sem', 'abs_sem']      // Categoria Sem Kimono vs Absoluto Sem Kimono
+            ];
+
+            // Para cada grupo de exclusividade
+            gruposExclusivos.forEach(grupo => {
+                const checkboxes = grupo.map(name => document.querySelector(`input[name="${name}"]`));
+
+                // Adiciona evento a cada checkbox do grupo
+                checkboxes.forEach(checkbox => {
+                    if (checkbox) {
+                        checkbox.addEventListener('change', function () {
+                            if (this.checked) {
+                                // Se este foi marcado, desmarca os outros do mesmo grupo
+                                checkboxes.forEach(otherCheckbox => {
+                                    if (otherCheckbox !== this && otherCheckbox) {
+                                        otherCheckbox.checked = false;
                                     }
                                 });
                             }
                         });
-                    });
+                    }
+                });
+            });
 
-                    // Validação no envio do formulário - verifica se pelo menos uma modalidade foi selecionada
-                    const form = document.querySelector('form');
-                    if (form) {
-                        form.addEventListener('submit', function (e) {
-                            // Verifica se pelo menos uma modalidade principal foi selecionada
-                            const comSelecionado = document.querySelector('input[name="com"]:checked');
-                            const semSelecionado = document.querySelector('input[name="sem"]:checked');
-                            const absComSelecionado = document.querySelector('input[name="abs_com"]:checked');
-                            const absSemSelecionado = document.querySelector('input[name="abs_sem"]:checked');
+            // Validação no envio do formulário - verifica se pelo menos uma modalidade foi selecionada
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    // Verifica se pelo menos uma modalidade principal foi selecionada
+                    const comSelecionado = document.querySelector('input[name="com"]:checked');
+                    const semSelecionado = document.querySelector('input[name="sem"]:checked');
+                    const absComSelecionado = document.querySelector('input[name="abs_com"]:checked');
+                    const absSemSelecionado = document.querySelector('input[name="abs_sem"]:checked');
 
-                            // Se nenhuma modalidade foi selecionada
-                            if (!comSelecionado && !semSelecionado && !absComSelecionado && !absSemSelecionado) {
-                                e.preventDefault();
-                                alert('Por favor, selecione pelo menos uma modalidade');
-                                return false;
-                            }
-
-                            return true;
-                        });
+                    // Se nenhuma modalidade foi selecionada
+                    if (!comSelecionado && !semSelecionado && !absComSelecionado && !absSemSelecionado) {
+                        e.preventDefault();
+                        alert('Por favor, selecione pelo menos uma modalidade');
+                        return false;
                     }
 
-                    // Validação adicional: se selecionar absoluto, verifica se é maior de 15 anos
-                    const checkboxesAbsoluto = document.querySelectorAll('input[name="abs_com"], input[name="abs_sem"]');
-                    checkboxesAbsoluto.forEach(checkbox => {
-                        if (checkbox) {
-                            checkbox.addEventListener('change', function () {
-                                if (this.checked) {
-                                    // Verifica se a idade está disponível na sessão (via PHP)
-                                    const idade = <?php echo isset($_SESSION['idade']) ? $_SESSION['idade'] : 0; ?>;
-                                    if (idade <= 15) {
-                                        alert('Absoluto disponível apenas para maiores de 15 anos');
-                                        this.checked = false;
-                                    }
-                                }
-                            });
+                    return true;
+                });
+            }
+
+            // Validação adicional: se selecionar absoluto, verifica se é maior de 15 anos
+            const checkboxesAbsoluto = document.querySelectorAll('input[name="abs_com"], input[name="abs_sem"]');
+            checkboxesAbsoluto.forEach(checkbox => {
+                if (checkbox) {
+                    checkbox.addEventListener('change', function () {
+                        if (this.checked) {
+                            // Verifica se a idade está disponível na sessão (via PHP)
+                            const idade = <?php echo isset($_SESSION['idade']) ? $_SESSION['idade'] : 0; ?>;
+                            if (idade <= 15) {
+                                alert('Absoluto disponível apenas para maiores de 15 anos');
+                                this.checked = false;
+                            }
                         }
                     });
-                });
-            </script>
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
