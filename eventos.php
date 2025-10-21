@@ -409,6 +409,288 @@ if (isset($_GET['id'])) {
 
                                 <input type="submit" value="Inscrever-se" class="botao-inscrever">
                             </form>
+
+                            <!-- Seção de Estatísticas Gerais do Evento -->
+                            <?php if (isset($eventoDetails) && (isset($_SESSION['admin']) || isset($_SESSION['logado']))) { ?>
+                                <div class="estatisticas-gerais">
+                                    <h3>📊 Estatísticas Gerais do Evento</h3>
+
+                                    <?php
+                                    try {
+                                        // Obter todos os inscritos no evento
+                                        $inscritos = $evserv->getInscritos($eventoId);
+
+                                        if (empty($inscritos)) {
+                                            echo '<p class="aviso info">Nenhum inscrito encontrado para este evento.</p>';
+                                        } else {
+                                            // Inicializar arrays para estatísticas
+                                            $estatisticas = [
+                                                'total_inscritos' => 0,
+                                                'por_faixa' => [],
+                                                'por_faixa_etaria' => [],
+                                                'por_categoria_peso' => [],
+                                                'por_genero' => [],
+                                                'por_modalidade' => [
+                                                    'com_kimono' => 0,
+                                                    'sem_kimono' => 0,
+                                                    'absoluto_com' => 0,
+                                                    'absoluto_sem' => 0
+                                                ],
+                                                'por_status_pagamento' => [],
+                                                'por_academia' => []
+                                            ];
+
+                                            // Processar cada inscrito
+                                            foreach ($inscritos as $inscrito) {
+                                                $estatisticas['total_inscritos']++;
+
+                                                // Estatísticas por faixa
+                                                $faixa = $inscrito->faixa ?? 'Não informada';
+                                                $estatisticas['por_faixa'][$faixa] = ($estatisticas['por_faixa'][$faixa] ?? 0) + 1;
+
+                                                // Calcular faixa etária
+                                                $idade = calcularIdade($inscrito->data_nascimento);
+                                                $faixa_etaria = determinarFaixaEtaria($idade);
+                                                $estatisticas['por_faixa_etaria'][$faixa_etaria] = ($estatisticas['por_faixa_etaria'][$faixa_etaria] ?? 0) + 1;
+
+                                                // Estatísticas por categoria de peso
+                                                if (!empty($inscrito->modalidade)) {
+                                                    $estatisticas['por_categoria_peso'][$inscrito->modalidade] = ($estatisticas['por_categoria_peso'][$inscrito->modalidade] ?? 0) + 1;
+                                                }
+
+                                                // Estatísticas por gênero
+                                                $genero = $inscrito->genero ?? 'Não informado';
+                                                $estatisticas['por_genero'][$genero] = ($estatisticas['por_genero'][$genero] ?? 0) + 1;
+
+                                                // Estatísticas por modalidade
+                                                if ($inscrito->mod_com)
+                                                    $estatisticas['por_modalidade']['com_kimono']++;
+                                                if ($inscrito->mod_sem)
+                                                    $estatisticas['por_modalidade']['sem_kimono']++;
+                                                if ($inscrito->mod_ab_com)
+                                                    $estatisticas['por_modalidade']['absoluto_com']++;
+                                                if ($inscrito->mod_ab_sem)
+                                                    $estatisticas['por_modalidade']['absoluto_sem']++;
+
+                                                // Estatísticas por academia
+                                                $academia = $inscrito->academia ?? 'Não informada';
+                                                $estatisticas['por_academia'][$academia] = ($estatisticas['por_academia'][$academia] ?? 0) + 1;
+                                            }
+
+                                            // Função auxiliar para exibir tabelas
+                                            function exibirTabelaEstatisticas($titulo, $dados, $coluna1 = 'Item', $coluna2 = 'Quantidade')
+                                            {
+                                                if (empty($dados))
+                                                    return '';
+
+                                                $html = '<div class="tabela-estatistica">';
+                                                $html .= '<h4>' . htmlspecialchars($titulo) . '</h4>';
+                                                $html .= '<table>';
+                                                $html .= '<tr><th>' . htmlspecialchars($coluna1) . '</th><th>' . htmlspecialchars($coluna2) . '</th></tr>';
+
+                                                foreach ($dados as $item => $quantidade) {
+                                                    $html .= '<tr>';
+                                                    $html .= '<td>' . htmlspecialchars($item) . '</td>';
+                                                    $html .= '<td>' . htmlspecialchars($quantidade) . '</td>';
+                                                    $html .= '</tr>';
+                                                }
+
+                                                $html .= '</table></div>';
+                                                return $html;
+                                            }
+                                            ?>
+
+                                            <!-- Resumo Geral -->
+                                            <div class="resumo-geral">
+                                                <h4>📈 Resumo Geral</h4>
+                                                <div class="resumo-cards">
+                                                    <div class="resumo-card">
+                                                        <span class="numero"><?php echo $estatisticas['total_inscritos']; ?></span>
+                                                        <span class="label">Total de Inscritos</span>
+                                                    </div>
+                                                    <div class="resumo-card">
+                                                        <span class="numero"><?php echo $estatisticas['por_modalidade']['com_kimono']; ?></span>
+                                                        <span class="label">Com Kimono</span>
+                                                    </div>
+                                                    <div class="resumo-card">
+                                                        <span class="numero"><?php echo $estatisticas['por_modalidade']['sem_kimono']; ?></span>
+                                                        <span class="label">Sem Kimono</span>
+                                                    </div>
+                                                    <div class="resumo-card">
+                                                        <span class="numero"><?php echo count($estatisticas['por_academia']); ?></span>
+                                                        <span class="label">Academias</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Grid de Estatísticas Detalhadas -->
+                                            <div class="estatisticas-grid">
+                                                <?php
+                                                // Exibir todas as tabelas de estatísticas
+                                                echo exibirTabelaEstatisticas('🎯 Por Faixa', $estatisticas['por_faixa'], 'Faixa', 'Atletas');
+                                                echo exibirTabelaEstatisticas('👥 Por Faixa Etária', $estatisticas['por_faixa_etaria'], 'Faixa Etária', 'Atletas');
+                                                echo exibirTabelaEstatisticas('⚖️ Por Categoria de Peso', $estatisticas['por_categoria_peso'], 'Categoria', 'Atletas');
+                                                echo exibirTabelaEstatisticas('🚻 Por Gênero', $estatisticas['por_genero'], 'Gênero', 'Atletas');
+                                                
+
+                                                // Estatísticas de modalidade formatadas
+                                                $modalidades_formatadas = [
+                                                    'Com Kimono' => $estatisticas['por_modalidade']['com_kimono'],
+                                                    'Sem Kimono' => $estatisticas['por_modalidade']['sem_kimono'],
+                                                    'Absoluto Com Kimono' => $estatisticas['por_modalidade']['absoluto_com'],
+                                                    'Absoluto Sem Kimono' => $estatisticas['por_modalidade']['absoluto_sem']
+                                                ];
+                                                echo exibirTabelaEstatisticas('🥋 Por Modalidade', $modalidades_formatadas, 'Modalidade', 'Atletas');
+                                                ?>
+                                            </div>
+
+                                            <!-- Top Academias -->
+                                            <?php if (!empty($estatisticas['por_academia'])) { ?>
+                                                <div class="top-academias">
+                                                    <h4>🏆 Top Academias</h4>
+                                                    <div class="ranking-academias">
+                                                        <?php
+                                                        // Ordenar academias por quantidade (decrescente)
+                                                        arsort($estatisticas['por_academia']);
+                                                        $contador = 0;
+
+                                                        foreach ($estatisticas['por_academia'] as $academia => $quantidade) {
+                                                            if ($contador >= 10)
+                                                                break; // Mostrar apenas top 10
+                                                            $contador++;
+
+                                                            echo '<div class="academia-item">';
+                                                            echo '<span class="posicao">#' . $contador . '</span>';
+                                                            echo '<span class="nome-academia">' . htmlspecialchars($academia) . '</span>';
+                                                            echo '<span class="quantidade-academia">' . $quantidade . ' atletas</span>';
+                                                            echo '</div>';
+                                                        }
+                                                        ?>
+                                                    </div>
+                                                </div>
+                                            <?php } ?>
+
+                                        <?php } ?>
+                                    <?php } catch (Exception $e) { ?>
+                                        <p class="aviso error">Erro ao carregar estatísticas: <?php echo htmlspecialchars($e->getMessage()); ?></p>
+                                    <?php } ?>
+                                </div>
+
+                                <style>
+                                    .estatisticas-gerais {
+                                        margin: 30px 0;
+                                        padding: 20px;
+                                        background: #f9f9f9;
+                                        border-radius: 10px;
+                                        border: 1px solid #ddd;
+                                    }
+
+                                    .resumo-cards {
+                                        display: grid;
+                                        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                                        gap: 15px;
+                                        margin: 20px 0;
+                                    }
+
+                                    .resumo-card {
+                                        background: white;
+                                        padding: 20px;
+                                        border-radius: 8px;
+                                        text-align: center;
+                                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                                        border-left: 4px solid #4CAF50;
+                                    }
+
+                                    .resumo-card .numero {
+                                        display: block;
+                                        font-size: 2em;
+                                        font-weight: bold;
+                                        color: #333;
+                                    }
+
+                                    .resumo-card .label {
+                                        font-size: 0.9em;
+                                        color: #666;
+                                    }
+
+                                    .estatisticas-grid {
+                                        display: grid;
+                                        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                                        gap: 20px;
+                                        margin: 20px 0;
+                                    }
+
+                                    .tabela-estatistica {
+                                        background: white;
+                                        padding: 15px;
+                                        border-radius: 8px;
+                                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                                    }
+
+                                    .tabela-estatistica table {
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                    }
+
+                                    .tabela-estatistica th,
+                                    .tabela-estatistica td {
+                                        padding: 8px 12px;
+                                        text-align: left;
+                                        border-bottom: 1px solid #ddd;
+                                    }
+
+                                    .tabela-estatistica th {
+                                        background-color: #f5f5f5;
+                                        font-weight: bold;
+                                    }
+
+                                    .top-academias {
+                                        margin-top: 30px;
+                                    }
+
+                                    .ranking-academias {
+                                        display: grid;
+                                        gap: 10px;
+                                        margin-top: 15px;
+                                    }
+
+                                    .academia-item {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                        padding: 10px 15px;
+                                        background: white;
+                                        border-radius: 6px;
+                                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                                    }
+
+                                    .posicao {
+                                        font-weight: bold;
+                                        color: #4CAF50;
+                                        min-width: 40px;
+                                    }
+
+                                    .nome-academia {
+                                        flex-grow: 1;
+                                        margin: 0 15px;
+                                    }
+
+                                    .quantidade-academia {
+                                        font-weight: bold;
+                                        color: #333;
+                                    }
+
+                                    @media (max-width: 768px) {
+                                        .resumo-cards {
+                                            grid-template-columns: repeat(2, 1fr);
+                                        }
+
+                                        .estatisticas-grid {
+                                            grid-template-columns: 1fr;
+                                        }
+                                    }
+                                </style>
+                            <?php } ?>
                             <?php
                         } else {
                             // USUÁRIO JÁ INSCRITO
