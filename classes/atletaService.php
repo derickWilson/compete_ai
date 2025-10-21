@@ -276,7 +276,7 @@ class atletaService
     public function listAll()
     {
         // Query para selecionar atletas com join para obter nome da academia
-        $query = "SELECT a.id, a.email, a.nome, a.faixa, f.nome as academia, a.validado 
+        $query = "SELECT a.id, a.email, a.nome, a.faixa, f.nome as academia, a.validado, a.responsavel
               FROM atleta AS a 
               JOIN academia_filiada as f ON f.id = a.academia
               ORDER BY f.nome, a.nome";
@@ -346,7 +346,7 @@ class atletaService
         validarPermissaoAdmin();
         // Query para selecionar atletas não validados com informações completas
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento,
-                     a.fone, f.nome as academia, a.faixa, a.peso
+                     a.fone, f.nome, a.responsavel as academia, a.faixa, a.peso
               FROM atleta a
               JOIN academia_filiada f ON f.id = a.academia
               WHERE a.validado = 0";
@@ -552,7 +552,8 @@ class atletaService
     public function getById($id)
     {
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto, a.academia as acadid,
-                    a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel, a.permissao_email
+                    a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel,
+                    a.permissao_email, a.responsavel
                     FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":id", $id);

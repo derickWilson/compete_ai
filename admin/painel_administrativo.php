@@ -28,6 +28,17 @@ try {
     <link rel="stylesheet" href="/style.css">
     <link rel="icon" href="/estilos/icone.jpeg">
     <title>Painel Administrativo</title>
+    <style>
+        /* Estilo para donos de academia no painel administrativo */
+        tr.dono-academia {
+            background-color: #e8f5e8 !important;
+            border-left: 4px solid #28a745;
+        }
+
+        tr.dono-academia:hover {
+            background-color: #d4edda !important;
+        }
+    </style>
 </head>
 
 <body>
@@ -51,16 +62,16 @@ try {
                                 <th>Ações</th>
                             </tr>
                         </thead>
+                        <!-- No corpo da tabela -->
                         <tbody>
-                            <?php foreach ($lista as $value){ ?>
-                                <tr>
+                            <?php foreach ($lista as $value) { ?>
+                                <tr class="<?php echo $value->responsavel == 1 ? 'dono-academia' : ''; ?>">
                                     <td><?php echo htmlspecialchars($value->nome); ?></td>
                                     <td><?php echo htmlspecialchars($value->email ?? 'N/A'); ?></td>
                                     <td>
                                         <span class="badge-faixa"><?php echo htmlspecialchars($value->faixa); ?></span>
                                     </td>
                                     <td><?php echo htmlspecialchars($value->academia); ?></td>
-                                    </td>
                                     <td>
                                         <span class="status status-pendente">
                                             <i class="fas fa-clock"></i> Pendente

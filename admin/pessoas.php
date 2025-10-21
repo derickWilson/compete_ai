@@ -19,6 +19,7 @@ try {
 
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -131,6 +132,20 @@ try {
             box-shadow: 0 2px 8px rgba(26, 54, 93, 0.2);
         }
 
+        /* Estilo para donos de academia */
+        tr.dono-academia {
+            background-color: #e8f5e8 !important;
+            border-left: 4px solid #28a745;
+        }
+
+        tr.dono-academia:hover {
+            background-color: #d4edda !important;
+        }
+
+        tr.dono-academia td {
+            font-weight: 600;
+        }
+
         /* ===== RESPONSIVIDADE ===== */
         @media (max-width: 768px) {
             .principal {
@@ -143,7 +158,8 @@ try {
                 margin-bottom: 20px;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 12px 8px;
                 font-size: 13px;
             }
@@ -169,12 +185,13 @@ try {
                 margin: 15px -10px;
                 width: calc(100% + 20px);
             }
-            
+
             table {
                 font-size: 12px;
             }
-            
-            th, td {
+
+            th,
+            td {
                 padding: 10px 6px;
             }
         }
@@ -207,12 +224,13 @@ try {
         }
     </style>
 </head>
+
 <body>
     <?php include "../menu/add_menu.php"; ?>
 
     <div class="principal">
         <h1 class="titulo-pagina">👥 Gerenciamento de Atletas</h1>
-        
+
         <div class="tabela-container">
             <?php if (empty($lista)): ?>
                 <div class="sem-registros">
@@ -230,24 +248,25 @@ try {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($lista as $value): ?>
-                            <tr>
+                        <?php foreach ($lista as $value) { ?>
+                            <tr class="<?php echo $value->responsavel == 1 ? 'dono-academia' : ''; ?>">
                                 <td class="destaque"><?php echo htmlspecialchars($value->nome); ?></td>
                                 <td><?php echo htmlspecialchars($value->faixa); ?></td>
                                 <td><?php echo htmlspecialchars($value->academia); ?></td>
                                 <td>
-                                    <span class="status <?php echo $value->validado == 1 ? 'status-validado' : 'status-pendente'; ?>">
+                                    <span
+                                        class="status <?php echo $value->validado == 1 ? 'status-validado' : 'status-pendente'; ?>">
                                         <?php echo $value->validado == 1 ? 'Validado' : 'Pendente'; ?>
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="controle.php?user=<?php echo htmlspecialchars($value->id, ENT_QUOTES, 'UTF-8'); ?>" 
-                                       class="btn-acao">
+                                    <a href="controle.php?user=<?php echo htmlspecialchars($value->id, ENT_QUOTES, 'UTF-8'); ?>"
+                                        class="btn-acao">
                                         Ver Detalhes
                                     </a>
                                 </td>
                             </tr>
-                        <?php endforeach; ?>
+                        <?php } ?>
                     </tbody>
                 </table>
             <?php endif; ?>
@@ -258,7 +277,7 @@ try {
 
     <script>
         // Melhorar experiência em dispositivos móveis
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Adicionar tooltips para informações truncadas em mobile
             const cells = document.querySelectorAll('td');
             cells.forEach(cell => {
@@ -270,7 +289,7 @@ try {
             // Feedback visual para cliques
             const links = document.querySelectorAll('.btn-acao');
             links.forEach(link => {
-                link.addEventListener('click', function(e) {
+                link.addEventListener('click', function (e) {
                     this.style.transform = 'scale(0.95)';
                     setTimeout(() => {
                         this.style.transform = '';
@@ -280,4 +299,5 @@ try {
         });
     </script>
 </body>
+
 </html>
