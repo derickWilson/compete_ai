@@ -17,7 +17,8 @@ function obterEstatisticasInscricoes($evserv, $eventoId, $idadeUsuario, $faixaUs
             'faixa' => $faixaUsuario,
             'peso' => $_SESSION["peso"] ?? 'N/A',
             'categoria' => $categoriaAuto,
-            'faixa_etaria' => $faixaEtaria
+            'faixa_etaria' => $faixaEtaria,
+            'idade' => $idadeUsuario
         ]
     ];
 
@@ -81,10 +82,12 @@ function renderizarEstatisticas($estatisticas) {
     // Informações do usuário
     $html .= '
     <div class="info-usuario">
-        <p>Sua Faixa: ' . htmlspecialchars($estatisticas['info_usuario']['faixa']) . '</p>
-        <p>Seu Peso: ' . htmlspecialchars($estatisticas['info_usuario']['peso']) . 'Kg</p>
-        <p>Sua Categoria: ' . htmlspecialchars($estatisticas['info_usuario']['categoria']) . '</p>
-        <p>Sua Faixa Etária: ' . htmlspecialchars($estatisticas['info_usuario']['faixa_etaria']) . '</p>
+        <p><strong>Suas Informações:</strong></p>
+        <p>Idade: ' . htmlspecialchars($estatisticas['info_usuario']['idade']) . ' anos</p>
+        <p>Faixa: ' . htmlspecialchars($estatisticas['info_usuario']['faixa']) . '</p>
+        <p>Peso: ' . htmlspecialchars($estatisticas['info_usuario']['peso']) . 'Kg</p>
+        <p>Categoria: ' . htmlspecialchars($estatisticas['info_usuario']['categoria']) . '</p>
+        <p>Faixa Etária: ' . htmlspecialchars($estatisticas['info_usuario']['faixa_etaria']) . '</p>
     </div>';
 
     $html .= '<p class="aviso-info"><strong>⚠️ Atenção:</strong> Os números abaixo estão sujeitos a alterações constantes</p>';
@@ -94,62 +97,92 @@ function renderizarEstatisticas($estatisticas) {
 
     // COM Kimono
     if ($estatisticas['com_kimono']) {
+        $comKimono = $estatisticas['com_kimono'];
         $html .= '
         <div class="modalidade-container">
             <h4>🥋 COM Kimono</h4>
             <div class="tabelas-wrapper">
                 <div class="tabela-container">
                     <table>
-                        <caption>' . htmlspecialchars($estatisticas['info_usuario']['categoria']) . '</caption>
-                        <tr><th>Pendentes</th><th>Confirmados</th></tr>
+                        <caption>Categoria - ' . htmlspecialchars($estatisticas['info_usuario']['categoria']) . '</caption>
                         <tr>
-                            <td>' . htmlspecialchars($estatisticas['com_kimono']['categoria']['pendentes']) . '</td>
-                            <td>' . htmlspecialchars($estatisticas['com_kimono']['categoria']['confirmados']) . '</td>
+                            <th>Pendentes</th>
+                            <th>Confirmados</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr>
+                            <td>' . htmlspecialchars($comKimono['categoria']['pendentes']) . '</td>
+                            <td>' . htmlspecialchars($comKimono['categoria']['confirmados']) . '</td>
+                            <td><strong>' . ($comKimono['categoria']['pendentes'] + $comKimono['categoria']['confirmados']) . '</strong></td>
                         </tr>
                     </table>
-                </div>
+                </div>';
+                
+        // Só mostra absoluto se o usuário for maior de 15 anos
+        if ($estatisticas['info_usuario']['idade'] > 15) {
+            $html .= '
                 <div class="tabela-container">
                     <table>
                         <caption>Absoluto</caption>
-                        <tr><th>Pendentes</th><th>Confirmados</th></tr>
                         <tr>
-                            <td>' . htmlspecialchars($estatisticas['com_kimono']['absoluto']['pendentes']) . '</td>
-                            <td>' . htmlspecialchars($estatisticas['com_kimono']['absoluto']['confirmados']) . '</td>
+                            <th>Pendentes</th>
+                            <th>Confirmados</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr>
+                            <td>' . htmlspecialchars($comKimono['absoluto']['pendentes']) . '</td>
+                            <td>' . htmlspecialchars($comKimono['absoluto']['confirmados']) . '</td>
+                            <td><strong>' . ($comKimono['absoluto']['pendentes'] + $comKimono['absoluto']['confirmados']) . '</strong></td>
                         </tr>
                     </table>
-                </div>
-            </div>
-        </div>';
+                </div>';
+        }
+        $html .= '</div></div>';
     }
 
     // SEM Kimono
     if ($estatisticas['sem_kimono']) {
+        $semKimono = $estatisticas['sem_kimono'];
         $html .= '
         <div class="modalidade-container">
             <h4>👊 SEM Kimono</h4>
             <div class="tabelas-wrapper">
                 <div class="tabela-container">
                     <table>
-                        <caption>' . htmlspecialchars($estatisticas['info_usuario']['categoria']) . '</caption>
-                        <tr><th>Pendentes</th><th>Confirmados</th></tr>
+                        <caption>Categoria - ' . htmlspecialchars($estatisticas['info_usuario']['categoria']) . '</caption>
                         <tr>
-                            <td>' . htmlspecialchars($estatisticas['sem_kimono']['categoria']['pendentes']) . '</td>
-                            <td>' . htmlspecialchars($estatisticas['sem_kimono']['categoria']['confirmados']) . '</td>
+                            <th>Pendentes</th>
+                            <th>Confirmados</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr>
+                            <td>' . htmlspecialchars($semKimono['categoria']['pendentes']) . '</td>
+                            <td>' . htmlspecialchars($semKimono['categoria']['confirmados']) . '</td>
+                            <td><strong>' . ($semKimono['categoria']['pendentes'] + $semKimono['categoria']['confirmados']) . '</strong></td>
                         </tr>
                     </table>
-                </div>
+                </div>';
+                
+        // Só mostra absoluto se o usuário for maior de 15 anos
+        if ($estatisticas['info_usuario']['idade'] > 15) {
+            $html .= '
                 <div class="tabela-container">
                     <table>
                         <caption>Absoluto</caption>
-                        <tr><th>Pendentes</th><th>Confirmados</th></tr>
                         <tr>
-                            <td>' . htmlspecialchars($estatisticas['sem_kimono']['absoluto']['pendentes']) . '</td>
-                            <td>' . htmlspecialchars($estatisticas['sem_kimono']['absoluto']['confirmados']) . '</td>
+                            <th>Pendentes</th>
+                            <th>Confirmados</th>
+                            <th>Total</th>
+                        </tr>
+                        <tr>
+                            <td>' . htmlspecialchars($semKimono['absoluto']['pendentes']) . '</td>
+                            <td>' . htmlspecialchars($semKimono['absoluto']['confirmados']) . '</td>
+                            <td><strong>' . ($semKimono['absoluto']['pendentes'] + $semKimono['absoluto']['confirmados']) . '</strong></td>
                         </tr>
                     </table>
-                </div>
-            </div>
-        </div>';
+                </div>';
+        }
+        $html .= '</div></div>';
     }
 
     $html .= '</div>';
