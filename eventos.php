@@ -411,7 +411,7 @@ if (isset($_GET['id'])) {
                             </form>
 
                             <!-- Seção de Estatísticas Gerais do Evento -->
-                            <?php if (isset($eventoDetails) && (isset($_SESSION['admin']) || isset($_SESSION['logado']))) { ?>
+                            <?php if (isset($eventoDetails) && (isset($_SESSION['admin']) && $_SESSION['admin'] == 1)) { ?>
                                 <div class="estatisticas-gerais">
                                     <h3>📊 Estatísticas Gerais do Evento</h3>
 
