@@ -51,6 +51,7 @@ try {
             margin-bottom: 20px;
             text-align: center;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            font-size: 2rem;
         }
 
         .table-responsive {
@@ -59,11 +60,28 @@ try {
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             background: var(--white);
+            position: relative;
+        }
+
+        .scroll-hint {
+            text-align: center;
+            padding: 8px;
+            background: var(--primary-light);
+            color: white;
+            font-size: 12px;
+            display: none;
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+        }
+
+        .scroll-hint i {
+            margin-right: 5px;
         }
 
         .inscricoes-table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 600px;
         }
 
         .inscricoes-table th {
@@ -72,11 +90,13 @@ try {
             padding: 12px;
             text-align: left;
             font-weight: 600;
+            white-space: nowrap;
         }
 
         .inscricoes-table td {
             padding: 10px;
             border-bottom: 1px solid #e0e0e0;
+            white-space: nowrap;
         }
 
         .inscricoes-table tr:hover {
@@ -116,6 +136,10 @@ try {
             font-size: 14px;
             transition: var(--transition);
             margin: 2px;
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
         }
 
         .btn-pagar {
@@ -125,6 +149,7 @@ try {
 
         .btn-pagar:hover {
             background-color: #218838;
+            transform: translateY(-1px);
         }
 
         .btn-visualizar {
@@ -134,6 +159,7 @@ try {
 
         .btn-visualizar:hover {
             background-color: var(--primary-dark);
+            transform: translateY(-1px);
         }
 
         .btn-editar {
@@ -143,6 +169,7 @@ try {
 
         .btn-editar:hover {
             background-color: #d4a017;
+            transform: translateY(-1px);
         }
 
         .valor-pago {
@@ -152,6 +179,133 @@ try {
             margin-top: 4px;
         }
 
+        .modalidade-cell {
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        /* Indicador de rolagem personalizado */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+        }
+
+        /* Estados vazios */
+        .nenhuma-inscricao {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin: 20px 0;
+        }
+
+        .nenhuma-inscricao i {
+            font-size: 48px;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        .nenhuma-inscricao h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .nenhuma-inscricao p {
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+
+        /* Cards alternativos para mobile */
+        .cards-inscricoes {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card-inscricao {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: var(--box-shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+
+        .card-title {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 5px;
+            flex: 1;
+        }
+
+        .card-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .card-details {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .card-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-detail:last-child {
+            border-bottom: none;
+        }
+
+        .card-label {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 12px;
+        }
+
+        .card-value {
+            color: var(--dark);
+            font-size: 12px;
+            text-align: right;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .card-actions .btn {
+            flex: 1;
+            min-width: 120px;
+            justify-content: center;
+            font-size: 12px;
+            padding: 8px 12px;
+        }
+
         /* Responsividade para a tabela */
         @media (max-width: 992px) {
             .inscricoes-table {
@@ -159,21 +313,29 @@ try {
             }
 
             .btn {
-                padding: 4px 8px;
-                font-size: 12px;
+                padding: 5px 10px;
+                font-size: 13px;
             }
         }
 
         @media (max-width: 768px) {
+            .scroll-hint {
+                display: block;
+            }
+
             .table-responsive {
                 margin: 0 -15px;
                 border-radius: 0;
             }
 
+            .inscricoes-table {
+                font-size: 13px;
+                min-width: 700px;
+            }
+
             .inscricoes-table th,
             .inscricoes-table td {
                 padding: 8px 6px;
-                font-size: 13px;
             }
 
             /* Mostra apenas colunas essenciais em mobile */
@@ -181,25 +343,90 @@ try {
             .inscricoes-table td:nth-child(1),
             .inscricoes-table th:nth-child(2),
             .inscricoes-table td:nth-child(2),
-            .inscricoes-table th:nth-child(10),
-            .inscricoes-table td:nth-child(10),
-            .inscricoes-table th:nth-child(11),
-            .inscricoes-table td:nth-child(11) {
+            .inscricoes-table th:nth-child(4),
+            .inscricoes-table td:nth-child(4),
+            .inscricoes-table th:nth-child(7),
+            .inscricoes-table td:nth-child(7),
+            .inscricoes-table th:nth-child(8),
+            .inscricoes-table td:nth-child(8) {
                 display: table-cell;
             }
 
-            .inscricoes-table th:nth-child(n+3):nth-child(-n+9),
-            .inscricoes-table td:nth-child(n+3):nth-child(-n+9) {
+            /* Oculta colunas menos importantes */
+            .inscricoes-table th:nth-child(3),
+            .inscricoes-table td:nth-child(3),
+            .inscricoes-table th:nth-child(5),
+            .inscricoes-table td:nth-child(5),
+            .inscricoes-table th:nth-child(6),
+            .inscricoes-table td:nth-child(6) {
                 display: none;
             }
 
             .btn {
-                display: block;
-                margin-bottom: 5px;
-                text-align: center;
+                display: inline-block;
+                margin: 2px;
                 font-size: 12px;
-                padding: 4px 8px;
+                padding: 6px 10px;
             }
+
+            /* Alterna para cards em telas muito pequenas */
+            @media (max-width: 576px) {
+                .table-responsive {
+                    display: none;
+                }
+
+                .cards-inscricoes {
+                    display: flex;
+                }
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .page-title {
+                font-size: 1.6rem;
+                margin-bottom: 15px;
+            }
+
+            .card-actions {
+                flex-direction: column;
+            }
+
+            .card-actions .btn {
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 10px;
+            }
+
+            .page-title {
+                font-size: 1.4rem;
+            }
+
+            .card-inscricao {
+                padding: 12px;
+            }
+
+            .card-actions .btn {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+        }
+
+        /* Animações */
+        .card-inscricao {
+            transition: var(--transition);
+        }
+
+        .card-inscricao:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
@@ -229,11 +456,118 @@ try {
         <?php endif; ?>
 
         <?php if (empty($inscritos)): ?>
-            <div class="alert-message info">
-                <i class="fas fa-info-circle"></i> Você não está inscrito em nenhum campeonato no momento.
+            <div class="nenhuma-inscricao">
+                <i class="fas fa-calendar-times"></i>
+                <h3>Nenhuma inscrição encontrada</h3>
+                <p>Você não está inscrito em nenhum campeonato no momento.</p>
+                <a href="eventos.php" class="botao-acao">
+                    <i class="fas fa-trophy"></i> Ver Campeonatos Disponíveis
+                </a>
             </div>
         <?php else: ?>
+            <!-- Versão Cards para Mobile -->
+            <div class="cards-inscricoes">
+                <?php foreach ($inscritos as $inscrito) {
+                    if (!is_object($inscrito)) continue;
+
+                    $statusPagamento = $inscrito->status_pagamento ?? 'PENDENTE';
+                    $cobrancaId = $inscrito->assas ?? null;
+                    $valorPago = isset($inscrito->valor_pago) ? 'R$ ' . number_format($inscrito->valor_pago, 2, ',', '.') : '--';
+
+                    if ($cobrancaId) {
+                        try {
+                            $statusInfo = $asaasService->verificarStatusCobranca($cobrancaId);
+                            $statusPagamento = $statusInfo['traduzido'];
+                        } catch (Exception $e) {
+                            $statusPagamento = 'ERRO';
+                        }
+                    }
+
+                    $statusClass = 'status-pendente';
+                    $statusIcon = 'fa-clock';
+
+                    switch (strtoupper($statusPagamento)) {
+                        case 'PAGO':
+                        case 'RECEIVED':
+                            $statusClass = 'status-pago';
+                            $statusIcon = 'fa-check-circle';
+                            break;
+                        case 'PENDENTE':
+                        case 'PENDING':
+                            $statusClass = 'status-pendente';
+                            $statusIcon = 'fa-clock';
+                            break;
+                        default:
+                            $statusClass = 'status-erro';
+                            $statusIcon = 'fa-exclamation-circle';
+                    }
+
+                    // Processar modalidades para mobile
+                    $modalidades_p = "";
+                    !empty($inscrito->mcom) ? $modalidades_p .= "C. Com<br>" : "";
+                    !empty($inscrito->msem) ? $modalidades_p .= "C. Sem<br>" : "";
+                    !empty($inscrito->macom) ? $modalidades_p .= "C.+Abs. Com<br>" : "";
+                    !empty($inscrito->masem) ? $modalidades_p .= "C.+Abs. Sem<br>" : "";
+                    ?>
+                    <div class="card-inscricao">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <?= htmlspecialchars($inscrito->campeonato ?? ''); ?>
+                            </div>
+                            <span class="card-status <?= $statusClass; ?>">
+                                <i class="fas <?= $statusIcon; ?>"></i> <?= htmlspecialchars($statusPagamento); ?>
+                            </span>
+                        </div>
+                        
+                        <div class="card-details">
+                            <div class="card-detail">
+                                <span class="card-label">Nº Inscrição:</span>
+                                <span class="card-value"><?= htmlspecialchars($_SESSION["id"] . ($inscrito->idC ?? '')); ?></span>
+                            </div>
+                            <div class="card-detail">
+                                <span class="card-label">Data:</span>
+                                <span class="card-value"><?= isset($inscrito->dia) ? date('d/m/Y', strtotime($inscrito->dia)) : ''; ?></span>
+                            </div>
+                            <div class="card-detail">
+                                <span class="card-label">Categoria:</span>
+                                <span class="card-value"><?= htmlspecialchars($inscrito->modalidade ?? ''); ?></span>
+                            </div>
+                            <div class="card-detail">
+                                <span class="card-label">Modalidades:</span>
+                                <span class="card-value modalidade-cell"><?= $modalidades_p; ?></span>
+                            </div>
+                            <div class="card-detail">
+                                <span class="card-label">Valor:</span>
+                                <span class="card-value"><?= htmlspecialchars($valorPago); ?></span>
+                            </div>
+                        </div>
+
+                        <div class="card-actions">
+                            <?php if ($cobrancaId): ?>
+                                <a href="pagamento.php?cobranca_id=<?= htmlspecialchars($cobrancaId); ?>" class="btn btn-visualizar">
+                                    <i class="fas fa-eye"></i> Ver Pagamento
+                                </a>
+                            <?php else: ?>
+                                <a href="pagamento.php?evento_id=<?= (int) ($inscrito->idC ?? 0); ?>" class="btn btn-pagar">
+                                    <i class="fas fa-money-bill-wave"></i> Pagar
+                                </a>
+                            <?php endif; ?>
+                            <a href="inscricao.php?inscricao=<?= (int) ($inscrito->idC ?? 0); ?>" class="btn btn-editar">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            <a href="eventos.php?id=<?= (int) ($inscrito->idC ?? 0); ?>" class="btn btn-visualizar">
+                                <i class="fas fa-info-circle"></i> Detalhes
+                            </a>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+
+            <!-- Versão Tabela para Desktop -->
             <div class="table-responsive">
+                <div class="scroll-hint">
+                    <i class="fas fa-arrows-left-right"></i> Arraste para ver mais colunas
+                </div>
                 <table class="inscricoes-table">
                     <thead>
                         <tr>
@@ -249,8 +583,7 @@ try {
                     </thead>
                     <tbody>
                         <?php foreach ($inscritos as $inscrito) {
-                            if (!is_object($inscrito))
-                                continue;
+                            if (!is_object($inscrito)) continue;
 
                             $statusPagamento = $inscrito->status_pagamento ?? 'PENDENTE';
                             $cobrancaId = $inscrito->assas ?? null;
@@ -265,8 +598,8 @@ try {
                                 }
                             }
 
-                            $statusClass = 'status-' . strtolower(str_replace(' ', '-', $statusPagamento));
-                            $statusIcon = 'fa-question-circle';
+                            $statusClass = 'status-pendente';
+                            $statusIcon = 'fa-clock';
 
                             switch (strtoupper($statusPagamento)) {
                                 case 'PAGO':
@@ -279,29 +612,29 @@ try {
                                     $statusClass = 'status-pendente';
                                     $statusIcon = 'fa-clock';
                                     break;
+                                default:
+                                    $statusClass = 'status-erro';
+                                    $statusIcon = 'fa-exclamation-circle';
                             }
+
+                            // Processar modalidades para desktop
+                            $modalidades_p = "";
+                            !empty($inscrito->mcom) ? $modalidades_p .= "Categoria Com Quimono<br>" : "";
+                            !empty($inscrito->msem) ? $modalidades_p .= "Categoria Sem Quimono<br>" : "";
+                            !empty($inscrito->macom) ? $modalidades_p .= "Categoria + Absoluto Com Quimono<br>" : "";
+                            !empty($inscrito->masem) ? $modalidades_p .= "Categoria + Absoluto Sem Quimono<br>" : "";
                             ?>
                             <tr>
                                 <td><?= htmlspecialchars($_SESSION["id"] . ($inscrito->idC ?? '')); ?></td>
                                 <td>
-                                    <a href="eventos.php?id=<?= (int) ($inscrito->idC ?? 0); ?>">
+                                    <a href="eventos.php?id=<?= (int) ($inscrito->idC ?? 0); ?>" class="link">
                                         <?= htmlspecialchars($inscrito->campeonato ?? ''); ?>
                                     </a>
                                 </td>
                                 <td><?= htmlspecialchars($inscrito->lugar ?? ''); ?></td>
                                 <td><?= isset($inscrito->dia) ? date('d/m/Y', strtotime($inscrito->dia)) : ''; ?></td>
                                 <td><?= htmlspecialchars($inscrito->modalidade ?? ''); ?></td>
-                                <?
-                                $modalidades_p = "";
-                                $modalidade_com = "";
-                                $modalidade_sem = "";
-                                !empty($inscrito->mcom) ? $modalidade_com = $modalidade_com."Categoria Com Quimono<br>" : "";
-                                !empty($inscrito->msem) ? $modalidade_sem = $modalidade_sem."Categoria Sem Quimono<br>" : "";
-                                !empty($inscrito->macom) ? $$modalidade_com = "Categoria + Absoluto Com Quimono<br>" : "";
-                                !empty($inscrito->masem) ? $modalidade_sem = "Categoria + Absoluto Sem Quimono<br>" : "";
-                                $modalidades_p = $modalidade_com . $modalidade_sem;
-                                echo '<td>'.$modalidades_p.'</td>';
-                                ?>
+                                <td class="modalidade-cell"><?= $modalidades_p; ?></td>
                                 <td>
                                     <span class="status <?= $statusClass; ?>">
                                         <i class="fas <?= $statusIcon; ?>"></i> <?= htmlspecialchars($statusPagamento); ?>
@@ -309,20 +642,20 @@ try {
                                     <span class="valor-pago"><?= htmlspecialchars($valorPago); ?></span>
                                 </td>
                                 <td>
-                                    <?php if ($cobrancaId): ?>
-                                        <a href="pagamento.php?cobranca_id=<?= htmlspecialchars($cobrancaId); ?>"
-                                            class="btn btn-visualizar">
-                                            <i class="fas fa-eye"></i> Ver Pagamento
+                                    <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                                        <?php if ($cobrancaId): ?>
+                                            <a href="pagamento.php?cobranca_id=<?= htmlspecialchars($cobrancaId); ?>" class="btn btn-visualizar">
+                                                <i class="fas fa-eye"></i> Ver Pagamento
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="pagamento.php?evento_id=<?= (int) ($inscrito->idC ?? 0); ?>" class="btn btn-pagar">
+                                                <i class="fas fa-money-bill-wave"></i> Pagar
+                                            </a>
+                                        <?php endif; ?>
+                                        <a href="inscricao.php?inscricao=<?= (int) ($inscrito->idC ?? 0); ?>" class="btn btn-editar">
+                                            <i class="fas fa-edit"></i> Editar
                                         </a>
-                                    <?php else: ?>
-                                        <a href="pagamento.php?evento_id=<?= (int) ($inscrito->idC ?? 0); ?>" class="btn btn-pagar">
-                                            <i class="fas fa-money-bill-wave"></i> Pagar
-                                        </a>
-                                    <?php endif; ?>
-                                    <a href="inscricao.php?inscricao=<?= (int) ($inscrito->idC ?? 0); ?>"
-                                        class="btn btn-editar">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </a>
+                                    </div>
                                 </td>
                             </tr>
                         <?php } ?>
