@@ -243,7 +243,7 @@ try {
         $atletas->__set("nome", cleanWords($_POST["nome"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
         $atletas->__set("cpf", cleanWords($_POST["cpf"]));
-        $atletas->__set("senha", password_hash($_POST["senha"], PASSWORD_BCRYPT));
+        $atletas->__set("senha", $_POST["senha"]);
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
@@ -322,7 +322,7 @@ try {
         $atletas->__set("nome", ucwords(cleanWords($_POST["nome"])));
         $atletas->__set("cpf", cleanWords($_POST["cpf"]));
         $atletas->__set("genero", cleanWords($_POST["genero"]));
-        $atletas->__set("senha", password_hash($_POST["senha"], PASSWORD_BCRYPT));
+        $atletas->__set("senha", $_POST["senha"]);
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("foto", $novoNomeFoto);
