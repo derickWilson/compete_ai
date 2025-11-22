@@ -294,6 +294,7 @@ try {
                         <th>ID</th>
                         <th>Atleta</th>
                         <th>Idade</th>
+                        <th>Faixa</th>
                         <th>Peso</th>
                         <th>Modalidade</th>
                         <th>Academia</th>
@@ -334,8 +335,10 @@ try {
                             <td><?= $inscrito->id ?></td>
                             <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
                             <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
+                            <td><?= htmlspecialchars($inscrito->faixa) ?></td>
                             <td><?= htmlspecialchars($inscrito->peso) ?></td>
-                            <td><?= htmlspecialchars($inscrito->modalidade) ?></td>
+                            <td><?= htmlspecialchars($inscrito->modalidade) ?> 
+                            <?= $inscrito->mod_ab_com == 1 ? ", Absoluto" : "";  ?></td>
                             <td><?= htmlspecialchars($inscrito->academia) ?></td>
                             <td class="<?= $statusClass ?>"><?= $statusText ?></td>
                             <td><?= $valorExibicao ?></td>

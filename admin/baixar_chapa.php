@@ -61,7 +61,7 @@ $inscritosValidos = array_filter($inscritos, function ($inscrito) use ($evento) 
 });
 
 // ----------------------------------------------------------------------------
-// FUNÇÃO PARA CORRIGIR INSCRIÇÕES APENAS NO ABSOLUTO
+// FUNÇÕES PARA CORRIGIR INSCRIÇÕES
 // ----------------------------------------------------------------------------
 
 /**
@@ -83,15 +83,52 @@ function corrigirInscricaoAbsoluto($inscrito)
     return $inscrito;
 }
 
-// Aplica a correção para todos os inscritos
+/**
+ * Remove inscrição no absoluto para atletas menores de 15 anos
+ * Absoluto é apenas para maiores de 15 anos
+ */
+function corrigirMenoresAbsoluto($inscrito)
+{
+    $idade = calcularIdade($inscrito->data_nascimento);
+    
+    // Se é menor de 15 anos, remove inscrição no absoluto
+    if ($idade < 15) {
+        $inscrito->mod_ab_com = 0;
+        $inscrito->mod_ab_sem = 0;
+    }
+    
+    return $inscrito;
+}
+
+/**
+ * Função para agrupar faixas conforme regras específicas por idade
+ * - Até 15 anos: Branca com Branca, Cinza com Amarela, Laranja com Verde
+ * - Acima de 15 anos: Cada faixa compete apenas com a mesma faixa
+ */
+function agruparFaixa($faixa, $idade)
+{
+    // Para atletas até 15 anos
+    if ($idade <= 15) {
+        return match($faixa) {
+            'Branca' => 'BRANCA',
+            'Cinza', 'Amarela' => 'CINZA/AMARELA',
+            'Laranja', 'Verde' => 'LARANJA/VERDE',
+            'Azul' => 'AZUL',
+            'Roxa' => 'ROXA',
+            'Marrom' => 'MARROM',
+            'Preta' => 'PRETA',
+            default => $faixa
+        };
+    }
+    
+    // Para atletas acima de 15 anos, cada faixa compete apenas com a mesma faixa
+    return $faixa;
+}
+
+// Aplica as correções para todos os inscritos
 foreach ($inscritosValidos as $inscrito) {
     $inscrito = corrigirInscricaoAbsoluto($inscrito);
-}
-function agruparFaixa($faixa)
-{
-    // Retorna a faixa original sem agrupamento
-    // Cada faixa compete apenas com a mesma faixa
-    return $faixa;
+    $inscrito = corrigirMenoresAbsoluto($inscrito);
 }
 
 // ----------------------------------------------------------------------------
@@ -114,11 +151,11 @@ foreach ($inscritosValidos as $inscrito) {
     if ($inscrito->mod_ab_com == 1) {
         $tipo = 'ABSOLUTO COM KIMONO';
         $eh_absoluto = true;
-    } else if ($inscrito->mod_com == 1) {
-        $tipo = 'COM KIMONO';
     } else if ($inscrito->mod_ab_sem == 1) {
         $tipo = 'ABSOLUTO SEM KIMONO';
         $eh_absoluto = true;
+    } else if ($inscrito->mod_com == 1) {
+        $tipo = 'COM KIMONO';
     } else if ($inscrito->mod_sem == 1) {
         $tipo = 'SEM KIMONO';
     }
@@ -127,14 +164,21 @@ foreach ($inscritosValidos as $inscrito) {
     if (empty($tipo))
         continue;
 
-    // Para categorias ABSOLUTAS, usar categoria "ABSOLUTO" mas manter divisão por faixa
-    if ($eh_absoluto) {
-        $categoria = 'ABSOLUTO';
-        $grupoFaixa = agruparFaixa($inscrito->faixa); // Mantém a faixa específica
-    } else {
-        // Para categorias normais, calcular idade e determinar categoria etária
-        $idade = calcularIdade($inscrito->data_nascimento);
+    // Calcula idade para determinar agrupamento de faixas e validar absoluto
+    $idade = calcularIdade($inscrito->data_nascimento);
 
+    // Para categorias ABSOLUTAS - apenas para maiores de 15 anos
+    if ($eh_absoluto) {
+        // Se é menor de 15 anos, pula esta inscrição no absoluto
+        if ($idade < 15) {
+            continue;
+        }
+        
+        $categoria = 'ABSOLUTO';
+        // No absoluto, faixas competem apenas com mesma faixa (acima de 15 anos)
+        $grupoFaixa = $inscrito->faixa;
+    } else {
+        // Para categorias normais, determinar categoria etária
         $categoria = match (true) {
             $idade >= 4 && $idade <= 5 => "PRE-MIRIM",
             $idade >= 6 && $idade <= 7 => "MIRIM 1",
@@ -148,12 +192,12 @@ foreach ($inscritosValidos as $inscrito) {
             default => "OUTROS"
         };
 
-        // Mantém faixa individual sem agrupamento
-        $grupoFaixa = agruparFaixa($inscrito->faixa);
+        // Aplica agrupamento de faixas considerando a idade
+        $grupoFaixa = agruparFaixa($inscrito->faixa, $idade);
     }
 
-    // Pula se não conseguir classificar a faixa (apenas para categorias não-absolutas)
-    if (empty($grupoFaixa) && !$eh_absoluto)
+    // Pula se não conseguir classificar a faixa
+    if (empty($grupoFaixa))
         continue;
 
     // Para categorias absolutas, usar "ABSOLUTO" como modalidade
@@ -224,17 +268,25 @@ uksort($chapeamento, function ($a, $b) {
         return $ordemTipoA - $ordemTipoB;
     }
 
-    // 3. Ordena por faixa (ordem de graduação)
+    // 3. Ordena por grupo de faixa (considerando agrupamentos)
     $orderFaixa = [
+        'BRANCA' => 0,
+        'CINZA/AMARELA' => 1,
+        'LARANJA/VERDE' => 2,
+        'AZUL' => 3,
+        'ROXA' => 4,
+        'MARROM' => 5,
+        'PRETA' => 6,
+        // Para faixas não agrupadas (acima de 15 anos e absoluto)
         'Branca' => 0,
         'Cinza' => 1,
-        'Amarela' => 2,
-        'Laranja' => 3,
-        'Verde' => 4,
-        'Azul' => 5,
-        'Roxa' => 6,
-        'Marrom' => 7,
-        'Preta' => 8
+        'Amarela' => 1,
+        'Laranja' => 2,
+        'Verde' => 2,
+        'Azul' => 3,
+        'Roxa' => 4,
+        'Marrom' => 5,
+        'Preta' => 6
     ];
 
     $ordemFaixaA = $orderFaixa[$faixaA] ?? 999;
