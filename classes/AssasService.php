@@ -126,18 +126,55 @@ class AssasService
         $emailAsaas = strtolower(trim($clienteAsaas['email']));
         $emailLocal = strtolower(trim($dadosLocais['email']));
 
-        if ($nomeAsaas != $nomeLocal) {
+        // Validação mais flexível para nome (permite pequenas diferenças)
+        $similaridadeNome = similar_text($nomeAsaas, $nomeLocal, $percentualNome);
+
+        if ($percentualNome < 80) { // Permite 80% de similaridade
             $dadosDivergentes[] = 'nome';
         }
-        if ($emailAsaas != $emailLocal) {
+
+        // Validação mais flexível para email (ignora case e espaços)
+        $emailAsaasNormalizado = preg_replace('/\s+/', '', $emailAsaas);
+        $emailLocalNormalizado = preg_replace('/\s+/', '', $emailLocal);
+
+        if ($emailAsaasNormalizado !== $emailLocalNormalizado) {
             $dadosDivergentes[] = 'email';
+
+            // ATUALIZA o email no Asaas se o CPF for o mesmo
+            $this->atualizarEmailCliente($clienteAsaas['id'], $dadosLocais['email']);
         }
 
         if (!empty($dadosDivergentes)) {
             file_put_contents(
                 'asaas_debug.log',
                 "\nAVISO: Dados divergentes para cliente existente - ID: {$clienteAsaas['id']}" .
-                "\nCampos divergentes: " . implode(', ', $dadosDivergentes),
+                "\nCampos divergentes: " . implode(', ', $dadosDivergentes) .
+                "\nSimilaridade do nome: " . round($percentualNome, 2) . "%",
+                FILE_APPEND
+            );
+        }
+    }
+
+    private function atualizarEmailCliente($clienteId, $novoEmail)
+    {
+        try {
+            $payload = [
+                'email' => filter_var($novoEmail, FILTER_SANITIZE_EMAIL)
+            ];
+
+            $this->sendRequest('PUT', '/customers/' . $clienteId, $payload);
+
+            file_put_contents(
+                'asaas_debug.log',
+                "\nEMAIL ATUALIZADO: Cliente $clienteId - Novo email: $novoEmail",
+                FILE_APPEND
+            );
+
+        } catch (Exception $e) {
+            // Log do erro, mas não impede o processo
+            file_put_contents(
+                'asaas_debug.log',
+                "\nERRO ao atualizar email do cliente $clienteId: " . $e->getMessage(),
                 FILE_APPEND
             );
         }
