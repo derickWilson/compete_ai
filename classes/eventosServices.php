@@ -113,7 +113,9 @@ class eventosService
     //listar todos os eventos
     public function listAll()
     {
-        $query = "SELECT id, nome, imagen, normal FROM evento WHERE data_evento >= CURRENT_DATE + INTERVAL 5 DAY";
+        $query = "SELECT id, nome, imagen, normal FROM evento 
+          WHERE DATE_ADD(data_evento, INTERVAL 7 DAY) >= CURRENT_DATE
+          ORDER BY data_evento ASC";
         $stmt = $this->conn->prepare($query);
         try {
             $stmt->execute();
