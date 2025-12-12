@@ -33,8 +33,13 @@ if (isset($_GET["inscricao"])) {
         header("Location: eventos_cadastrados.php");
         exit();
     }
-    $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
-    $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
+
+    if(!$inscricao->modalidade){
+        $categoriaAuto = determinarCategoriaPeso($_SESSION["peso"], $_SESSION["idade"], $_SESSION["genero"]);
+        $categoriaAuto = strtolower(str_replace('_', '-', $categoriaAuto));
+    }else{
+        $categoriaAuto = $inscricao->modalidade;
+    }
     // Verifica status do pagamento
     $statusPagamento = $inscricao->status_pagamento ?? 'PENDING';
     $cobrancaId = $inscricao->id_cobranca_asaas ?? null;
