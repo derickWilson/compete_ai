@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS evento(
     preco_sem_menor FLOAT(5,2),
     preco_sem_abs FLOAT(5,2),
     chaveamento VARCHAR(25),
+    cronograma VARCHAR(25) DEFAULT NULL;
     PRIMARY KEY (id)
 );
 

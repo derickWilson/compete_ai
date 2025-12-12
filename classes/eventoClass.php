@@ -19,7 +19,7 @@ class Evento {
     private $preco_sem_menor;
     private $preco_sem_abs;
     private $chaveamento;
-    
+    private $cronograma;
 
     // Método mágico __get para getters
     public function __get($atributo) {

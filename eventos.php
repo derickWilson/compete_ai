@@ -323,6 +323,13 @@ if (isset($_GET['id'])) {
                 <?php } else { ?>
                     <p><em>Chaveamento não disponível</em></p>
                 <?php } ?>
+
+                <!-- Na seção de links para download, adicione: -->
+                <?php if (!empty($eventoDetails->cronograma)) { ?>
+                    <p><a href="<?php echo '/docs/' . htmlspecialchars($eventoDetails->cronograma); ?>" download>Baixar Cronograma</a></p>
+                <?php } else { ?>
+                    <p><em>Cronograma não disponível</em></p>
+                <?php } ?>
                 <!-- Formulário de inscrição -->
                 <?php
                 // Primeiro verifica se as inscrições estão abertas ou encerradas

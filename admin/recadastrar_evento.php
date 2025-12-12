@@ -154,6 +154,55 @@ if (isset($_FILES['chaveamento_novo']) && $_FILES['chaveamento_novo']['error'] =
     $dadosEvento['chaveamento'] = $eventoAntigo->chaveamento ?? null; // CORREÇÃO: usar $dadosEvento
 }
 
+// Processamento do Cronograma (PDF)
+if (isset($_FILES['cronograma_novo']) && $_FILES['cronograma_novo']['error'] === UPLOAD_ERR_OK) {
+    // Validação do tipo de arquivo
+    $allowedTypes = ['application/pdf'];
+    $fileType = mime_content_type($_FILES['cronograma_novo']['tmp_name']);
+    
+    if (!in_array($fileType, $allowedTypes)) {
+        $_SESSION['mensagem'] = "Erro: O cronograma deve ser um arquivo PDF.";
+        header("Location: editar_evento.php?id=" . $eventoId);
+        exit();
+    }
+    
+    // Validação do tamanho (5MB)
+    //$maxSize = 5 * 1024 * 1024;
+    //if ($_FILES['cronograma_novo']['size'] > $maxSize) {
+    //    $_SESSION['mensagem'] = "Erro: O cronograma não pode ultrapassar 5MB.";
+    //    header("Location: editar_evento.php?id=" . $eventoId);
+    //    exit();
+    //}
+    
+    // Gerar nome único para o arquivo
+    $fileExtension = pathinfo($_FILES['cronograma_novo']['name'], PATHINFO_EXTENSION);
+    $newFilename = 'cron_' . $eventoId . '_' . time() . '.' . $fileExtension;
+    $uploadPath = '../docs/' . $newFilename;
+    
+    // Mover arquivo para o diretório
+    if (move_uploaded_file($_FILES['cronograma_novo']['tmp_name'], $uploadPath)) {
+        // Deletar cronograma antigo se existir
+        if (!empty($eventoDetails->cronograma)) {
+            $oldFilePath = '../docs/' . $eventoDetails->cronograma;
+            if (file_exists($oldFilePath)) {
+                unlink($oldFilePath);
+            }
+        }
+        
+        $evento->__set('cronograma', $newFilename);
+    } else {
+        $_SESSION['mensagem'] = "Erro ao fazer upload do cronograma.";
+        header("Location: editar_evento.php?id=" . $eventoId);
+        exit();
+    }
+} elseif (!empty($eventoDetails->cronograma)) {
+    // Manter o cronograma atual se não for enviado um novo
+    $evento->__set('cronograma', $eventoDetails->cronograma);
+} else {
+    // Se nenhum cronograma for enviado e não houver atual, limpar campo
+    $evento->__set('cronograma', null);
+}
+
 // Atualizar campos do formulário
 if (isset($_POST['nome_evento']) && !empty($_POST['nome_evento'])) {
     $dadosEvento['nome'] = cleanWords($_POST['nome_evento']);

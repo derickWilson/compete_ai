@@ -2,6 +2,7 @@
 session_start();
 require "../func/is_adm.php";
 is_adm();
+
 try {
     require_once "../classes/eventosServices.php";
     include "../func/clearWord.php";
@@ -90,14 +91,7 @@ unset($_SESSION['mensagem']);
                 <h3>Imagem do Evento</h3>
                 <?php if ($eventoDetails->imagen): ?>
                     <img src="/uploads/<?= htmlspecialchars($eventoDetails->imagen) ?>" width="300" alt="Imagem atual"><br>
-                <!-- deletar imagen-->
-                    <form method="POST" action="deletar_arquivo.php">
-                        <input type="button" class="danger" value="Excluir Imagen"><br>
-                        <input type="hidden" name="tipo" value="imagen">
-                        <input type="hidden" name="evento" value="<?= htmlspecialchars($eventoDetails->id) ?>">
-                        <input type="hidden" name="arquivo" value="<?= htmlspecialchars($eventoDetails->imagen) ?>">
-                    </form>
-                    <?php endif; ?>
+                <?php endif; ?>
                 <input type="file" name="imagen_nova" accept="image/jpeg,image/png">
                 <small>Formatos aceitos: JPEG, PNG (Máx. 5MB)</small>
             </div>
@@ -108,31 +102,36 @@ unset($_SESSION['mensagem']);
                 <?php if ($eventoDetails->doc): ?>
                     <a href="/docs/<?= htmlspecialchars($eventoDetails->doc) ?>" target="_blank">Visualizar PDF
                         atual</a><br>
-                        <!-- deletar imagen-->
-                    <form method="POST" action="deletar_arquivo.php">
-                        <input type="button" class="danger" value="Excluir ementa"><br>
-                        <input type="hidden" name="tipo" value="doc">
-                        <input type="hidden" name="evento" value="<?= htmlspecialchars($eventoDetails->id) ?>">
-                        <input type="hidden" name="arquivo" value="<?= htmlspecialchars($eventoDetails->doc) ?>">
-                    </form>
                 <?php endif; ?>
                 <input type="file" name="nDoc" accept=".pdf">
                 <small>Apenas PDF (Máx. 5MB)</small>
             </div>
+            <!-- Após a seção do Documento de Ementa, adicione: -->
             <div class="form-section">
                 <h3>Chaveamento (PDF)</h3>
                 <?php if ($eventoDetails->chaveamento): ?>
                     <a href="/docs/<?= htmlspecialchars($eventoDetails->chaveamento) ?>" target="_blank">Visualizar
                         chaveamento atual</a><br>
-                        <!-- deletar chaveamento-->
-                    <form method="POST" action="deletar_arquivo.php">
-                        <input type="button" class="danger" value="Excluir Imagen"><br>
-                        <input type="hidden" name="tipo" value="chaveamento">
-                        <input type="hidden" name="evento" value="<?= htmlspecialchars($eventoDetails->id) ?>">
-                        <input type="hidden" name="arquivo" value="<?= htmlspecialchars($eventoDetails->chaveamento) ?>">
-                    </form>
                 <?php endif; ?>
                 <input type="file" name="chaveamento_novo" accept=".pdf">
+                <small>Apenas PDF (Máx. 5MB)</small>
+            </div>
+
+            <!-- Adicione uma nova seção para o cronograma (após a seção do chaveamento): -->
+            <div class="form-section">
+                <h3>Cronograma (PDF)</h3>
+                <?php if ($eventoDetails->cronograma): ?>
+                    <a href="/docs/<?= htmlspecialchars($eventoDetails->cronograma) ?>" target="_blank">Visualizar
+                        cronograma atual</a><br>
+                    <!-- deletar cronograma -->
+                    <form method="POST" action="deletar_arquivo.php">
+                        <input type="button" class="danger" value="Excluir Cronograma"><br>
+                        <input type="hidden" name="tipo" value="cronograma">
+                        <input type="hidden" name="evento" value="<?= htmlspecialchars($eventoDetails->id) ?>">
+                        <input type="hidden" name="arquivo" value="<?= htmlspecialchars($eventoDetails->cronograma) ?>">
+                    </form>
+                <?php endif; ?>
+                <input type="file" name="cronograma_novo" accept=".pdf">
                 <small>Apenas PDF (Máx. 5MB)</small>
             </div>
 

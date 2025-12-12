@@ -76,7 +76,8 @@ class eventosService
         doc = :doc,
         normal = :normal,
         normal_preco = :normal_preco,
-        chaveamento = :chaveamento
+        chaveamento = :chaveamento,
+        cronograma = :cronograma
         WHERE id = :id";
 
         $stmt = $this->conn->prepare($query);
@@ -101,6 +102,7 @@ class eventosService
         $stmt->bindValue(':normal', $this->evento->__get('normal'), PDO::PARAM_STR);
         $stmt->bindValue(':normal_preco', $this->evento->__get('normal_preco'), PDO::PARAM_STR);
         $stmt->bindValue(':chaveamento', $this->evento->__get('chaveamento'), PDO::PARAM_STR);
+        $stmt->bindValue(':cronograma', $this->evento->__get('cronograma'), PDO::PARAM_STR);
         try {
             $result = $stmt->execute();
             return $result; // Retorna true/false para o chamador decidir o redirecionamento
@@ -146,7 +148,8 @@ class eventosService
                 doc,
                 normal AS normal,
                 normal_preco,
-                chaveamento
+                chaveamento,
+                cronograma
               FROM evento 
               WHERE id = :id";
 
@@ -636,7 +639,8 @@ class eventosService
 
         foreach ($diretorios as $tipo => $caminho) {
             $arquivo = $tipo === 'imagens' ? $evento->imagen :
-                ($tipo === 'documentos' ? ($evento->doc ?? $evento->chaveamento) : null);
+                ($tipo === 'documentos' ? ($evento->doc ?? $evento->chaveamento ?? $evento->cronograma) : null);
+
 
             if (!empty($arquivo)) {
                 $caminhoCompleto = $caminho . $arquivo;
@@ -660,10 +664,18 @@ class eventosService
         $diretorios = [
             'imagen' => __DIR__ . '/../uploads/',
             'doc' => __DIR__ . '/../docs/',
-            'chaveamento' => __DIR__ . '/../docs/'
+            'chaveamento' => __DIR__ . '/../docs/',
+            'cronograma' => __DIR__ . '/../docs/'
         ];
-        $tabela = $tipo === 'imagen' ? 'imagen' : ($tipo === 'doc' ? 'doc' : 'chaveamento');
-        $caminho = $diretorios[$tipo] . $arquivo;
+        $tabela = match($tipo) {
+                'imagen' => 'imagen',
+                'doc' => 'doc',
+                'chaveamento' => 'chaveamento',
+                'cronograma' => 'cronograma', // <-- NOVO CASO
+                default => throw new Exception("Tipo de arquivo inválido")
+            };
+            
+            $caminho = $diretorios[$tipo] . $arquivo;
         try {
             $query = "UPDATE evento SET {$tabela} = NULL WHERE id = :id";
 
