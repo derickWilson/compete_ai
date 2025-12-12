@@ -171,10 +171,11 @@ foreach ($inscritosValidos as $inscrito) {
     if (empty($grupoFaixa))
         continue;
 
+    // Chave organizada por: categoria_etaria, genero, grupoFaixa, modalidade
     if ($eh_absoluto) {
-        $chave = "{$inscrito->genero}|$grupoFaixa|$categoria_etaria|ABSOLUTO";
+        $chave = "$categoria_etaria|{$inscrito->genero}|$grupoFaixa|ABSOLUTO";
     } else {
-        $chave = "{$inscrito->genero}|$modalidade|$categoria_etaria|$grupoFaixa";
+        $chave = "$categoria_etaria|{$inscrito->genero}|$grupoFaixa|$modalidade";
     }
 
     if (!isset($chapeamento[$chave])) {
@@ -194,7 +195,7 @@ foreach ($inscritosValidos as $inscrito) {
 }
 
 // ----------------------------------------------------------------------------
-// ORDENAÇÃO DAS CATEGORIAS
+// ORDENAÇÃO DAS CATEGORIAS NA SEQUÊNCIA: IDADE, SEXO, FAIXA, CATEGORIA(PESO)
 // ----------------------------------------------------------------------------
 
 uksort($chapeamento, function ($a, $b) {
@@ -205,113 +206,78 @@ uksort($chapeamento, function ($a, $b) {
         return 0;
     }
 
+    // 1. Ordena por Categoria Etária (Idade)
+    $orderCategoria = [
+        "PRE-MIRIM" => 0,
+        "MIRIM 1" => 1,
+        "MIRIM 2" => 2,
+        "INFANTIL 1" => 3,
+        "INFANTIL 2" => 4,
+        "INFANTO-JUVENIL" => 5,
+        "JUVENIL" => 6,
+        "ADULTO" => 7,
+        "MASTER" => 8,
+        "OUTROS" => 9
+    ];
+
+    $ordemCatA = $orderCategoria[$partesA[0]] ?? 999;
+    $ordemCatB = $orderCategoria[$partesB[0]] ?? 999;
+
+    if ($ordemCatA !== $ordemCatB) {
+        return $ordemCatA - $ordemCatB;
+    }
+
+    // 2. Ordena por Sexo (Masculino primeiro)
+    if ($partesA[1] !== $partesB[1]) {
+        return $partesA[1] === 'Masculino' ? -1 : 1;
+    }
+
+    // 3. Ordena por Faixa
+    $orderFaixa = [
+        'BRANCA' => 0,
+        'CINZA/AMARELA' => 1,
+        'LARANJA/VERDE' => 2,
+        'AZUL' => 3,
+        'ROXA' => 4,
+        'MARROM' => 5,
+        'PRETA' => 6,
+        'Branca' => 0,
+        'Cinza' => 1,
+        'Amarela' => 1,
+        'Laranja' => 2,
+        'Verde' => 2,
+        'Azul' => 3,
+        'Roxa' => 4,
+        'Marrom' => 5,
+        'Preta' => 6
+    ];
+
+    $ordemFaixaA = $orderFaixa[$partesA[2]] ?? 999;
+    $ordemFaixaB = $orderFaixa[$partesB[2]] ?? 999;
+
+    if ($ordemFaixaA !== $ordemFaixaB) {
+        return $ordemFaixaA - $ordemFaixaB;
+    }
+
+    // 4. Ordena por Modalidade (Peso) - Normais primeiro, depois Absolutos
     $eh_absoluto_a = ($partesA[3] === 'ABSOLUTO');
     $eh_absoluto_b = ($partesB[3] === 'ABSOLUTO');
 
-    // 1. Normais primeiro, depois Absolutos
     if ($eh_absoluto_a !== $eh_absoluto_b) {
         return $eh_absoluto_a ? 1 : -1;
     }
 
-    // 2. Masculino primeiro
-    if ($partesA[0] !== $partesB[0]) {
-        return $partesA[0] === 'Masculino' ? -1 : 1;
-    }
-
+    // Se não é absoluto, ordena pelo peso
     if (!$eh_absoluto_a) {
-        // 3. Ordena por Peso
-        $numA = (float) preg_replace('/[^0-9.]/', '', $partesA[1]);
-        $numB = (float) preg_replace('/[^0-9.]/', '', $partesB[1]);
+        $numA = (float) preg_replace('/[^0-9.]/', '', $partesA[3]);
+        $numB = (float) preg_replace('/[^0-9.]/', '', $partesB[3]);
         
         if ($numA != $numB) {
             return $numA - $numB;
         }
-        
-        // 4. Ordena por Idade
-        $orderCategoria = [
-            "PRE-MIRIM" => 0,
-            "MIRIM 1" => 1,
-            "MIRIM 2" => 2,
-            "INFANTIL 1" => 3,
-            "INFANTIL 2" => 4,
-            "INFANTO-JUVENIL" => 5,
-            "JUVENIL" => 6,
-            "ADULTO" => 7,
-            "MASTER" => 8
-        ];
-
-        $ordemCatA = $orderCategoria[$partesA[2]] ?? 999;
-        $ordemCatB = $orderCategoria[$partesB[2]] ?? 999;
-
-        if ($ordemCatA !== $ordemCatB) {
-            return $ordemCatA - $ordemCatB;
-        }
-
-        // 5. Ordena por Faixa
-        $orderFaixa = [
-            'BRANCA' => 0,
-            'CINZA/AMARELA' => 1,
-            'LARANJA/VERDE' => 2,
-            'AZUL' => 3,
-            'ROXA' => 4,
-            'MARROM' => 5,
-            'PRETA' => 6,
-            'Branca' => 0,
-            'Cinza' => 1,
-            'Amarela' => 1,
-            'Laranja' => 2,
-            'Verde' => 2,
-            'Azul' => 3,
-            'Roxa' => 4,
-            'Marrom' => 5,
-            'Preta' => 6
-        ];
-
-        $ordemFaixaA = $orderFaixa[$partesA[3]] ?? 999;
-        $ordemFaixaB = $orderFaixa[$partesB[3]] ?? 999;
-
-        if ($ordemFaixaA !== $ordemFaixaB) {
-            return $ordemFaixaA - $ordemFaixaB;
-        }
     } else {
-        // Para ABSOLUTOS
-        $orderFaixa = [
-            'Branca' => 0,
-            'Cinza' => 1,
-            'Amarela' => 2,
-            'Laranja' => 3,
-            'Verde' => 4,
-            'Azul' => 5,
-            'Roxa' => 6,
-            'Marrom' => 7,
-            'Preta' => 8
-        ];
-
-        $ordemFaixaA = $orderFaixa[$partesA[1]] ?? 999;
-        $ordemFaixaB = $orderFaixa[$partesB[1]] ?? 999;
-
-        if ($ordemFaixaA !== $ordemFaixaB) {
-            return $ordemFaixaA - $ordemFaixaB;
-        }
-
-        $orderCategoria = [
-            "PRE-MIRIM" => 0,
-            "MIRIM 1" => 1,
-            "MIRIM 2" => 2,
-            "INFANTIL 1" => 3,
-            "INFANTIL 2" => 4,
-            "INFANTO-JUVENIL" => 5,
-            "JUVENIL" => 6,
-            "ADULTO" => 7,
-            "MASTER" => 8
-        ];
-
-        $ordemCatA = $orderCategoria[$partesA[2]] ?? 999;
-        $ordemCatB = $orderCategoria[$partesB[2]] ?? 999;
-
-        if ($ordemCatA !== $ordemCatB) {
-            return $ordemCatA - $ordemCatB;
-        }
+        // Para ABSOLUTOS, ordena por faixa novamente (já feito no passo 3)
+        // Se necessário, pode-se adicionar ordenação adicional aqui
     }
 
     return 0;
@@ -324,9 +290,9 @@ uksort($chapeamento, function ($a, $b) {
 $indiceCategorias = [];
 foreach ($chapeamento as $chave => $chapa) {
     if ($chapa['eh_absoluto']) {
-        $descricao = $chapa['genero'] . ' - ' . $chapa['faixa'] . ' - ' . $chapa['categoria_etaria'] . ' - ABSOLUTO';
+        $descricao = $chapa['categoria_etaria'] . ' - ' . $chapa['genero'] . ' - ' . $chapa['faixa'] . ' - ABSOLUTO';
     } else {
-        $descricao = $chapa['genero'] . ' - ' . $chapa['modalidade'] . ' - ' . $chapa['categoria_etaria'] . ' - ' . $chapa['faixa'];
+        $descricao = $chapa['categoria_etaria'] . ' - ' . $chapa['genero'] . ' - ' . $chapa['faixa'] . ' - ' . $chapa['modalidade'];
     }
     
     $indiceCategorias[] = [
@@ -512,11 +478,11 @@ foreach ($indiceCategorias as $idx => $categoriaItem) {
     $pdf->SetFont('helvetica', 'B', 14);
 
     if ($chapa['eh_absoluto']) {
-        $pdf->Cell(0, 10, $chapa['genero'] . ' - ' . $chapa['faixa'] . ' - ' . $chapa['categoria_etaria'] . ' - ABSOLUTO', 0, 1, 'C');
+        $pdf->Cell(0, 10, $chapa['categoria_etaria'] . ' - ' . $chapa['genero'] . ' - ' . $chapa['faixa'] . ' - ABSOLUTO', 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 8, 'Tipo: ' . $chapa['tipo'], 0, 1, 'C');
     } else {
-        $pdf->Cell(0, 10, $chapa['genero'] . ' - ' . $chapa['modalidade'] . ' - ' . $chapa['categoria_etaria'] . ' - ' . $chapa['faixa'], 0, 1, 'C');
+        $pdf->Cell(0, 10, $chapa['categoria_etaria'] . ' - ' . $chapa['genero'] . ' - ' . $chapa['faixa'] . ' - ' . $chapa['modalidade'], 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 8, 'Tipo: ' . $chapa['tipo'], 0, 1, 'C');
     }
