@@ -196,7 +196,8 @@ class eventosService
             JOIN inscricao i ON i.id_evento = e.id
             JOIN atleta a ON a.id = i.id_atleta
             JOIN academia_filiada f ON a.academia = f.id
-            WHERE e.id = :id";
+            WHERE e.id = :id
+            ORDER BY inscrito";
 
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
