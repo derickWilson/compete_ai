@@ -7,6 +7,7 @@ require_once __DIR__ . "/../classes/AssasService.php";
 require_once __DIR__ . "/../func/calcularIdade.php";
 require_once __DIR__ . "/../func/clearWord.php";
 require_once __DIR__ . "/../func/database.php";
+require_once __DIR__ . "/../func/determinar_categoria.php";
 
 // Verifica se o ID do evento foi especificado
 if (!isset($_GET['id'])) {
@@ -69,6 +70,76 @@ try {
                     0 // Valor zero para isenção
                 );
                 $_SESSION['mensagem'] = "Inscrição marcada como isenta com sucesso!";
+            } elseif ($action === 'atualizar_categoria') {
+                $novaCategoria = cleanWords($_POST['categoria']);
+
+                try {
+                    // Validação básica
+                    $categoriasPermitidas = [
+                        'galo',
+                        'pluma',
+                        'pena',
+                        'leve',
+                        'medio',
+                        'meio-pesado',
+                        'pesado',
+                        'super-pesado',
+                        'pesadissimo',
+                        'super-pesadissimo'
+                    ];
+
+                    if (!in_array($novaCategoria, $categoriasPermitidas)) {
+                        throw new Exception("Categoria inválida");
+                    }
+
+                    $conn = new Conexao();
+                    $pdo = $conn->conectar();
+
+                    // Atualiza a categoria no banco de dados
+                    $stmt = $pdo->prepare("UPDATE inscricao SET modalidade = :categoria WHERE id_atleta = :id_atleta AND id_evento = :id_evento");
+                    $stmt->execute([
+                        ':categoria' => $novaCategoria,
+                        ':id_atleta' => $idAtleta,
+                        ':id_evento' => $idEvento
+                    ]);
+
+                    // Verifica se atualizou
+                    if ($stmt->rowCount() > 0) {
+                        $_SESSION['mensagem'] = "Categoria do atleta atualizada com sucesso!";
+
+                        // Atualiza também a categoria de idade se necessário
+                        try {
+                            // Obtém dados do atleta
+                            $stmtAtleta = $pdo->prepare("SELECT data_nascimento FROM atleta WHERE id = :id_atleta");
+                            $stmtAtleta->execute([':id_atleta' => $idAtleta]);
+                            $atleta = $stmtAtleta->fetch(PDO::FETCH_OBJ);
+
+                            if ($atleta) {
+                                $idade = calcularIdade($atleta->data_nascimento);
+                                $categoria_idade = determinarFaixaEtaria($idade);
+
+                                // Atualiza categoria de idade
+                                $stmtIdade = $pdo->prepare("UPDATE inscricao SET categoria_idade = :categoria_idade WHERE id_atleta = :id_atleta AND id_evento = :id_evento");
+                                $stmtIdade->execute([
+                                    ':categoria_idade' => $categoria_idade,
+                                    ':id_atleta' => $idAtleta,
+                                    ':id_evento' => $idEvento
+                                ]);
+                            }
+                        } catch (Exception $e) {
+                            // Não interrompe o fluxo principal se falhar a atualização da categoria de idade
+                            error_log("Aviso: Não foi possível atualizar categoria de idade: " . $e->getMessage());
+                        }
+                    } else {
+                        $_SESSION['erro'] = "Nenhuma alteração realizada. Verifique se a categoria é diferente da atual.";
+                    }
+
+                } catch (Exception $e) {
+                    $_SESSION['erro'] = "Erro ao atualizar categoria: " . $e->getMessage();
+                }
+
+                header("Location: lista_inscritos.php?id=" . $idEvento);
+                exit();
             }
 
         } catch (Exception $e) {
@@ -304,7 +375,7 @@ try {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($inscritos as $inscrito){
+                    <?php foreach ($inscritos as $inscrito) {
                         $statusClass = 'status-outros';
                         $statusText = $inscrito->status_pagamento;
 
@@ -337,8 +408,29 @@ try {
                             <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
                             <td><?= htmlspecialchars($inscrito->faixa) ?></td>
                             <td><?= htmlspecialchars($inscrito->peso) ?></td>
-                            <td><?= htmlspecialchars($inscrito->modalidade) ?> 
-                            <?= $inscrito->mod_ab_com == 1 ? ", Absoluto" : "";  ?></td>
+                            <td>
+                                <form method="POST" class="action-form categoria-form">
+                                    <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
+                                    <input type="hidden" name="action" value="atualizar_categoria">
+                                    <select name="categoria" class="categoria-select" onchange="this.form.submit()">
+                                        <option value="galo" <?= $inscrito->modalidade == 'galo' ? 'selected' : '' ?>>Galo</option>
+                                        <option value="pluma" <?= $inscrito->modalidade == 'pluma' ? 'selected' : '' ?>>Pluma
+                                        </option>
+                                        <option value="pena" <?= $inscrito->modalidade == 'pena' ? 'selected' : '' ?>>Pena</option>
+                                        <option value="leve" <?= $inscrito->modalidade == 'leve' ? 'selected' : '' ?>>Leve</option>
+                                        <option value="medio" <?= $inscrito->modalidade == 'medio' ? 'selected' : '' ?>>Médio
+                                        </option>
+                                        <option value="meio-pesado" <?= $inscrito->modalidade == 'meio-pesado' ? 'selected' : '' ?>>Meio-Pesado</option>
+                                        <option value="pesado" <?= $inscrito->modalidade == 'pesado' ? 'selected' : '' ?>>Pesado
+                                        </option>
+                                        <option value="super-pesado" <?= $inscrito->modalidade == 'super-pesado' ? 'selected' : '' ?>>Super-Pesado</option>
+                                        <option value="pesadissimo" <?= $inscrito->modalidade == 'pesadissimo' ? 'selected' : '' ?>>Pesadíssimo</option>
+                                        <?php if (calcularIdade($inscrito->data_nascimento) > 15): ?>
+                                            <option value="super-pesadissimo" <?= $inscrito->modalidade == 'super-pesadissimo' ? 'selected' : '' ?>>Super-Pesadíssimo</option>
+                                        <?php endif; ?>
+                                    </select>
+                                </form>
+                            </td> <?= $inscrito->mod_ab_com == 1 ? ", Absoluto" : ""; ?></td>
                             <td><?= htmlspecialchars($inscrito->academia) ?></td>
                             <td class="<?= $statusClass ?>"><?= $statusText ?></td>
                             <td><?= $valorExibicao ?></td>
@@ -350,7 +442,7 @@ try {
                                     </a>
                                 <?php endif; ?>
 
-                                <?php if ($inscrito->status_pagamento === 'PENDING'){ ?>
+                                <?php if ($inscrito->status_pagamento === 'PENDING') { ?>
                                     <form class="action-form" method="POST"
                                         onsubmit="return confirm('Confirmar marcação como PAGO?')">
                                         <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
