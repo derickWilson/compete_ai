@@ -36,6 +36,10 @@ if (!$evento) {
 // Configuração de parâmetros opcionais
 $embaralhar = 1;
 
+// Verificar quais modalidades o evento suporta
+$eventoTipoCom = (bool) $evento->tipo_com;
+$eventoTipoSem = (bool) $evento->tipo_sem;
+
 // ----------------------------------------------------------------------------
 // PROCESSAMENTO DOS INSCRITOS VÁLIDOS
 // ----------------------------------------------------------------------------
@@ -61,14 +65,15 @@ $inscritosValidos = array_filter($inscritos, function ($inscrito) use ($evento) 
 // FUNÇÕES PARA CORRIGIR INSCRIÇÕES
 // ----------------------------------------------------------------------------
 
-function corrigirInscricaoAbsoluto($inscrito)
+function corrigirInscricaoAbsoluto($inscrito, $eventoTipoCom, $eventoTipoSem)
 {
     // Correção: Se está no absoluto, automaticamente está na categoria normal
-    if ($inscrito->mod_ab_com == 1 && $inscrito->mod_com == 0) {
+    // Mas só se o evento suportar essa modalidade
+    if ($inscrito->mod_ab_com == 1 && $inscrito->mod_com == 0 && $eventoTipoCom) {
         $inscrito->mod_com = 1;
     }
 
-    if ($inscrito->mod_ab_sem == 1 && $inscrito->mod_sem == 0) {
+    if ($inscrito->mod_ab_sem == 1 && $inscrito->mod_sem == 0 && $eventoTipoSem) {
         $inscrito->mod_sem = 1;
     }
 
@@ -121,9 +126,9 @@ function determinarCategoriaEtaria($idade)
     };
 }
 
-// Aplica as correções
+// Aplica as correções com verificação das modalidades do evento
 foreach ($inscritosValidos as $inscrito) {
-    $inscrito = corrigirInscricaoAbsoluto($inscrito);
+    $inscrito = corrigirInscricaoAbsoluto($inscrito, $eventoTipoCom, $eventoTipoSem);
     $inscrito = corrigirMenoresAbsoluto($inscrito);
 }
 
@@ -137,18 +142,24 @@ foreach ($inscritosValidos as $inscrito) {
     $idade = calcularIdade($inscrito->data_nascimento);
     $categoria_etaria = determinarCategoriaEtaria($idade);
     $grupoFaixa = agruparFaixa($inscrito->faixa, $idade);
+    $genero = trim($inscrito->genero); // Limpa espaços em branco
+    
+    // Validação do gênero
+    if ($genero !== 'Masculino' && $genero !== 'Feminino') {
+        continue; // Pula atletas com gênero inválido
+    }
     
     if (empty($grupoFaixa))
         continue;
 
-    // Processa modalidade COM KIMONO
-    if ($inscrito->mod_com == 1) {
+    // Processa modalidade COM KIMONO - APENAS SE O EVENTO SUPORTAR
+    if ($inscrito->mod_com == 1 && $eventoTipoCom) {
         // Adiciona à categoria normal (por peso)
-        $chave_normal = "$categoria_etaria|{$inscrito->genero}|$grupoFaixa|{$inscrito->modalidade}";
+        $chave_normal = "$categoria_etaria|$genero|$grupoFaixa|{$inscrito->modalidade}|COM";
         
         if (!isset($chapeamento[$chave_normal])) {
             $chapeamento[$chave_normal] = [
-                'genero' => $inscrito->genero,
+                'genero' => $genero,
                 'tipo' => 'COM KIMONO',
                 'faixa' => $grupoFaixa,
                 'categoria' => $categoria_etaria,
@@ -160,17 +171,17 @@ foreach ($inscritosValidos as $inscrito) {
         }
         
         // Adiciona o atleta à categoria normal
-        if (!in_array($inscrito, $chapeamento[$chave_normal]['atletas'])) {
+        if (!in_array($inscrito, $chapeamento[$chave_normal]['atletas'], true)) {
             $chapeamento[$chave_normal]['atletas'][] = $inscrito;
         }
 
-        // Se também está no absoluto COM KIMONO e tem idade >= 15
-        if ($inscrito->mod_ab_com == 1 && $idade >= 15) {
-            $chave_absoluto = "$categoria_etaria|{$inscrito->genero}|{$inscrito->faixa}|ABSOLUTO";
+        // Se também está no absoluto COM KIMONO e tem idade >= 15 E evento suporta
+        if ($inscrito->mod_ab_com == 1 && $idade >= 15 && $eventoTipoCom) {
+            $chave_absoluto = "$categoria_etaria|$genero|{$inscrito->faixa}|ABSOLUTO|COM";
             
             if (!isset($chapeamento[$chave_absoluto])) {
                 $chapeamento[$chave_absoluto] = [
-                    'genero' => $inscrito->genero,
+                    'genero' => $genero,
                     'tipo' => 'ABSOLUTO COM KIMONO',
                     'faixa' => $inscrito->faixa,
                     'categoria' => "ABSOLUTO " . $categoria_etaria,
@@ -182,22 +193,20 @@ foreach ($inscritosValidos as $inscrito) {
             }
             
             // Adiciona o atleta ao absoluto
-            if (!in_array($inscrito, $chapeamento[$chave_absoluto]['atletas'])) {
+            if (!in_array($inscrito, $chapeamento[$chave_absoluto]['atletas'], true)) {
                 $chapeamento[$chave_absoluto]['atletas'][] = $inscrito;
             }
         }
     }
 
-    // Processa modalidade SEM KIMONO
-    if ($inscrito->mod_sem == 1) {
+    // Processa modalidade SEM KIMONO - APENAS SE O EVENTO SUPORTAR
+    if ($inscrito->mod_sem == 1 && $eventoTipoSem) {
         // Adiciona à categoria normal (por peso) - SEM KIMONO
-        // Nota: Assumindo que a modalidade de peso é a mesma para COM e SEM kimono
-        // Se for diferente, precisaria de ajuste
-        $chave_normal_sem = "$categoria_etaria|{$inscrito->genero}|$grupoFaixa|{$inscrito->modalidade}";
+        $chave_normal_sem = "$categoria_etaria|$genero|$grupoFaixa|{$inscrito->modalidade}|SEM";
         
         if (!isset($chapeamento[$chave_normal_sem])) {
             $chapeamento[$chave_normal_sem] = [
-                'genero' => $inscrito->genero,
+                'genero' => $genero,
                 'tipo' => 'SEM KIMONO',
                 'faixa' => $grupoFaixa,
                 'categoria' => $categoria_etaria,
@@ -209,17 +218,17 @@ foreach ($inscritosValidos as $inscrito) {
         }
         
         // Adiciona o atleta à categoria normal SEM KIMONO
-        if (!in_array($inscrito, $chapeamento[$chave_normal_sem]['atletas'])) {
+        if (!in_array($inscrito, $chapeamento[$chave_normal_sem]['atletas'], true)) {
             $chapeamento[$chave_normal_sem]['atletas'][] = $inscrito;
         }
 
-        // Se também está no absoluto SEM KIMONO e tem idade >= 15
-        if ($inscrito->mod_ab_sem == 1 && $idade >= 15) {
-            $chave_absoluto_sem = "$categoria_etaria|{$inscrito->genero}|{$inscrito->faixa}|ABSOLUTO_SEM";
+        // Se também está no absoluto SEM KIMONO e tem idade >= 15 E evento suporta
+        if ($inscrito->mod_ab_sem == 1 && $idade >= 15 && $eventoTipoSem) {
+            $chave_absoluto_sem = "$categoria_etaria|$genero|{$inscrito->faixa}|ABSOLUTO|SEM";
             
             if (!isset($chapeamento[$chave_absoluto_sem])) {
                 $chapeamento[$chave_absoluto_sem] = [
-                    'genero' => $inscrito->genero,
+                    'genero' => $genero,
                     'tipo' => 'ABSOLUTO SEM KIMONO',
                     'faixa' => $inscrito->faixa,
                     'categoria' => "ABSOLUTO " . $categoria_etaria,
@@ -231,10 +240,20 @@ foreach ($inscritosValidos as $inscrito) {
             }
             
             // Adiciona o atleta ao absoluto SEM KIMONO
-            if (!in_array($inscrito, $chapeamento[$chave_absoluto_sem]['atletas'])) {
+            if (!in_array($inscrito, $chapeamento[$chave_absoluto_sem]['atletas'], true)) {
                 $chapeamento[$chave_absoluto_sem]['atletas'][] = $inscrito;
             }
         }
+    }
+}
+
+// ----------------------------------------------------------------------------
+// VERIFICAÇÃO E LIMPEZA DE CATEGORIAS VAZIAS
+// ----------------------------------------------------------------------------
+
+foreach ($chapeamento as $chave => $categoria) {
+    if (empty($categoria['atletas'])) {
+        unset($chapeamento[$chave]);
     }
 }
 
@@ -246,7 +265,7 @@ uksort($chapeamento, function ($a, $b) {
     $partesA = explode('|', $a);
     $partesB = explode('|', $b);
 
-    if (count($partesA) < 4 || count($partesB) < 4) {
+    if (count($partesA) < 5 || count($partesB) < 5) {
         return 0;
     }
 
@@ -304,8 +323,8 @@ uksort($chapeamento, function ($a, $b) {
     }
 
     // 4. Ordena por Modalidade - Normais primeiro, depois Absolutos
-    $eh_absoluto_a = (strpos($partesA[3], 'ABSOLUTO') !== false);
-    $eh_absoluto_b = (strpos($partesB[3], 'ABSOLUTO') !== false);
+    $eh_absoluto_a = ($partesA[3] === 'ABSOLUTO');
+    $eh_absoluto_b = ($partesB[3] === 'ABSOLUTO');
 
     if ($eh_absoluto_a !== $eh_absoluto_b) {
         return $eh_absoluto_a ? 1 : -1;
@@ -319,9 +338,23 @@ uksort($chapeamento, function ($a, $b) {
         if ($numA != $numB) {
             return $numA - $numB;
         }
+        
+        // Se peso igual, ordena por tipo (COM KIMONO primeiro, depois SEM KIMONO)
+        $tipoA = $partesA[4] === 'SEM' ? 1 : 0;
+        $tipoB = $partesB[4] === 'SEM' ? 1 : 0;
+        
+        if ($tipoA !== $tipoB) {
+            return $tipoA - $tipoB;
+        }
+    } else {
+        // Para absolutos, ordena por tipo (COM primeiro, depois SEM)
+        $tipoA = $partesA[4] === 'SEM' ? 1 : 0;
+        $tipoB = $partesB[4] === 'SEM' ? 1 : 0;
+        
+        if ($tipoA !== $tipoB) {
+            return $tipoA - $tipoB;
+        }
     }
-
-    // Para absolutos, mantém a ordem por faixa (já ordenada no passo 3)
 
     return 0;
 });
@@ -379,7 +412,27 @@ $pdf->Cell(0, 8, 'Data do Evento: ' . date('d/m/Y', strtotime($evento->data_even
 $pdf->Cell(0, 8, 'Local: ' . $evento->local_camp, 0, 1, 'C');
 $pdf->Cell(0, 8, 'Data de Emissão: ' . date('d/m/Y H:i:s'), 0, 1, 'C');
 
-$pdf->Ln(10);
+// Adiciona informações sobre as modalidades do evento
+$pdf->Ln(5);
+$pdf->SetFont('helvetica', 'B', 10);
+$pdf->Cell(0, 8, 'MODALIDADES DISPONÍVEIS:', 0, 1);
+$pdf->SetFont('helvetica', '', 10);
+
+$modalidades = [];
+if ($eventoTipoCom) {
+    $modalidades[] = 'COM KIMONO';
+}
+if ($eventoTipoSem) {
+    $modalidades[] = 'SEM KIMONO';
+}
+
+if (empty($modalidades)) {
+    $pdf->Cell(0, 6, 'Nenhuma modalidade disponível', 0, 1);
+} else {
+    $pdf->Cell(0, 6, implode(' | ', $modalidades), 0, 1);
+}
+
+$pdf->Ln(5);
 $pdf->SetFont('helvetica', '', 10);
 $pdf->MultiCell(0, 6, 'Este documento contém as chaves oficiais de competição organizadas por categoria, faixa, modalidade e idade.', 0, 'C');
 $pdf->Ln(5);
@@ -593,8 +646,8 @@ $atletasUnicos = [];
 foreach ($inscritosValidos as $inscrito) {
     if (!in_array($inscrito->id, $atletasUnicos)) {
         $atletasUnicos[] = $inscrito->id;
-        if ($inscrito->genero === 'Masculino') $masculino++;
-        else $feminino++;
+        if (trim($inscrito->genero) === 'Masculino') $masculino++;
+        else if (trim($inscrito->genero) === 'Feminino') $feminino++;
     }
 }
 
@@ -604,10 +657,11 @@ $absolutoCom = 0;
 $absolutoSem = 0;
 
 foreach ($inscritosValidos as $inscrito) {
-    if ($inscrito->mod_com == 1) $comKimono++;
-    if ($inscrito->mod_sem == 1) $semKimono++;
-    if ($inscrito->mod_ab_com == 1) $absolutoCom++;
-    if ($inscrito->mod_ab_sem == 1) $absolutoSem++;
+    // Só conta se o evento suporta a modalidade
+    if ($inscrito->mod_com == 1 && $eventoTipoCom) $comKimono++;
+    if ($inscrito->mod_sem == 1 && $eventoTipoSem) $semKimono++;
+    if ($inscrito->mod_ab_com == 1 && $eventoTipoCom) $absolutoCom++;
+    if ($inscrito->mod_ab_sem == 1 && $eventoTipoSem) $absolutoSem++;
 }
 
 // Tabela de estatísticas
@@ -633,17 +687,37 @@ $pdf->SetFont('helvetica', 'B', 11);
 $pdf->Cell(80, 10, 'DISTRIBUIÇÃO POR MODALIDADE', 0, 1);
 $pdf->SetFont('helvetica', '', 10);
 
-$pdf->Cell(80, 8, 'Com Kimono:', 0, 0);
-$pdf->Cell(0, 8, $comKimono, 0, 1);
+if ($eventoTipoCom) {
+    $pdf->Cell(80, 8, 'Com Kimono:', 0, 0);
+    $pdf->Cell(0, 8, $comKimono, 0, 1);
+}
 
-$pdf->Cell(80, 8, 'Sem Kimono:', 0, 0);
-$pdf->Cell(0, 8, $semKimono, 0, 1);
+if ($eventoTipoSem) {
+    $pdf->Cell(80, 8, 'Sem Kimono:', 0, 0);
+    $pdf->Cell(0, 8, $semKimono, 0, 1);
+}
 
-$pdf->Cell(80, 8, 'Absoluto Com Kimono:', 0, 0);
-$pdf->Cell(0, 8, $absolutoCom, 0, 1);
+if ($eventoTipoCom) {
+    $pdf->Cell(80, 8, 'Absoluto Com Kimono:', 0, 0);
+    $pdf->Cell(0, 8, $absolutoCom, 0, 1);
+}
 
-$pdf->Cell(80, 8, 'Absoluto Sem Kimono:', 0, 0);
-$pdf->Cell(0, 8, $absolutoSem, 0, 1);
+if ($eventoTipoSem) {
+    $pdf->Cell(80, 8, 'Absoluto Sem Kimono:', 0, 0);
+    $pdf->Cell(0, 8, $absolutoSem, 0, 1);
+}
+
+// Informação sobre modalidades do evento
+$pdf->Ln(5);
+$pdf->SetFont('helvetica', 'B', 10);
+$pdf->Cell(0, 8, 'MODALIDADES DO EVENTO:', 0, 1);
+$pdf->SetFont('helvetica', '', 9);
+
+$modalidadesEvento = [];
+if ($eventoTipoCom) $modalidadesEvento[] = 'COM KIMONO';
+if ($eventoTipoSem) $modalidadesEvento[] = 'SEM KIMONO';
+
+$pdf->Cell(0, 6, implode(' | ', $modalidadesEvento), 0, 1);
 
 $pdf->Ln(10);
 $pdf->SetFont('helvetica', 'I', 10);
