@@ -63,6 +63,7 @@ $inscritosValidos = array_filter($inscritos, function ($inscrito) use ($evento) 
 
 function corrigirInscricaoAbsoluto($inscrito)
 {
+    // Correção: Se está no absoluto, automaticamente está na categoria normal
     if ($inscrito->mod_ab_com == 1 && $inscrito->mod_com == 0) {
         $inscrito->mod_com = 1;
     }
@@ -133,65 +134,108 @@ foreach ($inscritosValidos as $inscrito) {
 $chapeamento = [];
 
 foreach ($inscritosValidos as $inscrito) {
-    $tipo = '';
-    $eh_absoluto = false;
-
-    if ($inscrito->mod_ab_com == 1) {
-        $tipo = 'ABSOLUTO COM KIMONO';
-        $eh_absoluto = true;
-    } else if ($inscrito->mod_ab_sem == 1) {
-        $tipo = 'ABSOLUTO SEM KIMONO';
-        $eh_absoluto = true;
-    } else if ($inscrito->mod_com == 1) {
-        $tipo = 'COM KIMONO';
-    } else if ($inscrito->mod_sem == 1) {
-        $tipo = 'SEM KIMONO';
-    }
-
-    if (empty($tipo))
-        continue;
-
     $idade = calcularIdade($inscrito->data_nascimento);
     $categoria_etaria = determinarCategoriaEtaria($idade);
-
-    if ($eh_absoluto) {
-        if ($idade < 15) {
-            continue;
-        }
-        
-        $categoria = "ABSOLUTO " . $categoria_etaria;
-        $grupoFaixa = $inscrito->faixa;
-        $modalidade = 'ABSOLUTO';
-    } else {
-        $categoria = $categoria_etaria;
-        $grupoFaixa = agruparFaixa($inscrito->faixa, $idade);
-        $modalidade = $inscrito->modalidade;
-    }
-
+    $grupoFaixa = agruparFaixa($inscrito->faixa, $idade);
+    
     if (empty($grupoFaixa))
         continue;
 
-    // Chave organizada por: categoria_etaria, genero, grupoFaixa, modalidade
-    if ($eh_absoluto) {
-        $chave = "$categoria_etaria|{$inscrito->genero}|$grupoFaixa|ABSOLUTO";
-    } else {
-        $chave = "$categoria_etaria|{$inscrito->genero}|$grupoFaixa|$modalidade";
+    // Processa modalidade COM KIMONO
+    if ($inscrito->mod_com == 1) {
+        // Adiciona à categoria normal (por peso)
+        $chave_normal = "$categoria_etaria|{$inscrito->genero}|$grupoFaixa|{$inscrito->modalidade}";
+        
+        if (!isset($chapeamento[$chave_normal])) {
+            $chapeamento[$chave_normal] = [
+                'genero' => $inscrito->genero,
+                'tipo' => 'COM KIMONO',
+                'faixa' => $grupoFaixa,
+                'categoria' => $categoria_etaria,
+                'modalidade' => $inscrito->modalidade,
+                'categoria_etaria' => $categoria_etaria,
+                'eh_absoluto' => false,
+                'atletas' => []
+            ];
+        }
+        
+        // Adiciona o atleta à categoria normal
+        if (!in_array($inscrito, $chapeamento[$chave_normal]['atletas'])) {
+            $chapeamento[$chave_normal]['atletas'][] = $inscrito;
+        }
+
+        // Se também está no absoluto COM KIMONO e tem idade >= 15
+        if ($inscrito->mod_ab_com == 1 && $idade >= 15) {
+            $chave_absoluto = "$categoria_etaria|{$inscrito->genero}|{$inscrito->faixa}|ABSOLUTO";
+            
+            if (!isset($chapeamento[$chave_absoluto])) {
+                $chapeamento[$chave_absoluto] = [
+                    'genero' => $inscrito->genero,
+                    'tipo' => 'ABSOLUTO COM KIMONO',
+                    'faixa' => $inscrito->faixa,
+                    'categoria' => "ABSOLUTO " . $categoria_etaria,
+                    'modalidade' => 'ABSOLUTO',
+                    'categoria_etaria' => $categoria_etaria,
+                    'eh_absoluto' => true,
+                    'atletas' => []
+                ];
+            }
+            
+            // Adiciona o atleta ao absoluto
+            if (!in_array($inscrito, $chapeamento[$chave_absoluto]['atletas'])) {
+                $chapeamento[$chave_absoluto]['atletas'][] = $inscrito;
+            }
+        }
     }
 
-    if (!isset($chapeamento[$chave])) {
-        $chapeamento[$chave] = [
-            'genero' => $inscrito->genero,
-            'tipo' => $tipo,
-            'faixa' => $grupoFaixa,
-            'categoria' => $categoria,
-            'modalidade' => $modalidade,
-            'categoria_etaria' => $categoria_etaria,
-            'eh_absoluto' => $eh_absoluto,
-            'atletas' => []
-        ];
-    }
+    // Processa modalidade SEM KIMONO
+    if ($inscrito->mod_sem == 1) {
+        // Adiciona à categoria normal (por peso) - SEM KIMONO
+        // Nota: Assumindo que a modalidade de peso é a mesma para COM e SEM kimono
+        // Se for diferente, precisaria de ajuste
+        $chave_normal_sem = "$categoria_etaria|{$inscrito->genero}|$grupoFaixa|{$inscrito->modalidade}";
+        
+        if (!isset($chapeamento[$chave_normal_sem])) {
+            $chapeamento[$chave_normal_sem] = [
+                'genero' => $inscrito->genero,
+                'tipo' => 'SEM KIMONO',
+                'faixa' => $grupoFaixa,
+                'categoria' => $categoria_etaria,
+                'modalidade' => $inscrito->modalidade,
+                'categoria_etaria' => $categoria_etaria,
+                'eh_absoluto' => false,
+                'atletas' => []
+            ];
+        }
+        
+        // Adiciona o atleta à categoria normal SEM KIMONO
+        if (!in_array($inscrito, $chapeamento[$chave_normal_sem]['atletas'])) {
+            $chapeamento[$chave_normal_sem]['atletas'][] = $inscrito;
+        }
 
-    $chapeamento[$chave]['atletas'][] = $inscrito;
+        // Se também está no absoluto SEM KIMONO e tem idade >= 15
+        if ($inscrito->mod_ab_sem == 1 && $idade >= 15) {
+            $chave_absoluto_sem = "$categoria_etaria|{$inscrito->genero}|{$inscrito->faixa}|ABSOLUTO_SEM";
+            
+            if (!isset($chapeamento[$chave_absoluto_sem])) {
+                $chapeamento[$chave_absoluto_sem] = [
+                    'genero' => $inscrito->genero,
+                    'tipo' => 'ABSOLUTO SEM KIMONO',
+                    'faixa' => $inscrito->faixa,
+                    'categoria' => "ABSOLUTO " . $categoria_etaria,
+                    'modalidade' => 'ABSOLUTO',
+                    'categoria_etaria' => $categoria_etaria,
+                    'eh_absoluto' => true,
+                    'atletas' => []
+                ];
+            }
+            
+            // Adiciona o atleta ao absoluto SEM KIMONO
+            if (!in_array($inscrito, $chapeamento[$chave_absoluto_sem]['atletas'])) {
+                $chapeamento[$chave_absoluto_sem]['atletas'][] = $inscrito;
+            }
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -259,9 +303,9 @@ uksort($chapeamento, function ($a, $b) {
         return $ordemFaixaA - $ordemFaixaB;
     }
 
-    // 4. Ordena por Modalidade (Peso) - Normais primeiro, depois Absolutos
-    $eh_absoluto_a = ($partesA[3] === 'ABSOLUTO');
-    $eh_absoluto_b = ($partesB[3] === 'ABSOLUTO');
+    // 4. Ordena por Modalidade - Normais primeiro, depois Absolutos
+    $eh_absoluto_a = (strpos($partesA[3], 'ABSOLUTO') !== false);
+    $eh_absoluto_b = (strpos($partesB[3], 'ABSOLUTO') !== false);
 
     if ($eh_absoluto_a !== $eh_absoluto_b) {
         return $eh_absoluto_a ? 1 : -1;
@@ -275,10 +319,9 @@ uksort($chapeamento, function ($a, $b) {
         if ($numA != $numB) {
             return $numA - $numB;
         }
-    } else {
-        // Para ABSOLUTOS, ordena por faixa novamente (já feito no passo 3)
-        // Se necessário, pode-se adicionar ordenação adicional aqui
     }
+
+    // Para absolutos, mantém a ordem por faixa (já ordenada no passo 3)
 
     return 0;
 });
@@ -546,9 +589,13 @@ $pdf->Ln(10);
 // Estatísticas
 $masculino = 0;
 $feminino = 0;
+$atletasUnicos = [];
 foreach ($inscritosValidos as $inscrito) {
-    if ($inscrito->genero === 'Masculino') $masculino++;
-    else $feminino++;
+    if (!in_array($inscrito->id, $atletasUnicos)) {
+        $atletasUnicos[] = $inscrito->id;
+        if ($inscrito->genero === 'Masculino') $masculino++;
+        else $feminino++;
+    }
 }
 
 $comKimono = 0;
@@ -571,8 +618,8 @@ $pdf->SetFont('helvetica', '', 10);
 $pdf->Cell(80, 8, 'Total de Categorias:', 0, 0);
 $pdf->Cell(0, 8, $totalCategorias, 0, 1);
 
-$pdf->Cell(80, 8, 'Total de Atletas:', 0, 0);
-$pdf->Cell(0, 8, $totalAtletas, 0, 1);
+$pdf->Cell(80, 8, 'Total de Atletas Únicos:', 0, 0);
+$pdf->Cell(0, 8, count($atletasUnicos), 0, 1);
 
 $pdf->Cell(80, 8, 'Atletas Masculinos:', 0, 0);
 $pdf->Cell(0, 8, $masculino, 0, 1);
