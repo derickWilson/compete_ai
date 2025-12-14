@@ -414,23 +414,25 @@ try {
                                     <input type="hidden" name="action" value="atualizar_categoria">
                                     <select name="categoria" class="categoria-select" onchange="this.form.submit()">
                                         <option value="galo" <?= $inscrito->modalidade == 'galo' ? 'selected' : '' ?>>Galo</option>
-                                        <option value="pluma" <?= $inscrito->modalidade == 'pluma' ? 'selected' : '' ?>>Pluma
-                                        </option>
+                                        <option value="pluma" <?= $inscrito->modalidade == 'pluma' ? 'selected' : '' ?>>Pluma</option>
                                         <option value="pena" <?= $inscrito->modalidade == 'pena' ? 'selected' : '' ?>>Pena</option>
                                         <option value="leve" <?= $inscrito->modalidade == 'leve' ? 'selected' : '' ?>>Leve</option>
-                                        <option value="medio" <?= $inscrito->modalidade == 'medio' ? 'selected' : '' ?>>Médio
-                                        </option>
+                                        <option value="medio" <?= $inscrito->modalidade == 'medio' ? 'selected' : '' ?>>Médio</option>
                                         <option value="meio-pesado" <?= $inscrito->modalidade == 'meio-pesado' ? 'selected' : '' ?>>Meio-Pesado</option>
-                                        <option value="pesado" <?= $inscrito->modalidade == 'pesado' ? 'selected' : '' ?>>Pesado
-                                        </option>
+                                        <option value="pesado" <?= $inscrito->modalidade == 'pesado' ? 'selected' : '' ?>>Pesado</option>
                                         <option value="super-pesado" <?= $inscrito->modalidade == 'super-pesado' ? 'selected' : '' ?>>Super-Pesado</option>
                                         <option value="pesadissimo" <?= $inscrito->modalidade == 'pesadissimo' ? 'selected' : '' ?>>Pesadíssimo</option>
                                         <?php if (calcularIdade($inscrito->data_nascimento) > 15): ?>
                                             <option value="super-pesadissimo" <?= $inscrito->modalidade == 'super-pesadissimo' ? 'selected' : '' ?>>Super-Pesadíssimo</option>
                                         <?php endif; ?>
                                     </select>
+                                    <?php if ($inscrito->mod_ab_com == 1 || $inscrito->mod_ab_sem == 1): ?>
+                                        <div class="absoluto-badge">
+                                            <small><strong>Absoluto</strong></small>
+                                        </div>
+                                    <?php endif; ?>
                                 </form>
-                            </td> <?= $inscrito->mod_ab_com == 1 ? ", Absoluto" : ""; ?></td>
+                            </td>
                             <td><?= htmlspecialchars($inscrito->academia) ?></td>
                             <td class="<?= $statusClass ?>"><?= $statusText ?></td>
                             <td><?= $valorExibicao ?></td>
