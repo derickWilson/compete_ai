@@ -62,17 +62,17 @@ function enviarEmailRecuperacaoSMTP($destinatario, $codigo)
         $mail->isSMTP();
         $mail->Host = 'mail.fpjji.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'wsaazizbjj@fpjji.com';
-        $mail->Password = '<De21b026bf1ae9b802ff094f187e33813>';
+        $mail->Username = '';
+        $mail->Password = '';
         $mail->SMTPSecure = 'tls';
         $mail->Port = 587;
         $mail->CharSet = 'UTF-8';
         $mail->Encoding = 'base64';
 
         // Remetente e destinatário
-        $mail->setFrom('wsaazizbjj@fpjji.com', 'FPJJI');
+        $mail->setFrom('.', 'FPJJI');
         $mail->addAddress($destinatario);
-        $mail->addReplyTo('wsaazizbjj@fpjji.com', 'FPJJI');
+        $mail->addReplyTo('', 'FPJJI');
 
         // Conteúdo do email
         $mail->isHTML(true);
@@ -135,6 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <body>
     <?php include "menu/add_menu.php"; ?>
+    <?php include "include_hamburger.php"; ?>
 
     <div class="principal">
         <h1>Recuperar Senha</h1>

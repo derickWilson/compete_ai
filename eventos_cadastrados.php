@@ -433,6 +433,7 @@ try {
 
 <body>
     <?php include "menu/add_menu.php"; ?>
+    <?php include "include_hamburger.php"; ?>
 
     <div class="container">
         <h1 class="page-title">Meus Campeonatos Inscritos</h1>

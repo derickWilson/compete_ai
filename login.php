@@ -16,6 +16,8 @@ if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
 </head>
 <body>
     <?php include "menu/add_menu.php"; ?>
+    <?php include "include_hamburger.php"; ?>
+
     <h1>Logar</h1>
     <div class="principal">
         <form action="logar.php" method="post">
@@ -71,7 +73,7 @@ if (!isset($_SESSION["logado"]) || !$_SESSION["logado"]) {
             <label for="senha">Senha</label>
             <input type="password" name="senha" id="senha" required>
             
-            <input type="submit" value="Logar">
+            <br><input type="submit" value="Logar">
             
             <p class="link-recuperacao">
                 <a href="recuperar_senha.php">Esqueci minha senha</a>

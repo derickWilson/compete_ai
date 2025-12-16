@@ -22,19 +22,23 @@ $peso = $_SESSION["peso"] ?? 'Não disponível';
 
 <!DOCTYPE html>
 <html lang="pt">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
     <title>Página Pessoal</title>
 </head>
+
 <body>
     <?php
     include "menu/add_menu.php";
     ?>
+    <?php include "include_hamburger.php"; ?>
+
     <div class="principal">
         <h1>Informações Pessoais</h1>
-        <center><img class="perfil" src="fotos/<?php echo $foto?>"></center>
+        <center><img class="perfil" src="fotos/<?php echo $foto ?>"></center>
         <p><strong>ID:</strong> <?php echo htmlspecialchars($id); ?></p>
         <p><strong>Nome:</strong> <?php echo htmlspecialchars($nome); ?></p>
         <p><strong>Email:</strong> <?php echo htmlspecialchars($email); ?></p>
@@ -47,8 +51,9 @@ $peso = $_SESSION["peso"] ?? 'Não disponível';
 
         <a href="index.php">Voltar</a>|<a href="edit.php">Editar</a>
     </div>
-<?php
-include "menu/footer.php";
-?>
+    <?php
+    include "menu/footer.php";
+    ?>
 </body>
+
 </html>

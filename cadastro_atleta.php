@@ -59,6 +59,8 @@ if (isset($_GET['erro'])) {
 
 <body>
     <?php include "menu/add_menu.php"; ?>
+    <?php include "include_hamburger.php"; ?>
+
 
     <div class="principal">
         <?php if (!empty($erro_message)): ?>
@@ -87,7 +89,8 @@ if (isset($_GET['erro'])) {
             Data de Nascimento <input type="date" name="data_nascimento" id="data_nasc" required><br>
             Telefone<br>
             <input type="text" name="ddd" value="55" style="width: 60px;">
-            <input oninput="formatPhone(this)" maxlength="15" type="tel" name="fone" id="fone" placeholder="(00) 00000-0000" required><br>
+            <input oninput="formatPhone(this)" maxlength="15" type="tel" name="fone" id="fone"
+                placeholder="(00) 00000-0000" required><br>
 
             Academia/Equipe
             <select name="academia" id="academia" required>
@@ -132,27 +135,27 @@ if (isset($_GET['erro'])) {
         function formatPhone(input) {
             // Remove tudo que não é número
             let value = input.value.replace(/\D/g, '');
-            
+
             // Aplica a máscara
             if (value.length <= 11) {
                 value = value.replace(/(\d{2})(\d)/, '($1) $2');
                 value = value.replace(/(\d{5})(\d)/, '$1-$2');
             }
-            
+
             input.value = value;
         }
-        
+
         // Inicializar formatação do telefone se já houver valor
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const phoneInput = document.getElementById('fone');
             if (phoneInput.value) {
                 // Forçar formatação do valor existente
                 formatPhone(phoneInput);
             }
-            
+
             // Validar DDD (apenas números, máximo 4 dígitos)
             const dddInput = document.getElementById('ddd');
-            dddInput.addEventListener('input', function() {
+            dddInput.addEventListener('input', function () {
                 this.value = this.value.replace(/[^0-9]/g, '');
                 if (this.value.length > 4) {
                     this.value = this.value.slice(0, 2);

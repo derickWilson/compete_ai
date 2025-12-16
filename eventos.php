@@ -148,6 +148,7 @@ if (isset($_GET['id'])) {
 
 <body>
     <?php include "menu/add_menu.php"; ?>
+    <?php include "include_hamburger.php"; ?>
 
     <?php if ($tudo) { ?>
         <div class="container">

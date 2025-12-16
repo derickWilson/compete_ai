@@ -63,6 +63,7 @@ if (isset($_GET['erro'])) {
 
 <body>
     <?php include "menu/add_menu.php"; ?>
+    <?php include "include_hamburger.php"; ?>
 
     <div class="principal">
         <?php if (!empty($erro_message)): ?>

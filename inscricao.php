@@ -140,6 +140,8 @@ if (isset($_GET["inscricao"])) {
 
 <body>
     <?php include "menu/add_menu.php"; ?>
+    <?php include "include_hamburger.php"; ?>
+
     <div class='principal'>
         <h3><?php echo htmlspecialchars($inscricao->nome); ?></h3>
 
