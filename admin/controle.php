@@ -54,6 +54,7 @@ if (isset($_GET["user"])) {
 
 <body>
     <?php include "../menu/add_menu.php"; ?>
+    <?php include "../include_hamburger.php"; ?>
 
     <div class="container">
         <!-- Adicione uma classe ao container principal -->
