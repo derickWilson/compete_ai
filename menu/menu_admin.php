@@ -21,4 +21,28 @@
         <a href="/logout.php">Deslogar</a>
         <a href="/regras.php">Regras</a>
     </nav>
+    <!-- Menu Hamburguer -->
+    <div class="menu-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <script>
+        // Garantir que o botão hamburger fique à esquerda
+        if (window.innerWidth <= 1024) {
+            const menuToggle = document.querySelector('.menu-toggle');
+            if (menuToggle) {
+                menuToggle.style.left = '20px';
+                menuToggle.style.right = 'auto';
+            }
+
+            // Ajustar conteúdo do header
+            const centerContent = document.querySelector('.center-content');
+            if (centerContent) {
+                centerContent.style.paddingLeft = '60px';
+                centerContent.style.paddingRight = '0';
+            }
+        }
+    </script>
 </header>
