@@ -1,0 +1,224 @@
+/* Menu Hamburguer - Lado Esquerdo */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1001;
+    position: absolute;
+    top: 20px;
+    left: 20px; /* Alterado de right para left */
+    background: transparent;
+    border: none;
+}
+
+.menu-toggle span {
+    height: 3px;
+    width: 25px;
+    background: #0066cc;
+    margin-bottom: 5px;
+    border-radius: 2px;
+    transition: 0.3s;
+    display: block;
+}
+
+.menu-toggle.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Overlay do menu */
+.menu-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 999;
+}
+
+.menu-overlay.active {
+    display: block;
+}
+
+/* Menu lateral - ESQUERDA */
+.hamburger-menu {
+    position: fixed;
+    top: 0;
+    left: -300px; /* Alterado de right para left */
+    width: 280px;
+    height: 100%;
+    background: white;
+    z-index: 1000;
+    overflow-y: auto;
+    transition: left 0.3s ease; /* Alterado de right para left */
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); /* Sombra à direita */
+}
+
+.hamburger-menu.active {
+    left: 0; /* Alterado de right para left */
+}
+
+.hamburger-menu-content {
+    padding: 80px 20px 40px;
+}
+
+/* Botão fechar - ajustado para direita */
+.menu-close {
+    position: absolute;
+    top: 20px;
+    right: 20px; /* Mantido à direita */
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+    z-index: 1002;
+}
+
+/* Estilos dos links */
+.hamburger-menu nav {
+    display: flex;
+    flex-direction: column;
+}
+
+.hamburger-menu nav a {
+    padding: 15px;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.hamburger-menu nav a:hover {
+    background: #0066cc;
+    color: white;
+    padding-left: 25px;
+}
+
+.hamburger-menu nav a:last-child {
+    border-bottom: none;
+}
+
+/* Logo no menu hamburger */
+.hamburger-logo {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #0066cc;
+}
+
+.hamburger-logo img {
+    max-width: 120px;
+    height: auto;
+    margin-bottom: 10px;
+}
+
+.hamburger-logo h3 {
+    color: #0066cc;
+    font-size: 16px;
+    margin: 5px 0;
+    font-weight: bold;
+}
+
+/* Informações do usuário */
+.user-info {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid #0066cc;
+}
+
+.user-icon {
+    font-size: 24px;
+    text-align: center;
+    margin-bottom: 10px;
+    color: #0066cc;
+}
+
+.user-info p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.user-info p strong {
+    color: #0066cc;
+}
+
+/* Responsividade */
+@media (max-width: 1024px) {
+    .menu-toggle {
+        display: flex;
+    }
+    
+    header nav {
+        display: none !important;
+    }
+}
+
+@media (min-width: 1025px) {
+    .menu-toggle,
+    .menu-overlay,
+    .hamburger-menu {
+        display: none !important;
+    }
+    
+    header nav {
+        display: flex !important;
+    }
+}
+
+/* Evitar scroll quando menu aberto */
+body.menu-open {
+    overflow: hidden;
+}
+
+/* Estilo para os ícones nos links (opcional) */
+.hamburger-menu nav a::before {
+    content: "→";
+    margin-right: 10px;
+    color: #0066cc;
+    font-weight: bold;
+    transition: margin-right 0.3s ease;
+}
+
+.hamburger-menu nav a:hover::before {
+    margin-right: 15px;
+    color: white;
+}
+
+/* Melhorar acessibilidade - foco */
+.hamburger-menu nav a:focus {
+    outline: 2px solid #0066cc;
+    outline-offset: 2px;
+}
+
+/* Scrollbar personalizada para o menu */
+.hamburger-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.hamburger-menu::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.hamburger-menu::-webkit-scrollbar-thumb {
+    background: #0066cc;
+    border-radius: 3px;
+}
+
+.hamburger-menu::-webkit-scrollbar-thumb:hover {
+    background: #0052a3;
+}

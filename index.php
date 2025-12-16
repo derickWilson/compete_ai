@@ -40,7 +40,7 @@ $patrocinadores = $patrocinadorServ->listPatrocinadores();
 
 <body>
     <?php include "menu/add_menu.php"; ?>
-
+    <?php include "include_hamburger.php"; ?>
     <div class="container">
         <?php if (isset($_GET["message"]) && $_GET["message"] == 1): ?>
             <div class="alert-message success">
