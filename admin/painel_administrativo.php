@@ -43,7 +43,7 @@ try {
 
 <body>
     <?php include "../menu/add_menu.php"; ?>
-
+    <?php include "../include_hamburger.php"; ?>
     <div class="container">
         <div class="principal">
             <h2 class="section-title" style="color: var(--primary-dark); text-shadow: none;">Painel Administrativo</h2>

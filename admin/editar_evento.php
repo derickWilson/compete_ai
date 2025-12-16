@@ -75,7 +75,7 @@ unset($_SESSION['mensagem']);
 
 <body>
     <?php include "../menu/add_menu.php"; ?>
-
+    <?php include "../include_hamburger.php"; ?>
     <div class="principal">
         <h2>Editar Evento</h2>
 

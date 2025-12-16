@@ -339,6 +339,7 @@ try {
 
 <body>
     <?php include "../menu/menu_admin.php"; ?>
+    <?php include "../include_hamburger.php"; ?>
     <div class="container">
         <?php if (isset($_SESSION['mensagem'])): ?>
             <div class="mensagem sucesso"><?= htmlspecialchars($_SESSION['mensagem']) ?></div>

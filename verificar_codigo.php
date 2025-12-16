@@ -38,7 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
     <?php include "menu/add_menu.php"; ?>
-    
+    <?php include "include_hamburger.php"; ?>
+
     <div class="principal">
         <h1>Verificar Código</h1>
         

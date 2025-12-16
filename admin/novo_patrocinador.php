@@ -19,6 +19,7 @@ $patrocinador = new Patrocinador();
 </head>
 <body>
 <?php include "../menu/add_menu.php"; ?>
+<?php include "../include_hamburger.php"; ?>
 <div class="principal">
     <h2>Adicionar Novo Patrocinador</h2>
     <form action="salvar_patrocinador.php" method="POST" enctype="multipart/form-data">

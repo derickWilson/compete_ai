@@ -32,6 +32,7 @@ try {
 </head>
 <body>
     <?php include "../menu/add_menu.php"; ?>
+    <?php include "../include_hamburger.php"; ?>
     
     <div class="container">
         <div class="principal">

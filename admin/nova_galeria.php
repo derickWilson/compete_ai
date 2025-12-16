@@ -18,6 +18,7 @@ $galeria = new Galeria();
 </head>
 <body>
 <?php include "../menu/add_menu.php"; ?>
+<?php include "../include_hamburger.php"; ?>
 <div class="principal">
     <h2>Adicionar Nova Imagem à Galeria</h2>
     <form action="salvar_galeria.php" method="POST" enctype="multipart/form-data">

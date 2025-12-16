@@ -18,6 +18,7 @@ is_adm();
 
 <body>
     <?php include "../menu/add_menu.php"; ?>
+    <?php include "../include_hamburger.php"; ?>
     <div class="principal">
         <form action="cadastrar_evento.php" method="POST" id="evento" enctype="multipart/form-data">
             Nome do evento <input type="text" id="nome_evento" name="nome_evento" required><br>
