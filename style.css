@@ -27,7 +27,7 @@
     }
 
     body {
-        background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+        background: linear-gradient(to bottom, var(--primary-dark) 0%, #000000);
         font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         color: var(--dark);
         line-height: 1.6;
@@ -43,7 +43,7 @@
 
     /* ===== HEADER E NAVEGAÇÃO ===== */
     header {
-        background: rgba(37, 32, 160, 0.95);
+        background: linear-gradient(to bottom, var(--primary-dark) 0%, #000000);
         backdrop-filter: blur(10px);
         padding: 15px 0;
         box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
@@ -796,7 +796,7 @@
 
     /* ===== FOOTER ===== */
     footer {
-        background: var(--primary-dark);
+        background: linear-gradient(to bottom, var(--primary-dark) 0%, #000000);
         color: var(--white);
         padding: 40px 0 20px;
         margin-top: 60px;
