@@ -21,7 +21,7 @@ require_once "func/validacoes.php";
 require_once __DIR__ . "/func/security.php";
 
 // Configurações
-const MAX_UPLOAD_SIZE_MB = 3;
+const MAX_UPLOAD_SIZE_MB = 12;
 
 // Função para validar idade mínima
 function validarIdadeMinima($dataNascimento, $idadeMinima = 3)
@@ -172,8 +172,8 @@ function validarDadosBasicos(array $dados): void
         }
 
 
-        if (!preg_match('/^[\p{L}0-9\s\-\'\(\)\.\,]{3,100}$/u', $dados['academia'] ?? '')) {
-            throw new Exception("Nome da academia inválido. Use apenas letras, números, espaços, hífens, apóstrofos e parênteses.");
+        if (!preg_match('/^[\p{L}0-9\s\-\'\(\)\.\,\/]{3,100}$/u', $dados['academia'] ?? '')) {
+            throw new Exception("Nome da academia inválido. Use apenas letras, números, espaços, hífens, apóstrofos, barra e parênteses.");
         }
 
         // Valida CEP (apenas para cadastro tipo A)
