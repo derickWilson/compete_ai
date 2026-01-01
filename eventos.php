@@ -230,7 +230,7 @@ if (isset($_GET['id'])) {
 
                     <div class="info-linha">
                         <strong>📝 Descrição:<br></strong>
-                        <span><?php echo htmlspecialchars($eventoDetails->descricao); ?></span>
+                        <span><?php echo nl2br(htmlspecialchars($eventoDetails->descricao)); ?></span>
                     </div>
                 </div>
                 <!-- Seção de Estatísticas de Inscrições -->
