@@ -3,520 +3,1074 @@
 
 <head>
     <style>
-        /** {
-            border: solid red 1px;
+        /* ===== VARIÁVEIS E ESTILOS BASE ===== */
+        :root {
+            --primary-dark: #2520a0;
+            --primary: #322ec0;
+            --primary-light: #4a45d9;
+            --secondary: #d14141;
+            --accent: #e9b949;
+            --light: #f8f9fa;
+            --dark: #2d3748;
+            --gray: #718096;
+            --success: #38a169;
+            --warning: #d69e2e;
+            --danger: #e53e3e;
+            --white: #ffffff;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
             box-sizing: border-box;
-        }*/
+            margin: 0;
+            padding: 0;
+        }
 
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, #1a1a2e 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            height: 100vh;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== CABEÇALHO COMPACTO ===== */
         .cabecalho {
-            margin-bottom: 20px;
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+            color: var(--white);
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            height: 50px;
+            border-bottom: 2px solid var(--accent);
         }
 
-        .bloc {
-            float: left;
-            width: 48%;
-            margin-right: 2%;
-            height: 70%;
+        .cabecalho h1 {
+            font-size: 16px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
         }
 
-        .bloc2 {
-            float: left;
-            width: 48%;
-            height: 70%;
+        .filtros {
+            display: flex;
+            gap: 10px;
+            align-items: center;
         }
 
-        .clear {
-            clear: both;
+        .filtro-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
-        
-        .timer-container {
-            text-align: center;
-            margin: 20px 0;
+
+        .filtro-group label {
+            font-weight: 600;
+            font-size: 10px;
+            color: var(--accent);
+            white-space: nowrap;
         }
-        
-        .timer-display {
-            font-size: 48px;
-            font-family: monospace;
-            font-weight: bold;
-            padding: 20px;
-            border: 3px solid #333;
+
+        .cabecalho select {
+            padding: 3px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            font-weight: 500;
+            min-width: 110px;
+            transition: var(--transition);
+            font-size: 11px;
+            height: 24px;
+        }
+
+        .cabecalho select:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .cabecalho select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(233, 185, 73, 0.3);
+        }
+
+        .cabecalho option {
+            background: var(--primary-dark);
+            color: var(--white);
+        }
+
+        /* ===== INSTRUÇÕES COMPACTAS ===== */
+        .instrucoes-container {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: var(--white);
+            padding: 4px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+            height: 30px;
+            overflow: hidden;
+        }
+
+        .instrucoes-linha {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            height: 100%;
+        }
+
+        .instrucao-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tecla {
             display: inline-block;
-            min-width: 200px;
-            background-color: #f0f0f0;
-            border-radius: 10px;
+            background: var(--primary);
+            color: var(--white);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            margin: 0 2px;
+            min-width: 18px;
+            text-align: center;
+            font-size: 10px;
+            height: 16px;
+            line-height: 14px;
         }
-        
-        .timer-running {
-            background-color: #ffcccc !important;
-            color: #cc0000;
+
+        .instrucao-texto {
+            color: var(--accent);
+            font-weight: 600;
+            margin-right: 4px;
         }
-        
-        .timer-paused {
-            background-color: #ffffcc !important;
-            color: #666600;
+
+        .instrucao-descricao {
+            color: rgba(255, 255, 255, 0.8);
         }
-        
+
+        /* ===== CRONÔMETRO GRANDE ===== */
+        .timer-container {
+            padding: 15px 20px;
+            text-align: center;
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            flex-shrink: 0;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .timer-display {
+            font-family: 'Courier New', monospace;
+            font-size: 90px;
+            font-weight: bold;
+            padding: 20px 40px;
+            border-radius: var(--border-radius);
+            display: inline-block;
+            min-width: 350px;
+            margin: 0 auto;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            transition: var(--transition);
+            letter-spacing: 2px;
+        }
+
         .timer-stopped {
-            background-color: #ccffcc !important;
-            color: #006600;
+            background: linear-gradient(135deg, var(--success) 0%, #2d8f4d 100%);
+            color: var(--white);
+            border: 4px solid #2d8f4d;
         }
-        
-        .timer-instructions {
-            margin-top: 10px;
-            color: #666;
-            font-size: 14px;
+
+        .timer-running {
+            background: linear-gradient(135deg, var(--danger) 0%, #c53030 100%);
+            color: var(--white);
+            border: 4px solid #c53030;
+            animation: pulse 1.5s infinite;
         }
-        
+
+        .timer-paused {
+            background: linear-gradient(135deg, var(--warning) 0%, #b7791f 100%);
+            color: var(--white);
+            border: 4px solid #b7791f;
+        }
+
+        .timer-info-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
         .config-info {
-            margin-top: 5px;
-            font-size: 12px;
-            color: #333;
+            font-size: 13px;
+            color: var(--primary-dark);
+            font-weight: 500;
+            background: rgba(233, 185, 73, 0.1);
+            padding: 5px 12px;
+            border-radius: 20px;
+            display: inline-block;
         }
-        
-        footer {
-            margin-top: 30px;
-            padding: 15px;
-            border-top: 1px solid #ccc;
-            font-family: Arial, sans-serif;
+
+        .timer-controles {
+            font-size: 11px;
+            color: var(--gray);
+            background: var(--white);
+            padding: 4px 10px;
+            border-radius: var(--border-radius);
+            display: inline-block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .timer-controles strong {
+            color: var(--primary-dark);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        /* ===== ÁREA DE PONTUAÇÃO COMPACTA ===== */
+        .placar-container {
+            display: flex;
+            padding: 20px;
+            gap: 30px;
+            justify-content: center;
+            background: var(--white);
+            flex: 1;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .atleta-container {
+            flex: 1;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+            border-top: 8px solid var(--primary);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            max-width: 500px;
+            margin: 0 10px;
+        }
+
+        .atleta-container.selecionado {
+            border-color: var(--secondary);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+
+        .atleta-container h2 {
+            text-align: center;
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--primary-light);
+            font-size: 22px;
+            flex-shrink: 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* PONTOS GRANDE */
+        .pontos-container {
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .pontos-container label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 700;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pontos-input {
+            width: 100%;
+            padding: 25px 20px;
+            border: 3px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 60px;
+            font-weight: bold;
+            text-align: center;
+            transition: var(--transition);
+            font-family: 'Courier New', monospace;
+            background: var(--white);
+            color: var(--primary-dark);
+            height: 120px;
+        }
+
+        .pontos-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(50, 46, 192, 0.15);
+        }
+
+        /* VANTAGENS E FALTAS LADO A LADO */
+        .vantagens-faltas-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .vantagens-container, .faltas-container {
+            flex: 1;
+        }
+
+        .vantagens-container label, .faltas-container label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .vantagem-input, .falta-input {
+            width: 100%;
+            padding: 15px 10px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            transition: var(--transition);
+            font-family: 'Courier New', monospace;
+            background: var(--white);
+            color: var(--primary-dark);
+            height: 70px;
+        }
+
+        .vantagem-input:focus, .falta-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(50, 46, 192, 0.1);
+        }
+
+        /* VENCEDOR */
+        .vencedor-container {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #eee;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            transform: scale(1.5);
+        }
+
+        .checkbox-wrapper label {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            cursor: pointer;
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        /* ===== STATUS BAR ===== */
+        .status-bar {
+            background: linear-gradient(to right, var(--dark), #1a202c);
+            color: var(--white);
+            padding: 3px 15px;
+            font-size: 10px;
+            text-align: center;
+            flex-shrink: 0;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status-text {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* ===== ANIMAÇÕES ===== */
+        @keyframes highlight {
+            0% { background-color: var(--white); }
+            50% { background-color: rgba(233, 185, 73, 0.2); }
+            100% { background-color: var(--white); }
+        }
+
+        .destaque {
+            animation: highlight 1s ease;
+        }
+
+        /* ===== RESPONSIVIDADE ===== */
+        @media (max-width: 1200px) {
+            .timer-display {
+                font-size: 70px;
+                min-width: 280px;
+                padding: 15px 30px;
+            }
+            
+            .pontos-input {
+                font-size: 50px;
+                height: 100px;
+                padding: 20px 15px;
+            }
+            
+            .vantagem-input, .falta-input {
+                font-size: 28px;
+                height: 60px;
+                padding: 12px 8px;
+            }
+            
+            .atleta-container h2 {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .placar-container {
+                flex-direction: column;
+                align-items: center;
+                padding: 15px;
+                gap: 20px;
+            }
+            
+            .atleta-container {
+                width: 100%;
+                max-width: 700px;
+                margin: 0;
+            }
+            
+            .instrucoes-linha {
+                flex-wrap: wrap;
+                height: auto;
+                padding: 3px 0;
+            }
+            
+            .instrucao-item {
+                margin: 1px 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .timer-display {
+                font-size: 50px;
+                min-width: 220px;
+                padding: 12px 20px;
+            }
+            
+            .cabecalho {
+                flex-direction: column;
+                height: auto;
+                padding: 8px 10px;
+                gap: 8px;
+            }
+            
+            .filtros {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .pontos-input {
+                font-size: 40px;
+                height: 80px;
+                padding: 15px 10px;
+            }
+            
+            .vantagem-input, .falta-input {
+                font-size: 24px;
+                height: 50px;
+                padding: 10px 6px;
+            }
+            
+            .atleta-container h2 {
+                font-size: 18px;
+            }
+            
+            .checkbox-wrapper label {
+                font-size: 18px;
+            }
+            
+            .instrucoes-container {
+                height: auto;
+                min-height: 40px;
+            }
+            
+            .instrucoes-linha {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 2px;
+            }
+        }
+
+        @media (max-height: 800px) {
+            .timer-display {
+                font-size: 60px;
+                padding: 15px 25px;
+            }
+            
+            .pontos-input {
+                font-size: 40px;
+                height: 80px;
+                padding: 15px 10px;
+            }
+            
+            .vantagem-input, .falta-input {
+                font-size: 24px;
+                height: 50px;
+            }
+            
+            .atleta-container {
+                padding: 20px;
+            }
+        }
+
+        /* Scroll personalizado */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
         }
     </style>
+    <!-- Adicionando Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
-    <div class="cabecalho">
-        Categoria<select>
-            <option value="galo">Galo</option>
-            <option value="pluma">Pluma</option>
-            <option value="pena">Pena</option>
-            <option value="leve">Leve</option>
-            <option value="medio">Médio</option>
-            <option value="meio-pesado">Meio-Pesado</option>
-            <option value="pesado">Pesado</option>
-            <option value="super-pesado">Super-Pesado</option>
-            <option value="pesadissimo">Pesadíssimo</option>
-            <option value="super-pesadissimo">Super-Pesadíssimo</option>
-        </select>
-        
-        Idade<select id="idade-select">
-            <option value="pre-mirim">pre-mirim</option>
-            <option value="mirim-1">mirim 1</option>
-            <option value="mirim-2">mirim 2</option>
-            <option value="infantil-1">infantil 1</option>
-            <option value="infantil-2">infantil 2</option>
-            <option value="infanto-juvenil">infanto-juvenil</option>
-            <option value="juvenil">juvenil</option>
-            <option value="adulto">adulto</option>
-            <option value="master">master</option>
-        </select>
-        
-        Faixa<select id="faixa-select">
-            <option value="">Selecione a graduação</option>
-            <option value="branca">Branca</option>
-            <option value="cinza">Cinza</option>
-            <option value="amarela">Amarela</option>
-            <option value="laranja">Laranja</option>
-            <option value="verde">Verde</option>
-            <option value="azul">Azul</option>
-            <option value="roxa">Roxa</option>
-            <option value="marrom">Marrom</option>
-            <option value="preta">Preta</option>
-        </select>
-    </div>
-
-    <div class="timer-container">
-        <center>
-            <h1>TIMER</h1>
-            <div id="timerDisplay" class="timer-display timer-stopped">--:--</div>
-            <div id="configInfo" class="config-info"></div>
-            <div class="timer-instructions">
-                Pressione <strong>ESPAÇO</strong> para iniciar/pausar o cronômetro<br>
-                Pressione <strong>R</strong> para resetar (quando parado)
+    <div class="container">
+        <div class="cabecalho">
+            <h1><i class="fas fa-stopwatch"></i> CONTADOR DE LUTA - JIU-JITSU</h1>
+            <div class="filtros">
+                <div class="filtro-group">
+                    <label for="categoria-select"><i class="fas fa-weight"></i> Categoria:</label>
+                    <select id="categoria-select">
+                        <option value="galo">Galo</option>
+                        <option value="pluma">Pluma</option>
+                        <option value="pena">Pena</option>
+                        <option value="leve">Leve</option>
+                        <option value="medio">Médio</option>
+                        <option value="meio-pesado">Meio-Pesado</option>
+                        <option value="pesado">Pesado</option>
+                        <option value="super-pesado">Super-Pesado</option>
+                        <option value="pesadissimo">Pesadíssimo</option>
+                        <option value="super-pesadissimo">Super-Pesadíssimo</option>
+                    </select>
+                </div>
+                
+                <div class="filtro-group">
+                    <label for="idade-select"><i class="fas fa-user"></i> Idade:</label>
+                    <select id="idade-select">
+                        <option value="pre-mirim">Pre-Mirim</option>
+                        <option value="mirim-1">Mirim 1</option>
+                        <option value="mirim-2">Mirim 2</option>
+                        <option value="infantil-1">Infantil 1</option>
+                        <option value="infantil-2">Infantil 2</option>
+                        <option value="infanto-juvenil">Infanto-Juvenil</option>
+                        <option value="juvenil">Juvenil</option>
+                        <option value="adulto">Adulto</option>
+                        <option value="master">Master</option>
+                    </select>
+                </div>
+                
+                <div class="filtro-group">
+                    <label for="faixa-select"><i class="fas fa-award"></i> Faixa:</label>
+                    <select id="faixa-select">
+                        <option value="">Selecione a graduação</option>
+                        <option value="branca">Branca</option>
+                        <option value="cinza">Cinza</option>
+                        <option value="amarela">Amarela</option>
+                        <option value="laranja">Laranja</option>
+                        <option value="verde">Verde</option>
+                        <option value="azul">Azul</option>
+                        <option value="roxa">Roxa</option>
+                        <option value="marrom">Marrom</option>
+                        <option value="preta">Preta</option>
+                    </select>
+                </div>
             </div>
-        </center>
+        </div>
+
+        <div class="instrucoes-container">
+            <div class="instrucoes-linha">
+                <div class="instrucao-item">
+                    <span class="instrucao-texto">SELEÇÃO:</span>
+                    <span class="tecla">←</span>
+                    <span class="instrucao-descricao">ESQUERDO</span>
+                    <span class="tecla">→</span>
+                    <span class="instrucao-descricao">DIREITO</span>
+                </div>
+                
+                <div class="instrucao-item">
+                    <span class="instrucao-texto">PONTOS:</span>
+                    <span class="tecla">2</span>
+                    <span class="tecla">3</span>
+                    <span class="tecla">4</span>
+                </div>
+                
+                <div class="instrucao-item">
+                    <span class="instrucao-texto">VANTAGENS/FALTAS:</span>
+                    <span class="tecla">V</span>
+                    <span class="instrucao-descricao">+1 Vantagem</span>
+                    <span class="tecla">F</span>
+                    <span class="instrucao-descricao">+1 Falta</span>
+                </div>
+                
+                <div class="instrucao-item">
+                    <span class="instrucao-texto">CRONÔMETRO:</span>
+                    <span class="tecla">ESPAÇO</span>
+                    <span class="instrucao-descricao">Iniciar/Pausar</span>
+                    <span class="tecla">R</span>
+                    <span class="instrucao-descricao">Resetar</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="timer-container">
+            <div id="timerDisplay" class="timer-display timer-stopped">--:--</div>
+            <div class="timer-info-container">
+                <div id="configInfo" class="config-info">Selecione idade e faixa para configurar o tempo</div>
+            </div>
+        </div>
+
+        <div class="placar-container">
+            <div class="atleta-container" id="esqr">
+                <h2><i class="fas fa-user-fighter"></i> ATLETA ESQUERDO</h2>
+                
+                <div class="pontos-container">
+                    <label>Pontos:</label>
+                    <input type="number" name="ponto-left" id="ponto-left" value="0" min="0" class="pontos-input">
+                </div>
+                
+                <div class="vantagens-faltas-container">
+                    <div class="vantagens-container">
+                        <label>Vantagens:</label>
+                        <input type="number" name="vantagem-left" id="vantagem-left" value="0" min="0" class="vantagem-input">
+                    </div>
+                    
+                    <div class="faltas-container">
+                        <label>Faltas:</label>
+                        <input type="number" name="falta-left" id="falta-left" value="0" min="0" class="falta-input">
+                    </div>
+                </div>
+                
+                <div class="vencedor-container">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" name="vencedor-left" id="vencedor-left">
+                        <label for="vencedor-left">VENCEDOR</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="atleta-container" id="dir">
+                <h2><i class="fas fa-user-fighter"></i> ATLETA DIREITO</h2>
+                
+                <div class="pontos-container">
+                    <label>Pontos:</label>
+                    <input type="number" name="ponto-right" id="ponto-right" value="0" min="0" class="pontos-input">
+                </div>
+                
+                <div class="vantagens-faltas-container">
+                    <div class="vantagens-container">
+                        <label>Vantagens:</label>
+                        <input type="number" name="vantagem-right" id="vantagem-right" value="0" min="0" class="vantagem-input">
+                    </div>
+                    
+                    <div class="faltas-container">
+                        <label>Faltas:</label>
+                        <input type="number" name="falta-right" id="falta-right" value="0" min="0" class="falta-input">
+                    </div>
+                </div>
+                
+                <div class="vencedor-container">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" name="vencedor-right" id="vencedor-right">
+                        <label for="vencedor-right">VENCEDOR</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span class="status-text">SISTEMA PRONTO</span>
+        </div>
     </div>
 
-    <div class="bloc" id="esqr">
-        Pontos <input type="number" name="ponto-left" id="ponto-left" value="0"><br>
-        Vantagens <input type="number" name="vantagem-left" id="vantagem-left" value="0">
-        Falta <input type="number" name="falta-left" id="falta-left" value="0"><br>
-        vencedor <input type="checkbox" name="vencedor-left" id="vencedor-left">
-    </div>
+    <script>
+        // Tabela de tempos baseada na imagem fornecida
+        const tempoLutas = {
+            'pre-mirim': { 'todas': 2 },
+            'mirim-1': { 'todas': 2 },
+            'mirim-2': { 'todas': 2 },
+            'infantil-1': { 'todas': 3 },
+            'infantil-2': { 'todas': 3 },
+            'infanto-juvenil': {
+                'branca': 4, 'cinza': 4, 'amarela': 4, 'laranja': 4,
+                'verde': 4, 'azul': 4, 'roxa': 4, 'marrom': 4, 'preta': 4
+            },
+            'juvenil': {
+                'branca': 4, 'cinza': 4, 'amarela': 4, 'laranja': 4,
+                'verde': 4, 'azul': 5, 'roxa': 7, 'marrom': 8, 'preta': 9
+            },
+            'adulto': {
+                'branca': 4, 'cinza': 4, 'amarela': 4, 'laranja': 4,
+                'verde': 4, 'azul': 5, 'roxa': 7, 'marrom': 8, 'preta': 9
+            },
+            'master': {
+                'branca': 4, 'cinza': 4, 'amarela': 4, 'laranja': 4,
+                'verde': 4, 'azul': 6, 'roxa': 6, 'marrom': 6, 'preta': 6
+            }
+        };
 
-    <div class="bloc2" id="dir">
-        Pontos <input type="number" name="ponto-right" id="ponto-right" value="0"><br>
-        Vantagens <input type="number" name="vantagem-right" id="vantagem-right" value="0">
-        Falta <input type="number" name="falta-right" id="falta-right" value="0"><br>
-        vencedor <input type="checkbox" name="vencedor-right" id="vencedor-right">
-    </div>
+        // Variáveis do cronômetro
+        let timerInterval;
+        let timerRunning = false;
+        let timeLeft = 0;
+        const timerDisplay = document.getElementById('timerDisplay');
+        const configInfo = document.getElementById('configInfo');
+        const idadeSelect = document.getElementById('idade-select');
+        const faixaSelect = document.getElementById('faixa-select');
+        const categoriaSelect = document.getElementById('categoria-select');
+        const statusBar = document.querySelector('.status-text');
 
-    <div class="clear"></div>
-    
-    <footer>
-        <h3>Instruções do Marcador de Pontos:</h3>
-        <p><strong>Seleção de Atleta:</strong></p>
-        <ul>
-            <li>Seta para ESQUERDA ← : Seleciona o atleta da esquerda (border preto aparecerá)</li>
-            <li>Seta para DIREITA → : Seleciona o atleta da direita (border preto aparecerá)</li>
-        </ul>
-        
-        <p><strong>Marcar Pontos:</strong></p>
-        <ul>
-            <li>Tecla 2 : Adiciona 2 pontos ao atleta selecionado</li>
-            <li>Tecla 3 : Adiciona 3 pontos ao atleta selecionado</li>
-            <li>Tecla 4 : Adiciona 4 pontos ao atleta selecionado</li>
-        </ul>
-        
-        <p><strong>Marcar Vantagens e Faltas:</strong></p>
-        <ul>
-            <li>Tecla V : Adiciona 1 vantagem ao atleta selecionado</li>
-            <li>Tecla F : Adiciona 1 falta ao atleta selecionado</li>
-        </ul>
-        
-        <p><strong>Controles do Cronômetro:</strong></p>
-        <ul>
-            <li>ESPAÇO : Inicia ou pausa o cronômetro</li>
-            <li>R : Reseta o cronômetro (apenas quando parado)</li>
-        </ul>
-        
-        <p><strong>Notas:</strong></p>
-        <ul>
-            <li>Primeiro selecione um atleta com as setas, depois pressione as teclas de pontuação</li>
-            <li>O tempo da luta é automaticamente configurado conforme idade e faixa selecionadas</li>
-            <li>Os pontos 2, 3, 4 correspondem às pontuações padrão do Jiu-Jitsu</li>
-        </ul>
-    </footer>
-</body>
-
-<script>
-    // Tabela de tempos baseada na imagem fornecida
-    const tempoLutas = {
-        // Idade -> Faixa -> Minutos
-        'pre-mirim': {
-            'todas': 2  // Todas as faixas = 2 minutos
-        },
-        'mirim-1': {
-            'todas': 2  // Todas as faixas = 2 minutos
-        },
-        'mirim-2': {
-            'todas': 2  // Todas as faixas = 2 minutos
-        },
-        'infantil-1': {
-            'todas': 3  // Todas as faixas = 3 minutos
-        },
-        'infantil-2': {
-            'todas': 3  // Todas as faixas = 3 minutos
-        },
-        'infanto-juvenil': {
-            'branca': 4,
-            'cinza': 4,
-            'amarela': 4,
-            'laranja': 4,
-            'verde': 4,
-            'azul': 4,
-            'roxa': 4,
-            'marrom': 4,
-            'preta': 4
-        },
-        'juvenil': {
-            'branca': 4,
-            'cinza': 4,
-            'amarela': 4,
-            'laranja': 4,
-            'verde': 4,
-            'azul': 5,  // Azul = 5 minutos
-            'roxa': 7,  // Roxa = 7 minutos
-            'marrom': 8, // Marrom = 8 minutos
-            'preta': 9   // Preta = 9 minutos
-        },
-        'adulto': {
-            'branca': 4,
-            'cinza': 4,
-            'amarela': 4,
-            'laranja': 4,
-            'verde': 4,
-            'azul': 5,  // Azul = 5 minutos
-            'roxa': 7,  // Roxa = 7 minutos
-            'marrom': 8, // Marrom = 8 minutos
-            'preta': 9   // Preta = 9 minutos
-        },
-        'master': {
-            'branca': 4,
-            'cinza': 4,
-            'amarela': 4,
-            'laranja': 4,
-            'verde': 4,
-            'azul': 6,  // Azul e acima = 6 minutos
-            'roxa': 6,  // Azul e acima = 6 minutos
-            'marrom': 6, // Azul e acima = 6 minutos
-            'preta': 6   // Azul e acima = 6 minutos
-        }
-    };
-
-    // Variáveis do cronômetro
-    let timerInterval;
-    let timerRunning = false;
-    let timeLeft = 0; // Começa com 0 até definir
-    const timerDisplay = document.getElementById('timerDisplay');
-    const configInfo = document.getElementById('configInfo');
-    const idadeSelect = document.getElementById('idade-select');
-    const faixaSelect = document.getElementById('faixa-select');
-
-    // Função para calcular o tempo baseado na idade e faixa
-    function calcularTempoLuta(idade, faixa) {
-        // Se não selecionou idade ou faixa
-        if (!idade || !faixa) {
-            return null;
-        }
-        
-        // Verifica se a idade existe na tabela
-        if (!tempoLutas[idade]) {
-            return null;
-        }
-        
-        // Para idades que usam 'todas' as faixas
-        if (tempoLutas[idade]['todas']) {
-            return tempoLutas[idade]['todas'];
-        }
-        
-        // Para idades com faixas específicas
-        if (tempoLutas[idade][faixa]) {
-            return tempoLutas[idade][faixa];
-        }
-        
-        // Se não encontrou combinação
-        return null;
-    }
-
-    // Função para atualizar o cronômetro baseado nas seleções
-    function atualizarTempo() {
-        const idade = idadeSelect.value;
-        const faixa = faixaSelect.value;
-        
-        const minutos = calcularTempoLuta(idade, faixa);
-        
-        if (minutos !== null) {
-            // Para a luta se estiver rodando
-            if (timerRunning) {
-                pauseTimer();
+        // Função para calcular o tempo baseado na idade e faixa
+        function calcularTempoLuta(idade, faixa) {
+            if (!idade || !faixa) return null;
+            if (!tempoLutas[idade]) return null;
+            
+            if (tempoLutas[idade]['todas']) {
+                return tempoLutas[idade]['todas'];
             }
             
-            // Reseta para o novo tempo
-            timeLeft = minutos * 60;
-            updateTimerDisplay();
+            if (tempoLutas[idade][faixa]) {
+                return tempoLutas[idade][faixa];
+            }
             
-            // Atualiza informação de configuração
-            const idadeTexto = idadeSelect.options[idadeSelect.selectedIndex].text;
-            const faixaTexto = faixaSelect.options[faixaSelect.selectedIndex].text;
-            configInfo.textContent = `${idadeTexto} - ${faixaTexto}: ${minutos} minutos`;
-            
-            // Reinicia o estado
-            resetTimerState();
-        } else {
-            // Se não encontrou combinação válida
-            timerDisplay.textContent = '--:--';
-            configInfo.textContent = 'Selecione idade e faixa válidos';
+            return null;
         }
-    }
 
-    // Função para resetar o estado do cronômetro (sem resetar o tempo)
-    function resetTimerState() {
-        clearInterval(timerInterval);
-        timerRunning = false;
-        timerDisplay.classList.remove('timer-running', 'timer-paused');
-        timerDisplay.classList.add('timer-stopped');
-        timerDisplay.style.animation = 'none';
-    }
-
-    // Configuração padrão do cronômetro
-    function updateTimerDisplay() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-    
-    function startTimer() {
-        if (timerRunning || timeLeft <= 0) return;
-        
-        timerRunning = true;
-        timerDisplay.classList.remove('timer-stopped', 'timer-paused');
-        timerDisplay.classList.add('timer-running');
-        
-        timerInterval = setInterval(() => {
-            if (timeLeft > 0) {
-                timeLeft--;
+        // Função para atualizar o cronômetro baseado nas seleções
+        function atualizarTempo() {
+            const idade = idadeSelect.value;
+            const faixa = faixaSelect.value;
+            
+            const minutos = calcularTempoLuta(idade, faixa);
+            
+            if (minutos !== null) {
+                if (timerRunning) pauseTimer();
+                
+                timeLeft = minutos * 60;
                 updateTimerDisplay();
                 
-                // Alerta visual quando faltar 30 segundos
-                if (timeLeft === 30) {
-                    timerDisplay.style.animation = 'pulse 1s infinite';
-                }
+                const idadeTexto = idadeSelect.options[idadeSelect.selectedIndex].text;
+                const faixaTexto = faixaSelect.options[faixaSelect.selectedIndex].text;
+                configInfo.innerHTML = `<i class="fas fa-cog"></i> ${idadeTexto} - ${faixaTexto}: ${minutos} minutos`;
+                statusBar.textContent = `CONFIGURADO: ${idadeTexto} - ${faixaTexto} (${minutos} min)`;
                 
-                // Alerta visual quando o tempo acabar
-                if (timeLeft === 0) {
-                    timerDisplay.classList.remove('timer-running');
-                    timerDisplay.classList.add('timer-stopped');
-                    timerDisplay.style.animation = 'none';
+                configInfo.classList.add('destaque');
+                setTimeout(() => configInfo.classList.remove('destaque'), 1000);
+                
+                resetTimerState();
+            } else {
+                timerDisplay.textContent = '--:--';
+                configInfo.textContent = 'Selecione idade e faixa válidos';
+                statusBar.textContent = 'AGUARDANDO CONFIGURAÇÃO';
+            }
+        }
+
+        // Função para resetar o estado do cronômetro
+        function resetTimerState() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerDisplay.classList.remove('timer-running', 'timer-paused');
+            timerDisplay.classList.add('timer-stopped');
+            timerDisplay.style.animation = 'none';
+        }
+
+        // Configuração padrão do cronômetro
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+        
+        function startTimer() {
+            if (timerRunning || timeLeft <= 0) return;
+            
+            timerRunning = true;
+            timerDisplay.classList.remove('timer-stopped', 'timer-paused');
+            timerDisplay.classList.add('timer-running');
+            statusBar.textContent = 'CRONÔMETRO EM ANDAMENTO';
+            
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (timeLeft === 30) {
+                        timerDisplay.style.animation = 'pulse 1s infinite';
+                        statusBar.textContent = 'ATENÇÃO: 30 SEGUNDOS RESTANTES';
+                    }
+                    
+                    if (timeLeft === 0) {
+                        timerDisplay.classList.remove('timer-running');
+                        timerDisplay.classList.add('timer-stopped');
+                        timerDisplay.style.animation = 'none';
+                        clearInterval(timerInterval);
+                        timerRunning = false;
+                        statusBar.textContent = 'TEMPO ESGOTADO!';
+                        playAlertSound();
+                    }
+                } else {
                     clearInterval(timerInterval);
                     timerRunning = false;
-                    // Opcional: adicionar um som de alerta aqui
                 }
+            }, 1000);
+        }
+        
+        function pauseTimer() {
+            if (!timerRunning) return;
+            
+            clearInterval(timerInterval);
+            timerRunning = false;
+            timerDisplay.classList.remove('timer-running');
+            timerDisplay.classList.add('timer-paused');
+            timerDisplay.style.animation = 'none';
+            statusBar.textContent = 'CRONÔMETRO PAUSADO';
+        }
+        
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerRunning = false;
+            const idade = idadeSelect.value;
+            const faixa = faixaSelect.value;
+            const minutos = calcularTempoLuta(idade, faixa);
+            
+            if (minutos !== null) {
+                timeLeft = minutos * 60;
+                updateTimerDisplay();
+                statusBar.textContent = 'CRONÔMETRO RESETADO';
+            }
+            
+            timerDisplay.classList.remove('timer-running', 'timer-paused');
+            timerDisplay.classList.add('timer-stopped');
+            timerDisplay.style.animation = 'none';
+        }
+        
+        function playAlertSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 1);
+            } catch (e) {
+                console.log("Som de alerta não suportado");
+            }
+        }
+        
+        // Adicionar animação de pulso
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { transform: scale(1); }
+                50% { transform: scale(1.03); }
+                100% { transform: scale(1); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Evento para limpar dados ao recarregar
+        window.addEventListener("DOMContentLoaded", () => {
+            // Zerar todos os valores
+            document.getElementById("ponto-left").value = 0;
+            document.getElementById("vantagem-left").value = 0;
+            document.getElementById("falta-left").value = 0;
+            document.getElementById("vencedor-left").checked = false;
+
+            document.getElementById("ponto-right").value = 0;
+            document.getElementById("vantagem-right").value = 0;
+            document.getElementById("falta-right").value = 0;
+            document.getElementById("vencedor-right").checked = false;
+            
+            // Configurar eventos para os selects
+            idadeSelect.addEventListener('change', atualizarTempo);
+            faixaSelect.addEventListener('change', atualizarTempo);
+            categoriaSelect.addEventListener('change', () => {
+                categoriaSelect.classList.add('destaque');
+                setTimeout(() => categoriaSelect.classList.remove('destaque'), 500);
+                statusBar.textContent = `CATEGORIA: ${categoriaSelect.options[categoriaSelect.selectedIndex].text}`;
+            });
+            
+            // Inicializar cronômetro
+            if (idadeSelect.value && faixaSelect.value) {
+                atualizarTempo();
             } else {
-                clearInterval(timerInterval);
-                timerRunning = false;
+                timerDisplay.textContent = '--:--';
+                configInfo.textContent = 'Selecione idade e faixa';
             }
-        }, 1000);
-    }
-    
-    function pauseTimer() {
-        if (!timerRunning) return;
-        
-        clearInterval(timerInterval);
-        timerRunning = false;
-        timerDisplay.classList.remove('timer-running');
-        timerDisplay.classList.add('timer-paused');
-        timerDisplay.style.animation = 'none';
-    }
-    
-    function resetTimer() {
-        clearInterval(timerInterval);
-        timerRunning = false;
-        // Volta para o tempo configurado atual
-        const idade = idadeSelect.value;
-        const faixa = faixaSelect.value;
-        const minutos = calcularTempoLuta(idade, faixa);
-        
-        if (minutos !== null) {
-            timeLeft = minutos * 60;
-            updateTimerDisplay();
-        }
-        
-        timerDisplay.classList.remove('timer-running', 'timer-paused');
-        timerDisplay.classList.add('timer-stopped');
-        timerDisplay.style.animation = 'none';
-    }
-    
-    // Adicionar animação de pulso
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-    `;
-    document.head.appendChild(style);
-    
-    // Evento para limpar dados ao recarregar
-    window.addEventListener("DOMContentLoaded", () => {
-        // Zerar lado esquerdo
-        document.getElementById("ponto-left").value = 0;
-        document.getElementById("vantagem-left").value = 0;
-        document.getElementById("falta-left").value = 0;
-        document.getElementById("vencedor-left").checked = false;
+        });
 
-        // Zerar lado direito
-        document.getElementById("ponto-right").value = 0;
-        document.getElementById("vantagem-right").value = 0;
-        document.getElementById("falta-right").value = 0;
-        document.getElementById("vencedor-right").checked = false;
-        
-        // Configurar eventos para os selects
-        idadeSelect.addEventListener('change', atualizarTempo);
-        faixaSelect.addEventListener('change', atualizarTempo);
-        
-        // Inicializar com valores padrão se já estiverem selecionados
-        if (idadeSelect.value && faixaSelect.value) {
-            atualizarTempo();
-        } else {
-            timerDisplay.textContent = '--:--';
-            configInfo.textContent = 'Selecione idade e faixa';
-        }
-    });
+        // Selecionar os dois contadores
+        const direita = document.getElementById("dir");
+        const esquerda = document.getElementById("esqr");
+        let selecionado;
+        let pontos;
+        let vantagem;
+        let falta;
+        let pontos_validos = [2, 3, 4]
+        let keys_validos = ["F", "V"];
 
-    // Selecionar os dois contadores
-    const direita = document.getElementById("dir");
-    const esquerda = document.getElementById("esqr");
-    let selecionado;
-    let pontos;
-    let vantagem;
-    let falta;
-    let pontos_validos = [2, 3, 4]
-    let keys_validos = ["F", "V"];
-
-    document.addEventListener("keyup", function (event) {
-        // Controle do cronômetro com ESPAÇO
-        if (event.code === "Space") {
-            event.preventDefault(); // Previne comportamento padrão (rolar página)
-            if (timerRunning) {
-                pauseTimer();
-            } else {
-                startTimer();
+        // Adicionar evento keydown para prevenir comportamento padrão do espaço
+        document.addEventListener("keydown", function (event) {
+            // Prevenir rolagem quando espaço for pressionado
+            if (event.code === "Space") {
+                event.preventDefault();
             }
-            return; // Não processar outros controles quando espaço for pressionado
-        }
-        
-        // Reset do cronômetro com R
-        if (event.code === "KeyR" && !timerRunning) {
-            resetTimer();
-            return;
-        }
+        });
 
-        // Caso do lado direito
-        if (event.code === "ArrowRight") {
-            // Desselecionar o lado esquerdo
-            esquerda.style.border = "none";
-
-            // Selecionar lado direito
-            selecionado = direita;
-
-            // Selecionar os pontos da direita
-            pontos = document.getElementById("ponto-right");
-            vantagem = document.getElementById("vantagem-right");
-            falta = document.getElementById("falta-right");
-
-            selecionado.style.border = "solid black 2px";
-        }
-
-        // Caso do lado esquerdo
-        if (event.code === "ArrowLeft") {
-            direita.style.border = "none";
-            selecionado = esquerda;
-
-            // Selecionar os pontos da esquerda
-            pontos = document.getElementById("ponto-left");
-            vantagem = document.getElementById("vantagem-left");
-            falta = document.getElementById("falta-left");
-            selecionado.style.border = "solid black 2px";
-        }
-
-        // Adicionar os pontos
-        if (pontos_validos.includes(Number(event.key))) {
-            if (pontos) {
-                console.log(Number(event.key));
-                let valor = Number(pontos.value) + Number(event.key);
-                pontos.value = String(valor);
-            }
-        }
-
-        // Adicionar faltas e vantagens
-        if (keys_validos.includes(event.key.toUpperCase())) {
-            if (vantagem && falta) {
-                console.log(event.key.toLocaleUpperCase());
-                valor_f = Number(falta.value);
-                valor_v = Number(vantagem.value);
-
-                if(event.key.toUpperCase() == "F"){
-                    valor_f++;
-                    falta.value = String(valor_f);
+        document.addEventListener("keyup", function (event) {
+            // Controle do cronômetro com ESPAÇO
+            if (event.code === "Space") {
+                event.preventDefault();
+                if (timerRunning) {
+                    pauseTimer();
+                } else {
+                    startTimer();
                 }
+                return;
+            }
+            
+            // Reset do cronômetro com R
+            if (event.code === "KeyR" && !timerRunning) {
+                resetTimer();
+                return;
+            }
 
-                if(event.key.toUpperCase() == "V"){
-                    valor_v++;
-                    vantagem.value = String(valor_v);
+            // Caso do lado direito
+            if (event.code === "ArrowRight") {
+                esquerda.classList.remove("selecionado");
+                selecionado = direita;
+                selecionado.classList.add("selecionado");
+
+                pontos = document.getElementById("ponto-right");
+                vantagem = document.getElementById("vantagem-right");
+                falta = document.getElementById("falta-right");
+
+                selecionado.classList.add('destaque');
+                setTimeout(() => selecionado.classList.remove('destaque'), 500);
+                statusBar.textContent = 'ATLETA DIREITO SELECIONADO';
+            }
+
+            // Caso do lado esquerdo
+            if (event.code === "ArrowLeft") {
+                direita.classList.remove("selecionado");
+                selecionado = esquerda;
+                selecionado.classList.add("selecionado");
+
+                pontos = document.getElementById("ponto-left");
+                vantagem = document.getElementById("vantagem-left");
+                falta = document.getElementById("falta-left");
+                
+                selecionado.classList.add('destaque');
+                setTimeout(() => selecionado.classList.remove('destaque'), 500);
+                statusBar.textContent = 'ATLETA ESQUERDO SELECIONADO';
+            }
+
+            // Adicionar os pontos
+            if (pontos_validos.includes(Number(event.key))) {
+                if (pontos) {
+                    let valor = Number(pontos.value) + Number(event.key);
+                    pontos.value = String(valor);
+                    
+                    pontos.classList.add('destaque');
+                    setTimeout(() => pontos.classList.remove('destaque'), 300);
+                    statusBar.textContent = `PONTOS ADICIONADOS: +${event.key}`;
                 }
             }
-        }
-    });
-</script>
 
+            // Adicionar faltas e vantagens
+            if (keys_validos.includes(event.key.toUpperCase())) {
+                if (vantagem && falta) {
+                    if(event.key.toUpperCase() == "F"){
+                        let valor_f = Number(falta.value) + 1;
+                        falta.value = String(valor_f);
+                        falta.classList.add('destaque');
+                        setTimeout(() => falta.classList.remove('destaque'), 300);
+                        statusBar.textContent = 'FALTA ADICIONADA: +1';
+                    }
+
+                    if(event.key.toUpperCase() == "V"){
+                        let valor_v = Number(vantagem.value) + 1;
+                        vantagem.value = String(valor_v);
+                        vantagem.classList.add('destaque');
+                        setTimeout(() => vantagem.classList.remove('destaque'), 300);
+                        statusBar.textContent = 'VANTAGEM ADICIONADA: +1';
+                    }
+                }
+            }
+        });
+    </script>
+</body>
 </html>
