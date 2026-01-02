@@ -72,6 +72,13 @@
             font-size: 12px;
             color: #333;
         }
+        
+        footer {
+            margin-top: 30px;
+            padding: 15px;
+            border-top: 1px solid #ccc;
+            font-family: Arial, sans-serif;
+        }
     </style>
 </head>
 
@@ -143,6 +150,41 @@
     </div>
 
     <div class="clear"></div>
+    
+    <footer>
+        <h3>Instruções do Marcador de Pontos:</h3>
+        <p><strong>Seleção de Atleta:</strong></p>
+        <ul>
+            <li>Seta para ESQUERDA ← : Seleciona o atleta da esquerda (border preto aparecerá)</li>
+            <li>Seta para DIREITA → : Seleciona o atleta da direita (border preto aparecerá)</li>
+        </ul>
+        
+        <p><strong>Marcar Pontos:</strong></p>
+        <ul>
+            <li>Tecla 2 : Adiciona 2 pontos ao atleta selecionado</li>
+            <li>Tecla 3 : Adiciona 3 pontos ao atleta selecionado</li>
+            <li>Tecla 4 : Adiciona 4 pontos ao atleta selecionado</li>
+        </ul>
+        
+        <p><strong>Marcar Vantagens e Faltas:</strong></p>
+        <ul>
+            <li>Tecla V : Adiciona 1 vantagem ao atleta selecionado</li>
+            <li>Tecla F : Adiciona 1 falta ao atleta selecionado</li>
+        </ul>
+        
+        <p><strong>Controles do Cronômetro:</strong></p>
+        <ul>
+            <li>ESPAÇO : Inicia ou pausa o cronômetro</li>
+            <li>R : Reseta o cronômetro (apenas quando parado)</li>
+        </ul>
+        
+        <p><strong>Notas:</strong></p>
+        <ul>
+            <li>Primeiro selecione um atleta com as setas, depois pressione as teclas de pontuação</li>
+            <li>O tempo da luta é automaticamente configurado conforme idade e faixa selecionadas</li>
+            <li>Os pontos 2, 3, 4 correspondem às pontuações padrão do Jiu-Jitsu</li>
+        </ul>
+    </footer>
 </body>
 
 <script>
