@@ -177,6 +177,7 @@ if (isset($_GET['id'])) {
                                     <a href='admin/lista_inscritos.php?id=<?php echo $valor->id ?>'>Ver Inscritos</a>
                                     <a href='admin/editar_evento.php?id=<?php echo $valor->id ?>'>Editar</a>
                                     <a href='admin/baixar_chapa.php?id=<?php echo $valor->id ?>'>Gerar chapa PDF</a>
+                                    <a href='admin/baixar_relatorio.php?id=<?php echo $valor->id ?>'>Baixar estatística</a>
                                 </div>
                             <?php } ?>
                         </div>
@@ -707,6 +708,7 @@ if (isset($_GET['id'])) {
                                 <div class="chapa-options">
                                     <h3>Opções de Administrador</h3>
                                     <a href='admin/baixar_chapa.php?id=<?php echo $eventoId ?>'>Baixar Chapas (PDF)</a> |
+                                    <a href='admin/baixar_relatorio.php?id=<?php echo $eventoId ?>'>Baixar estatística(PDF)</a> |
                                 </div>
                         <?php } ?>
                         <br>
