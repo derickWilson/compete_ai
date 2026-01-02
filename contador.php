@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <title>Contador de Pontos</title>
     <style>
         /* ===== VARIÁVEIS E ESTILOS BASE ===== */
         :root {
@@ -179,7 +180,7 @@
             background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
             border-bottom: 1px solid #dee2e6;
             flex-shrink: 0;
-            min-height: 180px;
+            min-height: 160px; /* Reduzido */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -187,12 +188,12 @@
 
         .timer-display {
             font-family: 'Courier New', monospace;
-            font-size: 90px;
+            font-size: 85px; /* Reduzido ligeiramente */
             font-weight: bold;
-            padding: 20px 40px;
+            padding: 18px 35px; /* Reduzido */
             border-radius: var(--border-radius);
             display: inline-block;
-            min-width: 350px;
+            min-width: 320px; /* Reduzido */
             margin: 0 auto;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
             transition: var(--transition);
@@ -222,25 +223,25 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
-            margin-top: 8px;
+            gap: 15px; /* Reduzido */
+            margin-top: 6px; /* Reduzido */
         }
 
         .config-info {
-            font-size: 13px;
+            font-size: 12px; /* Reduzido */
             color: var(--primary-dark);
             font-weight: 500;
             background: rgba(233, 185, 73, 0.1);
-            padding: 5px 12px;
+            padding: 4px 10px; /* Reduzido */
             border-radius: 20px;
             display: inline-block;
         }
 
         .timer-controles {
-            font-size: 11px;
+            font-size: 10px; /* Reduzido */
             color: var(--gray);
             background: var(--white);
-            padding: 4px 10px;
+            padding: 3px 8px; /* Reduzido */
             border-radius: var(--border-radius);
             display: inline-block;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -259,8 +260,8 @@
         /* ===== ÁREA DE PONTUAÇÃO COMPACTA ===== */
         .placar-container {
             display: flex;
-            padding: 20px;
-            gap: 30px;
+            padding: 15px 20px 20px 20px; /* Reduzido top */
+            gap: 25px; /* Reduzido */
             justify-content: center;
             background: var(--white);
             flex: 1;
@@ -272,7 +273,7 @@
             flex: 1;
             background: var(--light);
             border-radius: var(--border-radius);
-            padding: 25px;
+            padding: 20px; /* Reduzido */
             box-shadow: var(--box-shadow);
             border-top: 8px solid var(--primary);
             transition: var(--transition);
@@ -282,66 +283,127 @@
             margin: 0 10px;
         }
 
+        /* Atleta CLARO (esquerda) - fundo claro */
+        #esqr {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
+            border-top-color: #cccccc;
+        }
+
+        /* Atleta AZUL (direita) - fundo azul ESCURO */
+        #dir {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+            border-top-color: #3b82f6;
+        }
+
         .atleta-container.selecionado {
-            border-color: var(--secondary);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             transform: translateY(-5px);
+        }
+
+        /* Quando selecionado, intensificar o fundo */
+        #esqr.selecionado {
+            background: linear-gradient(135deg, #ffffff 0%, #e8e8e8 100%);
+            border-top-color: #999999;
+        }
+
+        #dir.selecionado {
+            background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+            border-top-color: #60a5fa;
         }
 
         .atleta-container h2 {
             text-align: center;
-            color: var(--primary-dark);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--primary-light);
-            font-size: 22px;
+            margin-bottom: 15px; /* Reduzido */
+            padding-bottom: 8px; /* Reduzido */
+            border-bottom: 3px solid;
+            font-size: 20px; /* Reduzido */
             flex-shrink: 0;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: bold;
+        }
+
+        /* Cor do texto e borda para CLARO */
+        #esqr h2 {
+            color: #333333;
+            border-bottom-color: #999999;
+        }
+
+        /* Cor do texto e borda para AZUL */
+        #dir h2 {
+            color: #ffffff;
+            border-bottom-color: #60a5fa;
         }
 
         /* PONTOS GRANDE */
         .pontos-container {
-            margin-bottom: 15px;
+            margin-bottom: 10px; /* Reduzido */
             flex-shrink: 0;
         }
 
         .pontos-container label {
             display: block;
-            margin-bottom: 8px;
-            color: var(--dark);
+            margin-bottom: 6px; /* Reduzido */
             font-weight: 700;
-            font-size: 18px;
+            font-size: 16px; /* Reduzido */
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
+        /* Cor do label para CLARO */
+        #esqr .pontos-container label {
+            color: #333333;
+        }
+
+        /* Cor do label para AZUL */
+        #dir .pontos-container label {
+            color: #ffffff;
+        }
+
         .pontos-input {
             width: 100%;
-            padding: 25px 20px;
-            border: 3px solid #ddd;
+            padding: 20px 15px; /* Reduzido */
+            border: 3px solid;
             border-radius: var(--border-radius);
-            font-size: 60px;
+            font-size: 52px; /* Reduzido */
             font-weight: bold;
             text-align: center;
             transition: var(--transition);
             font-family: 'Courier New', monospace;
-            background: var(--white);
-            color: var(--primary-dark);
-            height: 120px;
+            height: 100px; /* Reduzido */
         }
 
-        .pontos-input:focus {
+        /* Input para CLARO */
+        #esqr .pontos-input {
+            background: #ffffff;
+            color: #333333;
+            border-color: #cccccc;
+        }
+
+        #esqr .pontos-input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(50, 46, 192, 0.15);
+            border-color: #999999;
+            box-shadow: 0 0 0 4px rgba(153, 153, 153, 0.15);
+        }
+
+        /* Input para AZUL */
+        #dir .pontos-input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e40af;
+            border-color: #60a5fa;
+        }
+
+        #dir .pontos-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
         /* VANTAGENS E FALTAS LADO A LADO */
         .vantagens-faltas-container {
             display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
+            gap: 12px; /* Reduzido */
+            margin-bottom: 10px; /* Reduzido */
         }
 
         .vantagens-container, .faltas-container {
@@ -350,66 +412,118 @@
 
         .vantagens-container label, .faltas-container label {
             display: block;
-            margin-bottom: 8px;
-            color: var(--dark);
+            margin-bottom: 5px; /* Reduzido */
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px; /* Reduzido */
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
+        /* Cor do label para CLARO */
+        #esqr .vantagens-container label,
+        #esqr .faltas-container label {
+            color: #333333;
+        }
+
+        /* Cor do label para AZUL */
+        #dir .vantagens-container label,
+        #dir .faltas-container label {
+            color: #ffffff;
+        }
+
         .vantagem-input, .falta-input {
             width: 100%;
-            padding: 15px 10px;
-            border: 2px solid #ddd;
+            padding: 12px 8px; /* Reduzido */
+            border: 2px solid;
             border-radius: var(--border-radius);
-            font-size: 32px;
+            font-size: 28px; /* Reduzido */
             font-weight: bold;
             text-align: center;
             transition: var(--transition);
             font-family: 'Courier New', monospace;
-            background: var(--white);
-            color: var(--primary-dark);
-            height: 70px;
+            height: 60px; /* Reduzido */
         }
 
-        .vantagem-input:focus, .falta-input:focus {
+        /* Inputs para CLARO */
+        #esqr .vantagem-input,
+        #esqr .falta-input {
+            background: #ffffff;
+            color: #333333;
+            border-color: #cccccc;
+        }
+
+        #esqr .vantagem-input:focus,
+        #esqr .falta-input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(50, 46, 192, 0.1);
+            border-color: #999999;
+            box-shadow: 0 0 0 3px rgba(153, 153, 153, 0.1);
+        }
+
+        /* Inputs para AZUL */
+        #dir .vantagem-input,
+        #dir .falta-input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #1e40af;
+            border-color: #60a5fa;
+        }
+
+        #dir .vantagem-input:focus,
+        #dir .falta-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         /* VENCEDOR */
         .vencedor-container {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #eee;
+            margin-top: 10px; /* Reduzido */
+            padding-top: 10px; /* Reduzido */
+            border-top: 2px solid;
             text-align: center;
             flex-shrink: 0;
+        }
+
+        /* Borda para CLARO */
+        #esqr .vencedor-container {
+            border-top-color: #eeeeee;
+        }
+
+        /* Borda para AZUL */
+        #dir .vencedor-container {
+            border-top-color: rgba(255, 255, 255, 0.2);
         }
 
         .checkbox-wrapper {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px; /* Reduzido */
             cursor: pointer;
         }
 
         .checkbox-wrapper input[type="checkbox"] {
-            width: 28px;
-            height: 28px;
+            width: 24px; /* Reduzido */
+            height: 24px; /* Reduzido */
             cursor: pointer;
-            transform: scale(1.5);
+            transform: scale(1.3); /* Reduzido */
         }
 
         .checkbox-wrapper label {
-            font-size: 20px;
+            font-size: 18px; /* Reduzido */
             font-weight: 700;
-            color: var(--primary-dark);
             cursor: pointer;
             margin: 0;
             text-transform: uppercase;
+        }
+
+        /* Label para CLARO */
+        #esqr .checkbox-wrapper label {
+            color: #333333;
+        }
+
+        /* Label para AZUL */
+        #dir .checkbox-wrapper label {
+            color: #ffffff;
         }
 
         /* ===== STATUS BAR ===== */
@@ -446,25 +560,25 @@
         /* ===== RESPONSIVIDADE ===== */
         @media (max-width: 1200px) {
             .timer-display {
-                font-size: 70px;
+                font-size: 65px;
                 min-width: 280px;
                 padding: 15px 30px;
             }
             
             .pontos-input {
-                font-size: 50px;
-                height: 100px;
-                padding: 20px 15px;
+                font-size: 45px;
+                height: 90px;
+                padding: 18px 12px;
             }
             
             .vantagem-input, .falta-input {
-                font-size: 28px;
-                height: 60px;
-                padding: 12px 8px;
+                font-size: 24px;
+                height: 55px;
+                padding: 10px 6px;
             }
             
             .atleta-container h2 {
-                font-size: 20px;
+                font-size: 18px;
             }
         }
 
@@ -472,14 +586,15 @@
             .placar-container {
                 flex-direction: column;
                 align-items: center;
-                padding: 15px;
-                gap: 20px;
+                padding: 12px 15px 15px 15px;
+                gap: 18px;
             }
             
             .atleta-container {
                 width: 100%;
-                max-width: 700px;
+                max-width: 650px;
                 margin: 0;
+                padding: 18px;
             }
             
             .instrucoes-linha {
@@ -495,8 +610,8 @@
 
         @media (max-width: 768px) {
             .timer-display {
-                font-size: 50px;
-                min-width: 220px;
+                font-size: 45px;
+                min-width: 200px;
                 padding: 12px 20px;
             }
             
@@ -513,23 +628,23 @@
             }
             
             .pontos-input {
-                font-size: 40px;
-                height: 80px;
-                padding: 15px 10px;
+                font-size: 36px;
+                height: 75px;
+                padding: 12px 8px;
             }
             
             .vantagem-input, .falta-input {
-                font-size: 24px;
-                height: 50px;
-                padding: 10px 6px;
+                font-size: 20px;
+                height: 45px;
+                padding: 8px 5px;
             }
             
             .atleta-container h2 {
-                font-size: 18px;
+                font-size: 16px;
             }
             
             .checkbox-wrapper label {
-                font-size: 18px;
+                font-size: 16px;
             }
             
             .instrucoes-container {
@@ -546,23 +661,62 @@
 
         @media (max-height: 800px) {
             .timer-display {
-                font-size: 60px;
-                padding: 15px 25px;
+                font-size: 55px;
+                padding: 12px 20px;
             }
             
             .pontos-input {
-                font-size: 40px;
-                height: 80px;
-                padding: 15px 10px;
+                font-size: 36px;
+                height: 70px;
+                padding: 12px 8px;
             }
             
             .vantagem-input, .falta-input {
-                font-size: 24px;
-                height: 50px;
+                font-size: 20px;
+                height: 45px;
+                padding: 8px 5px;
             }
             
             .atleta-container {
-                padding: 20px;
+                padding: 15px;
+            }
+            
+            .atleta-container h2 {
+                margin-bottom: 10px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-height: 700px) {
+            .timer-container {
+                min-height: 140px;
+                padding: 10px 15px;
+            }
+            
+            .timer-display {
+                font-size: 50px;
+                padding: 10px 15px;
+                min-width: 250px;
+            }
+            
+            .placar-container {
+                padding: 10px 15px 15px 15px;
+            }
+            
+            .atleta-container {
+                padding: 12px;
+            }
+            
+            .pontos-input {
+                font-size: 32px;
+                height: 65px;
+                padding: 10px 6px;
+            }
+            
+            .vantagem-input, .falta-input {
+                font-size: 18px;
+                height: 40px;
+                padding: 6px 4px;
             }
         }
 
@@ -647,9 +801,9 @@
                 <div class="instrucao-item">
                     <span class="instrucao-texto">SELEÇÃO:</span>
                     <span class="tecla">←</span>
-                    <span class="instrucao-descricao">ESQUERDO</span>
+                    <span class="instrucao-descricao">CLARO</span>
                     <span class="tecla">→</span>
-                    <span class="instrucao-descricao">DIREITO</span>
+                    <span class="instrucao-descricao">AZUL</span>
                 </div>
                 
                 <div class="instrucao-item">
@@ -681,12 +835,15 @@
             <div id="timerDisplay" class="timer-display timer-stopped">--:--</div>
             <div class="timer-info-container">
                 <div id="configInfo" class="config-info">Selecione idade e faixa para configurar o tempo</div>
+                <div class="timer-controles">
+                    <strong>ESPAÇO</strong> Iniciar/Pausar • <strong>R</strong> Resetar
+                </div>
             </div>
         </div>
 
         <div class="placar-container">
             <div class="atleta-container" id="esqr">
-                <h2><i class="fas fa-user-fighter"></i> ATLETA ESQUERDO</h2>
+                <h2><i class="fas fa-user-fighter"></i> ATLETA CLARO</h2>
                 
                 <div class="pontos-container">
                     <label>Pontos:</label>
@@ -714,7 +871,7 @@
             </div>
 
             <div class="atleta-container" id="dir">
-                <h2><i class="fas fa-user-fighter"></i> ATLETA DIREITO</h2>
+                <h2><i class="fas fa-user-fighter"></i> ATLETA AZUL</h2>
                 
                 <div class="pontos-container">
                     <label>Pontos:</label>
@@ -748,6 +905,7 @@
     </div>
 
     <script>
+        // (O JavaScript permanece exatamente o mesmo)
         // Tabela de tempos baseada na imagem fornecida
         const tempoLutas = {
             'pre-mirim': { 'todas': 2 },
@@ -1008,7 +1166,7 @@
                 return;
             }
 
-            // Caso do lado direito
+            // Caso do lado direito (AZUL)
             if (event.code === "ArrowRight") {
                 esquerda.classList.remove("selecionado");
                 selecionado = direita;
@@ -1020,10 +1178,10 @@
 
                 selecionado.classList.add('destaque');
                 setTimeout(() => selecionado.classList.remove('destaque'), 500);
-                statusBar.textContent = 'ATLETA DIREITO SELECIONADO';
+                statusBar.textContent = 'ATLETA AZUL SELECIONADO';
             }
 
-            // Caso do lado esquerdo
+            // Caso do lado esquerdo (CLARO)
             if (event.code === "ArrowLeft") {
                 direita.classList.remove("selecionado");
                 selecionado = esquerda;
@@ -1035,7 +1193,7 @@
                 
                 selecionado.classList.add('destaque');
                 setTimeout(() => selecionado.classList.remove('destaque'), 500);
-                statusBar.textContent = 'ATLETA ESQUERDO SELECIONADO';
+                statusBar.textContent = 'ATLETA CLARO SELECIONADO';
             }
 
             // Adicionar os pontos
