@@ -10,6 +10,18 @@
 
         .cabecalho {
             margin-bottom: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        body {
+            padding-top: 100px; /* Espaço para o cabeçalho fixo */
         }
 
         .bloc {
@@ -32,6 +44,12 @@
         .timer-container {
             text-align: center;
             margin: 20px 0;
+            position: sticky;
+            top: 70px; /* Abaixo do cabeçalho */
+            background: white;
+            padding: 10px 0;
+            z-index: 999;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .timer-display {
