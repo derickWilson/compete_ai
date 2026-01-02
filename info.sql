@@ -30,6 +30,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         responsavel BOOLEAN NOT NULL,
         diploma VARCHAR(30) NOT NULL,
         permissao_email TINYINT DEFAULT 1,
+        data_filiacao DATE DEFAULT NULL,
         FOREIGN KEY (academia) REFERENCES academia_filiada(id),
         PRIMARY KEY (id)
     );

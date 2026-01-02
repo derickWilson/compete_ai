@@ -46,8 +46,10 @@ class atletaService
             $this->conn->beginTransaction();
 
             // Prepara query para inserção do responsável
-            $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, data_nascimento, fone, endereco_completo, faixa, peso, diploma, validado, responsavel)
-              VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :endereco_completo, :faixa, :peso, :diploma, 0, 1)";
+            $query = "INSERT INTO 
+            atleta (nome, cpf, senha, genero, foto, email, data_nascimento, fone, endereco_completo, faixa, peso, diploma, validado, responsavel, data_filiacao)
+          VALUES 
+          (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :endereco_completo, :faixa, :peso, :diploma, 0, 1, :data_filiacao)";
             $stmt = $this->conn->prepare($query);
 
             // Gera hash seguro da senha usando algoritmo BCrypt
@@ -66,6 +68,7 @@ class atletaService
             $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
             $stmt->bindValue(":peso", $this->atleta->__get("peso"));
             $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
+            $stmt->bindValue(":data_filiacao", date('Y-m-d'));
 
             // Executa a inserção do responsável
             $stmt->execute();
@@ -196,8 +199,8 @@ class atletaService
     public function addAtleta()
     {
         // Prepara query para inserção do atleta com todos os campos necessários
-        $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, academia, data_nascimento, fone, endereco_completo, faixa, peso, diploma, validado, responsavel)
-            VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :academia, :data_nascimento, :fone, :endereco_completo, :faixa, :peso, :diploma, :validado, :responsavel)";
+        $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, academia, data_nascimento, fone, endereco_completo, faixa, peso, diploma, validado, responsavel, data_filiacao)
+          VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :academia, :data_nascimento, :fone, :endereco_completo, :faixa, :peso, :diploma, :validado, :responsavel, :data_filiacao)";
         $stmt = $this->conn->prepare($query);
 
         // Gera hash seguro da senha usando algoritmo BCrypt
@@ -219,6 +222,7 @@ class atletaService
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
         $stmt->bindValue(":validado", 0); // Atleta aguardando validação
         $stmt->bindValue(":responsavel", 0); // Não é responsável por academia
+        $stmt->bindValue(":data_filiacao", date('Y-m-d'));
 
         // Executar a query dentro de bloco try-catch para tratamento de erros
         try {
