@@ -346,7 +346,7 @@ class atletaService
         validarPermissaoAdmin();
         // Query para selecionar atletas não validados com informações completas
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento,
-                     a.fone, f.nome, a.responsavel as academia, a.faixa, a.peso
+                     a.fone, f.nome as academia, a.responsavel, a.faixa, a.peso
               FROM atleta a
               JOIN academia_filiada f ON f.id = a.academia
               WHERE a.validado = 0";
