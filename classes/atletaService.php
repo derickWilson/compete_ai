@@ -46,8 +46,8 @@ class atletaService
             $this->conn->beginTransaction();
 
             // Prepara query para inserção do responsável
-            $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
-                  VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :faixa, :peso, :diploma, 0, 1)";
+            $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, data_nascimento, fone, endereco_completo, faixa, peso, diploma, validado, responsavel)
+              VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :data_nascimento, :fone, :endereco_completo, :faixa, :peso, :diploma, 0, 1)";
             $stmt = $this->conn->prepare($query);
 
             // Gera hash seguro da senha usando algoritmo BCrypt
@@ -62,6 +62,7 @@ class atletaService
             $stmt->bindValue(":email", $this->atleta->__get("email"));
             $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
             $stmt->bindValue(":fone", $this->atleta->__get("fone"));
+            $stmt->bindValue(":endereco_completo", $this->atleta->__get("endereco_completo"));
             $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
             $stmt->bindValue(":peso", $this->atleta->__get("peso"));
             $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
@@ -195,8 +196,8 @@ class atletaService
     public function addAtleta()
     {
         // Prepara query para inserção do atleta com todos os campos necessários
-        $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, academia, data_nascimento, fone, faixa, peso, diploma, validado, responsavel)
-                VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :academia, :data_nascimento, :fone, :faixa, :peso, :diploma, :validado, :responsavel)";
+        $query = "INSERT INTO atleta (nome, cpf, senha, genero, foto, email, academia, data_nascimento, fone, endereco_completo, faixa, peso, diploma, validado, responsavel)
+            VALUES (:nome, :cpf, :senha, :genero, :foto, :email, :academia, :data_nascimento, :fone, :endereco_completo, :faixa, :peso, :diploma, :validado, :responsavel)";
         $stmt = $this->conn->prepare($query);
 
         // Gera hash seguro da senha usando algoritmo BCrypt
@@ -212,6 +213,7 @@ class atletaService
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":data_nascimento", $this->atleta->__get("data_nascimento"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
+        $stmt->bindValue(":endereco_completo", $this->atleta->__get("endereco_completo"));
         $stmt->bindValue(":faixa", $this->atleta->__get("faixa"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
         $stmt->bindValue(":diploma", $this->atleta->__get("diploma"));
@@ -442,6 +444,7 @@ class atletaService
                     $_SESSION["idade"] = calcularIdade($atleta->data_nascimento);
                     $_SESSION["data_nascimento"] = $atleta->data_nascimento;
                     $_SESSION["fone"] = $atleta->fone;
+                    $_SESSION["endereco_completo"] = $atleta->endereco_completo ?? '';
                     $_SESSION["academia"] = $this->getAcad($atleta->academia);
                     $_SESSION["faixa"] = $atleta->faixa;
                     $_SESSION["peso"] = $atleta->peso;
@@ -552,9 +555,9 @@ class atletaService
     public function getById($id)
     {
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto, a.academia as acadid,
-                    a.fone, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel,
-                    a.permissao_email, a.responsavel
-                    FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
+                a.fone, a.endereco_completo, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel,
+                a.permissao_email, a.responsavel
+                FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":id", $id);
         try {
@@ -670,12 +673,13 @@ class atletaService
     //editar atleta
     public function updateAtleta()
     {
-        $query = "UPDATE atleta SET email = :email, fone = :fone, foto = :foto, peso = :peso, permissao_email = :permissao_email
-                WHERE id = :id";
+        $query = "UPDATE atleta SET email = :email, fone = :fone, endereco_completo = :endereco_completo, foto = :foto, peso = :peso, permissao_email = :permissao_email
+            WHERE id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":email", $this->atleta->__get("email"));
         $stmt->bindValue(":permissao_email", $this->atleta->__get("permissao_email"));
         $stmt->bindValue(":fone", $this->atleta->__get("fone"));
+        $stmt->bindValue(":endereco_completo", $this->atleta->__get("endereco_completo"));
         $stmt->bindValue(":foto", $this->atleta->__get("foto"));
         $stmt->bindValue(":peso", $this->atleta->__get("peso"));
         $stmt->bindValue(":id", $this->atleta->__get("id"));

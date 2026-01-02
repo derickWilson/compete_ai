@@ -20,6 +20,7 @@ CREATE DATABASE IF NOT EXISTS usuario;
         email VARCHAR(100) NOT NULL,
         data_nascimento DATE NOT NULL,
         fone VARCHAR(15) NOT NULL,
+        endereco_completo VARCHAR(255) NULL AFTER fone;
         academia INT,
         faixa VARCHAR(30) NOT NULL,
         peso FLOAT(5,2) NOT NULL,

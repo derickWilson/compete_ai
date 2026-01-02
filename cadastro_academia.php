@@ -131,6 +131,11 @@ if (isset($_GET['erro'])) {
             <input oninput="formatPhone(this)" maxlength="15" type="tel" name="fone" id="telefone"
                 placeholder="(00) 00000-0000" required><br>
 
+            Endereço Completo <br>
+            <textarea name="endereco_completo" id="endereco_completo"
+                placeholder="Rua, número, bairro, cidade, complemento..." maxlength="255" rows="3" style="width: 300px;"
+                required></textarea><br>
+
             Faixa do Responsável <select id="faixas" name="faixa" required>
                 <option value="">Selecione sua graduação</option>
                 <option value="Branca">Branca</option>

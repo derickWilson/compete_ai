@@ -91,7 +91,18 @@ if (isset($_GET["user"])) {
                             </a>
                         </span>
                     </div>
-
+                    <div class="info-item">
+                        <label class="label">Endereço: </label>
+                        <span class="valor">
+                            <?php if (!empty($usuario->endereco_completo)): ?>
+                                <div style="max-width: 400px; word-wrap: break-word; line-height: 1.4;">
+                                    <?php echo nl2br(htmlspecialchars($usuario->endereco_completo)); ?>
+                                </div>
+                            <?php else: ?>
+                                <span style="color: #888; font-style: italic;">Não informado</span>
+                            <?php endif; ?>
+                        </span>
+                    </div>
                     <div class="info-item">
                         <label class="label">Data de Nascimento: </label>
                         <span class="valor"><?php echo $usuario->data_nascimento; ?></span>

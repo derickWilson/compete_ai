@@ -148,6 +148,11 @@ function validarDadosBasicos(array $dados): void
     if (!validarCPF($dados['cpf'] ?? '')) {
         throw new Exception("CPF inválido. Por favor, verifique o número digitado.");
     }
+
+    // Na função validarDadosBasicos, adicione após a validação do CPF:
+    if (!empty($dados['endereco_completo']) && strlen(trim($dados['endereco_completo'])) > 255) {
+        throw new Exception("Endereço muito longo. Máximo 255 caracteres.");
+    }
     // Validar email
     if (!filter_var($dados['email'] ?? '', FILTER_VALIDATE_EMAIL)) {
         throw new Exception("Email inválido.");
@@ -248,6 +253,7 @@ try {
         $atletas->__set("email", cleanWords($_POST["email"]));
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("fone", $telefone_completo);
+        $atletas->__set("endereco_completo", !empty($_POST["endereco_completo"]) ? cleanWords($_POST["endereco_completo"]) : null);
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));
         $atletas->__set("peso", (float) $_POST["peso"]);
         $atletas->__set("diploma", $novoNomeDiploma);
@@ -327,7 +333,7 @@ try {
         $atletas->__set("data_nascimento", $_POST["data_nascimento"]);
         $atletas->__set("foto", $novoNomeFoto);
         $atletas->__set("fone", $telefone_completo);
-
+        $atletas->__set("endereco_completo", !empty($_POST["endereco_completo"]) ? cleanWords($_POST["endereco_completo"]) : null);
         $academiaId = !empty($_POST["academia"]) ? (int) $_POST["academia"] : null;
         $atletas->__set("academia", $academiaId);
         $atletas->__set("faixa", cleanWords($_POST["faixa"]));

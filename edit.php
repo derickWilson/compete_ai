@@ -104,6 +104,15 @@ if (strpos($telefone_completo, '+') === 0) {
                                        oninput="formatPhone(this)" required>
                             </div>
                         </div>
+
+                        <div class="form-group">
+                            <label for="endereco_completo" class="form-label">Endereço Completo</label>
+                            <textarea name="endereco_completo" id="endereco_completo" class="form-input textarea-input" 
+                                      placeholder="Rua, número, bairro, cidade, complemento..." 
+                                      maxlength="255" 
+                                      rows="3"><?php echo htmlspecialchars($atleta->endereco_completo ?? ''); ?></textarea>
+                            <span class="file-info">Ex: Rua das Flores, 123, Centro, São Paulo - SP</span>
+                        </div>
                     </div>
                     
                     <div class="form-group">

@@ -1,5 +1,6 @@
 <?php
-class Atleta {
+class Atleta
+{
     private $nome;
     private $cpf;
     private $id;
@@ -9,6 +10,7 @@ class Atleta {
     private $email;
     private $data_nascimento;
     private $fone;
+    private $endereco_completo;
     private $academia;
     private $faixa;
     private $peso;
@@ -19,11 +21,13 @@ class Atleta {
     private $permissao_email;
 
     // Getters and setters for all properties
-    public function __get($atributo) {
+    public function __get($atributo)
+    {
         return $this->$atributo;
     }
 
-    public function __set($atributo, $value) {
+    public function __set($atributo, $value)
+    {
         $this->$atributo = $value;
     }
 }
