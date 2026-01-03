@@ -17,11 +17,53 @@ if (!isset($_GET['id'])) {
 }
 
 $idEvento = cleanWords($_GET['id']);
+
 try {
     $conn = new Conexao();
     $evento = new Evento();
     $ev = new eventosService($conn, $evento);
     $asaasService = new AssasService($conn);
+    
+    // 0. OBTER LISTA DE EVENTOS PARA NAVEGAÇÃO (usando listAll() existente)
+    $eventosAtivos = $ev->listAll(); // ← USANDO O MÉTODO EXISTENTE
+    
+    // Encontrar a posição do evento atual na lista
+    $eventoAtualIndex = -1;
+    $eventoAnterior = null;
+    $eventoProximo = null;
+    $eventoAtualInfo = null;
+    
+    foreach ($eventosAtivos as $index => $eventoItem) {
+        if ($eventoItem->id == $idEvento) {
+            $eventoAtualIndex = $index;
+            $eventoAtualInfo = $eventoItem;
+            
+            // Evento anterior
+            if ($index > 0) {
+                $eventoAnterior = $eventosAtivos[$index - 1];
+            }
+            
+            // Próximo evento
+            if ($index < count($eventosAtivos) - 1) {
+                $eventoProximo = $eventosAtivos[$index + 1];
+            }
+            break;
+        }
+    }
+    
+    // Se o evento atual não está na lista de ativos, buscar informações dele
+    if (!$eventoAtualInfo) {
+        try {
+            $eventoAtualInfo = $ev->getById($idEvento);
+            // Adicionar à lista para navegação
+            array_unshift($eventosAtivos, $eventoAtualInfo);
+            $eventoAtualIndex = 0;
+        } catch (Exception $e) {
+            $_SESSION['erro'] = "Evento não encontrado";
+            header("Location: eventos.php");
+            exit();
+        }
+    }
 
     // 1. PROCESSAR AÇÕES ADMINISTRATIVAS
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
@@ -173,22 +215,6 @@ try {
         }
     }
 
-    //atualizar categorias vazias
-//    try {
-//        $categoriasAtualizadas = $ev->atualizarCategoriasVazias($idEvento);
-//        if ($categoriasAtualizadas > 0) {
-//            error_log("[$idEvento] Categorias atualizadas: $categoriasAtualizadas inscrições");
-//            $inscritos = $ev->getInscritos($idEvento);
-//
-//            if (!isset($_SESSION['mensagem'])) {
-//                $_SESSION['mensagem'] = "Categorias calculadas automaticamente para $categoriasAtualizadas atletas";
-//            }
-//        }
-//    } catch (Exception $e) {
-//        error_log("Erro ao atualizar categorias vazias: " . $e->getMessage());
-//    }
-
-
     // Recarregar lista após atualizações
     $inscritos = $ev->getInscritos($idEvento);
 
@@ -210,129 +236,447 @@ try {
     <title>Lista de Inscritos</title>
     <style>
         .status-pago {
-            color: green;
+            color: var(--success);
             font-weight: bold;
         }
 
         .status-pendente {
-            color: orange;
+            color: var(--warning);
             font-weight: bold;
         }
 
         .status-confirmado {
-            color: blue;
+            color: var(--primary);
             font-weight: bold;
         }
 
         .status-isento {
-            color: purple;
+            color: #9c27b0;
             font-weight: bold;
         }
 
         .status-outros {
-            color: #666;
+            color: var(--gray);
         }
 
         .refresh-btn {
-            margin: 10px 0;
-            padding: 5px 10px;
-            background-color: #4CAF50;
-            color: white;
+            margin: 15px 0;
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: var(--white);
             border: none;
-            border-radius: 4px;
+            border-radius: var(--border-radius);
             cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .refresh-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
         }
 
         .action-form {
             display: inline-block;
-            margin: 2px;
+            margin: 5px;
         }
 
         .action-btn {
-            padding: 3px 6px;
+            padding: 6px 12px;
             margin: 0 2px;
             cursor: pointer;
-            border-radius: 3px;
+            border-radius: 4px;
             border: 1px solid #ddd;
+            font-size: 13px;
+            transition: var(--transition);
         }
 
         .pago-btn {
-            background-color: #4CAF50;
+            background-color: var(--success);
             color: white;
+            border: none;
         }
 
         .isento-btn {
-            background-color: #9C27B0;
+            background-color: #9c27b0;
             color: white;
+            border: none;
         }
 
         .valor-input {
-            width: 70px;
-            padding: 3px;
+            width: 80px;
+            padding: 5px 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             text-align: right;
+            font-size: 13px;
+            margin-right: 5px;
         }
 
         .mensagem {
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 4px;
+            padding: 12px 20px;
+            margin: 15px 0;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: 500;
         }
 
         .mensagem.sucesso {
-            background-color: #dff0d8;
-            color: #3c763d;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
         }
 
         .mensagem.erro {
-            background-color: #f2dede;
+            background-color: #f8d7da;
             color: #a94442;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Estilos da tabela */
+        .tabela-wrapper {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            margin: 20px 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
-            background: var(--white) !important;
+            background: var(--white);
         }
 
         th,
         td {
-            padding: 8px;
+            padding: 12px 15px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
-            color: var(--dark) !important;
+            border-bottom: 1px solid #eee;
+            color: var(--dark);
         }
 
         th {
-            background-color: var(--primary-dark) !important;
-            color: var(--white) !important;
+            background-color: var(--primary-dark);
+            color: var(--white);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
         }
 
-        /* CORREÇÃO: Garantir que o texto nas células fique sempre com cor escura */
-        table td {
-            color: var(--dark) !important;
+        tr:hover {
+            background-color: #f8f9fa;
         }
 
-        /* Manter o hover com um efeito sutil */
-        tr:hover td {
-            background-color: rgba(0, 0, 0, 0.05) !important;
+        /* Estilos da navegação entre eventos */
+        .navegacao-eventos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            border-radius: var(--border-radius);
+            padding: 15px 20px;
+            margin: 20px 0;
+            box-shadow: var(--box-shadow);
+            color: var(--white);
         }
 
-        /* Estilizar os links dentro da tabela */
-        table a {
-            color: var(--primary) !important;
+        .nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: var(--transition);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
             text-decoration: none;
         }
 
-        table a:hover {
-            color: var(--primary-dark) !important;
-            text-decoration: underline;
+        .nav-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: rgba(255, 255, 255, 0.1);
         }
 
-        /* CORREÇÃO: Garantir que os títulos fiquem brancos no fundo azul */
-        h1,
-        h3 {
-            color: var(--white) !important;
+        .nav-btn.disabled:hover {
+            transform: none;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .evento-info {
+            text-align: center;
+            flex-grow: 1;
+            padding: 0 20px;
+        }
+
+        .evento-info h3 {
+            margin: 0;
+            color: var(--white);
+            font-size: 1.2rem;
+        }
+
+        .evento-info .contador {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+
+        .dropdown-eventos {
+            position: relative;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .dropdown-btn {
+            padding: 10px 20px;
+            background-color: var(--secondary);
+            color: var(--white);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .dropdown-btn:hover {
+            background-color: #c53030;
+            transform: translateY(-2px);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--white);
+            min-width: 300px;
+            max-width: 90vw;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            border-radius: var(--border-radius);
+            max-height: 400px;
+            overflow-y: auto;
+            left: 50%;
+            transform: translateX(-50%);
+            margin-top: 10px;
+        }
+
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 12px 15px;
+            text-decoration: none;
+            display: block;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--primary-light);
+            color: var(--white);
+        }
+
+        .dropdown-content a.ativo {
+            background-color: var(--primary);
+            color: var(--white);
+            font-weight: bold;
+        }
+
+        .dropdown-content a .evento-data {
+            float: right;
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .dropdown-content a.ativo .evento-data {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .dropdown-content a:last-child {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .dropdown-eventos:hover .dropdown-content {
+            display: block;
+        }
+
+        .absoluto-badge {
+            background-color: var(--accent);
+            color: var(--dark);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 5px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .categoria-select {
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .categoria-select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        /* Ações na tabela */
+        .acoes-celula {
+            min-width: 200px;
+        }
+
+        /* Botões de ação */
+        .botoes-acao {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .botao-baixar {
+            background-color: var(--success);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .botao-baixar:hover {
+            background-color: #2e7d32;
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        .botao-voltar {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .botao-voltar:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            text-decoration: none;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .navegacao-eventos {
+                flex-direction: column;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .nav-botoes {
+                display: flex;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .evento-info {
+                order: -1;
+                margin-bottom: 10px;
+            }
+
+            .dropdown-content {
+                min-width: 90vw;
+                left: 5vw;
+                transform: translateX(0);
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            th, td {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+
+            .acoes-celula {
+                min-width: 150px;
+            }
+
+            .categoria-select {
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+
+            .valor-input {
+                width: 70px;
+                font-size: 12px;
+            }
+
+            .action-btn {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-btn {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+
+            .evento-info h3 {
+                font-size: 1rem;
+            }
+
+            .dropdown-btn {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+
+            .botoes-acao {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .botao-baixar, .botao-voltar {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -341,6 +685,7 @@ try {
     <?php include "../menu/menu_admin.php"; ?>
     <?php include "../include_hamburger.php"; ?>
     <div class="container">
+        
         <?php if (isset($_SESSION['mensagem'])): ?>
             <div class="mensagem sucesso"><?= htmlspecialchars($_SESSION['mensagem']) ?></div>
             <?php unset($_SESSION['mensagem']); ?>
@@ -351,143 +696,224 @@ try {
             <?php unset($_SESSION['erro']); ?>
         <?php endif; ?>
 
-        <h1>Inscritos no Evento</h1>
+        <!-- NAVEGAÇÃO ENTRE EVENTOS -->
+        <div class="navegacao-eventos">
+            <div class="nav-botoes">
+                <?php if ($eventoAnterior): ?>
+                    <a href="lista_inscritos.php?id=<?= $eventoAnterior->id ?>" class="nav-btn">
+                        <i class="fas fa-chevron-left"></i>
+                        <span>Anterior</span>
+                    </a>
+                <?php else: ?>
+                    <span class="nav-btn disabled">
+                        <i class="fas fa-chevron-left"></i>
+                        <span>Anterior</span>
+                    </span>
+                <?php endif; ?>
+            </div>
+            
+            <div class="evento-info">
+                <h3><?= htmlspecialchars($eventoAtualInfo->nome ?? 'Evento') ?></h3>
+                <?php if ($eventoAtualIndex !== -1 && count($eventosAtivos) > 1): ?>
+                    <div class="contador">
+                        Evento <?= ($eventoAtualIndex + 1) ?> de <?= count($eventosAtivos) ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+            
+            <div class="nav-botoes">
+                <?php if ($eventoProximo): ?>
+                    <a href="lista_inscritos.php?id=<?= $eventoProximo->id ?>" class="nav-btn">
+                        <span>Próximo</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                <?php else: ?>
+                    <span class="nav-btn disabled">
+                        <span>Próximo</span>
+                        <i class="fas fa-chevron-right"></i>
+                    </span>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <!-- DROPDOWN COM TODOS EVENTOS -->
+        <?php if (count($eventosAtivos) > 1): ?>
+        <div class="dropdown-eventos">
+            <button class="dropdown-btn">
+                <i class="fas fa-list"></i>
+                <span>Selecionar Outro Evento</span>
+                <i class="fas fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <?php foreach ($eventosAtivos as $index => $eventoItem): ?>
+                    <a href="lista_inscritos.php?id=<?= $eventoItem->id ?>" 
+                       class="<?= $eventoItem->id == $idEvento ? 'ativo' : '' ?>">
+                        <strong><?= htmlspecialchars($eventoItem->nome) ?></strong>
+                        <?php if (isset($eventoItem->normal) && $eventoItem->normal == 'sim'): ?>
+                            <span style="color: var(--accent); font-size: 11px; margin-left: 5px;">
+                                <i class="fas fa-star"></i> Normal
+                            </span>
+                        <?php endif; ?>
+                        <?php if (isset($eventoItem->data_evento)): ?>
+                            <span class="evento-data">
+                                <?= date('d/m/Y', strtotime($eventoItem->data_evento)) ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
+                <?php endforeach; ?>
+                <a href="/eventos.php">
+                    <i class="fas fa-calendar-alt"></i> Ver todos os eventos
+                </a>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <h1 class="section-title">Inscritos no Evento</h1>
 
         <?php if ($inscritos && !empty($inscritos)): ?>
-            <h3>Evento: <?= htmlspecialchars($inscritos[0]->evento) ?></h3>
-
             <button onclick="location.reload()" class="refresh-btn">
-                Atualizar Status de Pagamentos
+                <i class="fas fa-sync-alt"></i> Atualizar Status de Pagamentos
             </button>
-
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Atleta</th>
-                        <th>Idade</th>
-                        <th>Faixa</th>
-                        <th>Peso</th>
-                        <th>Modalidade</th>
-                        <th>Academia</th>
-                        <th>Status</th>
-                        <th>Valor</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($inscritos as $inscrito) {
-                        $statusClass = 'status-outros';
-                        $statusText = $inscrito->status_pagamento;
-
-                        switch ($inscrito->status_pagamento) {
-                            case 'RECEIVED':
-                                $statusClass = 'status-pago';
-                                $statusText = 'Pago';
-                                break;
-                            case 'PENDING':
-                                $statusClass = 'status-pendente';
-                                $statusText = 'Pendente';
-                                break;
-                            case 'CONFIRMED':
-                                $statusClass = 'status-confirmado';
-                                $statusText = 'Confirmado';
-                                break;
-                            case 'ISENTO':
-                                $statusClass = 'status-isento';
-                                $statusText = 'Isento';
-                                break;
-                        }
-
-                        $valorExibicao = ($inscrito->valor_pago > 0)
-                            ? 'R$ ' . number_format($inscrito->valor_pago, 2, ',', '.')
-                            : '-';
-                        ?>
+            
+            <div class="tabela-wrapper">
+                <table>
+                    <thead>
                         <tr>
-                            <td><?= $inscrito->id ?></td>
-                            <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
-                            <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
-                            <td><?= htmlspecialchars($inscrito->faixa) ?></td>
-                            <td><?= htmlspecialchars($inscrito->peso) ?></td>
-                            <td>
-                                <form method="POST" class="action-form categoria-form">
-                                    <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
-                                    <input type="hidden" name="action" value="atualizar_categoria">
-                                    <select name="categoria" class="categoria-select" onchange="this.form.submit()">
-                                        <option value="galo" <?= $inscrito->modalidade == 'galo' ? 'selected' : '' ?>>Galo</option>
-                                        <option value="pluma" <?= $inscrito->modalidade == 'pluma' ? 'selected' : '' ?>>Pluma</option>
-                                        <option value="pena" <?= $inscrito->modalidade == 'pena' ? 'selected' : '' ?>>Pena</option>
-                                        <option value="leve" <?= $inscrito->modalidade == 'leve' ? 'selected' : '' ?>>Leve</option>
-                                        <option value="medio" <?= $inscrito->modalidade == 'medio' ? 'selected' : '' ?>>Médio</option>
-                                        <option value="meio-pesado" <?= $inscrito->modalidade == 'meio-pesado' ? 'selected' : '' ?>>Meio-Pesado</option>
-                                        <option value="pesado" <?= $inscrito->modalidade == 'pesado' ? 'selected' : '' ?>>Pesado</option>
-                                        <option value="super-pesado" <?= $inscrito->modalidade == 'super-pesado' ? 'selected' : '' ?>>Super-Pesado</option>
-                                        <option value="pesadissimo" <?= $inscrito->modalidade == 'pesadissimo' ? 'selected' : '' ?>>Pesadíssimo</option>
-                                        <?php if (calcularIdade($inscrito->data_nascimento) > 15): ?>
-                                            <option value="super-pesadissimo" <?= $inscrito->modalidade == 'super-pesadissimo' ? 'selected' : '' ?>>Super-Pesadíssimo</option>
-                                        <?php endif; ?>
-                                    </select>
-                                    <?php if ($inscrito->mod_ab_com == 1 || $inscrito->mod_ab_sem == 1): ?>
-                                        <div class="absoluto-badge">
-                                            <small><strong>Absoluto</strong></small>
-                                        </div>
-                                    <?php endif; ?>
-                                </form>
-                            </td>
-                            <td><?= htmlspecialchars($inscrito->academia) ?></td>
-                            <td class="<?= $statusClass ?>"><?= $statusText ?></td>
-                            <td><?= $valorExibicao ?></td>
-                            <td>
-                                <?php if ($inscrito->id_cobranca_asaas): ?>
-                                    <a href="/pagamento.php?cobranca_id=<?= urlencode($inscrito->id_cobranca_asaas) ?>&view=1"
-                                        title="Ver detalhes do pagamento">
-                                        Detalhes
-                                    </a>
-                                <?php endif; ?>
-
-                                <?php if ($inscrito->status_pagamento === 'PENDING') { ?>
-                                    <form class="action-form" method="POST"
-                                        onsubmit="return confirm('Confirmar marcação como PAGO?')">
-                                        <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
-                                        <input type="hidden" name="action" value="marcar_pago">
-                                        <input type="number" name="valor" class="valor-input" step="0.01" min="0"
-                                            value="<?= number_format($inscrito->valor_pago ?? 0, 2, '.', '') ?>" required>
-                                        <button type="submit" class="action-btn pago-btn" title="Marcar como pago">
-                                            Pago
-                                        </button>
-                                    </form>
-
-                                    <form class="action-form" method="POST"
-                                        onsubmit="return confirm('Confirmar isenção? A cobrança será cancelada.')">
-                                        <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
-                                        <input type="hidden" name="action" value="marcar_isento">
-                                        <button type="submit" class="action-btn isento-btn" title="Marcar como isento">
-                                            Isento
-                                        </button>
-                                    </form>
-                                <?php } ?>
-                            </td>
+                            <th>ID</th>
+                            <th>Atleta</th>
+                            <th>Idade</th>
+                            <th>Faixa</th>
+                            <th>Peso</th>
+                            <th>Modalidade</th>
+                            <th>Academia</th>
+                            <th>Status</th>
+                            <th>Valor</th>
+                            <th class="acoes-celula">Ações</th>
                         </tr>
-                    <?php } ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($inscritos as $inscrito) {
+                            $statusClass = 'status-outros';
+                            $statusText = $inscrito->status_pagamento;
 
-        </div>
-        <div style="margin-top: 20px;">
-            <form action="baixar_chapa.php" method="GET" style="display: inline-block;">
-                <input type="hidden" name="id" value="<?= htmlspecialchars($idEvento) ?>">
-                <input type="submit" value="Baixar Planilha" class="action-btn">
-            </form>
+                            switch ($inscrito->status_pagamento) {
+                                case 'RECEIVED':
+                                    $statusClass = 'status-pago';
+                                    $statusText = 'Pago';
+                                    break;
+                                case 'PENDING':
+                                    $statusClass = 'status-pendente';
+                                    $statusText = 'Pendente';
+                                    break;
+                                case 'CONFIRMED':
+                                    $statusClass = 'status-confirmado';
+                                    $statusText = 'Confirmado';
+                                    break;
+                                case 'ISENTO':
+                                    $statusClass = 'status-isento';
+                                    $statusText = 'Isento';
+                                    break;
+                            }
 
-            <a href="eventos.php" style="margin-left: 15px;" class="action-btn">Voltar para Eventos</a>
-        </div>
-    <?php else: ?>
-        <div class="container">
-            <p>Nenhum inscrito encontrado para este evento.</p>
-            <a href="eventos.php" class="action-btn">Voltar para Eventos</a>
+                            $valorExibicao = ($inscrito->valor_pago > 0)
+                                ? 'R$ ' . number_format($inscrito->valor_pago, 2, ',', '.')
+                                : '-';
+                            ?>
+                            <tr>
+                                <td><?= $inscrito->id ?></td>
+                                <td><?= htmlspecialchars($inscrito->inscrito) ?></td>
+                                <td><?= calcularIdade($inscrito->data_nascimento) ?></td>
+                                <td><?= htmlspecialchars($inscrito->faixa) ?></td>
+                                <td><?= htmlspecialchars($inscrito->peso) ?> kg</td>
+                                <td>
+                                    <form method="POST" class="action-form categoria-form">
+                                        <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
+                                        <input type="hidden" name="action" value="atualizar_categoria">
+                                        <select name="categoria" class="categoria-select" onchange="this.form.submit()">
+                                            <option value="galo" <?= $inscrito->modalidade == 'galo' ? 'selected' : '' ?>>Galo</option>
+                                            <option value="pluma" <?= $inscrito->modalidade == 'pluma' ? 'selected' : '' ?>>Pluma</option>
+                                            <option value="pena" <?= $inscrito->modalidade == 'pena' ? 'selected' : '' ?>>Pena</option>
+                                            <option value="leve" <?= $inscrito->modalidade == 'leve' ? 'selected' : '' ?>>Leve</option>
+                                            <option value="medio" <?= $inscrito->modalidade == 'medio' ? 'selected' : '' ?>>Médio</option>
+                                            <option value="meio-pesado" <?= $inscrito->modalidade == 'meio-pesado' ? 'selected' : '' ?>>Meio-Pesado</option>
+                                            <option value="pesado" <?= $inscrito->modalidade == 'pesado' ? 'selected' : '' ?>>Pesado</option>
+                                            <option value="super-pesado" <?= $inscrito->modalidade == 'super-pesado' ? 'selected' : '' ?>>Super-Pesado</option>
+                                            <option value="pesadissimo" <?= $inscrito->modalidade == 'pesadissimo' ? 'selected' : '' ?>>Pesadíssimo</option>
+                                            <?php if (calcularIdade($inscrito->data_nascimento) > 15): ?>
+                                                <option value="super-pesadissimo" <?= $inscrito->modalidade == 'super-pesadissimo' ? 'selected' : '' ?>>Super-Pesadíssimo</option>
+                                            <?php endif; ?>
+                                        </select>
+                                        <?php if ($inscrito->mod_ab_com == 1 || $inscrito->mod_ab_sem == 1): ?>
+                                            <div class="absoluto-badge">
+                                                <small><i class="fas fa-trophy"></i> Absoluto</small>
+                                            </div>
+                                        <?php endif; ?>
+                                    </form>
+                                </td>
+                                <td><?= htmlspecialchars($inscrito->academia) ?></td>
+                                <td class="<?= $statusClass ?>"><?= $statusText ?></td>
+                                <td><?= $valorExibicao ?></td>
+                                <td>
+                                    <?php if ($inscrito->id_cobranca_asaas): ?>
+                                        <a href="/pagamento.php?cobranca_id=<?= urlencode($inscrito->id_cobranca_asaas) ?>&view=1"
+                                            title="Ver detalhes do pagamento" style="margin-right: 8px;">
+                                            <i class="fas fa-eye"></i> Detalhes
+                                        </a>
+                                    <?php endif; ?>
 
-        </div>
-    <?php endif; ?>
+                                    <?php if ($inscrito->status_pagamento === 'PENDING') { ?>
+                                        <form class="action-form" method="POST"
+                                            onsubmit="return confirm('Confirmar marcação como PAGO?')" style="margin-bottom: 5px;">
+                                            <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
+                                            <input type="hidden" name="action" value="marcar_pago">
+                                            <input type="number" name="valor" class="valor-input" step="0.01" min="0"
+                                                value="<?= number_format($inscrito->valor_pago ?? 0, 2, '.', '') ?>" required>
+                                            <button type="submit" class="action-btn pago-btn" title="Marcar como pago">
+                                                <i class="fas fa-check"></i> Pago
+                                            </button>
+                                        </form>
+
+                                        <form class="action-form" method="POST"
+                                            onsubmit="return confirm('Confirmar isenção? A cobrança será cancelada.')">
+                                            <input type="hidden" name="id_atleta" value="<?= $inscrito->id ?>">
+                                            <input type="hidden" name="action" value="marcar_isento">
+                                            <button type="submit" class="action-btn isento-btn" title="Marcar como isento">
+                                                <i class="fas fa-gift"></i> Isento
+                                            </button>
+                                        </form>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="botoes-acao">
+                <form action="baixar_chapa.php" method="GET" style="display: inline-block;">
+                    <input type="hidden" name="id" value="<?= htmlspecialchars($idEvento) ?>">
+                    <button type="submit" class="botao-baixar">
+                        <i class="fas fa-download"></i> Baixar Planilha
+                    </button>
+                </form>
+
+                <a href="eventos.php" class="botao-voltar">
+                    <i class="fas fa-arrow-left"></i> Voltar para Eventos
+                </a>
+            </div>
+
+        <?php else: ?>
+            <div class="principal" style="text-align: center; padding: 40px;">
+                <h3>Nenhum inscrito encontrado para este evento.</h3>
+                <div style="margin-top: 30px;">
+                    <a href="eventos.php" class="botao-voltar">
+                        <i class="fas fa-arrow-left"></i> Voltar para Eventos
+                    </a>
+                </div>
+            </div>
+        <?php endif; ?>
+
+    </div>
 
     <?php include "../menu/footer.php"; ?>
 
@@ -496,6 +922,37 @@ try {
         setTimeout(function () {
             location.reload();
         }, 120000);
+        
+        // Fechar dropdown ao clicar fora
+        document.addEventListener('click', function(event) {
+            var dropdowns = document.querySelectorAll('.dropdown-eventos');
+            dropdowns.forEach(function(dropdown) {
+                if (!dropdown.contains(event.target)) {
+                    var content = dropdown.querySelector('.dropdown-content');
+                    if (content) content.style.display = 'none';
+                }
+            });
+        });
+        
+        // Manter dropdown aberto ao clicar nele
+        document.querySelectorAll('.dropdown-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                var content = this.closest('.dropdown-eventos').querySelector('.dropdown-content');
+                if (content) {
+                    content.style.display = content.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+        });
+        
+        // Confirmação para ações
+        document.querySelectorAll('.categoria-select').forEach(function(select) {
+            select.addEventListener('change', function() {
+                if (!confirm('Tem certeza que deseja alterar a categoria deste atleta?')) {
+                    this.form.reset();
+                }
+            });
+        });
     </script>
 </body>
 
