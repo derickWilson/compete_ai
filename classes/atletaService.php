@@ -449,6 +449,7 @@ class atletaService
                     $_SESSION["data_nascimento"] = $atleta->data_nascimento;
                     $_SESSION["fone"] = $atleta->fone;
                     $_SESSION["endereco_completo"] = $atleta->endereco_completo ?? '';
+                    $_SESSION["academia_id"] = $atleta->academia;
                     $_SESSION["academia"] = $this->getAcad($atleta->academia);
                     $_SESSION["faixa"] = $atleta->faixa;
                     $_SESSION["peso"] = $atleta->peso;
@@ -1048,6 +1049,49 @@ class atletaService
         $lista = $stmt->fetchAll(PDO::FETCH_OBJ);
         return $lista;
     }
+
+    /**
+     * Lista todos os alunos de uma academia específica
+     * 
+     * @param int $academiaId ID da academia
+     * @return array|false Array de objetos com dados dos alunos ou false em caso de erro
+     */
+    public function listarAlunosAcademia($academiaId)
+    {
+        // Primeiro verificar a sessão
+        if (!isset($_SESSION["academia_id"]) || $_SESSION["academia_id"] != $academiaId || $_SESSION["responsavel"] != 1) {
+            // Se for uma requisição AJAX ou API, lançar exceção
+            if (
+                php_sapi_name() !== 'cli' && (!isset($_SERVER['HTTP_X_REQUESTED_WITH']) ||
+                    strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest')
+            ) {
+                // Para requisições normais, redirecionar
+                header("Location: /index.php");
+                exit();
+            }
+            throw new Exception("Acesso não autorizado. Você não tem permissão para visualizar estes dados.");
+        }
+
+        try {
+            $query = "SELECT a.id, a.nome, a.email, a.faixa, a.peso, 
+                     a.data_nascimento, a.validado, a.data_filiacao,
+                     a.fone, a.endereco_completo, a.genero
+              FROM atleta a
+              WHERE a.academia = :academia_id 
+              AND a.responsavel = 0
+              ORDER BY a.nome ASC";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':academia_id', $academiaId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (Exception $e) {
+            error_log("Erro ao listar alunos da academia {$academiaId}: " . $e->getMessage());
+            throw new Exception("Não foi possível listar os alunos. Tente novamente mais tarde.");
+        }
+    }
+
     /********API**********/
 
     public function verificarStatusPagamento($atletaId, $eventoId)
