@@ -561,7 +561,7 @@ class atletaService
     {
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto, a.academia as acadid,
                 a.fone, a.endereco_completo, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel,
-                a.permissao_email, a.responsavel
+                a.permissao_email, a.responsavel, a.cpf
                 FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
         $stmt->bindValue(":id", $id);
@@ -1075,7 +1075,7 @@ class atletaService
         try {
             $query = "SELECT a.id, a.nome, a.email, a.faixa, a.peso, 
                      a.data_nascimento, a.validado, a.data_filiacao,
-                     a.fone, a.endereco_completo, a.genero
+                     a.fone, a.endereco_completo, a.genero, a.cpf
               FROM atleta a
               WHERE a.academia = :academia_id 
               AND a.responsavel = 0

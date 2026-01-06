@@ -185,7 +185,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inscrever'])) {
                             $dadosAtleta = [
                                 'id' => $alunoId,
                                 'nome' => $aluno->nome,
-                                'cpf' => $aluno->cpf, // Usando CPF real
+                                'cpf' => $aluno->cpf,
                                 'email' => $aluno->email,
                                 'fone' => $aluno->fone,
                                 'academia' => $aluno->academia
