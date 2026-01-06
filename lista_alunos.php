@@ -3,6 +3,7 @@ session_start();
 require_once __DIR__ . "/func/database.php";
 require_once __DIR__ . "/classes/atletaClass.php";
 require_once __DIR__ . "/classes/atletaService.php";
+require_once __DIR__ . "/classes/eventosServices.php";
 require_once __DIR__ . "/func/calcularIdade.php";
 require_once __DIR__ . "/func/security.php";
 
@@ -17,6 +18,7 @@ try {
     $conn = new Conexao();
     $atleta = new Atleta();
     $atletaService = new atletaService($conn, $atleta);
+    $eventoServ = new eventosService($conn, new Evento());
 } catch (Exception $e) {
     die("<div class='erro'>Erro ao conectar: " . $e->getMessage() . "</div>");
 }
@@ -29,6 +31,18 @@ $nomeResponsavel = $_SESSION['nome'] ?? 'Não informado';
 // Obter alunos da academia
 $alunos = $atletaService->listarAlunosAcademia($academiaId);
 $totalAlunos = count($alunos);
+
+// Função para obter campeonatos inscritos de um aluno
+function obterCampeonatosAluno($atletaService, $alunoId)
+{
+    try {
+        $campeonatos = $atletaService->listarCampeonatos($alunoId);
+        return $campeonatos ?: [];
+    } catch (Exception $e) {
+        error_log("Erro ao obter campeonatos do aluno {$alunoId}: " . $e->getMessage());
+        return [];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -138,29 +152,6 @@ $totalAlunos = count($alunos);
             background-color: #f8fafc;
         }
 
-        /* Status do aluno */
-        .status-aluno {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            text-align: center;
-            display: inline-block;
-            min-width: 80px;
-        }
-
-        .status-validado {
-            background-color: #dcfce7;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .status-pendente {
-            background-color: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
         /* Badge de faixa */
         .badge-faixa {
             background-color: var(--primary-light);
@@ -170,6 +161,174 @@ $totalAlunos = count($alunos);
             font-size: 12px;
             font-weight: 500;
             display: inline-block;
+        }
+
+        /* Lista de campeonatos */
+        .campeonatos-lista {
+            max-height: 120px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .campeonato-item {
+            background: #f1f5f9;
+            border-radius: 6px;
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border-left: 3px solid var(--primary);
+            transition: all 0.2s ease;
+        }
+
+        .campeonato-item:hover {
+            background: #e2e8f0;
+            transform: translateX(2px);
+        }
+
+        .campeonato-nome {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 3px;
+            font-size: 13px;
+        }
+
+        .campeonato-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--gray);
+        }
+
+        .campeonato-data {
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        .status-pagamento {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .status-pago {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pendente {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-outro {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .contador-campeonatos {
+            background: var(--accent);
+            color: var(--dark);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 5px;
+        }
+
+        /* Modal para ver mais campeonatos */
+        .modal-campeonatos {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: var(--white);
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: var(--border-radius);
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-light);
+            padding-bottom: 15px;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-dark);
+            margin: 0;
+        }
+
+        .close-modal {
+            color: var(--gray);
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--danger);
+        }
+
+        .modal-lista-campeonatos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .modal-campeonato-item {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        .modal-campeonato-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .sem-campeonatos {
+            text-align: center;
+            color: var(--gray);
+            padding: 20px;
+            font-style: italic;
+        }
+
+        /* Botão para ver mais */
+        .btn-ver-mais {
+            background: var(--primary-light);
+            color: var(--white);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .btn-ver-mais:hover {
+            background: var(--primary);
         }
 
         /* Ações */
@@ -247,6 +406,36 @@ $totalAlunos = count($alunos);
             margin: 0 auto 25px;
         }
 
+        /* Botões de ação no topo */
+        .botoes-topo {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-inscrever-atletas {
+            background: var(--accent);
+            color: var(--dark);
+            padding: 12px 25px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .btn-inscrever-atletas:hover {
+            background: transparent;
+            border-color: var(--accent);
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
         /* Responsividade */
         @media (max-width: 768px) {
             .info-academia {
@@ -264,7 +453,7 @@ $totalAlunos = count($alunos);
             }
 
             .tabela-alunos table {
-                min-width: 700px;
+                min-width: 900px;
             }
 
             .acoes-alunos {
@@ -273,9 +462,23 @@ $totalAlunos = count($alunos);
             }
 
             .btn-novo-aluno,
-            .btn-voltar {
+            .btn-voltar,
+            .btn-inscrever-atletas {
                 width: 100%;
                 max-width: 300px;
+                justify-content: center;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+
+            .modal-lista-campeonatos {
+                grid-template-columns: 1fr;
+            }
+
+            .botoes-topo {
                 justify-content: center;
             }
         }
@@ -296,6 +499,11 @@ $totalAlunos = count($alunos);
             .estado-vazio h3 {
                 font-size: 1.3rem;
             }
+
+            .botoes-topo {
+                flex-direction: column;
+                align-items: center;
+            }
         }
     </style>
 </head>
@@ -306,6 +514,13 @@ $totalAlunos = count($alunos);
 
     <div class="container">
         <div class="principal">
+            <!-- Botões de ação no topo -->
+            <div class="botoes-topo">
+                <a href="/inscrever_academia.php" class="btn-inscrever-atletas">
+                    <i class="fas fa-user-plus"></i> Inscrever Academia
+                </a>
+            </div>
+
             <!-- Informações da academia -->
             <div class="info-academia">
                 <div>
@@ -341,6 +556,19 @@ $totalAlunos = count($alunos);
                 <span class="label">Total de Alunos</span>
             </div>
 
+            <!-- Modal para ver mais campeonatos -->
+            <div id="modalCampeonatos" class="modal-campeonatos">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-trophy"></i> Campeonatos Inscritos</h3>
+                        <span class="close-modal">&times;</span>
+                    </div>
+                    <div id="modalCampeonatosContent">
+                        <!-- Conteúdo será preenchido via JavaScript -->
+                    </div>
+                </div>
+            </div>
+
             <!-- Lista de alunos -->
             <?php if (empty($alunos)): ?>
                 <div class="estado-vazio">
@@ -357,26 +585,54 @@ $totalAlunos = count($alunos);
                                 <th><i class="fas fa-birthday-cake"></i> Idade</th>
                                 <th><i class="fas fa-ribbon"></i> Faixa</th>
                                 <th><i class="fas fa-weight"></i> Peso</th>
-                                <th><i class="fas fa-address-book"></i> Contato</th>
+                                <th><i class="fas fa-trophy"></i> Campeonatos</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($alunos as $aluno):
                                 $idade = calcularIdade($aluno->data_nascimento);
-                                $dataFiliacao = new DateTime($aluno->data_filiacao);
-                            ?>
+                                $campeonatos = obterCampeonatosAluno($atletaService, $aluno->id);
+                                $totalCampeonatos = count($campeonatos);
+                                ?>
                                 <tr>
                                     <td>
-                                        <strong><?php echo htmlspecialchars($aluno->nome); ?></strong>
+                                        <strong><?php echo htmlspecialchars($aluno->nome); ?></strong><br>
+                                        <small><i class="fas fa-envelope"></i>
+                                            <?php echo htmlspecialchars($aluno->email); ?></small><br>
+                                        <small><i class="fas fa-phone"></i>
+                                            <?php echo htmlspecialchars($aluno->fone); ?></small>
                                     </td>
                                     <td><?php echo htmlspecialchars($idade); ?> anos</td>
                                     <td><span class="badge-faixa"><?php echo htmlspecialchars($aluno->faixa); ?></span></td>
                                     <td><?php echo htmlspecialchars($aluno->peso); ?> kg</td>
                                     <td>
-                                        <div class="contato-info">
-                                            <small><i class="fas fa-envelope"></i> <?php echo htmlspecialchars($aluno->email); ?></small><br>
-                                            <small><i class="fas fa-phone"></i> <?php echo htmlspecialchars($aluno->fone); ?></small>
-                                        </div>
+                                        <?php if ($totalCampeonatos > 0): ?>
+                                            <div class="campeonatos-lista">
+                                                <?php
+                                                // Mostrar apenas os 3 primeiros campeonatos
+                                                $displayLimit = min(3, $totalCampeonatos);
+                                                for ($i = 0; $i < $displayLimit; $i++):
+                                                    $camp = $campeonatos[$i];
+                                                    $dataFormatada = date('d/m/Y', strtotime($camp->dia));
+                                                    $statusClass = strtolower($camp->status_pagamento) === 'received' ? 'pago' :
+                                                        (strtolower($camp->status_pagamento) === 'pending' ? 'pendente' : 'outro');
+                                                    ?>
+                                                    <div class="campeonato-item">
+                                                        <div class="campeonato-nome">
+                                                            <?php echo htmlspecialchars($camp->campeonato); ?>
+                                                        </div>
+                                                        <div class="campeonato-info">
+                                                            <span class="campeonato-data"><?php echo $dataFormatada; ?></span>
+                                                            <span class="status-pagamento status-<?php echo $statusClass; ?>">
+                                                                <?php echo htmlspecialchars($camp->status_pagamento); ?>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                <?php endfor; ?>
+                                            </div>
+                                        <?php else: ?>
+                                            <span class="sem-campeonatos">Nenhum campeonato</span>
+                                        <?php endif; ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -397,8 +653,75 @@ $totalAlunos = count($alunos);
     <?php include "menu/footer.php"; ?>
 
     <script>
+        // Modal para ver campeonatos
+        const modal = document.getElementById('modalCampeonatos');
+        const closeBtn = document.querySelector('.close-modal');
+
+        function abrirModalCampeonatos(alunoId, alunoNome) {
+            // Fazer requisição AJAX para obter campeonatos do aluno
+            fetch(`/api/campeonatos_aluno.php?aluno_id=${alunoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let html = `<h4>Aluno: ${alunoNome}</h4>`;
+
+                        if (data.campeonatos.length > 0) {
+                            html += '<div class="modal-lista-campeonatos">';
+                            data.campeonatos.forEach(camp => {
+                                const dataFormatada = new Date(camp.dia).toLocaleDateString('pt-BR');
+                                const statusClass = camp.status_pagamento.toLowerCase() === 'received' ? 'pago' :
+                                    (camp.status_pagamento.toLowerCase() === 'pending' ? 'pendente' : 'outro');
+
+                                html += `
+                                    <div class="modal-campeonato-item">
+                                        <div class="campeonato-nome">${camp.campeonato}</div>
+                                        <div class="campeonato-info">
+                                            <div><i class="fas fa-calendar"></i> ${dataFormatada}</div>
+                                            <div><i class="fas fa-map-marker-alt"></i> ${camp.lugar}</div>
+                                        </div>
+                                        <div class="campeonato-info">
+                                            <div>Modalidade: ${camp.modalidade}</div>
+                                            <div>
+                                                <span class="status-pagamento status-${statusClass}">
+                                                    ${camp.status_pagamento}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        ${camp.valor_pago > 0 ? `<div><small>Valor: R$ ${camp.valor_pago.toFixed(2)}</small></div>` : ''}
+                                    </div>
+                                `;
+                            });
+                            html += '</div>';
+                        } else {
+                            html = '<p class="sem-campeonatos">Nenhum campeonato encontrado</p>';
+                        }
+
+                        document.getElementById('modalCampeonatosContent').innerHTML = html;
+                        modal.style.display = 'block';
+                    } else {
+                        alert('Erro ao carregar campeonatos: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    alert('Erro ao carregar campeonatos');
+                });
+        }
+
+        // Fechar modal
+        closeBtn.onclick = function () {
+            modal.style.display = 'none';
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
         // Melhorar experiência em dispositivos móveis
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Adicionar tooltips para informações truncadas
             const cells = document.querySelectorAll('.tabela-alunos td');
             cells.forEach(cell => {
@@ -409,7 +732,7 @@ $totalAlunos = count($alunos);
 
             // Confirmar logout
             document.querySelectorAll('a[href*="logout"]').forEach(link => {
-                link.addEventListener('click', function(e) {
+                link.addEventListener('click', function (e) {
                     if (!confirm('Tem certeza que deseja sair?')) {
                         e.preventDefault();
                     }

@@ -12,6 +12,11 @@
         <a href="index.php">Home</a>
         <a href="eventos.php">Eventos</a>
         <a href="pagina_pessoal.php">Página pessoal</a>
+        <?php
+        if ($_SESSION['responsavel'] == 1) {
+            echo '<a href="/lista_alunos.php" class="nav-link">👥 Meus Alunos</a>';
+        }
+        ?>
         <a href="eventos_cadastrados.php">Eventos Cadastrdos</a>
         <a href="logout.php">deslogar</a>
         <a href="regras.php">Regras</a>
