@@ -60,7 +60,7 @@ function enviarEmailRecuperacaoSMTP($destinatario, $codigo)
     try {
         // Configurações do servidor SMTP
         $mail->isSMTP();
-        $mail->Host = 'mail.fpjji.com';
+        $mail->Host = '';
         $mail->SMTPAuth = true;
         $mail->Username = '';
         $mail->Password = '';
