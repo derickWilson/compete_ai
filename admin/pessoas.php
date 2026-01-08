@@ -15,8 +15,48 @@ try {
     echo "<div class='erro'>Erro: " . $e->getMessage() . "</div>";
     exit();
 }
+/**
+ * Calcula o tempo de filiação de um atleta
+ * 
+ * @param string $dataFiliacao Data de filiação no formato Y-m-d
+ * @return string Tempo formatado (ex: "2 anos, 3 meses, 15 dias" ou "6 meses, 10 dias")
+ */
+function calcularTempoFiliacao($dataFiliacao)
+{
+    if (empty($dataFiliacao) || $dataFiliacao == '0000-00-00') {
+        return 'Não informado';
+    }
+    
+    $dataFiliacao = new DateTime($dataFiliacao);
+    $hoje = new DateTime();
+    
+    if ($dataFiliacao > $hoje) {
+        return 'Data inválida';
+    }
+    
+    $diferenca = $dataFiliacao->diff($hoje);
+    
+    $anos = $diferenca->y;
+    $meses = $diferenca->m;
+    $dias = $diferenca->d;
+    
+    $resultado = [];
+    
+    if ($anos > 0) {
+        $resultado[] = $anos . ($anos == 1 ? ' ano' : ' anos');
+    }
+    
+    if ($meses > 0) {
+        $resultado[] = $meses . ($meses == 1 ? ' mês' : ' meses');
+    }
+    
+    if ($dias > 0 || empty($resultado)) {
+        $resultado[] = $dias . ($dias == 1 ? ' dia' : ' dias');
+    }
+    
+    return implode(', ', $resultado);
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="pt">
 
@@ -112,6 +152,31 @@ try {
             border: 1px solid #fecaca;
         }
 
+        /* ===== TEMPO DE FILIAÇÃO ===== */
+        .tempo-filiacao {
+            font-size: 13px;
+            color: var(--gray);
+            background-color: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border-left: 3px solid var(--primary);
+            white-space: nowrap;
+        }
+
+        .tempo-novo {
+            background-color: #e3f2fd;
+            border-left-color: #2196f3;
+            color: #1565c0;
+            font-weight: 500;
+        }
+
+        .tempo-antigo {
+            background-color: #e8f5e9;
+            border-left-color: #4caf50;
+            color: #2e7d32;
+            font-weight: 500;
+        }
+
         /* ===== BOTÕES ===== */
         .btn-acao {
             padding: 8px 16px;
@@ -177,6 +242,11 @@ try {
             .btn-acao {
                 padding: 6px 12px;
                 font-size: 12px;
+            }
+            
+            .tempo-filiacao {
+                font-size: 11px;
+                padding: 3px 6px;
             }
         }
 
@@ -245,11 +315,50 @@ try {
                             <th>Faixa</th>
                             <th>Academia</th>
                             <th>Status</th>
+                            <th>Tempo Filiado</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($lista as $value) { ?>
+                        <?php foreach ($lista as $value) { 
+                            // Calcular tempo de filiação
+                            $dataFiliacao = $value->data_filiacao ?? null;
+                            $hoje = new DateTime();
+                            $dataFiliacaoObj = new DateTime($dataFiliacao);
+                            $diferenca = $dataFiliacaoObj->diff($hoje);
+                            
+                            $anos = $diferenca->y;
+                            $meses = $diferenca->m;
+                            $dias = $diferenca->d;
+                            
+                            // Formatar o tempo
+                            $tempoFormatado = '';
+                            if ($anos > 0) {
+                                $tempoFormatado .= $anos . ($anos == 1 ? ' ano' : ' anos');
+                                if ($meses > 0 || $dias > 0) {
+                                    $tempoFormatado .= ', ';
+                                }
+                            }
+                            
+                            if ($meses > 0) {
+                                $tempoFormatado .= $meses . ($meses == 1 ? ' mês' : ' meses');
+                                if ($dias > 0) {
+                                    $tempoFormatado .= ', ';
+                                }
+                            }
+                            
+                            if ($dias > 0 || ($anos == 0 && $meses == 0)) {
+                                $tempoFormatado .= $dias . ($dias == 1 ? ' dia' : ' dias');
+                            }
+                            
+                            // Determinar classe CSS baseada no tempo
+                            $classeTempo = 'tempo-filiacao';
+                            if ($anos > 0) {
+                                $classeTempo .= ' tempo-antigo';
+                            } elseif ($meses < 3) {
+                                $classeTempo .= ' tempo-novo';
+                            }
+                        ?>
                             <tr class="<?php echo $value->responsavel == 1 ? 'dono-academia' : ''; ?>">
                                 <td class="destaque"><?php echo htmlspecialchars($value->nome); ?></td>
                                 <td><?php echo htmlspecialchars($value->faixa); ?></td>
@@ -259,6 +368,16 @@ try {
                                         class="status <?php echo $value->validado == 1 ? 'status-validado' : 'status-pendente'; ?>">
                                         <?php echo $value->validado == 1 ? 'Validado' : 'Pendente'; ?>
                                     </span>
+                                </td>
+                                <td>
+                                    <?php if ($dataFiliacao): ?>
+                                        <span class="<?php echo $classeTempo; ?>" 
+                                              title="Filiado desde: <?php echo date('d/m/Y', strtotime($dataFiliacao)); ?>">
+                                            <?php echo $tempoFormatado; ?>
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="tempo-filiacao">Não informado</span>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <a href="controle.php?user=<?php echo htmlspecialchars($value->id, ENT_QUOTES, 'UTF-8'); ?>"
@@ -295,6 +414,14 @@ try {
                     setTimeout(() => {
                         this.style.transform = '';
                     }, 150);
+                });
+            });
+            
+            // Adicionar tooltip de data de filiação
+            const tempoSpans = document.querySelectorAll('.tempo-filiacao');
+            tempoSpans.forEach(span => {
+                span.addEventListener('mouseenter', function() {
+                    // Tooltip já está no atributo title
                 });
             });
         });

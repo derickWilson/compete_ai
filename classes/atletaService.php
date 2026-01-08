@@ -282,7 +282,7 @@ class atletaService
     public function listAll()
     {
         // Query para selecionar atletas com join para obter nome da academia
-        $query = "SELECT a.id, a.email, a.nome, a.faixa, f.nome as academia, a.validado, a.responsavel
+        $query = "SELECT a.id, a.email, a.nome, a.faixa, f.nome as academia, a.validado, a.responsavel, a.data_filiacao
               FROM atleta AS a 
               JOIN academia_filiada as f ON f.id = a.academia
               ORDER BY f.nome, a.nome";
@@ -560,7 +560,7 @@ class atletaService
     public function getById($id)
     {
         $query = "SELECT a.id, a.nome, a.email, a.data_nascimento, a.foto, a.academia as acadid,
-                a.fone, a.endereco_completo, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel,
+                a.fone, a.endereco_completo, f.nome AS academia, a.faixa, a.peso, a.validado, a.diploma, a.responsavel, a.data_filiacao,
                 a.permissao_email, a.responsavel, a.cpf
                 FROM atleta a JOIN academia_filiada f ON a.academia = f.id WHERE a.id = :id";
         $stmt = $this->conn->prepare($query);
