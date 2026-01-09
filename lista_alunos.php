@@ -332,7 +332,7 @@ function obterCampeonatosAluno($atletaService, $alunoId)
         .btn-acao-faixa:hover {
             background: linear-gradient(135deg, #2980b9 0%, #1f639b 100%);
             transform: translateY(-1px);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         /* Ações principais */
@@ -457,7 +457,7 @@ function obterCampeonatosAluno($atletaService, $alunoId)
                 overflow-x: auto;
                 display: block;
             }
-            
+
             .tabela-alunos table {
                 min-width: 1100px;
             }
@@ -585,7 +585,6 @@ function obterCampeonatosAluno($atletaService, $alunoId)
                                 <th><i class="fas fa-ribbon"></i> Faixa</th>
                                 <th><i class="fas fa-weight"></i> Peso</th>
                                 <th><i class="fas fa-trophy"></i> Campeonatos</th>
-                                <th><i class="fas fa-cogs"></i> Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -619,6 +618,9 @@ function obterCampeonatosAluno($atletaService, $alunoId)
                                         <div style="text-align: center;">
                                             <span class="badge-faixa"><?php echo htmlspecialchars($aluno->faixa); ?></span>
                                         </div>
+                                        <a href="solicitar_troca_faixa.php?aluno_id=<?php echo $aluno->id; ?>"
+                                            class="btn-acao-faixa" title="Solicitar troca de faixa">
+                                            <i class="fas fa-ribbon"></i> Trocar Faixa
                                     </td>
                                     <td>
                                         <div style="text-align: center;">
@@ -656,16 +658,6 @@ function obterCampeonatosAluno($atletaService, $alunoId)
                                             <?php endif; ?>
                                         </div>
                                     </td>
-                                    <td>
-                                        <div class="acoes-aluno">
-                                            <!-- Botão para solicitar troca de faixa -->
-                                            <a href="solicitar_troca_faixa.php?aluno_id=<?php echo $aluno->id; ?>" 
-                                               class="btn-acao-faixa" 
-                                               title="Solicitar troca de faixa">
-                                                <i class="fas fa-ribbon"></i> Trocar Faixa
-                                            </a>
-                                        </div>
-                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -690,7 +682,7 @@ function obterCampeonatosAluno($atletaService, $alunoId)
     <script>
 
         // Melhorar experiência em dispositivos móveis
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Remover mensagens de alerta após alguns segundos
             setTimeout(() => {
                 const alerts = document.querySelectorAll('.alert-message');
