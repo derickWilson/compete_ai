@@ -726,6 +726,55 @@ class atletaService
         }
     }
 
+    /**
+     * Solicita troca de faixa para um atleta (função para responsável)
+     * 
+     * @param int $atletaId ID do atleta
+     * @param string $novaFaixa Nova faixa solicitada
+     * @param string $diploma Nome do arquivo do novo diploma
+     * @return bool True se a solicitação foi bem-sucedida
+     * @throws Exception Em caso de erro
+     */
+    public function solicitarTrocaFaixaParaAluno($atletaId, $novaFaixa, $diploma)
+    {
+        try {
+            // Verificar se o responsável tem permissão
+            if (!isset($_SESSION['responsavel']) || $_SESSION['responsavel'] != 1) {
+                throw new Exception("Acesso não autorizado.");
+            }
+
+            // Verificar se o atleta pertence à academia do responsável
+            $query = "SELECT academia FROM atleta WHERE id = :atletaId";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':atletaId', $atletaId, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$result || $result['academia'] != $_SESSION['academia_id']) {
+                throw new Exception("Atleta não pertence à sua academia.");
+            }
+
+            // Atualizar faixa e diploma do atleta
+            $query = "UPDATE atleta 
+                 SET faixa = :faixa, 
+                     diploma = :diploma, 
+                     validado = 0 
+                 WHERE id = :id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(":faixa", $novaFaixa);
+            $stmt->bindValue(":diploma", $diploma);
+            $stmt->bindValue(":id", $atletaId, PDO::PARAM_INT);
+
+            return $stmt->execute();
+
+        } catch (Exception $e) {
+            error_log("Erro ao solicitar troca de faixa: " . $e->getMessage());
+            throw new Exception("Não foi possível solicitar a troca de faixa: " . $e->getMessage());
+        }
+    }
+
     //função para pegar inscricao
     public function getInscricao($evento, $atleta)
     {
