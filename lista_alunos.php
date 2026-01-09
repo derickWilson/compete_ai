@@ -3,7 +3,6 @@ session_start();
 require_once __DIR__ . "/func/database.php";
 require_once __DIR__ . "/classes/atletaClass.php";
 require_once __DIR__ . "/classes/atletaService.php";
-require_once __DIR__ . "/classes/eventosServices.php";
 require_once __DIR__ . "/func/calcularIdade.php";
 require_once __DIR__ . "/func/security.php";
 
@@ -18,7 +17,6 @@ try {
     $conn = new Conexao();
     $atleta = new Atleta();
     $atletaService = new atletaService($conn, $atleta);
-    $eventoServ = new eventosService($conn, new Evento());
 } catch (Exception $e) {
     die("<div class='erro'>Erro ao conectar: " . $e->getMessage() . "</div>");
 }
@@ -120,6 +118,8 @@ function obterCampeonatosAluno($atletaService, $alunoId)
             overflow: hidden;
             box-shadow: var(--box-shadow);
             margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
         }
 
         .tabela-alunos table {
@@ -129,54 +129,122 @@ function obterCampeonatosAluno($atletaService, $alunoId)
 
         .tabela-alunos thead {
             background: linear-gradient(to right, var(--primary-dark), var(--primary));
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .tabela-alunos th {
             color: var(--white);
-            padding: 16px 12px;
+            padding: 18px 15px;
             text-align: left;
             font-weight: 600;
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            min-width: 120px;
         }
 
         .tabela-alunos td {
-            padding: 14px 12px;
+            padding: 16px 15px;
             border-bottom: 1px solid #eaeaea;
             color: var(--dark);
             font-size: 14px;
+            position: relative;
+            z-index: 1;
+            vertical-align: top;
         }
 
         .tabela-alunos tr:nth-child(even) {
             background-color: #f8fafc;
         }
 
+        /* Informações do aluno - Célula expandida */
+        .aluno-info {
+            min-width: 200px;
+            max-width: 250px;
+        }
+
+        .aluno-nome {
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            font-size: 15px;
+            line-height: 1.3;
+        }
+
+        .aluno-detalhes {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .aluno-detalhe-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--gray);
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .aluno-detalhe-item i {
+            color: var(--primary-light);
+            width: 16px;
+            text-align: center;
+        }
+
         /* Badge de faixa */
         .badge-faixa {
             background-color: var(--primary-light);
             color: var(--white);
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 500;
             display: inline-block;
+            min-width: 80px;
+            text-align: center;
         }
 
-        /* Lista de campeonatos */
+        /* Peso - célula individual */
+        .peso-valor {
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-size: 15px;
+            display: block;
+            text-align: center;
+        }
+
+        /* Container de campeonatos */
+        .campeonatos-container {
+            min-width: 180px;
+            max-width: 220px;
+            position: relative;
+            z-index: 2;
+        }
+
         .campeonatos-lista {
-            max-height: 120px;
+            max-height: 140px;
             overflow-y: auto;
-            padding-right: 5px;
+            padding-right: 8px;
+            position: relative;
+            z-index: 2;
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            padding: 8px;
         }
 
         .campeonato-item {
             background: #f1f5f9;
             border-radius: 6px;
-            padding: 8px 10px;
-            margin-bottom: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
             border-left: 3px solid var(--primary);
             transition: all 0.2s ease;
+            position: relative;
+            z-index: 3;
         }
 
         .campeonato-item:hover {
@@ -187,27 +255,34 @@ function obterCampeonatosAluno($atletaService, $alunoId)
         .campeonato-nome {
             font-weight: 600;
             color: var(--primary-dark);
-            margin-bottom: 3px;
+            margin-bottom: 5px;
             font-size: 13px;
+            line-height: 1.3;
+            word-break: break-word;
         }
 
         .campeonato-info {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             font-size: 11px;
             color: var(--gray);
+            gap: 5px;
         }
 
         .campeonato-data {
             color: var(--success);
             font-weight: 500;
+            white-space: nowrap;
         }
 
         .status-pagamento {
             font-size: 11px;
-            padding: 2px 6px;
+            padding: 3px 8px;
             border-radius: 10px;
             font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
         }
 
         .status-pago {
@@ -225,117 +300,46 @@ function obterCampeonatosAluno($atletaService, $alunoId)
             color: #374151;
         }
 
-        .contador-campeonatos {
-            background: var(--accent);
-            color: var(--dark);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            margin-left: 5px;
-        }
-
-        /* Modal para ver mais campeonatos */
-        .modal-campeonatos {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-content {
-            background-color: var(--white);
-            margin: 5% auto;
-            padding: 25px;
-            border-radius: var(--border-radius);
-            width: 80%;
-            max-width: 800px;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .modal-header {
+        /* Botões de ação para alunos */
+        .acoes-aluno {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--primary-light);
-            padding-bottom: 15px;
+            flex-direction: column;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
+            min-width: 140px;
         }
 
-        .modal-header h3 {
-            color: var(--primary-dark);
-            margin: 0;
-        }
-
-        .close-modal {
-            color: var(--gray);
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: color 0.2s;
-        }
-
-        .close-modal:hover {
-            color: var(--danger);
-        }
-
-        .modal-lista-campeonatos {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px;
-        }
-
-        .modal-campeonato-item {
-            background: #f8fafc;
-            border-radius: 8px;
-            padding: 15px;
-            border: 1px solid #e2e8f0;
-            transition: all 0.2s ease;
-        }
-
-        .modal-campeonato-item:hover {
-            border-color: var(--primary);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .sem-campeonatos {
-            text-align: center;
-            color: var(--gray);
-            padding: 20px;
-            font-style: italic;
-        }
-
-        /* Botão para ver mais */
-        .btn-ver-mais {
-            background: var(--primary-light);
-            color: var(--white);
-            border: none;
-            padding: 6px 12px;
+        .btn-acao-faixa {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            padding: 8px 15px;
             border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: background 0.2s;
+            text-decoration: none;
+            font-size: 13px;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            margin-top: 8px;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            width: 100%;
+            text-align: center;
         }
 
-        .btn-ver-mais:hover {
-            background: var(--primary);
+        .btn-acao-faixa:hover {
+            background: linear-gradient(135deg, #2980b9 0%, #1f639b 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* Ações */
+        /* Ações principais */
         .acoes-alunos {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
             margin-top: 30px;
             flex-wrap: wrap;
         }
@@ -436,7 +440,29 @@ function obterCampeonatosAluno($atletaService, $alunoId)
             transform: translateY(-2px);
         }
 
+        /* Sem campeonatos */
+        .sem-campeonatos {
+            color: var(--gray);
+            font-style: italic;
+            font-size: 13px;
+            text-align: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
         /* Responsividade */
+        @media (max-width: 1200px) {
+            .tabela-alunos {
+                overflow-x: auto;
+                display: block;
+            }
+            
+            .tabela-alunos table {
+                min-width: 1100px;
+            }
+        }
+
         @media (max-width: 768px) {
             .info-academia {
                 flex-direction: column;
@@ -446,14 +472,6 @@ function obterCampeonatosAluno($atletaService, $alunoId)
 
             .info-academia h1 {
                 font-size: 1.5rem;
-            }
-
-            .tabela-alunos {
-                overflow-x: auto;
-            }
-
-            .tabela-alunos table {
-                min-width: 900px;
             }
 
             .acoes-alunos {
@@ -469,21 +487,12 @@ function obterCampeonatosAluno($atletaService, $alunoId)
                 justify-content: center;
             }
 
-            .modal-content {
-                width: 95%;
-                margin: 10% auto;
-            }
-
-            .modal-lista-campeonatos {
-                grid-template-columns: 1fr;
-            }
-
             .botoes-topo {
                 justify-content: center;
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 576px) {
             .contador-alunos .numero {
                 font-size: 2rem;
             }
@@ -538,7 +547,7 @@ function obterCampeonatosAluno($atletaService, $alunoId)
                 <div class="alert-message success">
                     <i class="fas fa-check-circle"></i>
                     <h3>Operação realizada com sucesso!</h3>
-                    <p>A ação foi concluída sem problemas.</p>
+                    <p><?php echo htmlspecialchars($_GET['success']); ?></p>
                 </div>
             <?php endif; ?>
 
@@ -556,36 +565,27 @@ function obterCampeonatosAluno($atletaService, $alunoId)
                 <span class="label">Total de Alunos</span>
             </div>
 
-            <!-- Modal para ver mais campeonatos -->
-            <div id="modalCampeonatos" class="modal-campeonatos">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h3><i class="fas fa-trophy"></i> Campeonatos Inscritos</h3>
-                        <span class="close-modal">&times;</span>
-                    </div>
-                    <div id="modalCampeonatosContent">
-                        <!-- Conteúdo será preenchido via JavaScript -->
-                    </div>
-                </div>
-            </div>
-
             <!-- Lista de alunos -->
             <?php if (empty($alunos)): ?>
                 <div class="estado-vazio">
                     <i class="fas fa-user-graduate"></i>
                     <h3>Nenhum aluno cadastrado</h3>
-                    <p>Você ainda não possui alunos Validados.</p>
+                    <p>Você ainda não possui alunos cadastrados na sua academia.</p>
+                    <a href="/cadastro_atleta.php" class="btn-novo-aluno">
+                        <i class="fas fa-user-plus"></i> Cadastrar Primeiro Aluno
+                    </a>
                 </div>
             <?php else: ?>
                 <div class="tabela-alunos">
                     <table>
                         <thead>
                             <tr>
-                                <th><i class="fas fa-user"></i> Nome</th>
+                                <th><i class="fas fa-user"></i> Aluno</th>
                                 <th><i class="fas fa-birthday-cake"></i> Idade</th>
                                 <th><i class="fas fa-ribbon"></i> Faixa</th>
                                 <th><i class="fas fa-weight"></i> Peso</th>
                                 <th><i class="fas fa-trophy"></i> Campeonatos</th>
+                                <th><i class="fas fa-cogs"></i> Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -595,44 +595,76 @@ function obterCampeonatosAluno($atletaService, $alunoId)
                                 $totalCampeonatos = count($campeonatos);
                                 ?>
                                 <tr>
-                                    <td>
-                                        <strong><?php echo htmlspecialchars($aluno->nome); ?></strong><br>
-                                        <small><i class="fas fa-envelope"></i>
-                                            <?php echo htmlspecialchars($aluno->email); ?></small><br>
-                                        <small><i class="fas fa-phone"></i>
-                                            <?php echo htmlspecialchars($aluno->fone); ?></small>
-                                    </td>
-                                    <td><?php echo htmlspecialchars($idade); ?> anos</td>
-                                    <td><span class="badge-faixa"><?php echo htmlspecialchars($aluno->faixa); ?></span></td>
-                                    <td><?php echo htmlspecialchars($aluno->peso); ?> kg</td>
-                                    <td>
-                                        <?php if ($totalCampeonatos > 0): ?>
-                                            <div class="campeonatos-lista">
-                                                <?php
-                                                // Mostrar apenas os 3 primeiros campeonatos
-                                                $displayLimit = min(3, $totalCampeonatos);
-                                                for ($i = 0; $i < $displayLimit; $i++):
-                                                    $camp = $campeonatos[$i];
-                                                    $dataFormatada = date('d/m/Y', strtotime($camp->dia));
-                                                    $statusClass = strtolower($camp->status_pagamento) === 'received' ? 'pago' :
-                                                        (strtolower($camp->status_pagamento) === 'pending' ? 'pendente' : 'outro');
-                                                    ?>
-                                                    <div class="campeonato-item">
-                                                        <div class="campeonato-nome">
-                                                            <?php echo htmlspecialchars($camp->campeonato); ?>
-                                                        </div>
-                                                        <div class="campeonato-info">
-                                                            <span class="campeonato-data"><?php echo $dataFormatada; ?></span>
-                                                            <span class="status-pagamento status-<?php echo $statusClass; ?>">
-                                                                <?php echo htmlspecialchars($camp->status_pagamento); ?>
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                <?php endfor; ?>
+                                    <td class="aluno-info">
+                                        <div class="aluno-nome"><?php echo htmlspecialchars($aluno->nome); ?></div>
+                                        <div class="aluno-detalhes">
+                                            <div class="aluno-detalhe-item">
+                                                <i class="fas fa-envelope"></i>
+                                                <span><?php echo htmlspecialchars($aluno->email); ?></span>
                                             </div>
-                                        <?php else: ?>
-                                            <span class="sem-campeonatos">Nenhum campeonato</span>
-                                        <?php endif; ?>
+                                            <div class="aluno-detalhe-item">
+                                                <i class="fas fa-phone"></i>
+                                                <span><?php echo htmlspecialchars($aluno->fone); ?></span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="text-align: center;">
+                                            <span style="font-weight: 600; color: var(--primary-dark); font-size: 15px;">
+                                                <?php echo htmlspecialchars($idade); ?> anos
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="text-align: center;">
+                                            <span class="badge-faixa"><?php echo htmlspecialchars($aluno->faixa); ?></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="text-align: center;">
+                                            <span class="peso-valor"><?php echo htmlspecialchars($aluno->peso); ?> kg</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="campeonatos-container">
+                                            <?php if ($totalCampeonatos > 0): ?>
+                                                <div class="campeonatos-lista">
+                                                    <?php
+                                                    // Mostrar apenas os 3 primeiros campeonatos
+                                                    $displayLimit = min(3, $totalCampeonatos);
+                                                    for ($i = 0; $i < $displayLimit; $i++):
+                                                        $camp = $campeonatos[$i];
+                                                        $dataFormatada = date('d/m/Y', strtotime($camp->dia));
+                                                        $statusClass = strtolower($camp->status_pagamento) === 'received' ? 'pago' :
+                                                            (strtolower($camp->status_pagamento) === 'pending' ? 'pendente' : 'outro');
+                                                        ?>
+                                                        <div class="campeonato-item">
+                                                            <div class="campeonato-nome">
+                                                                <?php echo htmlspecialchars($camp->campeonato); ?>
+                                                            </div>
+                                                            <div class="campeonato-info">
+                                                                <span class="campeonato-data"><?php echo $dataFormatada; ?></span>
+                                                                <span class="status-pagamento status-<?php echo $statusClass; ?>">
+                                                                    <?php echo htmlspecialchars($camp->status_pagamento); ?>
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    <?php endfor; ?>
+                                                </div>
+                                            <?php else: ?>
+                                                <div class="sem-campeonatos">Nenhum campeonato</div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="acoes-aluno">
+                                            <!-- Botão para solicitar troca de faixa -->
+                                            <a href="solicitar_troca_faixa.php?aluno_id=<?php echo $aluno->id; ?>" 
+                                               class="btn-acao-faixa" 
+                                               title="Solicitar troca de faixa">
+                                                <i class="fas fa-ribbon"></i> Trocar Faixa
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -642,6 +674,9 @@ function obterCampeonatosAluno($atletaService, $alunoId)
 
                 <!-- Botões de ação -->
                 <div class="acoes-alunos">
+                    <a href="/cadastro_atleta.php" class="btn-novo-aluno">
+                        <i class="fas fa-user-plus"></i> Cadastrar Novo Aluno
+                    </a>
                     <a href="/pagina_pessoal.php" class="btn-voltar">
                         <i class="fas fa-arrow-left"></i> Voltar ao Painel Principal
                     </a>
@@ -653,102 +688,19 @@ function obterCampeonatosAluno($atletaService, $alunoId)
     <?php include "menu/footer.php"; ?>
 
     <script>
-        // Modal para ver campeonatos
-        const modal = document.getElementById('modalCampeonatos');
-        const closeBtn = document.querySelector('.close-modal');
-
-        function abrirModalCampeonatos(alunoId, alunoNome) {
-            // Fazer requisição AJAX para obter campeonatos do aluno
-            fetch(`/api/campeonatos_aluno.php?aluno_id=${alunoId}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        let html = `<h4>Aluno: ${alunoNome}</h4>`;
-
-                        if (data.campeonatos.length > 0) {
-                            html += '<div class="modal-lista-campeonatos">';
-                            data.campeonatos.forEach(camp => {
-                                const dataFormatada = new Date(camp.dia).toLocaleDateString('pt-BR');
-                                const statusClass = camp.status_pagamento.toLowerCase() === 'received' ? 'pago' :
-                                    (camp.status_pagamento.toLowerCase() === 'pending' ? 'pendente' : 'outro');
-
-                                html += `
-                                    <div class="modal-campeonato-item">
-                                        <div class="campeonato-nome">${camp.campeonato}</div>
-                                        <div class="campeonato-info">
-                                            <div><i class="fas fa-calendar"></i> ${dataFormatada}</div>
-                                            <div><i class="fas fa-map-marker-alt"></i> ${camp.lugar}</div>
-                                        </div>
-                                        <div class="campeonato-info">
-                                            <div>Modalidade: ${camp.modalidade}</div>
-                                            <div>
-                                                <span class="status-pagamento status-${statusClass}">
-                                                    ${camp.status_pagamento}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        ${camp.valor_pago > 0 ? `<div><small>Valor: R$ ${camp.valor_pago.toFixed(2)}</small></div>` : ''}
-                                    </div>
-                                `;
-                            });
-                            html += '</div>';
-                        } else {
-                            html = '<p class="sem-campeonatos">Nenhum campeonato encontrado</p>';
-                        }
-
-                        document.getElementById('modalCampeonatosContent').innerHTML = html;
-                        modal.style.display = 'block';
-                    } else {
-                        alert('Erro ao carregar campeonatos: ' + data.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    alert('Erro ao carregar campeonatos');
-                });
-        }
-
-        // Fechar modal
-        closeBtn.onclick = function () {
-            modal.style.display = 'none';
-        }
-
-        // Fechar modal ao clicar fora
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = 'none';
-            }
-        }
 
         // Melhorar experiência em dispositivos móveis
-        document.addEventListener('DOMContentLoaded', function () {
-            // Adicionar tooltips para informações truncadas
-            const cells = document.querySelectorAll('.tabela-alunos td');
-            cells.forEach(cell => {
-                if (cell.scrollWidth > cell.offsetWidth) {
-                    cell.title = cell.textContent;
-                }
-            });
-
-            // Confirmar logout
-            document.querySelectorAll('a[href*="logout"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    if (!confirm('Tem certeza que deseja sair?')) {
-                        e.preventDefault();
-                    }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Remover mensagens de alerta após alguns segundos
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert-message');
+                alerts.forEach(alert => {
+                    alert.style.transition = 'opacity 0.5s ease';
+                    alert.style.opacity = '0';
+                    setTimeout(() => alert.remove(), 500);
                 });
-            });
+            }, 5000);
         });
-
-        // Remover mensagens de alerta após alguns segundos
-        setTimeout(() => {
-            const alerts = document.querySelectorAll('.alert-message');
-            alerts.forEach(alert => {
-                alert.style.transition = 'opacity 0.5s ease';
-                alert.style.opacity = '0';
-                setTimeout(() => alert.remove(), 500);
-            });
-        }, 5000);
     </script>
 </body>
 
