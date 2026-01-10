@@ -90,6 +90,7 @@ try {
                 foreach ($inscricoes as $i) {
                     if ($i->id == $idAtleta) {
                         $inscricao = $i;
+                        $valorI = $i->valor_pago;
                         break;
                     }
                 }
@@ -109,7 +110,7 @@ try {
                     $idEvento,
                     null, // Remove referência à cobrança
                     AssasService::STATUS_ISENTO,
-                    0 // Valor zero para isenção
+                    $valorI ??  0// Valor zero para isenção
                 );
                 $_SESSION['mensagem'] = "Inscrição marcada como isenta com sucesso!";
             } elseif ($action === 'atualizar_categoria') {
