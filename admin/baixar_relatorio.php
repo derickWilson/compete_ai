@@ -34,58 +34,6 @@ if (!$evento) {
 $pdo = $conn->conectar();
 
 // ----------------------------------------------------------------------------
-// FUNÇÃO DE DEPURAÇÃO - VERIFICAR TODOS OS PAGAMENTOS (Descomente se necessário)
-// ----------------------------------------------------------------------------
-function debugPagamentos($pdo, $eventoId) {
-    echo "<pre style='background: #f0f0f0; padding: 20px;'>";
-    echo "=== DEPURAÇÃO DE PAGAMENTOS - Evento ID: $eventoId ===\n\n";
-    
-    // Query para verificar TODOS os registros de pagamento
-    $debugQuery = "
-        SELECT 
-            i.id_atleta,
-            a.nome,
-            i.status_pagamento,
-            i.valor_pago,
-            i.id_cobranca_asaas,
-            CASE 
-                WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) <= 15 THEN 'ate_15'
-                ELSE 'acima_15'
-            END as faixa_idade,
-            CASE 
-                WHEN (i.mod_ab_com = 1 OR i.mod_ab_sem = 1) THEN 'absoluto'
-                ELSE 'normal'
-            END as tipo_categoria
-        FROM inscricao i
-        JOIN atleta a ON i.id_atleta = a.id
-        WHERE i.id_evento = :evento_id
-            AND i.valor_pago > 0
-        ORDER BY i.valor_pago DESC
-    ";
-    
-    $stmtDebug = $pdo->prepare($debugQuery);
-    $stmtDebug->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
-    $stmtDebug->execute();
-    $debugResults = $stmtDebug->fetchAll(PDO::FETCH_ASSOC);
-    
-    echo "=== DETALHES DOS VALORES PAGOS ===\n";
-    foreach ($debugResults as $row) {
-        printf("Atleta: %-30s | Idade: %-10s | Categoria: %-10s | Valor: R$ %8.2f\n", 
-            $row['nome'], 
-            $row['faixa_idade'],
-            $row['tipo_categoria'],
-            $row['valor_pago'] ?? 0
-        );
-    }
-    
-    echo "</pre>";
-    exit();
-}
-
-// Para usar a depuração, descomente a linha abaixo:
-// debugPagamentos($pdo, $eventoId);
-
-// ----------------------------------------------------------------------------
 // QUERIES SQL PARA ESTATÍSTICAS (CORRIGIDAS)
 // ----------------------------------------------------------------------------
 
@@ -316,7 +264,7 @@ $resultados = [
     ],
     'arrecadacao' => [],
     'lotes_detectados' => [],
-    'totais_por_categoria' => [] // Para armazenar totais
+    'totais_por_categoria' => []
 ];
 
 // Organizar lotes detectados por categoria
@@ -377,7 +325,13 @@ foreach ($isentosPorCategoria as $item) {
 }
 
 // Calcular totais gerais de arrecadação
-$resultados['arrecadacao']['total_geral'] = $totalArrecadado['total_arrecadado'] ?? 0;
+$totalArrecadadoBruto = $totalArrecadado['total_arrecadado'] ?? 0;
+$resultados['arrecadacao']['total_geral'] = $totalArrecadadoBruto;
+
+// Calcular taxa da Asaas (2%)
+$taxaAsaasPercentual = 2.0; // 2%
+$taxaAsaasValor = ($totalArrecadadoBruto * $taxaAsaasPercentual) / 100;
+$valorLiquido = $totalArrecadadoBruto - $taxaAsaasValor;
 
 // ----------------------------------------------------------------------------
 // GERAÇÃO DO PDF
@@ -571,7 +525,6 @@ foreach ($tiposCategoria as $tipoCategoria) {
             $pdf->Cell(60, 8, 'R$ ' . number_format($lote['total'], 2, ',', '.'), 1, 1, 'C');
         }
         
-        // REMOVIDA: Linha de total da categoria (estava desalinhada e redundante)
         $pdf->Ln(3); // Espaço menor entre categorias
         
         // Verificar se precisa de nova página
@@ -586,13 +539,13 @@ foreach ($tiposCategoria as $tipoCategoria) {
 }
 
 // ----------------------------------------------------------------------------
-// PÁGINA 3 - TOTAL A RECEBER
+// PÁGINA 3 - TOTAL A RECEBER COM TAXA ASAAS
 // ----------------------------------------------------------------------------
 
 $pdf->AddPage();
 $pdf->SetFont('helvetica', 'B', 16);
 $pdf->Cell(0, 15, 'TOTAL A RECEBER DE INSCRIÇÕES', 0, 1, 'C');
-$pdf->Ln(10);
+$pdf->Ln(5);
 
 // Calcular totais por tipo de categoria
 $totaisPorTipo = [
@@ -630,11 +583,33 @@ $pdf->Ln(5);
 
 // Total Bruto
 $pdf->SetFont('helvetica', 'B', 14);
-$pdf->Cell(0, 10, 'TOTAL A RECEBER BRUTO', 0, 1);
+$pdf->Cell(0, 10, 'TOTAL BRUTO ARRECADADO', 0, 1);
 $pdf->SetFont('helvetica', 'B', 16);
-$pdf->Cell(0, 12, 'R$ ' . number_format($resultados['arrecadacao']['total_geral'], 2, ',', '.'), 0, 1, 'C');
+$pdf->Cell(0, 12, 'R$ ' . number_format($totalArrecadadoBruto, 2, ',', '.'), 0, 1, 'C');
 
-$pdf->Ln(15);
+$pdf->Ln(10);
+
+// TAXA ASAAS
+$pdf->SetFont('helvetica', 'B', 14);
+$pdf->Cell(0, 10, 'TAXA DA PLATAFORMA ASAAS', 0, 1);
+
+$pdf->SetFont('helvetica', '', 12);
+$pdf->Cell(0, 8, 'Percentual: ' . $taxaAsaasPercentual . '%', 0, 1);
+$pdf->Cell(0, 8, 'Valor: R$ ' . number_format($taxaAsaasValor, 2, ',', '.'), 0, 1);
+
+$pdf->Ln(10);
+
+// Valor Líquido a Receber
+$pdf->SetFont('helvetica', 'B', 14);
+$pdf->Cell(0, 10, 'VALOR LÍQUIDO A RECEBER', 0, 1);
+$pdf->SetFont('helvetica', 'B', 16);
+$pdf->Cell(0, 12, 'R$ ' . number_format($valorLiquido, 2, ',', '.'), 0, 1, 'C');
+
+// Linha separadora
+$pdf->Ln(5);
+$pdf->SetFont('helvetica', '', 9);
+$pdf->Cell(0, 1, '', 'T', 1);
+$pdf->Ln(5);
 
 // Resumo adicional
 $pdf->SetFont('helvetica', 'I', 10);
@@ -644,6 +619,17 @@ $pdf->SetFont('helvetica', '', 9);
 $pdf->Cell(0, 6, 'Total de Inscrições Pagas: ' . $resultados['pagantes']['total'], 0, 1);
 $pdf->Cell(0, 6, 'Total de Isentos: ' . $resultados['isentos']['total'], 0, 1);
 $pdf->Cell(0, 6, 'Pagamentos Pendentes: ' . $resultados['estatisticas_gerais']['pagantes_pendentes'], 0, 1);
+
+// Cálculo detalhado
+$pdf->Ln(5);
+$pdf->SetFont('helvetica', 'I', 9);
+$pdf->MultiCell(0, 6, 'Cálculo detalhado:', 0, 'L');
+$pdf->SetFont('helvetica', '', 9);
+
+$pdf->Cell(0, 6, 'Total Bruto: R$ ' . number_format($totalArrecadadoBruto, 2, ',', '.'), 0, 1);
+$pdf->Cell(0, 6, '(-) Taxa Asaas (' . $taxaAsaasPercentual . '%): R$ ' . number_format($taxaAsaasValor, 2, ',', '.'), 0, 1);
+$pdf->SetFont('helvetica', 'B', 9);
+$pdf->Cell(0, 6, '(=) Valor Líquido: R$ ' . number_format($valorLiquido, 2, ',', '.'), 0, 1);
 
 // Informação sobre lotes detectados
 $pdf->Ln(5);
