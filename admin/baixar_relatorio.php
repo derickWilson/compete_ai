@@ -34,10 +34,62 @@ if (!$evento) {
 $pdo = $conn->conectar();
 
 // ----------------------------------------------------------------------------
-// QUERIES SQL PARA ESTATÍSTICAS
+// FUNÇÃO DE DEPURAÇÃO - VERIFICAR TODOS OS PAGAMENTOS (Descomente se necessário)
+// ----------------------------------------------------------------------------
+function debugPagamentos($pdo, $eventoId) {
+    echo "<pre style='background: #f0f0f0; padding: 20px;'>";
+    echo "=== DEPURAÇÃO DE PAGAMENTOS - Evento ID: $eventoId ===\n\n";
+    
+    // Query para verificar TODOS os registros de pagamento
+    $debugQuery = "
+        SELECT 
+            i.id_atleta,
+            a.nome,
+            i.status_pagamento,
+            i.valor_pago,
+            i.id_cobranca_asaas,
+            CASE 
+                WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) <= 15 THEN 'ate_15'
+                ELSE 'acima_15'
+            END as faixa_idade,
+            CASE 
+                WHEN (i.mod_ab_com = 1 OR i.mod_ab_sem = 1) THEN 'absoluto'
+                ELSE 'normal'
+            END as tipo_categoria
+        FROM inscricao i
+        JOIN atleta a ON i.id_atleta = a.id
+        WHERE i.id_evento = :evento_id
+            AND i.valor_pago > 0
+        ORDER BY i.valor_pago DESC
+    ";
+    
+    $stmtDebug = $pdo->prepare($debugQuery);
+    $stmtDebug->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
+    $stmtDebug->execute();
+    $debugResults = $stmtDebug->fetchAll(PDO::FETCH_ASSOC);
+    
+    echo "=== DETALHES DOS VALORES PAGOS ===\n";
+    foreach ($debugResults as $row) {
+        printf("Atleta: %-30s | Idade: %-10s | Categoria: %-10s | Valor: R$ %8.2f\n", 
+            $row['nome'], 
+            $row['faixa_idade'],
+            $row['tipo_categoria'],
+            $row['valor_pago'] ?? 0
+        );
+    }
+    
+    echo "</pre>";
+    exit();
+}
+
+// Para usar a depuração, descomente a linha abaixo:
+// debugPagamentos($pdo, $eventoId);
+
+// ----------------------------------------------------------------------------
+// QUERIES SQL PARA ESTATÍSTICAS (CORRIGIDAS)
 // ----------------------------------------------------------------------------
 
-// 1. ESTATÍSTICAS GERAIS
+// 1. ESTATÍSTICAS GERAIS (CORRIGIDA)
 $queryEstatisticas = "
     SELECT 
         -- Total de atletas únicos
@@ -53,10 +105,29 @@ $queryEstatisticas = "
         SUM(CASE WHEN :tipo_com = 1 AND i.mod_ab_com = 1 THEN 1 ELSE 0 END) as absoluto_com,
         SUM(CASE WHEN :tipo_sem = 1 AND i.mod_ab_sem = 1 THEN 1 ELSE 0 END) as absoluto_sem,
         
-        -- Status de pagamento
-        SUM(CASE WHEN i.status_pagamento IN ('RECEIVED', 'CONFIRMED') THEN 1 ELSE 0 END) as pagantes_confirmados,
-        SUM(CASE WHEN i.status_pagamento IN ('PENDING', 'OVERDUE') THEN 1 ELSE 0 END) as pagantes_pendentes,
-        SUM(CASE WHEN i.status_pagamento IN ('GRATUITO', 'ISENTO') OR i.valor_pago = 0 OR i.valor_pago IS NULL THEN 1 ELSE 0 END) as isentos
+        -- Status de pagamento (CORRIGIDO)
+        SUM(CASE 
+            WHEN i.status_pagamento IN ('RECEIVED', 'CONFIRMED', 'PAGO') 
+                OR (i.valor_pago > 0 AND i.status_pagamento NOT IN ('GRATUITO', 'ISENTO', 'PENDING', 'OVERDUE'))
+            THEN 1 
+            ELSE 0 
+        END) as pagantes_confirmados,
+        
+        SUM(CASE 
+            WHEN i.status_pagamento IN ('PENDING', 'OVERDUE') 
+                OR (i.valor_pago > 0 AND i.status_pagamento = 'PENDING')
+            THEN 1 
+            ELSE 0 
+        END) as pagantes_pendentes,
+        
+        SUM(CASE 
+            WHEN i.status_pagamento IN ('GRATUITO', 'ISENTO') 
+                OR i.valor_pago = 0 
+                OR i.valor_pago IS NULL
+                OR i.status_pagamento IS NULL
+            THEN 1 
+            ELSE 0 
+        END) as isentos
         
     FROM inscricao i
     JOIN atleta a ON i.id_atleta = a.id
@@ -70,7 +141,7 @@ $stmtEstatisticas->bindValue(':tipo_sem', $evento->tipo_sem, PDO::PARAM_INT);
 $stmtEstatisticas->execute();
 $estatisticas = $stmtEstatisticas->fetch(PDO::FETCH_ASSOC);
 
-// 2. PAGANTES POR CATEGORIA DE IDADE
+// 2. PAGANTES POR CATEGORIA DE IDADE (CORRIGIDA)
 $queryPagantesCategoria = "
     SELECT 
         CASE 
@@ -89,7 +160,10 @@ $queryPagantesCategoria = "
     FROM inscricao i
     JOIN atleta a ON i.id_atleta = a.id
     WHERE i.id_evento = :evento_id
-        AND i.status_pagamento IN ('RECEIVED', 'CONFIRMED')
+        AND (
+            i.status_pagamento IN ('RECEIVED', 'CONFIRMED', 'PAGO')
+            OR (i.valor_pago > 0 AND i.status_pagamento NOT IN ('GRATUITO', 'ISENTO', 'PENDING', 'OVERDUE'))
+        )
         AND i.valor_pago > 0
     GROUP BY faixa_idade, tipo_categoria
 ";
@@ -99,7 +173,7 @@ $stmtPagantesCategoria->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
 $stmtPagantesCategoria->execute();
 $pagantesPorCategoria = $stmtPagantesCategoria->fetchAll(PDO::FETCH_ASSOC);
 
-// 3. ISENTOS POR CATEGORIA DE IDADE
+// 3. ISENTOS POR CATEGORIA DE IDADE (CORRIGIDA)
 $queryIsentosCategoria = "
     SELECT 
         CASE 
@@ -117,9 +191,12 @@ $queryIsentosCategoria = "
     FROM inscricao i
     JOIN atleta a ON i.id_atleta = a.id
     WHERE i.id_evento = :evento_id
-        AND (i.status_pagamento IN ('GRATUITO', 'ISENTO') 
-             OR i.valor_pago = 0 
-             OR i.valor_pago IS NULL)
+        AND (
+            i.status_pagamento IN ('GRATUITO', 'ISENTO') 
+            OR i.valor_pago = 0 
+            OR i.valor_pago IS NULL
+            OR i.status_pagamento IS NULL
+        )
     GROUP BY faixa_idade, tipo_categoria
 ";
 
@@ -128,41 +205,41 @@ $stmtIsentosCategoria->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
 $stmtIsentosCategoria->execute();
 $isentosPorCategoria = $stmtIsentosCategoria->fetchAll(PDO::FETCH_ASSOC);
 
-// 4. ARRECADAÇÃO POR LOTE (baseado no valor pago)
-$queryArrecadacaoLote = "
+// 4. DETECÇÃO AUTOMÁTICA DE LOTES POR VALOR PAGO
+$queryDetectarLotes = "
     SELECT 
         CASE 
-            -- 1º Lote (valores de referência)
-            WHEN i.valor_pago BETWEEN 65 AND 75 THEN 'lote_1_ate_15'
-            WHEN i.valor_pago BETWEEN 95 AND 105 THEN 'lote_1_acima_15'
-            WHEN i.valor_pago BETWEEN 135 AND 145 THEN 'lote_1_absoluto'
-            
-            -- 2º Lote (valores de referência)
-            WHEN i.valor_pago BETWEEN 95 AND 105 THEN 'lote_2_ate_15'
-            WHEN i.valor_pago BETWEEN 125 AND 135 THEN 'lote_2_acima_15'
-            WHEN i.valor_pago BETWEEN 175 AND 185 THEN 'lote_2_absoluto'
-            
-            ELSE 'outro'
-        END as lote_categoria,
+            WHEN TIMESTAMPDIFF(YEAR, a.data_nascimento, CURDATE()) <= 15 THEN 'ate_15'
+            ELSE 'acima_15'
+        END as faixa_idade,
         
+        CASE 
+            WHEN (i.mod_ab_com = 1 OR i.mod_ab_sem = 1) THEN 'absoluto'
+            ELSE 'normal'
+        END as tipo_categoria,
+        
+        ROUND(i.valor_pago, 2) as valor_pago_arredondado,
         COUNT(*) as quantidade,
         SUM(i.valor_pago) as total_pago
         
     FROM inscricao i
     JOIN atleta a ON i.id_atleta = a.id
     WHERE i.id_evento = :evento_id
-        AND i.status_pagamento IN ('RECEIVED', 'CONFIRMED')
+        AND (
+            i.status_pagamento IN ('RECEIVED', 'CONFIRMED', 'PAGO')
+            OR (i.valor_pago > 0 AND i.status_pagamento NOT IN ('GRATUITO', 'ISENTO', 'PENDING', 'OVERDUE'))
+        )
         AND i.valor_pago > 0
-    GROUP BY lote_categoria
-    ORDER BY lote_categoria
+    GROUP BY faixa_idade, tipo_categoria, ROUND(i.valor_pago, 2)
+    ORDER BY faixa_idade, tipo_categoria, valor_pago_arredondado
 ";
 
-$stmtArrecadacaoLote = $pdo->prepare($queryArrecadacaoLote);
-$stmtArrecadacaoLote->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
-$stmtArrecadacaoLote->execute();
-$arrecadacaoPorLote = $stmtArrecadacaoLote->fetchAll(PDO::FETCH_ASSOC);
+$stmtDetectarLotes = $pdo->prepare($queryDetectarLotes);
+$stmtDetectarLotes->bindValue(':evento_id', $eventoId, PDO::PARAM_INT);
+$stmtDetectarLotes->execute();
+$lotesDetectados = $stmtDetectarLotes->fetchAll(PDO::FETCH_ASSOC);
 
-// 5. TOTAL ARRECADADO
+// 5. TOTAL ARRECADADO (CORRIGIDA)
 $queryTotalArrecadado = "
     SELECT 
         SUM(i.valor_pago) as total_arrecadado,
@@ -170,8 +247,10 @@ $queryTotalArrecadado = "
         
     FROM inscricao i
     WHERE i.id_evento = :evento_id
-        AND i.status_pagamento IN ('RECEIVED', 'CONFIRMED')
-        AND i.valor_pago > 0
+        AND (
+            i.status_pagamento IN ('RECEIVED', 'CONFIRMED', 'PAGO')
+            OR (i.valor_pago > 0 AND i.status_pagamento NOT IN ('GRATUITO', 'ISENTO', 'PENDING', 'OVERDUE'))
+        )
 ";
 
 $stmtTotalArrecadado = $pdo->prepare($queryTotalArrecadado);
@@ -235,22 +314,45 @@ $resultados = [
         'absoluto' => 0,
         'total' => $estatisticas['isentos'] ?? 0
     ],
-    'arrecadacao' => [
-        'lote_1' => [
-            'ate_15' => ['quantidade' => 0, 'total' => 0],
-            'acima_15' => ['quantidade' => 0, 'total' => 0],
-            'absoluto' => ['quantidade' => 0, 'total' => 0],
-            'total' => 0
-        ],
-        'lote_2' => [
-            'ate_15' => ['quantidade' => 0, 'total' => 0],
-            'acima_15' => ['quantidade' => 0, 'total' => 0],
-            'absoluto' => ['quantidade' => 0, 'total' => 0],
-            'total' => 0
-        ],
-        'total_geral' => $totalArrecadado['total_arrecadado'] ?? 0
-    ]
+    'arrecadacao' => [],
+    'lotes_detectados' => [],
+    'totais_por_categoria' => [] // Para armazenar totais
 ];
+
+// Organizar lotes detectados por categoria
+$lotesPorCategoria = [];
+foreach ($lotesDetectados as $lote) {
+    $chaveCategoria = $lote['faixa_idade'] . '_' . $lote['tipo_categoria'];
+    
+    if (!isset($lotesPorCategoria[$chaveCategoria])) {
+        $lotesPorCategoria[$chaveCategoria] = [];
+    }
+    
+    $lotesPorCategoria[$chaveCategoria][] = [
+        'valor' => (float)$lote['valor_pago_arredondado'],
+        'quantidade' => (int)$lote['quantidade'],
+        'total' => (float)$lote['total_pago']
+    ];
+}
+
+// Calcular totais por categoria
+foreach ($lotesPorCategoria as $chaveCategoria => $lotes) {
+    $resultados['lotes_detectados'][$chaveCategoria] = $lotes;
+    
+    // Calcular totais para esta categoria
+    $totalQuantidade = 0;
+    $totalValor = 0;
+    
+    foreach ($lotes as $dadosLote) {
+        $totalQuantidade += $dadosLote['quantidade'];
+        $totalValor += $dadosLote['total'];
+    }
+    
+    $resultados['totais_por_categoria'][$chaveCategoria] = [
+        'quantidade' => $totalQuantidade,
+        'valor' => $totalValor
+    ];
+}
 
 // Processar pagantes por categoria
 foreach ($pagantesPorCategoria as $item) {
@@ -274,45 +376,8 @@ foreach ($isentosPorCategoria as $item) {
     }
 }
 
-// Processar arrecadação por lote
-foreach ($arrecadacaoPorLote as $item) {
-    switch ($item['lote_categoria']) {
-        case 'lote_1_ate_15':
-            $resultados['arrecadacao']['lote_1']['ate_15']['quantidade'] = $item['quantidade'];
-            $resultados['arrecadacao']['lote_1']['ate_15']['total'] = $item['total_pago'];
-            $resultados['arrecadacao']['lote_1']['total'] += $item['total_pago'];
-            break;
-        case 'lote_1_acima_15':
-            $resultados['arrecadacao']['lote_1']['acima_15']['quantidade'] = $item['quantidade'];
-            $resultados['arrecadacao']['lote_1']['acima_15']['total'] = $item['total_pago'];
-            $resultados['arrecadacao']['lote_1']['total'] += $item['total_pago'];
-            break;
-        case 'lote_1_absoluto':
-            $resultados['arrecadacao']['lote_1']['absoluto']['quantidade'] = $item['quantidade'];
-            $resultados['arrecadacao']['lote_1']['absoluto']['total'] = $item['total_pago'];
-            $resultados['arrecadacao']['lote_1']['total'] += $item['total_pago'];
-            break;
-        case 'lote_2_ate_15':
-            $resultados['arrecadacao']['lote_2']['ate_15']['quantidade'] = $item['quantidade'];
-            $resultados['arrecadacao']['lote_2']['ate_15']['total'] = $item['total_pago'];
-            $resultados['arrecadacao']['lote_2']['total'] += $item['total_pago'];
-            break;
-        case 'lote_2_acima_15':
-            $resultados['arrecadacao']['lote_2']['acima_15']['quantidade'] = $item['quantidade'];
-            $resultados['arrecadacao']['lote_2']['acima_15']['total'] = $item['total_pago'];
-            $resultados['arrecadacao']['lote_2']['total'] += $item['total_pago'];
-            break;
-        case 'lote_2_absoluto':
-            $resultados['arrecadacao']['lote_2']['absoluto']['quantidade'] = $item['quantidade'];
-            $resultados['arrecadacao']['lote_2']['absoluto']['total'] = $item['total_pago'];
-            $resultados['arrecadacao']['lote_2']['total'] += $item['total_pago'];
-            break;
-    }
-}
-
-// Calcular totais
-$totalArrecadadoLote1 = $resultados['arrecadacao']['lote_1']['total'];
-$totalArrecadadoLote2 = $resultados['arrecadacao']['lote_2']['total'];
+// Calcular totais gerais de arrecadação
+$resultados['arrecadacao']['total_geral'] = $totalArrecadado['total_arrecadado'] ?? 0;
 
 // ----------------------------------------------------------------------------
 // GERAÇÃO DO PDF
@@ -439,65 +504,86 @@ if ($evento->tipo_sem) $modalidadesEvento[] = 'SEM KIMONO';
 $pdf->Cell(0, 6, implode(' | ', $modalidadesEvento), 0, 1);
 
 // ----------------------------------------------------------------------------
-// PÁGINA 2 - RESUMO FINANCEIRO
+// PÁGINA 2 - RESUMO FINANCEIRO COM LOTES DETECTADOS
 // ----------------------------------------------------------------------------
 
 $pdf->AddPage();
 $pdf->SetFont('helvetica', 'B', 16);
-$pdf->Cell(0, 10, 'RESUMO FINANCEIRO', 0, 1, 'C');
+$pdf->Cell(0, 10, 'RESUMO FINANCEIRO POR LOTE', 0, 1, 'C');
 $pdf->Ln(5);
 
-// Cabeçalho das colunas
-$pdf->SetFont('helvetica', 'B', 11);
-$pdf->Cell(95, 8, 'TOTAL ATLETAS PAGANTES 1º Lote', 0, 0, 'C');
-$pdf->Cell(95, 8, 'TOTAL ATLETAS PAGANTES 2º Lote', 0, 1, 'C');
+// Variável para controlar a altura da página
+$alturaAtual = $pdf->GetY();
 
-$pdf->SetFont('helvetica', '', 10);
+// Gerar resumo para cada tipo de categoria detectado
+$tiposCategoria = ['normal', 'absoluto'];
+$categoriasIdade = ['ate_15', 'acima_15'];
 
-// Linha 1 - Até 15 anos
-$pdf->Cell(95, 8, 'Categoria até 15 anos valor R$ 70,00: ' . 
-    $resultados['arrecadacao']['lote_1']['ate_15']['quantidade'], 0, 0, 'C');
-$pdf->Cell(95, 8, 'Categoria até 15 anos valor R$ 100,00: ' . 
-    $resultados['arrecadacao']['lote_2']['ate_15']['quantidade'], 0, 1, 'C');
-
-// Linha 2 - Acima 15 anos
-$pdf->Cell(95, 8, 'Categoria acima 15 anos valor R$ 100,00: ' . 
-    $resultados['arrecadacao']['lote_1']['acima_15']['quantidade'], 0, 0, 'C');
-$pdf->Cell(95, 8, 'Categoria acima 15 anos valor R$ 130,00: ' . 
-    $resultados['arrecadacao']['lote_2']['acima_15']['quantidade'], 0, 1, 'C');
-
-// Linha 3 - Absoluto
-$pdf->Cell(95, 8, 'Categoria ABSOLUTO valor R$ 140,00: ' . 
-    $resultados['arrecadacao']['lote_1']['absoluto']['quantidade'], 0, 0, 'C');
-$pdf->Cell(95, 8, 'Categoria ABSOLUTO valor R$ 180,00: ' . 
-    $resultados['arrecadacao']['lote_2']['absoluto']['quantidade'], 0, 1, 'C');
-
-$pdf->Ln(10);
-
-// Cabeçalho arrecadação
-$pdf->SetFont('helvetica', 'B', 11);
-$pdf->Cell(95, 8, 'TOTAL ARRECADADO POR CATEGORIA 1º Lote', 0, 0, 'C');
-$pdf->Cell(95, 8, 'TOTAL ARRECADADO POR CATEGORIA 2º Lote', 0, 1, 'C');
-
-$pdf->SetFont('helvetica', '', 10);
-
-// Linha 1 - Até 15 anos
-$pdf->Cell(95, 8, 'Categoria até 15 anos valor: R$ ' . 
-    number_format($resultados['arrecadacao']['lote_1']['ate_15']['total'], 2, ',', '.'), 0, 0, 'C');
-$pdf->Cell(95, 8, 'Categoria até 15 anos valor: R$ ' . 
-    number_format($resultados['arrecadacao']['lote_2']['ate_15']['total'], 2, ',', '.'), 0, 1, 'C');
-
-// Linha 2 - Acima 15 anos
-$pdf->Cell(95, 8, 'Categoria acima 15 anos valor: R$ ' . 
-    number_format($resultados['arrecadacao']['lote_1']['acima_15']['total'], 2, ',', '.'), 0, 0, 'C');
-$pdf->Cell(95, 8, 'Categoria acima 15 anos valor: R$ ' . 
-    number_format($resultados['arrecadacao']['lote_2']['acima_15']['total'], 2, ',', '.'), 0, 1, 'C');
-
-// Linha 3 - Absoluto
-$pdf->Cell(95, 8, 'Categoria ABSOLUTO valor: R$ ' . 
-    number_format($resultados['arrecadacao']['lote_1']['absoluto']['total'], 2, ',', '.'), 0, 0, 'C');
-$pdf->Cell(95, 8, 'Categoria ABSOLUTO valor: R$ ' . 
-    number_format($resultados['arrecadacao']['lote_2']['absoluto']['total'], 2, ',', '.'), 0, 1, 'C');
+foreach ($tiposCategoria as $tipoCategoria) {
+    // Verificar se há dados para este tipo de categoria
+    $temDados = false;
+    foreach ($categoriasIdade as $categoriaIdade) {
+        $chave = $categoriaIdade . '_' . $tipoCategoria;
+        if (!empty($resultados['lotes_detectados'][$chave])) {
+            $temDados = true;
+            break;
+        }
+    }
+    
+    if (!$temDados) {
+        continue;
+    }
+    
+    // Título do tipo de categoria
+    $pdf->SetFont('helvetica', 'B', 14);
+    $pdf->Cell(0, 10, strtoupper($tipoCategoria == 'absoluto' ? 'CATEGORIA ABSOLUTO' : 'CATEGORIA NORMAL'), 0, 1, 'L');
+    $pdf->Ln(2);
+    
+    foreach ($categoriasIdade as $categoriaIdade) {
+        $chave = $categoriaIdade . '_' . $tipoCategoria;
+        
+        if (empty($resultados['lotes_detectados'][$chave])) {
+            continue;
+        }
+        
+        $lotes = $resultados['lotes_detectados'][$chave];
+        
+        // Título da categoria de idade
+        $pdf->SetFont('helvetica', 'B', 12);
+        $tituloCategoria = ($categoriaIdade == 'ate_15' ? 'Até 15 anos' : 'Acima de 15 anos');
+        $pdf->Cell(0, 8, $tituloCategoria, 0, 1, 'L');
+        
+        // Cabeçalho da tabela
+        $pdf->SetFont('helvetica', 'B', 10);
+        $pdf->Cell(40, 8, 'Lote', 1, 0, 'C');
+        $pdf->Cell(50, 8, 'Valor Unitário', 1, 0, 'C');
+        $pdf->Cell(40, 8, 'Quantidade', 1, 0, 'C');
+        $pdf->Cell(60, 8, 'Total Arrecadado', 1, 1, 'C');
+        
+        $pdf->SetFont('helvetica', '', 9);
+        
+        foreach ($lotes as $index => $lote) {
+            $numeroLote = $index + 1;
+            
+            $pdf->Cell(40, 8, 'Lote ' . $numeroLote, 1, 0, 'C');
+            $pdf->Cell(50, 8, 'R$ ' . number_format($lote['valor'], 2, ',', '.'), 1, 0, 'C');
+            $pdf->Cell(40, 8, $lote['quantidade'], 1, 0, 'C');
+            $pdf->Cell(60, 8, 'R$ ' . number_format($lote['total'], 2, ',', '.'), 1, 1, 'C');
+        }
+        
+        // REMOVIDA: Linha de total da categoria (estava desalinhada e redundante)
+        $pdf->Ln(3); // Espaço menor entre categorias
+        
+        // Verificar se precisa de nova página
+        $alturaAtual = $pdf->GetY();
+        if ($alturaAtual > 250) {
+            $pdf->AddPage();
+            $alturaAtual = $pdf->GetY();
+        }
+    }
+    
+    $pdf->Ln(5); // Espaço entre tipos de categoria
+}
 
 // ----------------------------------------------------------------------------
 // PÁGINA 3 - TOTAL A RECEBER
@@ -508,21 +594,39 @@ $pdf->SetFont('helvetica', 'B', 16);
 $pdf->Cell(0, 15, 'TOTAL A RECEBER DE INSCRIÇÕES', 0, 1, 'C');
 $pdf->Ln(10);
 
-// 1º Lote
-$pdf->SetFont('helvetica', 'B', 12);
-$pdf->Cell(0, 8, 'TOTAL A RECEBER 1º LOTE', 0, 1);
-$pdf->SetFont('helvetica', '', 11);
-$pdf->Cell(0, 8, 'R$ ' . number_format($totalArrecadadoLote1, 2, ',', '.'), 0, 1);
+// Calcular totais por tipo de categoria
+$totaisPorTipo = [
+    'normal' => ['quantidade' => 0, 'valor' => 0],
+    'absoluto' => ['quantidade' => 0, 'valor' => 0]
+];
+
+foreach ($tiposCategoria as $tipoCategoria) {
+    foreach ($categoriasIdade as $categoriaIdade) {
+        $chave = $categoriaIdade . '_' . $tipoCategoria;
+        
+        if (!empty($resultados['totais_por_categoria'][$chave])) {
+            $totaisPorTipo[$tipoCategoria]['quantidade'] += $resultados['totais_por_categoria'][$chave]['quantidade'];
+            $totaisPorTipo[$tipoCategoria]['valor'] += $resultados['totais_por_categoria'][$chave]['valor'];
+        }
+    }
+}
+
+// Exibir totais por tipo de categoria
+foreach ($totaisPorTipo as $tipo => $dados) {
+    if ($dados['quantidade'] > 0) {
+        $pdf->SetFont('helvetica', 'B', 12);
+        $tituloTipo = ($tipo == 'absoluto' ? 'CATEGORIA ABSOLUTO' : 'CATEGORIA NORMAL');
+        $pdf->Cell(0, 8, $tituloTipo . ':', 0, 1);
+        
+        $pdf->SetFont('helvetica', '', 11);
+        $pdf->Cell(0, 8, 'Total de atletas: ' . $dados['quantidade'], 0, 1);
+        $pdf->Cell(0, 8, 'Valor total: R$ ' . number_format($dados['valor'], 2, ',', '.'), 0, 1);
+        
+        $pdf->Ln(5);
+    }
+}
 
 $pdf->Ln(5);
-
-// 2º Lote
-$pdf->SetFont('helvetica', 'B', 12);
-$pdf->Cell(0, 8, 'TOTAL A RECEBER 2º LOTE', 0, 1);
-$pdf->SetFont('helvetica', '', 11);
-$pdf->Cell(0, 8, 'R$ ' . number_format($totalArrecadadoLote2, 2, ',', '.'), 0, 1);
-
-$pdf->Ln(10);
 
 // Total Bruto
 $pdf->SetFont('helvetica', 'B', 14);
@@ -540,6 +644,11 @@ $pdf->SetFont('helvetica', '', 9);
 $pdf->Cell(0, 6, 'Total de Inscrições Pagas: ' . $resultados['pagantes']['total'], 0, 1);
 $pdf->Cell(0, 6, 'Total de Isentos: ' . $resultados['isentos']['total'], 0, 1);
 $pdf->Cell(0, 6, 'Pagamentos Pendentes: ' . $resultados['estatisticas_gerais']['pagantes_pendentes'], 0, 1);
+
+// Informação sobre lotes detectados
+$pdf->Ln(5);
+$pdf->SetFont('helvetica', 'I', 8);
+$pdf->MultiCell(0, 5, 'Nota: Lotes detectados automaticamente baseados nos valores pagos. Cada lote representa um valor único pago por atletas na mesma categoria.', 0, 'L');
 
 $pdf->Ln(10);
 
